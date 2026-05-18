@@ -1,0 +1,307 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { RotateCcw, Moon, Sun, Sparkles } from 'lucide-react';
+import confetti from 'canvas-confetti';
+
+type Player = 'X' | 'O';
+type SquareValue = Player | null;
+
+const WINNING_COMBINATIONS = [
+  [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+  [0, 3, 6], [1, 4, 7], [2, 5, 8], // Cols
+  [0, 4, 8], [2, 4, 6]             // Diagonals
+];
+
+export default function App() {
+  const [board, setBoard] = useState<SquareValue[]>(Array(9).fill(null));
+  const [isXNext, setIsXNext] = useState(true);
+  const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(null);
+  const [isDraw, setIsDraw] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return document.documentElement.classList.contains('dark') || 
+             window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
+  
+  const boardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+
+  // Celebration logic
+  const fireConfetti = (winner: Player) => {
+    const color = winner === 'X' ? '#ba1a1a' : '#0b57d0'; // Red for X, Blue for O
+    const duration = 3 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0, colors: [color] };
+
+    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+    const interval: any = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+    }, 250);
+  };
+
+  // Check for winner or draw
+  useEffect(() => {
+    for (const combination of WINNING_COMBINATIONS) {
+      const [a, b, c] = combination;
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        const winner = board[a] as Player;
+        setWinnerInfo({ winner, line: combination });
+        fireConfetti(winner);
+        return;
+      }
+    }
+
+    if (!board.includes(null)) {
+      setIsDraw(true);
+    }
+  }, [board]);
+
+  const handleClick = (index: number) => {
+    if (board[index] || winnerInfo) return;
+
+    const newBoard = [...board];
+    newBoard[index] = isXNext ? 'X' : 'O';
+    setBoard(newBoard);
+    setIsXNext(!isXNext);
+  };
+
+  const resetGame = () => {
+    setBoard(Array(9).fill(null));
+    setIsXNext(true);
+    setWinnerInfo(null);
+    setIsDraw(false);
+  };
+
+  // Calculate line coordinates for SVG overlay relative to the board container
+  const [linePoints, setLinePoints] = useState<{ start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
+
+  useEffect(() => {
+    const updatePoints = () => {
+      if (winnerInfo && boardRef.current) {
+        const boardRect = boardRef.current.getBoundingClientRect();
+        const getCellCenter = (idx: number) => {
+          const cell = boardRef.current?.querySelector(`#cell-${idx}`);
+          if (!cell) return { x: 50, y: 50 };
+          const rect = cell.getBoundingClientRect();
+          return {
+            x: ((rect.left + rect.width / 2) - boardRect.left) / boardRect.width * 100,
+            y: ((rect.top + rect.height / 2) - boardRect.top) / boardRect.height * 100
+          };
+        };
+
+        const [start, , end] = winnerInfo.line;
+        setLinePoints({ start: getCellCenter(start), end: getCellCenter(end) });
+      } else {
+        setLinePoints(null);
+      }
+    };
+
+    updatePoints();
+    window.addEventListener('resize', updatePoints);
+    return () => window.removeEventListener('resize', updatePoints);
+  }, [winnerInfo]);
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-4 bg-surface selection:bg-primary/20 transition-colors duration-300">
+      {/* Top Navigation Bar */}
+      <nav className="fixed top-0 left-0 right-0 h-20 px-6 flex items-center justify-between z-50 pointer-events-none">
+        <div className="pointer-events-auto">
+          <button
+            onClick={resetGame}
+            className="p-3 px-5 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-md border border-outline/20 backdrop-blur-md flex items-center gap-2 font-bold text-sm"
+          >
+            <RotateCcw className="w-5 h-5" />
+            <span className="hidden sm:inline">New Match</span>
+          </button>
+        </div>
+
+        <div className="pointer-events-auto">
+          <button
+            onClick={toggleDarkMode}
+            className="p-3 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-md border border-outline/20 backdrop-blur-md"
+            aria-label="Toggle Theme"
+          >
+            {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Header */}
+      <header className="mb-4 text-center space-y-6 pt-16">
+        <motion.h1 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-5xl sm:text-6xl font-bold tracking-tight text-on-surface font-display drop-shadow-sm"
+        >
+          Tic-Tac-Toe
+        </motion.h1>
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className={`
+            px-8 py-3 rounded-full text-xl font-semibold inline-flex items-center gap-3 shadow-sm transition-all duration-500
+            ${winnerInfo ? 'bg-success-container text-on-success-container ring-2 ring-mark-o scale-110' : 'bg-container text-on-container'}
+          `}
+        >
+          {winnerInfo ? (
+            <>
+              <Sparkles className="w-6 h-6" />
+              <span>Hat Trick! {winnerInfo.winner} Wins</span>
+            </>
+          ) : isDraw ? (
+            "It's a Stalemate!"
+          ) : (
+            <>
+              Player{' '}
+              <motion.span 
+                key={isXNext ? 'X' : 'O'}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: 1
+                }}
+                transition={{ 
+                  scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                  opacity: { duration: 0.2 }
+                }}
+                className={`inline-block font-black text-2xl px-1 ${isXNext ? 'text-mark-x' : 'text-mark-o'}`}
+              >
+                {isXNext ? 'X' : 'O'}
+              </motion.span>
+              's turn
+            </>
+          )}
+        </motion.div>
+      </header>
+
+      {/* Main Game Container */}
+      <div className="relative group">
+        {/* The Card */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative bg-surface-variant p-6 rounded-[40px] shadow-2xl border border-outline/30 backdrop-blur-md"
+        >
+          {/* The Grid */}
+          <div 
+            ref={boardRef} 
+            className="grid grid-cols-3 gap-3 sm:gap-4 relative z-10 w-[280px] sm:w-[340px] aspect-square"
+          >
+            {board.map((value, i) => {
+              const isWinningCell = winnerInfo?.line.includes(i);
+              return (
+                <button
+                  key={i}
+                  id={`cell-${i}`}
+                  onClick={() => handleClick(i)}
+                  className={`
+                    w-full h-full bg-cell-bg rounded-[24px] flex items-center justify-center
+                    transition-all duration-300 relative overflow-hidden border-2 border-transparent
+                    ${!value && !winnerInfo ? 'hover:bg-on-surface-variant/10 cursor-pointer active:scale-90' : 'cursor-default'}
+                    ${isWinningCell ? 'bg-success-container/60 shadow-inner border-mark-o/30' : 'shadow-sm'}
+                  `}
+                  disabled={!!value || !!winnerInfo}
+                >
+                  <AnimatePresence mode="wait">
+                    {value === 'X' && (
+                      <motion.div
+                        initial={{ scale: 0, rotate: -180, opacity: 0 }}
+                        animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        className="w-12 h-12 flex items-center justify-center"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4/5 h-4/5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path 
+                            d="M18 6L6 18M6 6L18 18" 
+                            stroke="currentColor" 
+                            strokeWidth="4" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            className="text-mark-x"
+                          />
+                        </svg>
+                      </motion.div>
+                    )}
+                    {value === 'O' && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        className="w-12 h-12 flex items-center justify-center"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4/5 h-4/5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle 
+                            cx="12" cy="12" r="9" 
+                            stroke="currentColor" 
+                            strokeWidth="4" 
+                            className="text-mark-o"
+                          />
+                        </svg>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </button>
+              );
+            })}
+
+            {/* Winning Line SVG Overlay - Inside the Grid for perfect alignment */}
+            {linePoints && (
+              <svg 
+                className="absolute inset-0 pointer-events-none z-20 w-full h-full"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+              >
+                <motion.line
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  x1={`${linePoints.start.x}%`}
+                  y1={`${linePoints.start.y}%`}
+                  x2={`${linePoints.end.x}%`}
+                  y2={`${linePoints.end.y}%`}
+                  stroke="var(--win-stroke)" 
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                />
+              </svg>
+            )}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Decorative background effects */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square bg-primary/20 rounded-full blur-[150px] animate-pulse" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square bg-mark-o/20 rounded-full blur-[150px] animate-pulse [animation-delay:2s]" />
+      </div>
+    </div>
+  );
+}
+
