@@ -69,7 +69,7 @@ const findBestMove = (squares: SquareValue[]) => {
     return firstMoves[Math.floor(Math.random() * firstMoves.length)];
   }
 
-  // 30% randomness to give the player a chance to win
+  // 30% randomness for balanced gameplay
   if (Math.random() < 0.3) {
     return availableMoves[Math.floor(Math.random() * availableMoves.length)];
   }
@@ -110,7 +110,6 @@ export default function App() {
   });
   
   const boardRef = useRef<HTMLDivElement>(null);
-  const pressTimer = useRef<NodeJS.Timeout | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const confettiIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const myConfettiRef = useRef<confetti.CreateTypes | null>(null);
@@ -125,7 +124,7 @@ export default function App() {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  // 6 seconds precise fireworks animation
+  // 6 seconds precise fireworks animation based on winner color
   const fireConfetti = (winner: Player) => {
     if (!canvasRef.current) return;
     
@@ -137,7 +136,7 @@ export default function App() {
       useWorker: true
     });
 
-    // Specific colors based on winner
+    // Red for X, Blue for O
     const colors = winner === 'X' 
       ? ['#ba1a1a', '#ff0000', '#ff4d4d', '#990000'] 
       : ['#0b57d0', '#0000ff', '#4d4dff', '#000099']; 
@@ -214,6 +213,7 @@ export default function App() {
     setIsXNext(!isXNext);
   };
 
+  // Reset logic clears the board, confetti, and lines
   const resetGame = () => {
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
     if (myConfettiRef.current) myConfettiRef.current.reset();
@@ -225,23 +225,16 @@ export default function App() {
     setLinePoints(null); 
   };
 
-  const handlePointerDown = () => {
+  // Handle Double Tap to switch starting player
+  const handleTurnIndicatorDoubleClick = () => {
     const isBoardEmpty = board.every((cell) => cell === null);
     if (isBoardEmpty && !winnerInfo) {
-      pressTimer.current = setTimeout(() => {
-        setIsXNext((prev) => !prev);
-        if (navigator.vibrate) navigator.vibrate(50);
-      }, 600); 
+      setIsXNext((prev) => !prev);
+      if (navigator.vibrate) navigator.vibrate(50);
     }
   };
 
-  const handlePointerUp = () => {
-    if (pressTimer.current) {
-      clearTimeout(pressTimer.current);
-      pressTimer.current = null;
-    }
-  };
-
+  // Calculate coordinates for the winning line
   useEffect(() => {
     const updatePoints = () => {
       if (winnerInfo && boardRef.current) {
@@ -269,9 +262,9 @@ export default function App() {
   }, [winnerInfo]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-4 bg-surface selection:bg-primary/20 transition-colors duration-300 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-6 bg-surface selection:bg-primary/20 transition-colors duration-300 relative overflow-hidden font-sans">
       
-      {/* Full screen canvas that doesn't block touch events */}
+      {/* Non-blocking full screen canvas for confetti */}
       <canvas 
         ref={canvasRef} 
         className="fixed inset-0 w-full h-full pointer-events-none z-[100]" 
@@ -281,17 +274,17 @@ export default function App() {
         <div className="pointer-events-auto">
           <button
             onClick={resetGame}
-            className="p-3 px-5 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-md border border-outline/20 flex items-center gap-2 font-bold text-sm"
+            className="p-4 px-6 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-sm border border-outline/10 flex items-center gap-2 font-bold text-sm tracking-wide"
           >
             <RotateCcw className="w-5 h-5" />
-            <span className="hidden sm:inline">New Match</span>
+            <span className="hidden sm:inline">Restart</span>
           </button>
         </div>
 
         <div className="pointer-events-auto">
           <button
             onClick={toggleDarkMode}
-            className="p-3 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-md border border-outline/20"
+            className="p-4 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-sm border border-outline/10"
             aria-label="Toggle Theme"
           >
             {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
@@ -299,46 +292,55 @@ export default function App() {
         </div>
       </nav>
 
-      <header className="mb-4 text-center space-y-5 pt-16 z-10 relative">
+      <header className="mb-2 text-center space-y-6 pt-16 z-10 relative w-full max-w-md">
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-5xl sm:text-6xl font-bold tracking-tight text-on-surface font-display drop-shadow-sm"
+          className="text-5xl sm:text-6xl font-black tracking-tighter text-on-surface drop-shadow-sm"
         >
           Tic-Tac-Toe
         </motion.h1>
 
-        <div className="flex gap-4 justify-center">
+        {/* Game Mode Toggles - Now using M3 Purple / Tertiary colors instead of Red/Blue */}
+        <div className="flex gap-3 justify-center">
           <button
             onClick={() => { setIsSinglePlayer(true); resetGame(); }}
-            className={`px-5 py-2 rounded-full text-sm font-bold transition-all border border-outline/20 ${isSinglePlayer ? 'bg-mark-o text-white shadow-md scale-105' : 'bg-surface-variant text-on-surface-variant hover:bg-outline/10'}`}
+            className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
+              isSinglePlayer 
+                ? 'bg-[#6750A4] text-white shadow-md scale-105' 
+                : 'bg-surface-variant text-on-surface-variant hover:bg-outline/10'
+            }`}
           >
-            🤖 1 Player (AI)
+            🤖 1 Player
           </button>
           <button
             onClick={() => { setIsSinglePlayer(false); resetGame(); }}
-            className={`px-5 py-2 rounded-full text-sm font-bold transition-all border border-outline/20 ${!isSinglePlayer ? 'bg-mark-x text-white shadow-md scale-105' : 'bg-surface-variant text-on-surface-variant hover:bg-outline/10'}`}
+            className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
+              !isSinglePlayer 
+                ? 'bg-[#6750A4] text-white shadow-md scale-105' 
+                : 'bg-surface-variant text-on-surface-variant hover:bg-outline/10'
+            }`}
           >
             👥 2 Players
           </button>
         </div>
 
         <motion.div 
-          onPointerDown={handlePointerDown}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
+          onDoubleClick={handleTurnIndicatorDoubleClick}
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className={`
-            px-8 py-3 rounded-full text-xl font-semibold inline-flex flex-col items-center gap-1 shadow-sm transition-all duration-300 select-none
-            ${winnerInfo ? 'bg-success-container text-on-success-container border-2 border-mark-o scale-105' : 'bg-container text-on-container border border-outline/10'}
-            ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer active:scale-95' : ''}
+            mx-auto w-fit px-8 py-4 rounded-[2rem] text-lg font-bold flex flex-col items-center gap-1 shadow-sm transition-all duration-300 select-none
+            ${winnerInfo 
+              ? 'bg-success-container text-on-success-container border-2 border-transparent scale-105' 
+              : 'bg-container text-on-container border border-outline/10'}
+            ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer active:scale-95 hover:bg-surface-variant/80' : ''}
           `}
         >
           <div className="flex items-center gap-3">
             {winnerInfo ? (
               <>
-                <Sparkles className="w-6 h-6" />
+                <Sparkles className="w-6 h-6 text-green-600 dark:text-green-400" />
                 <span>Winner: Player {winnerInfo.winner}!</span>
               </>
             ) : isDraw ? (
@@ -358,17 +360,19 @@ export default function App() {
             )}
           </div>
           
+          {/* Double Tap Instruction */}
           {board.every(cell => cell === null) && !winnerInfo && (
-            <span className="text-xs opacity-60 font-normal">Hold to switch first player</span>
+            <span className="text-[11px] opacity-70 font-medium tracking-wide uppercase mt-1">Double tap to switch first player</span>
           )}
         </motion.div>
       </header>
 
+      {/* Material 3 Expressive Board */}
       <div className="relative group z-10">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative bg-surface-variant p-5 sm:p-6 rounded-[32px] shadow-lg border border-outline/20"
+          className="relative bg-surface-variant/50 p-5 sm:p-6 rounded-[40px] shadow-lg border border-outline/20 backdrop-blur-md"
         >
           <div 
             ref={boardRef} 
@@ -377,8 +381,9 @@ export default function App() {
             {board.map((value, i) => {
               const isWinningCell = winnerInfo?.line.includes(i);
               
+              // Soft expressive highlights for winning cells
               const cellBg = isWinningCell 
-                ? (winnerInfo.winner === 'X' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-blue-100 dark:bg-blue-900/30')
+                ? 'bg-green-100/50 dark:bg-green-900/30'
                 : 'bg-surface';
 
               return (
@@ -387,11 +392,11 @@ export default function App() {
                   id={`cell-${i}`}
                   onClick={() => handleClick(i)}
                   className={`
-                    w-full h-full rounded-[20px] flex items-center justify-center
-                    transition-all duration-200 relative overflow-hidden
+                    w-full h-full rounded-[24px] flex items-center justify-center
+                    transition-all duration-300 relative overflow-hidden
                     shadow-sm border border-outline/10
                     ${cellBg}
-                    ${!value && !winnerInfo && (!isSinglePlayer || isXNext) ? 'hover:bg-surface-variant/60 cursor-pointer active:scale-95' : 'cursor-default'}
+                    ${!value && !winnerInfo && (!isSinglePlayer || isXNext) ? 'hover:bg-surface-variant/80 hover:shadow-md cursor-pointer active:scale-95' : 'cursor-default'}
                   `}
                   disabled={!!value || !!winnerInfo || (isSinglePlayer && !isXNext)}
                 >
@@ -411,7 +416,7 @@ export default function App() {
                             strokeWidth="4" 
                             strokeLinecap="round" 
                             strokeLinejoin="round" 
-                            className="text-mark-x"
+                            className="text-mark-x drop-shadow-sm"
                           />
                         </svg>
                       </motion.div>
@@ -429,7 +434,7 @@ export default function App() {
                             cx="12" cy="12" r="9" 
                             stroke="currentColor" 
                             strokeWidth="4" 
-                            className="text-mark-o"
+                            className="text-mark-o drop-shadow-sm"
                           />
                         </svg>
                       </motion.div>
@@ -439,6 +444,7 @@ export default function App() {
               );
             })}
 
+            {/* Winning Line - Now Colored Green */}
             {linePoints && winnerInfo && (
               <svg 
                 className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md"
@@ -452,7 +458,7 @@ export default function App() {
                   y1={`${linePoints.start.y}%`}
                   x2={`${linePoints.end.x}%`}
                   y2={`${linePoints.end.y}%`}
-                  stroke={winnerInfo.winner === 'X' ? '#ba1a1a' : '#0b57d0'} 
+                  stroke="#388E3C" // Material Green
                   strokeWidth="6"
                   strokeLinecap="round"
                   transition={{ duration: 0.5, ease: "easeOut" }}
