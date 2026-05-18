@@ -367,8 +367,7 @@ export default function App() {
           animate={{ opacity: 1, y: 0 }}
           className="text-5xl sm:text-6xl font-black tracking-tighter text-on-surface drop-shadow-sm"
         >
-          {/* আপনার দেওয়া সুনির্দিষ্ট পরিমাপে (-translate-y-[0.095em]) হাইফেনগুলোকে একদম মাঝ বরাবর সেট করা হয়েছে */}
-          Tic<span className="inline-block -translate-y-[0.095em]">-</span>Tac<span className="inline-block -translate-y-[0.095em]">-</span>Toe
+          Tic-Tac-Toe
         </motion.h1>
 
         <div className="flex gap-3 justify-center">
