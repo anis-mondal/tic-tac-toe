@@ -64,7 +64,6 @@ const findBestMove = (squares: SquareValue[]) => {
     if (!squares[i]) availableMoves.push(i);
   }
 
-  // AI-কে জেতার সুযোগ দেওয়া: যদি বোর্ড পুরো ফাঁকা থাকে, যেকোনো একটি কোণা বা মাঝে চাল দেবে
   if (availableMoves.length === 9) {
     const firstMoves = [0, 2, 4, 6, 8];
     return firstMoves[Math.floor(Math.random() * firstMoves.length)];
@@ -111,8 +110,8 @@ export default function App() {
   
   const boardRef = useRef<HTMLDivElement>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
-  // নতুন: ক্যানভাসের জন্য রেফারেন্স (যাতে টাচ ব্লক না হয়)
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const confettiIntervalRef = useRef<NodeJS.Timeout | null>(null); // কনফেটি ঠিক সময়ে থামানোর জন্য
 
   useEffect(() => {
     if (isDarkMode) {
@@ -124,36 +123,48 @@ export default function App() {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  // উন্নত কনফেটি অ্যানিমেশন (স্ক্রিন ফ্রিজ সমস্যার সমাধানসহ)
+  // কালার স্পেসিফিক এবং নির্দিষ্ট সময়ের আতশবাজি (Fireworks) অ্যানিমেশন
   const fireConfetti = (winner: Player) => {
     if (!canvasRef.current) return;
     
-    // আমাদের নিজস্ব ক্যানভাস ব্যবহার করছি, যা পয়েন্টার ইভেন্ট ব্লক করবে না
+    // আগের কোনো অ্যানিমেশন চললে তা বন্ধ করা
+    if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
+
     const myConfetti = confetti.create(canvasRef.current, {
       resize: true,
       useWorker: false
     });
 
-    const primaryColor = winner === 'X' ? '#ba1a1a' : '#0b57d0';
-    const secondaryColor = winner === 'X' ? '#ff897d' : '#8ab4f8';
-    const gold = '#ffd700';
+    // প্লেয়ার অনুযায়ী রং নির্ধারণ
+    const colors = winner === 'X' 
+      ? ['#ba1a1a', '#ff4d4d', '#ffd700'] // X এর জন্য লাল ও সোনালি
+      : ['#0b57d0', '#4d4dff', '#e0e0e0']; // O এর জন্য নীল ও রুপালি
 
-    const duration = 3.5 * 1000;
+    const duration = 3000; // ঠিক ৩ সেকেন্ড চলবে
     const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 35, spread: 360, ticks: 80, zIndex: 0, colors: [primaryColor, secondaryColor, gold] };
 
     const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
-    const interval: any = setInterval(function() {
+    confettiIntervalRef.current = setInterval(function() {
       const timeLeft = animationEnd - Date.now();
 
       if (timeLeft <= 0) {
-        return clearInterval(interval);
+        if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
+        return;
       }
 
-      const particleCount = 50 * (timeLeft / duration);
-      myConfetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-      myConfetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+      const particleCount = 40 * (timeLeft / duration);
+      
+      // আতশবাজির মতো ছড়িয়ে পড়া
+      myConfetti({
+        particleCount,
+        startVelocity: 30,
+        spread: 360,
+        ticks: 60,
+        zIndex: 0,
+        colors: colors,
+        origin: { x: randomInRange(0.1, 0.9), y: Math.random() - 0.2 }
+      });
     }, 250);
   };
 
@@ -173,7 +184,6 @@ export default function App() {
     }
   }, [board, winnerInfo]);
 
-  // AI Turn Logic
   useEffect(() => {
     if (isSinglePlayer && !isXNext && !winnerInfo && !isDraw) {
       const aiTimer = setTimeout(() => {
@@ -201,13 +211,19 @@ export default function App() {
   };
 
   const resetGame = () => {
+    // গেম রিসেট করলে কনফেটি সাথে সাথে বন্ধ হয়ে যাবে
+    if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    }
+
     setBoard(Array(9).fill(null));
     setIsXNext(true);
     setWinnerInfo(null);
     setIsDraw(false);
   };
 
-  // Long press logic for switching turns
   const handlePointerDown = () => {
     const isBoardEmpty = board.every((cell) => cell === null);
     if (isBoardEmpty && !winnerInfo) {
@@ -256,9 +272,6 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-4 bg-surface selection:bg-primary/20 transition-colors duration-300 relative overflow-hidden">
       
-      {/* এই ক্যানভাসটি পুরো স্ক্রিন জুড়ে থাকবে কিন্তু pointer-events-none থাকার কারণে
-        কোনো টাচ বা ক্লিক ব্লক করবে না। 
-      */}
       <canvas 
         ref={canvasRef} 
         className="fixed inset-0 w-full h-full pointer-events-none z-[9999]" 
@@ -367,7 +380,7 @@ export default function App() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative bg-surface-variant p-6 rounded-[40px] shadow-2xl border border-outline/30 backdrop-blur-md"
+          className="relative bg-surface-variant/80 p-6 rounded-[40px] shadow-2xl border border-outline/30 backdrop-blur-xl"
         >
           <div 
             ref={boardRef} 
@@ -375,16 +388,27 @@ export default function App() {
           >
             {board.map((value, i) => {
               const isWinningCell = winnerInfo?.line.includes(i);
+              
+              // ডায়নামিক স্টাইলিং - জেতার রং অনুযায়ী গ্লো ইফেক্ট
+              let winningStyle = '';
+              if (isWinningCell) {
+                winningStyle = winnerInfo.winner === 'X' 
+                  ? 'bg-red-500/20 border-red-500/50 shadow-[0_0_20px_rgba(220,38,38,0.3)]' 
+                  : 'bg-blue-500/20 border-blue-500/50 shadow-[0_0_20px_rgba(37,99,235,0.3)]';
+              }
+
               return (
                 <button
                   key={i}
                   id={`cell-${i}`}
                   onClick={() => handleClick(i)}
                   className={`
-                    w-full h-full bg-cell-bg rounded-[24px] flex items-center justify-center
-                    transition-all duration-300 relative overflow-hidden border-2 border-transparent
-                    ${!value && !winnerInfo && (!isSinglePlayer || isXNext) ? 'hover:bg-on-surface-variant/10 cursor-pointer active:scale-90' : 'cursor-default'}
-                    ${isWinningCell ? 'bg-success-container/60 shadow-inner border-mark-o/30' : 'shadow-sm'}
+                    w-full h-full rounded-[24px] flex items-center justify-center
+                    transition-all duration-300 relative overflow-hidden border-2 
+                    bg-gradient-to-br from-white/10 to-transparent dark:from-white/5 dark:to-transparent
+                    backdrop-blur-sm shadow-inner
+                    ${!value && !winnerInfo && (!isSinglePlayer || isXNext) ? 'hover:brightness-110 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] cursor-pointer active:scale-95 border-transparent' : 'cursor-default border-transparent'}
+                    ${isWinningCell ? winningStyle : 'border-outline/10'}
                   `}
                   disabled={!!value || !!winnerInfo || (isSinglePlayer && !isXNext)}
                 >
@@ -395,7 +419,7 @@ export default function App() {
                         animate={{ scale: 1, rotate: 0, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                         exit={{ scale: 0, opacity: 0 }}
-                        className="w-full h-full flex items-center justify-center"
+                        className="w-full h-full flex items-center justify-center drop-shadow-md"
                       >
                         <svg viewBox="0 0 24 24" className="w-4/5 h-4/5" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path 
@@ -415,7 +439,7 @@ export default function App() {
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                         exit={{ scale: 0, opacity: 0 }}
-                        className="w-full h-full flex items-center justify-center"
+                        className="w-full h-full flex items-center justify-center drop-shadow-md"
                       >
                         <svg viewBox="0 0 24 24" className="w-4/5 h-4/5" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <circle 
@@ -434,7 +458,7 @@ export default function App() {
 
             {linePoints && (
               <svg 
-                className="absolute inset-0 pointer-events-none z-20 w-full h-full"
+                className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-lg"
                 viewBox="0 0 100 100"
                 preserveAspectRatio="none"
               >
@@ -445,7 +469,7 @@ export default function App() {
                   y1={`${linePoints.start.y}%`}
                   x2={`${linePoints.end.x}%`}
                   y2={`${linePoints.end.y}%`}
-                  stroke="var(--win-stroke)" 
+                  stroke={winnerInfo?.winner === 'X' ? '#ba1a1a' : '#0b57d0'} 
                   strokeWidth="4"
                   strokeLinecap="round"
                   transition={{ duration: 0.6, ease: "easeOut" }}
