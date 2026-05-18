@@ -22,7 +22,6 @@ const evaluateBoard = (squares: SquareValue[]) => {
   for (const combination of WINNING_COMBINATIONS) {
     const [a, b, c] = combination;
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      // AI is 'O' (Maximizing), Player is 'X' (Minimizing)
       return squares[a] === 'O' ? 10 : -10;
     }
   }
@@ -32,11 +31,8 @@ const evaluateBoard = (squares: SquareValue[]) => {
 const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean): number => {
   const score = evaluateBoard(squares);
 
-  // If AI wins
   if (score === 10) return score - depth;
-  // If Player wins
   if (score === -10) return score + depth;
-  // If it's a draw
   if (!squares.includes(null)) return 0;
 
   if (isMaximizing) {
@@ -63,6 +59,25 @@ const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean): 
 };
 
 const findBestMove = (squares: SquareValue[]) => {
+  const availableMoves: number[] = [];
+  for (let i = 0; i < 9; i++) {
+    if (!squares[i]) availableMoves.push(i);
+  }
+
+  // AI-কে জেতার সুযোগ দেওয়া: যদি বোর্ড পুরো ফাঁকা থাকে, যেকোনো একটি কোণা বা মাঝে চাল দেবে
+  if (availableMoves.length === 9) {
+    const firstMoves = [0, 2, 4, 6, 8];
+    return firstMoves[Math.floor(Math.random() * firstMoves.length)];
+  }
+
+  // --- ব্যবহারকারীকে জেতার সুযোগ দেওয়ার লজিক ---
+  // ৩০% (0.3) সম্ভাবনা আছে যে AI একটি সাধারণ/এলোমেলো চাল দেবে, নিখুঁত চাল নয়।
+  // আপনি চাইলে 0.3 এর জায়গায় 0.5 (৫০%) বা 0.2 (২০%) দিয়ে লেভেল কঠিন বা সহজ করতে পারেন।
+  if (Math.random() < 0.3) {
+    return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+  }
+  // ----------------------------------------------
+
   let bestVal = -Infinity;
   let bestMove = -1;
 
@@ -87,7 +102,7 @@ export default function App() {
   const [isXNext, setIsXNext] = useState(true);
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(null);
   const [isDraw, setIsDraw] = useState(false);
-  const [isSinglePlayer, setIsSinglePlayer] = useState(true); // Default to AI mode
+  const [isSinglePlayer, setIsSinglePlayer] = useState(true);
   
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -98,6 +113,7 @@ export default function App() {
   });
   
   const boardRef = useRef<HTMLDivElement>(null);
+  const pressTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -109,12 +125,12 @@ export default function App() {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  // Celebration logic
+  // Confetti Logic
   const fireConfetti = (winner: Player) => {
     const color = winner === 'X' ? '#ba1a1a' : '#0b57d0';
     const duration = 3 * 1000;
     const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0, colors: [color] };
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000, colors: [color] };
 
     const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
@@ -131,7 +147,6 @@ export default function App() {
     }, 250);
   };
 
-  // Check for winner or draw
   useEffect(() => {
     for (const combination of WINNING_COMBINATIONS) {
       const [a, b, c] = combination;
@@ -150,7 +165,6 @@ export default function App() {
 
   // AI Turn Logic
   useEffect(() => {
-    // If it's Single Player, and it's O's turn, and game is not over
     if (isSinglePlayer && !isXNext && !winnerInfo && !isDraw) {
       const aiTimer = setTimeout(() => {
         const bestMove = findBestMove([...board]);
@@ -160,7 +174,7 @@ export default function App() {
           setBoard(newBoard);
           setIsXNext(true);
         }
-      }, 500); // 500ms delay to make it feel natural
+      }, 500); 
       
       return () => clearTimeout(aiTimer);
     }
@@ -168,8 +182,6 @@ export default function App() {
 
   const handleClick = (index: number) => {
     if (board[index] || winnerInfo) return;
-    
-    // Prevent player from clicking while AI is "thinking"
     if (isSinglePlayer && !isXNext) return; 
 
     const newBoard = [...board];
@@ -185,7 +197,24 @@ export default function App() {
     setIsDraw(false);
   };
 
-  // Calculate line coordinates for SVG overlay
+  // Long press logic for switching turns
+  const handlePointerDown = () => {
+    const isBoardEmpty = board.every((cell) => cell === null);
+    if (isBoardEmpty && !winnerInfo) {
+      pressTimer.current = setTimeout(() => {
+        setIsXNext((prev) => !prev);
+        if (navigator.vibrate) navigator.vibrate(50);
+      }, 600); 
+    }
+  };
+
+  const handlePointerUp = () => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
+  };
+
   const [linePoints, setLinePoints] = useState<{ start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
 
   useEffect(() => {
@@ -216,7 +245,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-4 bg-surface selection:bg-primary/20 transition-colors duration-300">
-      {/* Top Navigation Bar */}
       <nav className="fixed top-0 left-0 right-0 h-20 px-6 flex items-center justify-between z-50 pointer-events-none">
         <div className="pointer-events-auto">
           <button
@@ -239,7 +267,6 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Header */}
       <header className="mb-4 text-center space-y-5 pt-16">
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}
@@ -249,7 +276,6 @@ export default function App() {
           Tic-Tac-Toe
         </motion.h1>
 
-        {/* Mode Selectors */}
         <div className="flex gap-4 justify-center">
           <button
             onClick={() => { setIsSinglePlayer(true); resetGame(); }}
@@ -266,56 +292,64 @@ export default function App() {
         </div>
 
         <motion.div 
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className={`
-            px-8 py-3 rounded-full text-xl font-semibold inline-flex items-center gap-3 shadow-sm transition-all duration-500
+            px-8 py-3 rounded-full text-xl font-semibold inline-flex flex-col items-center gap-1 shadow-sm transition-all duration-500 select-none
             ${winnerInfo ? 'bg-success-container text-on-success-container ring-2 ring-mark-o scale-110' : 'bg-container text-on-container'}
+            ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer active:scale-95' : ''}
           `}
         >
-          {winnerInfo ? (
-            <>
-              <Sparkles className="w-6 h-6" />
-              <span>Hat Trick! {winnerInfo.winner} Wins</span>
-            </>
-          ) : isDraw ? (
-            "It's a Stalemate!"
-          ) : (
-            <>
-              {isSinglePlayer && !isXNext ? 'AI is thinking...' : (
-                <>
-                  Player{' '}
-                  <motion.span 
-                    key={isXNext ? 'X' : 'O'}
-                    initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ 
-                      scale: [1, 1.2, 1],
-                      opacity: 1
-                    }}
-                    transition={{ 
-                      scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-                      opacity: { duration: 0.2 }
-                    }}
-                    className={`inline-block font-black text-2xl px-1 ${isXNext ? 'text-mark-x' : 'text-mark-o'}`}
-                  >
-                    {isXNext ? 'X' : 'O'}
-                  </motion.span>
-                  's turn
-                </>
-              )}
-            </>
+          <div className="flex items-center gap-3">
+            {winnerInfo ? (
+              <>
+                <Sparkles className="w-6 h-6" />
+                <span>Hat Trick! {winnerInfo.winner} Wins</span>
+              </>
+            ) : isDraw ? (
+              "It's a Stalemate!"
+            ) : (
+              <>
+                {isSinglePlayer && !isXNext ? 'AI is thinking...' : (
+                  <>
+                    Player{' '}
+                    <motion.span 
+                      key={isXNext ? 'X' : 'O'}
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                        opacity: 1
+                      }}
+                      transition={{ 
+                        scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                        opacity: { duration: 0.2 }
+                      }}
+                      className={`inline-block font-black text-2xl px-1 ${isXNext ? 'text-mark-x' : 'text-mark-o'}`}
+                    >
+                      {isXNext ? 'X' : 'O'}
+                    </motion.span>
+                    's turn
+                  </>
+                )}
+              </>
+            )}
+          </div>
+          
+          {board.every(cell => cell === null) && !winnerInfo && (
+            <span className="text-xs opacity-60 font-normal">Hold to switch first player</span>
           )}
         </motion.div>
       </header>
 
-      {/* Main Game Container */}
       <div className="relative group">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="relative bg-surface-variant p-6 rounded-[40px] shadow-2xl border border-outline/30 backdrop-blur-md"
         >
-          {/* The Grid */}
           <div 
             ref={boardRef} 
             className="grid grid-cols-3 grid-rows-3 gap-3 sm:gap-4 relative z-10 w-[280px] sm:w-[340px] aspect-square"
@@ -379,7 +413,6 @@ export default function App() {
               );
             })}
 
-            {/* Winning Line SVG Overlay */}
             {linePoints && (
               <svg 
                 className="absolute inset-0 pointer-events-none z-20 w-full h-full"
