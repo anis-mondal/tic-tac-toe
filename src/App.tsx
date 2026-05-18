@@ -17,7 +17,18 @@ const WINNING_COMBINATIONS = [
   [0, 4, 8], [2, 4, 6]             // Diagonals
 ];
 
-// --- Minimax AI Logic Start (Now Dynamic based on aiPlayer) ---
+// --- Haptic Feedback Helper ---
+const hapticFeedback = (pattern: number | number[]) => {
+  if (typeof window !== 'undefined' && navigator.vibrate) {
+    try {
+      navigator.vibrate(pattern);
+    } catch (e) {
+      // Ignore if device does not support vibration
+    }
+  }
+};
+
+// --- Minimax AI Logic Start (Dynamic based on aiPlayer) ---
 const evaluateBoard = (squares: SquareValue[], aiPlayer: Player) => {
   for (const combination of WINNING_COMBINATIONS) {
     const [a, b, c] = combination;
@@ -97,7 +108,6 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
 export default function App() {
   const [board, setBoard] = useState<SquareValue[]>(Array(9).fill(null));
   
-  // New States to properly track who starts and whose turn it currently is
   const [startingPlayer, setStartingPlayer] = useState<Player>('X');
   const [isXNext, setIsXNext] = useState(true);
   
@@ -131,7 +141,10 @@ export default function App() {
     }
   }, [isDarkMode]);
 
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+  const toggleDarkMode = () => {
+    hapticFeedback(40); // Haptic for button click
+    setIsDarkMode(!isDarkMode);
+  };
 
   const fireConfetti = (winner: Player) => {
     if (!canvasRef.current) return;
@@ -181,6 +194,10 @@ export default function App() {
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
         const winner = board[a] as Player;
         setWinnerInfo({ winner, line: combination });
+        
+        // Haptic feedback for winning (Celebration pattern)
+        hapticFeedback([100, 50, 100, 50, 300]); 
+        
         fireConfetti(winner);
         hasWinner = true;
         break;
@@ -188,21 +205,21 @@ export default function App() {
     }
 
     if (!hasWinner && !board.includes(null)) {
+      // Haptic feedback for a draw
+      hapticFeedback([200, 100, 200]);
       setIsDraw(true);
     }
   }, [board]);
 
-  // Determine which symbol the AI plays as
   const aiPlayerSymbol = isSinglePlayer 
     ? (aiMovesFirst ? startingPlayer : (startingPlayer === 'X' ? 'O' : 'X')) 
     : null;
 
-  // Determine if it is currently the AI's turn
   const isAITurn = isSinglePlayer && 
                    aiPlayerSymbol && 
                    ((isXNext && aiPlayerSymbol === 'X') || (!isXNext && aiPlayerSymbol === 'O'));
 
-  // Updated AI Turn Handling
+  // AI Turn Handling
   useEffect(() => {
     if (isAITurn && !winnerInfo && !isDraw) {
       const aiTimer = setTimeout(() => {
@@ -210,8 +227,11 @@ export default function App() {
         if (bestMove !== -1) {
           const newBoard = [...board];
           newBoard[bestMove] = aiPlayerSymbol;
+          
+          hapticFeedback(50); // Haptic feedback when AI places a move
+          
           setBoard(newBoard);
-          setIsXNext(aiPlayerSymbol === 'O'); // If AI played O, next is X (true). If AI played X, next is O (false)
+          setIsXNext(aiPlayerSymbol === 'O');
         }
       }, 500); 
       
@@ -221,7 +241,9 @@ export default function App() {
 
   const handleClick = (index: number) => {
     if (board[index] || winnerInfo) return;
-    if (isAITurn) return; // Prevent human click during AI's turn
+    if (isAITurn) return; 
+
+    hapticFeedback(50); // Haptic feedback when user places X or O
 
     const newBoard = [...board];
     newBoard[index] = isXNext ? 'X' : 'O';
@@ -230,6 +252,7 @@ export default function App() {
   };
 
   const resetGameForMode = (currentStartingPlayer: Player) => {
+    hapticFeedback(40); // Haptic for reset
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
     if (myConfettiRef.current) myConfettiRef.current.reset();
 
@@ -240,7 +263,6 @@ export default function App() {
     setLinePoints(null); 
   };
 
-  // Fixed Turn Hold Logic - Properly toggles and remembers the starting player
   const handleTurnHoldStart = () => {
     const isBoardEmpty = board.every((cell) => cell === null);
     if (isBoardEmpty && !winnerInfo) {
@@ -250,7 +272,7 @@ export default function App() {
           setIsXNext(nextPlayer === 'X');
           return nextPlayer;
         });
-        if (navigator.vibrate) navigator.vibrate(50);
+        hapticFeedback([80, 40, 80]); // Haptic feedback when turn successfully switches
       }, 600);
     }
   };
@@ -266,11 +288,11 @@ export default function App() {
     modeHoldTimer.current = setTimeout(() => {
       setAiMovesFirst(prev => {
         const nextVal = !prev;
-        if (navigator.vibrate) navigator.vibrate(50);
+        hapticFeedback([80, 40, 80]); // Haptic feedback when mode successfully switches
         setIsSinglePlayer(true);
         return nextVal;
       });
-      resetGameForMode(startingPlayer); // Reset with current starting player
+      resetGameForMode(startingPlayer); 
     }, 600);
   };
 
@@ -351,6 +373,7 @@ export default function App() {
         <div className="flex gap-3 justify-center">
           <button
             onClick={() => { 
+              hapticFeedback(40);
               setIsSinglePlayer(true); 
               resetGameForMode(startingPlayer); 
             }}
@@ -368,6 +391,7 @@ export default function App() {
           
           <button
             onClick={() => { 
+              hapticFeedback(40);
               setIsSinglePlayer(false); 
               resetGameForMode(startingPlayer); 
             }}
