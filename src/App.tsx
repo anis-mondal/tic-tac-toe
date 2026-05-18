@@ -99,6 +99,7 @@ export default function App() {
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(null);
   const [isDraw, setIsDraw] = useState(false);
   const [isSinglePlayer, setIsSinglePlayer] = useState(true);
+  const [aiMovesFirst, setAiMovesFirst] = useState(false); // New state for AI starting turn
   const [linePoints, setLinePoints] = useState<{ start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
   
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -111,8 +112,12 @@ export default function App() {
   
   const boardRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  // Timers and Instances
   const confettiIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const myConfettiRef = useRef<confetti.CreateTypes | null>(null);
+  const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
+  const modeHoldTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -136,14 +141,12 @@ export default function App() {
       useWorker: true
     });
 
-    // Red for X, Blue for O
     const colors = winner === 'X' 
       ? ['#ba1a1a', '#ff0000', '#ff4d4d', '#990000'] 
       : ['#0b57d0', '#0000ff', '#4d4dff', '#000099']; 
 
     const duration = 6000;
     const animationEnd = Date.now() + duration;
-    
     const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
     confettiIntervalRef.current = setInterval(function() {
@@ -193,7 +196,7 @@ export default function App() {
         const bestMove = findBestMove([...board]);
         if (bestMove !== -1) {
           const newBoard = [...board];
-          newBoard[bestMove] = 'O';
+          newBoard[bestMove] = 'O'; // AI always plays as 'O'
           setBoard(newBoard);
           setIsXNext(true);
         }
@@ -214,23 +217,53 @@ export default function App() {
   };
 
   // Reset logic clears the board, confetti, and lines
-  const resetGame = () => {
+  const resetGameForMode = (singlePlayer: boolean, aiFirst: boolean) => {
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
     if (myConfettiRef.current) myConfettiRef.current.reset();
 
     setBoard(Array(9).fill(null));
-    setIsXNext(true);
+    // If it's single player and AI is set to move first, 'O' starts (isXNext = false)
+    setIsXNext(singlePlayer && aiFirst ? false : true);
     setWinnerInfo(null);
     setIsDraw(false);
     setLinePoints(null); 
   };
 
-  // Handle Double Tap to switch starting player
-  const handleTurnIndicatorDoubleClick = () => {
+  // Press and hold logic for the Turn Indicator
+  const handleTurnHoldStart = () => {
     const isBoardEmpty = board.every((cell) => cell === null);
     if (isBoardEmpty && !winnerInfo) {
-      setIsXNext((prev) => !prev);
-      if (navigator.vibrate) navigator.vibrate(50);
+      turnHoldTimer.current = setTimeout(() => {
+        setIsXNext((prev) => !prev);
+        if (navigator.vibrate) navigator.vibrate(50);
+      }, 600);
+    }
+  };
+
+  const handleTurnHoldEnd = () => {
+    if (turnHoldTimer.current) {
+      clearTimeout(turnHoldTimer.current);
+      turnHoldTimer.current = null;
+    }
+  };
+
+  // Press and hold logic for the 1 Player button to toggle AI moving first
+  const handleModeHoldStart = () => {
+    modeHoldTimer.current = setTimeout(() => {
+      setAiMovesFirst(prev => {
+        const nextVal = !prev;
+        if (navigator.vibrate) navigator.vibrate(50);
+        setIsSinglePlayer(true);
+        resetGameForMode(true, nextVal);
+        return nextVal;
+      });
+    }, 600);
+  };
+
+  const handleModeHoldEnd = () => {
+    if (modeHoldTimer.current) {
+      clearTimeout(modeHoldTimer.current);
+      modeHoldTimer.current = null;
     }
   };
 
@@ -261,6 +294,9 @@ export default function App() {
     return () => window.removeEventListener('resize', updatePoints);
   }, [winnerInfo]);
 
+  // Perfectly circular matching style for Nav buttons
+  const navBtnClass = "w-14 h-14 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-sm border border-outline/10 flex items-center justify-center";
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-6 bg-surface selection:bg-primary/20 transition-colors duration-300 relative overflow-hidden font-sans">
       
@@ -272,19 +308,21 @@ export default function App() {
 
       <nav className="fixed top-0 left-0 right-0 h-20 px-6 flex items-center justify-between z-50 pointer-events-none">
         <div className="pointer-events-auto">
+          {/* Perfectly round Reset Button */}
           <button
-            onClick={resetGame}
-            className="p-4 px-6 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-sm border border-outline/10 flex items-center gap-2 font-bold text-sm tracking-wide"
+            onClick={() => resetGameForMode(isSinglePlayer, aiMovesFirst)}
+            className={navBtnClass}
+            aria-label="Restart Game"
           >
-            <RotateCcw className="w-5 h-5" />
-            <span className="hidden sm:inline">Restart</span>
+            <RotateCcw className="w-6 h-6" />
           </button>
         </div>
 
         <div className="pointer-events-auto">
+          {/* Theme Button */}
           <button
             onClick={toggleDarkMode}
-            className="p-4 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-sm border border-outline/10"
+            className={navBtnClass}
             aria-label="Toggle Theme"
           >
             {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
@@ -301,20 +339,30 @@ export default function App() {
           Tic-Tac-Toe
         </motion.h1>
 
-        {/* Game Mode Toggles - Now using M3 Purple / Tertiary colors instead of Red/Blue */}
+        {/* Game Mode Toggles */}
         <div className="flex gap-3 justify-center">
           <button
-            onClick={() => { setIsSinglePlayer(true); resetGame(); }}
-            className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
+            onClick={() => { 
+              setIsSinglePlayer(true); 
+              resetGameForMode(true, aiMovesFirst); 
+            }}
+            onPointerDown={handleModeHoldStart}
+            onPointerUp={handleModeHoldEnd}
+            onPointerLeave={handleModeHoldEnd}
+            className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 select-none ${
               isSinglePlayer 
                 ? 'bg-[#6750A4] text-white shadow-md scale-105' 
                 : 'bg-surface-variant text-on-surface-variant hover:bg-outline/10'
             }`}
           >
-            🤖 1 Player
+            {isSinglePlayer && aiMovesFirst ? '🤖 1 Player (AI First)' : '🤖 1 Player'}
           </button>
+          
           <button
-            onClick={() => { setIsSinglePlayer(false); resetGame(); }}
+            onClick={() => { 
+              setIsSinglePlayer(false); 
+              resetGameForMode(false, false); 
+            }}
             className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
               !isSinglePlayer 
                 ? 'bg-[#6750A4] text-white shadow-md scale-105' 
@@ -326,7 +374,9 @@ export default function App() {
         </div>
 
         <motion.div 
-          onDoubleClick={handleTurnIndicatorDoubleClick}
+          onPointerDown={handleTurnHoldStart}
+          onPointerUp={handleTurnHoldEnd}
+          onPointerLeave={handleTurnHoldEnd}
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className={`
@@ -360,9 +410,9 @@ export default function App() {
             )}
           </div>
           
-          {/* Double Tap Instruction */}
+          {/* Hold Instruction */}
           {board.every(cell => cell === null) && !winnerInfo && (
-            <span className="text-[11px] opacity-70 font-medium tracking-wide uppercase mt-1">Double tap to switch first player</span>
+            <span className="text-[11px] opacity-70 font-medium tracking-wide uppercase mt-1">Hold to switch first player</span>
           )}
         </motion.div>
       </header>
@@ -381,7 +431,6 @@ export default function App() {
             {board.map((value, i) => {
               const isWinningCell = winnerInfo?.line.includes(i);
               
-              // Soft expressive highlights for winning cells
               const cellBg = isWinningCell 
                 ? 'bg-green-100/50 dark:bg-green-900/30'
                 : 'bg-surface';
@@ -444,7 +493,7 @@ export default function App() {
               );
             })}
 
-            {/* Winning Line - Now Colored Green */}
+            {/* Winning Line */}
             {linePoints && winnerInfo && (
               <svg 
                 className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md"
@@ -458,7 +507,7 @@ export default function App() {
                   y1={`${linePoints.start.y}%`}
                   x2={`${linePoints.end.x}%`}
                   y2={`${linePoints.end.y}%`}
-                  stroke="#388E3C" // Material Green
+                  stroke="#388E3C" 
                   strokeWidth="6"
                   strokeLinecap="round"
                   transition={{ duration: 0.5, ease: "easeOut" }}
