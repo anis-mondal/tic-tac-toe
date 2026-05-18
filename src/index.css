@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  
+  /* Reference CSS Variables */
+  --color-surface: var(--surface);
+  --color-on-surface: var(--on-surface);
+  --color-surface-variant: var(--surface-variant);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-outline: var(--outline);
+  --color-container: var(--container);
+  --color-on-container: var(--on-container);
+  --color-success-container: var(--success-container);
+  --color-on-success-container: var(--on-success-container);
+  --color-mark-x: var(--mark-x);
+  --color-mark-o: var(--mark-o);
+  --color-cell-bg: var(--cell-bg);
+  --color-win-stroke: var(--win-stroke);
+}
+
+@layer base {
+  :root {
+    --surface: #fef7ff;
+    --on-surface: #1d1b20;
+    --surface-variant: #f3edf7;
+    --on-surface-variant: #49454f;
+    --primary: #6750a4;
+    --on-primary: #ffffff;
+    --outline: #cac4d0;
+    --container: #eaddff;
+    --on-container: #21005d;
+    --success-container: #d7e8cd;
+    --on-success-container: #002200;
+    --mark-x: #ba1a1a;
+    --mark-o: #0b57d0;
+    --cell-bg: #ffffff;
+    --win-stroke: #2e6c00;
+  }
+
+  .dark {
+    --surface: #141218;
+    --on-surface: #e6e1e5;
+    --surface-variant: #2b2930;
+    --on-surface-variant: #cac4d0;
+    --primary: #d0bcff;
+    --on-primary: #381e72;
+    --outline: #938f99;
+    --container: #4f378b;
+    --on-container: #eaddff;
+    --success-container: #1b3d00;
+    --on-success-container: #d7e8cd;
+    --mark-x: #ffb4ab;
+    --mark-o: #a8c7fa;
+    --cell-bg: #1d1b20;
+    --win-stroke: #b0f28a;
+  }
+
+  body {
+    @apply bg-surface text-on-surface font-sans antialiased transition-colors duration-300;
+  }
+}
