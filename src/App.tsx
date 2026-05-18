@@ -17,30 +17,32 @@ const WINNING_COMBINATIONS = [
   [0, 4, 8], [2, 4, 6]             // Diagonals
 ];
 
-// --- Minimax AI Logic Start ---
-const evaluateBoard = (squares: SquareValue[]) => {
+// --- Minimax AI Logic Start (Now Dynamic based on aiPlayer) ---
+const evaluateBoard = (squares: SquareValue[], aiPlayer: Player) => {
   for (const combination of WINNING_COMBINATIONS) {
     const [a, b, c] = combination;
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a] === 'O' ? 10 : -10;
+      return squares[a] === aiPlayer ? 10 : -10;
     }
   }
   return 0;
 };
 
-const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean): number => {
-  const score = evaluateBoard(squares);
+const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean, aiPlayer: Player): number => {
+  const score = evaluateBoard(squares, aiPlayer);
 
   if (score === 10) return score - depth;
   if (score === -10) return score + depth;
   if (!squares.includes(null)) return 0;
 
+  const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
+
   if (isMaximizing) {
     let best = -Infinity;
     for (let i = 0; i < 9; i++) {
       if (!squares[i]) {
-        squares[i] = 'O';
-        best = Math.max(best, minimax(squares, depth + 1, false));
+        squares[i] = aiPlayer;
+        best = Math.max(best, minimax(squares, depth + 1, false, aiPlayer));
         squares[i] = null;
       }
     }
@@ -49,8 +51,8 @@ const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean): 
     let best = Infinity;
     for (let i = 0; i < 9; i++) {
       if (!squares[i]) {
-        squares[i] = 'X';
-        best = Math.min(best, minimax(squares, depth + 1, true));
+        squares[i] = humanPlayer;
+        best = Math.min(best, minimax(squares, depth + 1, true, aiPlayer));
         squares[i] = null;
       }
     }
@@ -58,7 +60,7 @@ const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean): 
   }
 };
 
-const findBestMove = (squares: SquareValue[]) => {
+const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
   const availableMoves: number[] = [];
   for (let i = 0; i < 9; i++) {
     if (!squares[i]) availableMoves.push(i);
@@ -69,7 +71,6 @@ const findBestMove = (squares: SquareValue[]) => {
     return firstMoves[Math.floor(Math.random() * firstMoves.length)];
   }
 
-  // 30% randomness for balanced gameplay
   if (Math.random() < 0.3) {
     return availableMoves[Math.floor(Math.random() * availableMoves.length)];
   }
@@ -79,8 +80,8 @@ const findBestMove = (squares: SquareValue[]) => {
 
   for (let i = 0; i < 9; i++) {
     if (!squares[i]) {
-      squares[i] = 'O';
-      let moveVal = minimax(squares, 0, false);
+      squares[i] = aiPlayer;
+      let moveVal = minimax(squares, 0, false, aiPlayer);
       squares[i] = null;
 
       if (moveVal > bestVal) {
@@ -95,11 +96,15 @@ const findBestMove = (squares: SquareValue[]) => {
 
 export default function App() {
   const [board, setBoard] = useState<SquareValue[]>(Array(9).fill(null));
+  
+  // New States to properly track who starts and whose turn it currently is
+  const [startingPlayer, setStartingPlayer] = useState<Player>('X');
   const [isXNext, setIsXNext] = useState(true);
+  
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(null);
   const [isDraw, setIsDraw] = useState(false);
   const [isSinglePlayer, setIsSinglePlayer] = useState(true);
-  const [aiMovesFirst, setAiMovesFirst] = useState(false); // New state for AI starting turn
+  const [aiMovesFirst, setAiMovesFirst] = useState(false); 
   const [linePoints, setLinePoints] = useState<{ start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
   
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -113,7 +118,6 @@ export default function App() {
   const boardRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  // Timers and Instances
   const confettiIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const myConfettiRef = useRef<confetti.CreateTypes | null>(null);
   const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
@@ -129,7 +133,6 @@ export default function App() {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  // 6 seconds precise fireworks animation based on winner color
   const fireConfetti = (winner: Player) => {
     if (!canvasRef.current) return;
     
@@ -189,26 +192,36 @@ export default function App() {
     }
   }, [board]);
 
-  // AI Turn Handling
+  // Determine which symbol the AI plays as
+  const aiPlayerSymbol = isSinglePlayer 
+    ? (aiMovesFirst ? startingPlayer : (startingPlayer === 'X' ? 'O' : 'X')) 
+    : null;
+
+  // Determine if it is currently the AI's turn
+  const isAITurn = isSinglePlayer && 
+                   aiPlayerSymbol && 
+                   ((isXNext && aiPlayerSymbol === 'X') || (!isXNext && aiPlayerSymbol === 'O'));
+
+  // Updated AI Turn Handling
   useEffect(() => {
-    if (isSinglePlayer && !isXNext && !winnerInfo && !isDraw) {
+    if (isAITurn && !winnerInfo && !isDraw) {
       const aiTimer = setTimeout(() => {
-        const bestMove = findBestMove([...board]);
+        const bestMove = findBestMove([...board], aiPlayerSymbol);
         if (bestMove !== -1) {
           const newBoard = [...board];
-          newBoard[bestMove] = 'O'; // AI always plays as 'O'
+          newBoard[bestMove] = aiPlayerSymbol;
           setBoard(newBoard);
-          setIsXNext(true);
+          setIsXNext(aiPlayerSymbol === 'O'); // If AI played O, next is X (true). If AI played X, next is O (false)
         }
       }, 500); 
       
       return () => clearTimeout(aiTimer);
     }
-  }, [isXNext, isSinglePlayer, board, winnerInfo, isDraw]);
+  }, [isXNext, isSinglePlayer, board, winnerInfo, isDraw, aiPlayerSymbol, isAITurn]);
 
   const handleClick = (index: number) => {
     if (board[index] || winnerInfo) return;
-    if (isSinglePlayer && !isXNext) return; 
+    if (isAITurn) return; // Prevent human click during AI's turn
 
     const newBoard = [...board];
     newBoard[index] = isXNext ? 'X' : 'O';
@@ -216,25 +229,27 @@ export default function App() {
     setIsXNext(!isXNext);
   };
 
-  // Reset logic clears the board, confetti, and lines
-  const resetGameForMode = (singlePlayer: boolean, aiFirst: boolean) => {
+  const resetGameForMode = (currentStartingPlayer: Player) => {
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
     if (myConfettiRef.current) myConfettiRef.current.reset();
 
     setBoard(Array(9).fill(null));
-    // If it's single player and AI is set to move first, 'O' starts (isXNext = false)
-    setIsXNext(singlePlayer && aiFirst ? false : true);
+    setIsXNext(currentStartingPlayer === 'X');
     setWinnerInfo(null);
     setIsDraw(false);
     setLinePoints(null); 
   };
 
-  // Press and hold logic for the Turn Indicator
+  // Fixed Turn Hold Logic - Properly toggles and remembers the starting player
   const handleTurnHoldStart = () => {
     const isBoardEmpty = board.every((cell) => cell === null);
     if (isBoardEmpty && !winnerInfo) {
       turnHoldTimer.current = setTimeout(() => {
-        setIsXNext((prev) => !prev);
+        setStartingPlayer((prev) => {
+          const nextPlayer = prev === 'X' ? 'O' : 'X';
+          setIsXNext(nextPlayer === 'X');
+          return nextPlayer;
+        });
         if (navigator.vibrate) navigator.vibrate(50);
       }, 600);
     }
@@ -247,16 +262,15 @@ export default function App() {
     }
   };
 
-  // Press and hold logic for the 1 Player button to toggle AI moving first
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
       setAiMovesFirst(prev => {
         const nextVal = !prev;
         if (navigator.vibrate) navigator.vibrate(50);
         setIsSinglePlayer(true);
-        resetGameForMode(true, nextVal);
         return nextVal;
       });
+      resetGameForMode(startingPlayer); // Reset with current starting player
     }, 600);
   };
 
@@ -267,7 +281,6 @@ export default function App() {
     }
   };
 
-  // Calculate coordinates for the winning line
   useEffect(() => {
     const updatePoints = () => {
       if (winnerInfo && boardRef.current) {
@@ -294,13 +307,11 @@ export default function App() {
     return () => window.removeEventListener('resize', updatePoints);
   }, [winnerInfo]);
 
-  // Perfectly circular matching style for Nav buttons
   const navBtnClass = "w-14 h-14 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-sm border border-outline/10 flex items-center justify-center";
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-6 bg-surface selection:bg-primary/20 transition-colors duration-300 relative overflow-hidden font-sans">
       
-      {/* Non-blocking full screen canvas for confetti */}
       <canvas 
         ref={canvasRef} 
         className="fixed inset-0 w-full h-full pointer-events-none z-[100]" 
@@ -308,9 +319,8 @@ export default function App() {
 
       <nav className="fixed top-0 left-0 right-0 h-20 px-6 flex items-center justify-between z-50 pointer-events-none">
         <div className="pointer-events-auto">
-          {/* Perfectly round Reset Button */}
           <button
-            onClick={() => resetGameForMode(isSinglePlayer, aiMovesFirst)}
+            onClick={() => resetGameForMode(startingPlayer)}
             className={navBtnClass}
             aria-label="Restart Game"
           >
@@ -319,7 +329,6 @@ export default function App() {
         </div>
 
         <div className="pointer-events-auto">
-          {/* Theme Button */}
           <button
             onClick={toggleDarkMode}
             className={navBtnClass}
@@ -339,12 +348,11 @@ export default function App() {
           Tic-Tac-Toe
         </motion.h1>
 
-        {/* Game Mode Toggles */}
         <div className="flex gap-3 justify-center">
           <button
             onClick={() => { 
               setIsSinglePlayer(true); 
-              resetGameForMode(true, aiMovesFirst); 
+              resetGameForMode(startingPlayer); 
             }}
             onPointerDown={handleModeHoldStart}
             onPointerUp={handleModeHoldEnd}
@@ -361,7 +369,7 @@ export default function App() {
           <button
             onClick={() => { 
               setIsSinglePlayer(false); 
-              resetGameForMode(false, false); 
+              resetGameForMode(startingPlayer); 
             }}
             className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
               !isSinglePlayer 
@@ -397,7 +405,7 @@ export default function App() {
               "It's a Stalemate!"
             ) : (
               <>
-                {isSinglePlayer && !isXNext ? 'AI is thinking...' : (
+                {isAITurn ? 'AI is thinking...' : (
                   <>
                     Player{' '}
                     <span className={`inline-block font-black text-2xl px-1 ${isXNext ? 'text-mark-x' : 'text-mark-o'}`}>
@@ -410,14 +418,12 @@ export default function App() {
             )}
           </div>
           
-          {/* Hold Instruction */}
           {board.every(cell => cell === null) && !winnerInfo && (
             <span className="text-[11px] opacity-70 font-medium tracking-wide uppercase mt-1">Hold to switch first player</span>
           )}
         </motion.div>
       </header>
 
-      {/* Material 3 Expressive Board */}
       <div className="relative group z-10">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
@@ -445,9 +451,9 @@ export default function App() {
                     transition-all duration-300 relative overflow-hidden
                     shadow-sm border border-outline/10
                     ${cellBg}
-                    ${!value && !winnerInfo && (!isSinglePlayer || isXNext) ? 'hover:bg-surface-variant/80 hover:shadow-md cursor-pointer active:scale-95' : 'cursor-default'}
+                    ${!value && !winnerInfo && !isAITurn ? 'hover:bg-surface-variant/80 hover:shadow-md cursor-pointer active:scale-95' : 'cursor-default'}
                   `}
-                  disabled={!!value || !!winnerInfo || (isSinglePlayer && !isXNext)}
+                  disabled={!!value || !!winnerInfo || isAITurn}
                 >
                   <AnimatePresence mode="wait">
                     {value === 'X' && (
@@ -493,7 +499,6 @@ export default function App() {
               );
             })}
 
-            {/* Winning Line */}
             {linePoints && winnerInfo && (
               <svg 
                 className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md"
