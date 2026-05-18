@@ -69,7 +69,7 @@ const findBestMove = (squares: SquareValue[]) => {
     return firstMoves[Math.floor(Math.random() * firstMoves.length)];
   }
 
-  // ৩০% (0.3) সম্ভাবনা আছে যে AI একটি সাধারণ/এলোমেলো চাল দেবে
+  // 30% randomness to give the player a chance to win
   if (Math.random() < 0.3) {
     return availableMoves[Math.floor(Math.random() * availableMoves.length)];
   }
@@ -99,6 +99,7 @@ export default function App() {
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(null);
   const [isDraw, setIsDraw] = useState(false);
   const [isSinglePlayer, setIsSinglePlayer] = useState(true);
+  const [linePoints, setLinePoints] = useState<{ start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
   
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -111,7 +112,8 @@ export default function App() {
   const boardRef = useRef<HTMLDivElement>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const confettiIntervalRef = useRef<NodeJS.Timeout | null>(null); // কনফেটি ঠিক সময়ে থামানোর জন্য
+  const confettiIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const myConfettiRef = useRef<confetti.CreateTypes | null>(null);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -123,26 +125,26 @@ export default function App() {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  // কালার স্পেসিফিক এবং নির্দিষ্ট সময়ের আতশবাজি (Fireworks) অ্যানিমেশন
+  // 6 seconds precise fireworks animation
   const fireConfetti = (winner: Player) => {
     if (!canvasRef.current) return;
     
-    // আগের কোনো অ্যানিমেশন চললে তা বন্ধ করা
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
+    if (myConfettiRef.current) myConfettiRef.current.reset();
 
-    const myConfetti = confetti.create(canvasRef.current, {
+    myConfettiRef.current = confetti.create(canvasRef.current, {
       resize: true,
-      useWorker: false
+      useWorker: true
     });
 
-    // প্লেয়ার অনুযায়ী রং নির্ধারণ
+    // Specific colors based on winner
     const colors = winner === 'X' 
-      ? ['#ba1a1a', '#ff4d4d', '#ffd700'] // X এর জন্য লাল ও সোনালি
-      : ['#0b57d0', '#4d4dff', '#e0e0e0']; // O এর জন্য নীল ও রুপালি
+      ? ['#ba1a1a', '#ff0000', '#ff4d4d', '#990000'] 
+      : ['#0b57d0', '#0000ff', '#4d4dff', '#000099']; 
 
-    const duration = 3000; // ঠিক ৩ সেকেন্ড চলবে
+    const duration = 6000;
     const animationEnd = Date.now() + duration;
-
+    
     const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
     confettiIntervalRef.current = setInterval(function() {
@@ -153,37 +155,39 @@ export default function App() {
         return;
       }
 
-      const particleCount = 40 * (timeLeft / duration);
+      const particleCount = 60 * (timeLeft / duration);
       
-      // আতশবাজির মতো ছড়িয়ে পড়া
-      myConfetti({
+      myConfettiRef.current?.({
         particleCount,
-        startVelocity: 30,
+        startVelocity: 35,
         spread: 360,
         ticks: 60,
         zIndex: 0,
         colors: colors,
-        origin: { x: randomInRange(0.1, 0.9), y: Math.random() - 0.2 }
+        origin: { x: randomInRange(0.1, 0.9), y: randomInRange(0.1, 0.4) }
       });
     }, 250);
   };
 
   useEffect(() => {
+    let hasWinner = false;
     for (const combination of WINNING_COMBINATIONS) {
       const [a, b, c] = combination;
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
         const winner = board[a] as Player;
         setWinnerInfo({ winner, line: combination });
         fireConfetti(winner);
-        return;
+        hasWinner = true;
+        break;
       }
     }
 
-    if (!board.includes(null) && !winnerInfo) {
+    if (!hasWinner && !board.includes(null)) {
       setIsDraw(true);
     }
-  }, [board, winnerInfo]);
+  }, [board]);
 
+  // AI Turn Handling
   useEffect(() => {
     if (isSinglePlayer && !isXNext && !winnerInfo && !isDraw) {
       const aiTimer = setTimeout(() => {
@@ -211,17 +215,14 @@ export default function App() {
   };
 
   const resetGame = () => {
-    // গেম রিসেট করলে কনফেটি সাথে সাথে বন্ধ হয়ে যাবে
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
-    if (canvasRef.current) {
-      const ctx = canvasRef.current.getContext('2d');
-      if (ctx) ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    }
+    if (myConfettiRef.current) myConfettiRef.current.reset();
 
     setBoard(Array(9).fill(null));
     setIsXNext(true);
     setWinnerInfo(null);
     setIsDraw(false);
+    setLinePoints(null); 
   };
 
   const handlePointerDown = () => {
@@ -240,8 +241,6 @@ export default function App() {
       pressTimer.current = null;
     }
   };
-
-  const [linePoints, setLinePoints] = useState<{ start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
 
   useEffect(() => {
     const updatePoints = () => {
@@ -272,16 +271,17 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-4 bg-surface selection:bg-primary/20 transition-colors duration-300 relative overflow-hidden">
       
+      {/* Full screen canvas that doesn't block touch events */}
       <canvas 
         ref={canvasRef} 
-        className="fixed inset-0 w-full h-full pointer-events-none z-[9999]" 
+        className="fixed inset-0 w-full h-full pointer-events-none z-[100]" 
       />
 
       <nav className="fixed top-0 left-0 right-0 h-20 px-6 flex items-center justify-between z-50 pointer-events-none">
         <div className="pointer-events-auto">
           <button
             onClick={resetGame}
-            className="p-3 px-5 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-md border border-outline/20 backdrop-blur-md flex items-center gap-2 font-bold text-sm"
+            className="p-3 px-5 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-md border border-outline/20 flex items-center gap-2 font-bold text-sm"
           >
             <RotateCcw className="w-5 h-5" />
             <span className="hidden sm:inline">New Match</span>
@@ -291,7 +291,7 @@ export default function App() {
         <div className="pointer-events-auto">
           <button
             onClick={toggleDarkMode}
-            className="p-3 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-md border border-outline/20 backdrop-blur-md"
+            className="p-3 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-md border border-outline/20"
             aria-label="Toggle Theme"
           >
             {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
@@ -311,13 +311,13 @@ export default function App() {
         <div className="flex gap-4 justify-center">
           <button
             onClick={() => { setIsSinglePlayer(true); resetGame(); }}
-            className={`px-5 py-2 rounded-full text-sm font-bold transition-all border border-outline/20 backdrop-blur-md ${isSinglePlayer ? 'bg-mark-o text-white shadow-md scale-105' : 'bg-surface-variant text-on-surface-variant hover:bg-outline/10'}`}
+            className={`px-5 py-2 rounded-full text-sm font-bold transition-all border border-outline/20 ${isSinglePlayer ? 'bg-mark-o text-white shadow-md scale-105' : 'bg-surface-variant text-on-surface-variant hover:bg-outline/10'}`}
           >
             🤖 1 Player (AI)
           </button>
           <button
             onClick={() => { setIsSinglePlayer(false); resetGame(); }}
-            className={`px-5 py-2 rounded-full text-sm font-bold transition-all border border-outline/20 backdrop-blur-md ${!isSinglePlayer ? 'bg-mark-x text-white shadow-md scale-105' : 'bg-surface-variant text-on-surface-variant hover:bg-outline/10'}`}
+            className={`px-5 py-2 rounded-full text-sm font-bold transition-all border border-outline/20 ${!isSinglePlayer ? 'bg-mark-x text-white shadow-md scale-105' : 'bg-surface-variant text-on-surface-variant hover:bg-outline/10'}`}
           >
             👥 2 Players
           </button>
@@ -330,8 +330,8 @@ export default function App() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className={`
-            px-8 py-3 rounded-full text-xl font-semibold inline-flex flex-col items-center gap-1 shadow-sm transition-all duration-500 select-none
-            ${winnerInfo ? 'bg-success-container text-on-success-container ring-2 ring-mark-o scale-110' : 'bg-container text-on-container'}
+            px-8 py-3 rounded-full text-xl font-semibold inline-flex flex-col items-center gap-1 shadow-sm transition-all duration-300 select-none
+            ${winnerInfo ? 'bg-success-container text-on-success-container border-2 border-mark-o scale-105' : 'bg-container text-on-container border border-outline/10'}
             ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer active:scale-95' : ''}
           `}
         >
@@ -339,7 +339,7 @@ export default function App() {
             {winnerInfo ? (
               <>
                 <Sparkles className="w-6 h-6" />
-                <span>Hat Trick! {winnerInfo.winner} Wins</span>
+                <span>Winner: Player {winnerInfo.winner}!</span>
               </>
             ) : isDraw ? (
               "It's a Stalemate!"
@@ -348,21 +348,9 @@ export default function App() {
                 {isSinglePlayer && !isXNext ? 'AI is thinking...' : (
                   <>
                     Player{' '}
-                    <motion.span 
-                      key={isXNext ? 'X' : 'O'}
-                      initial={{ scale: 0.5, opacity: 0 }}
-                      animate={{ 
-                        scale: [1, 1.2, 1],
-                        opacity: 1
-                      }}
-                      transition={{ 
-                        scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-                        opacity: { duration: 0.2 }
-                      }}
-                      className={`inline-block font-black text-2xl px-1 ${isXNext ? 'text-mark-x' : 'text-mark-o'}`}
-                    >
+                    <span className={`inline-block font-black text-2xl px-1 ${isXNext ? 'text-mark-x' : 'text-mark-o'}`}>
                       {isXNext ? 'X' : 'O'}
-                    </motion.span>
+                    </span>
                     's turn
                   </>
                 )}
@@ -380,7 +368,7 @@ export default function App() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative bg-surface-variant/80 p-6 rounded-[40px] shadow-2xl border border-outline/30 backdrop-blur-xl"
+          className="relative bg-surface-variant p-5 sm:p-6 rounded-[32px] shadow-lg border border-outline/20"
         >
           <div 
             ref={boardRef} 
@@ -389,13 +377,9 @@ export default function App() {
             {board.map((value, i) => {
               const isWinningCell = winnerInfo?.line.includes(i);
               
-              // ডায়নামিক স্টাইলিং - জেতার রং অনুযায়ী গ্লো ইফেক্ট
-              let winningStyle = '';
-              if (isWinningCell) {
-                winningStyle = winnerInfo.winner === 'X' 
-                  ? 'bg-red-500/20 border-red-500/50 shadow-[0_0_20px_rgba(220,38,38,0.3)]' 
-                  : 'bg-blue-500/20 border-blue-500/50 shadow-[0_0_20px_rgba(37,99,235,0.3)]';
-              }
+              const cellBg = isWinningCell 
+                ? (winnerInfo.winner === 'X' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-blue-100 dark:bg-blue-900/30')
+                : 'bg-surface';
 
               return (
                 <button
@@ -403,12 +387,11 @@ export default function App() {
                   id={`cell-${i}`}
                   onClick={() => handleClick(i)}
                   className={`
-                    w-full h-full rounded-[24px] flex items-center justify-center
-                    transition-all duration-300 relative overflow-hidden border-2 
-                    bg-gradient-to-br from-white/10 to-transparent dark:from-white/5 dark:to-transparent
-                    backdrop-blur-sm shadow-inner
-                    ${!value && !winnerInfo && (!isSinglePlayer || isXNext) ? 'hover:brightness-110 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] cursor-pointer active:scale-95 border-transparent' : 'cursor-default border-transparent'}
-                    ${isWinningCell ? winningStyle : 'border-outline/10'}
+                    w-full h-full rounded-[20px] flex items-center justify-center
+                    transition-all duration-200 relative overflow-hidden
+                    shadow-sm border border-outline/10
+                    ${cellBg}
+                    ${!value && !winnerInfo && (!isSinglePlayer || isXNext) ? 'hover:bg-surface-variant/60 cursor-pointer active:scale-95' : 'cursor-default'}
                   `}
                   disabled={!!value || !!winnerInfo || (isSinglePlayer && !isXNext)}
                 >
@@ -419,9 +402,9 @@ export default function App() {
                         animate={{ scale: 1, rotate: 0, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                         exit={{ scale: 0, opacity: 0 }}
-                        className="w-full h-full flex items-center justify-center drop-shadow-md"
+                        className="w-full h-full flex items-center justify-center"
                       >
-                        <svg viewBox="0 0 24 24" className="w-4/5 h-4/5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" className="w-3/5 h-3/5" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path 
                             d="M18 6L6 18M6 6L18 18" 
                             stroke="currentColor" 
@@ -439,9 +422,9 @@ export default function App() {
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                         exit={{ scale: 0, opacity: 0 }}
-                        className="w-full h-full flex items-center justify-center drop-shadow-md"
+                        className="w-full h-full flex items-center justify-center"
                       >
-                        <svg viewBox="0 0 24 24" className="w-4/5 h-4/5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" className="w-3/5 h-3/5" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <circle 
                             cx="12" cy="12" r="9" 
                             stroke="currentColor" 
@@ -456,9 +439,9 @@ export default function App() {
               );
             })}
 
-            {linePoints && (
+            {linePoints && winnerInfo && (
               <svg 
-                className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-lg"
+                className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md"
                 viewBox="0 0 100 100"
                 preserveAspectRatio="none"
               >
@@ -469,10 +452,10 @@ export default function App() {
                   y1={`${linePoints.start.y}%`}
                   x2={`${linePoints.end.x}%`}
                   y2={`${linePoints.end.y}%`}
-                  stroke={winnerInfo?.winner === 'X' ? '#ba1a1a' : '#0b57d0'} 
-                  strokeWidth="4"
+                  stroke={winnerInfo.winner === 'X' ? '#ba1a1a' : '#0b57d0'} 
+                  strokeWidth="6"
                   strokeLinecap="round"
-                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
                 />
               </svg>
             )}
@@ -480,10 +463,6 @@ export default function App() {
         </motion.div>
       </div>
 
-      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square bg-primary/20 rounded-full blur-[150px] animate-pulse" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square bg-mark-o/20 rounded-full blur-[150px] animate-pulse [animation-delay:2s]" />
-      </div>
     </div>
   );
 }
