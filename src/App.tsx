@@ -210,7 +210,7 @@ export default function App() {
           {/* The Grid */}
           <div 
             ref={boardRef} 
-            className="grid grid-cols-3 gap-3 sm:gap-4 relative z-10 w-[280px] sm:w-[340px] aspect-square"
+            className="grid grid-cols-3 grid-rows-3 gap-3 sm:gap-4 relative z-10 w-[280px] sm:w-[340px] aspect-square"
           >
             {board.map((value, i) => {
               const isWinningCell = winnerInfo?.line.includes(i);
@@ -234,7 +234,7 @@ export default function App() {
                         animate={{ scale: 1, rotate: 0, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                         exit={{ scale: 0, opacity: 0 }}
-                        className="w-12 h-12 flex items-center justify-center"
+                        className="w-full h-full flex items-center justify-center"
                       >
                         <svg viewBox="0 0 24 24" className="w-4/5 h-4/5" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path 
@@ -254,7 +254,7 @@ export default function App() {
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                         exit={{ scale: 0, opacity: 0 }}
-                        className="w-12 h-12 flex items-center justify-center"
+                        className="w-full h-full flex items-center justify-center"
                       >
                         <svg viewBox="0 0 24 24" className="w-4/5 h-4/5" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <circle 
@@ -304,4 +304,3 @@ export default function App() {
     </div>
   );
 }
-
