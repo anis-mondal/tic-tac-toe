@@ -70,13 +70,10 @@ const findBestMove = (squares: SquareValue[]) => {
     return firstMoves[Math.floor(Math.random() * firstMoves.length)];
   }
 
-  // --- ব্যবহারকারীকে জেতার সুযোগ দেওয়ার লজিক ---
-  // ৩০% (0.3) সম্ভাবনা আছে যে AI একটি সাধারণ/এলোমেলো চাল দেবে, নিখুঁত চাল নয়।
-  // আপনি চাইলে 0.3 এর জায়গায় 0.5 (৫০%) বা 0.2 (২০%) দিয়ে লেভেল কঠিন বা সহজ করতে পারেন।
+  // ৩০% (0.3) সম্ভাবনা আছে যে AI একটি সাধারণ/এলোমেলো চাল দেবে
   if (Math.random() < 0.3) {
     return availableMoves[Math.floor(Math.random() * availableMoves.length)];
   }
-  // ----------------------------------------------
 
   let bestVal = -Infinity;
   let bestMove = -1;
@@ -114,6 +111,8 @@ export default function App() {
   
   const boardRef = useRef<HTMLDivElement>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
+  // নতুন: ক্যানভাসের জন্য রেফারেন্স (যাতে টাচ ব্লক না হয়)
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -125,12 +124,23 @@ export default function App() {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  // Confetti Logic
+  // উন্নত কনফেটি অ্যানিমেশন (স্ক্রিন ফ্রিজ সমস্যার সমাধানসহ)
   const fireConfetti = (winner: Player) => {
-    const color = winner === 'X' ? '#ba1a1a' : '#0b57d0';
-    const duration = 3 * 1000;
+    if (!canvasRef.current) return;
+    
+    // আমাদের নিজস্ব ক্যানভাস ব্যবহার করছি, যা পয়েন্টার ইভেন্ট ব্লক করবে না
+    const myConfetti = confetti.create(canvasRef.current, {
+      resize: true,
+      useWorker: false
+    });
+
+    const primaryColor = winner === 'X' ? '#ba1a1a' : '#0b57d0';
+    const secondaryColor = winner === 'X' ? '#ff897d' : '#8ab4f8';
+    const gold = '#ffd700';
+
+    const duration = 3.5 * 1000;
     const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000, colors: [color] };
+    const defaults = { startVelocity: 35, spread: 360, ticks: 80, zIndex: 0, colors: [primaryColor, secondaryColor, gold] };
 
     const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
@@ -142,8 +152,8 @@ export default function App() {
       }
 
       const particleCount = 50 * (timeLeft / duration);
-      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+      myConfetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+      myConfetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
     }, 250);
   };
 
@@ -244,7 +254,16 @@ export default function App() {
   }, [winnerInfo]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-4 bg-surface selection:bg-primary/20 transition-colors duration-300">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-4 bg-surface selection:bg-primary/20 transition-colors duration-300 relative overflow-hidden">
+      
+      {/* এই ক্যানভাসটি পুরো স্ক্রিন জুড়ে থাকবে কিন্তু pointer-events-none থাকার কারণে
+        কোনো টাচ বা ক্লিক ব্লক করবে না। 
+      */}
+      <canvas 
+        ref={canvasRef} 
+        className="fixed inset-0 w-full h-full pointer-events-none z-[9999]" 
+      />
+
       <nav className="fixed top-0 left-0 right-0 h-20 px-6 flex items-center justify-between z-50 pointer-events-none">
         <div className="pointer-events-auto">
           <button
@@ -267,7 +286,7 @@ export default function App() {
         </div>
       </nav>
 
-      <header className="mb-4 text-center space-y-5 pt-16">
+      <header className="mb-4 text-center space-y-5 pt-16 z-10 relative">
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -344,7 +363,7 @@ export default function App() {
         </motion.div>
       </header>
 
-      <div className="relative group">
+      <div className="relative group z-10">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -437,7 +456,7 @@ export default function App() {
         </motion.div>
       </div>
 
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square bg-primary/20 rounded-full blur-[150px] animate-pulse" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square bg-mark-o/20 rounded-full blur-[150px] animate-pulse [animation-delay:2s]" />
       </div>
