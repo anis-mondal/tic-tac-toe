@@ -60,7 +60,7 @@ const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean, a
     for (let i = 0; i < 9; i++) {
       if (!squares[i]) {
         squares[i] = humanPlayer;
-        best = Math.min(best, minimax(squares, depth + 1, true, aiPlayer));
+        best = Math.min(best, minimax(squares, depth + 1, true, origin));
         squares[i] = null;
       }
     }
@@ -381,6 +381,17 @@ export default function App() {
     }
   }
 
+  const getModeButtonStyle = (isActive: boolean) => {
+    if (!isActive) {
+      return isDarkMode
+        ? { backgroundColor: 'rgba(255, 255, 255, 0.06)', color: '#cac4d0' }
+        : { backgroundColor: 'rgba(0, 0, 0, 0.04)', color: '#49454f' };
+    }
+    return isDarkMode
+      ? { backgroundColor: '#575a89', color: '#ffffff' }
+      : { backgroundColor: '#dbe2f9', color: '#1a1c2e' };
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-6 bg-surface selection:bg-primary/20 transition-colors duration-300 relative overflow-hidden font-sans">
       
@@ -430,10 +441,9 @@ export default function App() {
             onPointerDown={handleModeHoldStart}
             onPointerUp={handleModeHoldEnd}
             onPointerLeave={handleModeHoldEnd}
+            style={getModeButtonStyle(isSinglePlayer)}
             className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 select-none ${
-              isSinglePlayer 
-                ? 'bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 shadow-md scale-105' 
-                : 'bg-surface-variant text-on-surface-variant hover:bg-outline/10'
+              isSinglePlayer ? 'shadow-md scale-105' : 'hover:opacity-80'
             }`}
           >
             {isSinglePlayer && aiMovesFirst ? '🤖 1 Player (AI First)' : '🤖 1 Player'}
@@ -445,10 +455,9 @@ export default function App() {
               setIsSinglePlayer(false); 
               resetGameForMode(startingPlayer); 
             }}
-            className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
-              !isSinglePlayer 
-                ? 'bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 shadow-md scale-105' 
-                : 'bg-surface-variant text-on-surface-variant hover:bg-outline/10'
+            style={getModeButtonStyle(!isSinglePlayer)}
+            className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 select-none ${
+              !isSinglePlayer ? 'shadow-md scale-105' : 'hover:opacity-80'
             }`}
           >
             👥 2 Players
