@@ -367,7 +367,8 @@ export default function App() {
           animate={{ opacity: 1, y: 0 }}
           className="text-5xl sm:text-6xl font-black tracking-tighter text-on-surface drop-shadow-sm"
         >
-          Tic-Tac-Toe
+          {/* হাইফেন সরিয়ে দিয়ে শুধু স্পেস ব্যবহার করা হয়েছে */}
+          Tic Tac Toe
         </motion.h1>
 
         <div className="flex gap-3 justify-center">
