@@ -360,12 +360,11 @@ export default function App() {
 
   const lineAnim = getLineAnimProps(linePoints);
 
-  // উইনার ব্যানারের জন্য নিখুঁত এবং গ্যারান্টিড কালার লজিক
   let bannerStyle: React.CSSProperties = {};
   if (winnerInfo) {
     if (winnerInfo.winner === 'X') {
       bannerStyle = {
-        backgroundColor: isDarkMode ? 'rgba(225, 29, 72, 0.15)' : '#ffe4e6', // Soft Pink
+        backgroundColor: isDarkMode ? 'rgba(225, 29, 72, 0.15)' : '#ffe4e6',
         color: isDarkMode ? '#fb7185' : '#e11d48',
         borderColor: isDarkMode ? 'rgba(251, 113, 133, 0.3)' : '#fda4af',
         borderWidth: '2px',
@@ -373,7 +372,7 @@ export default function App() {
       };
     } else {
       bannerStyle = {
-        backgroundColor: isDarkMode ? 'rgba(2, 132, 199, 0.15)' : '#e0f2fe', // Soft Sky Blue
+        backgroundColor: isDarkMode ? 'rgba(2, 132, 199, 0.15)' : '#e0f2fe',
         color: isDarkMode ? '#38bdf8' : '#0284c7',
         borderColor: isDarkMode ? 'rgba(56, 189, 248, 0.3)' : '#7dd3fc',
         borderWidth: '2px',
@@ -433,7 +432,7 @@ export default function App() {
             onPointerLeave={handleModeHoldEnd}
             className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 select-none ${
               isSinglePlayer 
-                ? 'bg-[#6750A4] text-white shadow-md scale-105' 
+                ? 'bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 shadow-md scale-105' 
                 : 'bg-surface-variant text-on-surface-variant hover:bg-outline/10'
             }`}
           >
@@ -448,7 +447,7 @@ export default function App() {
             }}
             className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ${
               !isSinglePlayer 
-                ? 'bg-[#6750A4] text-white shadow-md scale-105' 
+                ? 'bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 shadow-md scale-105' 
                 : 'bg-surface-variant text-on-surface-variant hover:bg-outline/10'
             }`}
           >
