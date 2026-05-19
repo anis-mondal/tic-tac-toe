@@ -359,7 +359,7 @@ export default function App() {
     return () => window.removeEventListener('resize', updatePoints);
   }, [winnerInfo, lastMoveIndex]);
 
-  const navBtnClass = "w-14 h-14 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-sm border border-outline/10 flex items-center justify-center overflow-hidden";
+  const navBtnClass = "w-14 h-14 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-sm border border-outline/10 flex items-center justify-center overflow-hidden relative";
 
   const getLineAnimProps = (points: { origin: { x: number, y: number }, start: { x: number, y: number }, end: { x: number, y: number } } | null) => {
     if (!points) return { initial: {}, animate: {} };
@@ -430,14 +430,14 @@ export default function App() {
             className={navBtnClass}
             aria-label="Toggle Theme"
           >
-            <AnimatePresence mode="wait" initial={false}>
+            <AnimatePresence initial={false}>
               <motion.div
                 key={isDarkMode ? 'dark' : 'light'}
-                initial={{ scale: 0.5, opacity: 0, rotate: -180 }}
+                initial={{ scale: 0.5, opacity: 0, rotate: -90 }}
                 animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                exit={{ scale: 0.5, opacity: 0, rotate: 180 }}
-                transition={{ duration: 0.25, type: "spring", stiffness: 200, damping: 15 }}
-                className="flex items-center justify-center w-full h-full"
+                exit={{ scale: 0.5, opacity: 0, rotate: 90 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="absolute flex items-center justify-center w-full h-full"
               >
                 {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
               </motion.div>
@@ -578,7 +578,7 @@ export default function App() {
                   className={`
                     w-full h-full rounded-[24px] flex items-center justify-center
                     transition-all duration-300 relative overflow-hidden
-                    shadow-sm border border-outline/10
+                    shadow-sm border border-gray-400/30 dark:border-gray-600/30
                     ${cellBg}
                     ${!value && !winnerInfo && !isAITurn ? 'hover:bg-surface-variant/80 hover:shadow-md cursor-pointer active:scale-95' : 'cursor-default'}
                   `}
