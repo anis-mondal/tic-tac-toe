@@ -142,7 +142,7 @@ export default function App() {
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {
-    hapticFeedback(40); // Haptic for button click
+    hapticFeedback(40);
     setIsDarkMode(!isDarkMode);
   };
 
@@ -195,7 +195,6 @@ export default function App() {
         const winner = board[a] as Player;
         setWinnerInfo({ winner, line: combination });
         
-        // Haptic feedback for winning (Celebration pattern)
         hapticFeedback([100, 50, 100, 50, 300]); 
         
         fireConfetti(winner);
@@ -205,7 +204,6 @@ export default function App() {
     }
 
     if (!hasWinner && !board.includes(null)) {
-      // Haptic feedback for a draw
       hapticFeedback([200, 100, 200]);
       setIsDraw(true);
     }
@@ -219,7 +217,6 @@ export default function App() {
                    aiPlayerSymbol && 
                    ((isXNext && aiPlayerSymbol === 'X') || (!isXNext && aiPlayerSymbol === 'O'));
 
-  // AI Turn Handling
   useEffect(() => {
     if (isAITurn && !winnerInfo && !isDraw) {
       const aiTimer = setTimeout(() => {
@@ -228,7 +225,7 @@ export default function App() {
           const newBoard = [...board];
           newBoard[bestMove] = aiPlayerSymbol;
           
-          hapticFeedback(50); // Haptic feedback when AI places a move
+          hapticFeedback(50); 
           
           setBoard(newBoard);
           setIsXNext(aiPlayerSymbol === 'O');
@@ -243,7 +240,7 @@ export default function App() {
     if (board[index] || winnerInfo) return;
     if (isAITurn) return; 
 
-    hapticFeedback(50); // Haptic feedback when user places X or O
+    hapticFeedback(50); 
 
     const newBoard = [...board];
     newBoard[index] = isXNext ? 'X' : 'O';
@@ -252,7 +249,7 @@ export default function App() {
   };
 
   const resetGameForMode = (currentStartingPlayer: Player) => {
-    hapticFeedback(40); // Haptic for reset
+    hapticFeedback(40); 
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
     if (myConfettiRef.current) myConfettiRef.current.reset();
 
@@ -272,7 +269,7 @@ export default function App() {
           setIsXNext(nextPlayer === 'X');
           return nextPlayer;
         });
-        hapticFeedback([80, 40, 80]); // Haptic feedback when turn successfully switches
+        hapticFeedback([80, 40, 80]); 
       }, 600);
     }
   };
@@ -288,7 +285,7 @@ export default function App() {
     modeHoldTimer.current = setTimeout(() => {
       setAiMovesFirst(prev => {
         const nextVal = !prev;
-        hapticFeedback([80, 40, 80]); // Haptic feedback when mode successfully switches
+        hapticFeedback([80, 40, 80]); 
         setIsSinglePlayer(true);
         return nextVal;
       });
@@ -367,7 +364,6 @@ export default function App() {
           animate={{ opacity: 1, y: 0 }}
           className="text-5xl sm:text-6xl font-black tracking-tighter text-on-surface drop-shadow-sm"
         >
-          {/* হাইফেন সরিয়ে দিয়ে শুধু স্পেস ব্যবহার করা হয়েছে */}
           Tic Tac Toe
         </motion.h1>
 
@@ -530,7 +526,24 @@ export default function App() {
                 viewBox="0 0 100 100"
                 preserveAspectRatio="none"
               >
-                {/* ১. গাঢ় সবুজ রঙের বর্ডার লাইন (এটি নিচে থাকবে এবং একটু চওড়া হবে) */}
+                <defs>
+                  <mask id="hollow-mask">
+                    <rect width="100%" height="100%" fill="white" />
+                    <motion.line
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      x1={`${linePoints.start.x}%`}
+                      y1={`${linePoints.start.y}%`}
+                      x2={`${linePoints.end.x}%`}
+                      y2={`${linePoints.end.y}%`}
+                      stroke="black"
+                      strokeWidth="6.5"
+                      strokeLinecap="round"
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                    />
+                  </mask>
+                </defs>
+
                 <motion.line
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={{ pathLength: 1, opacity: 1 }}
@@ -541,10 +554,10 @@ export default function App() {
                   stroke="#004d00" 
                   strokeWidth="8" 
                   strokeLinecap="round"
+                  mask="url(#hollow-mask)"
                   transition={{ duration: 0.5, ease: "easeOut" }}
                 />
 
-                {/* ২. স্বচ্ছ সবুজ রঙের মূল লাইন (এটি ওপরে থাকবে এবং বর্ডারের থেকে সরু হবে) */}
                 <motion.line
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={{ pathLength: 1, opacity: 1 }}
@@ -552,8 +565,8 @@ export default function App() {
                   y1={`${linePoints.start.y}%`}
                   x2={`${linePoints.end.x}%`}
                   y2={`${linePoints.end.y}%`}
-                  stroke="rgba(56, 142, 60, 0.25)" /* স্বচ্ছতা আরও বাড়ানো হয়েছে যাতে X/O ভালো দেখা যায় */
-                  strokeWidth="6"
+                  stroke="rgba(56, 142, 60, 0.15)"
+                  strokeWidth="7"
                   strokeLinecap="round"
                   transition={{ duration: 0.5, ease: "easeOut" }}
                 />
