@@ -135,6 +135,7 @@ export default function App() {
   const [aiMovesFirst, setAiMovesFirst] = useState(false); 
   const [linePoints, setLinePoints] = useState<{ origin: { x: number; y: number }; start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
   const [lastMoveIndex, setLastMoveIndex] = useState<number | null>(null);
+  const [rotation, setRotation] = useState(0);
   
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -358,7 +359,7 @@ export default function App() {
     return () => window.removeEventListener('resize', updatePoints);
   }, [winnerInfo, lastMoveIndex]);
 
-  const navBtnClass = "w-14 h-14 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-sm border border-outline/10 flex items-center justify-center";
+  const navBtnClass = "w-14 h-14 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-sm border border-outline/10 flex items-center justify-center overflow-hidden";
 
   const getLineAnimProps = (points: { origin: { x: number, y: number }, start: { x: number, y: number }, end: { x: number, y: number } } | null) => {
     if (!points) return { initial: {}, animate: {} };
@@ -425,21 +426,41 @@ export default function App() {
       <nav className="fixed top-0 left-0 right-0 h-20 px-6 flex items-center justify-between z-50 pointer-events-none">
         <div className="pointer-events-auto">
           <button
-            onClick={() => resetGameForMode(startingPlayer)}
+            onClick={toggleDarkMode}
             className={navBtnClass}
-            aria-label="Restart Game"
+            aria-label="Toggle Theme"
           >
-            <RotateCcw className="w-6 h-6" />
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={isDarkMode ? 'dark' : 'light'}
+                initial={{ scale: 0.5, opacity: 0, rotate: -180 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                exit={{ scale: 0.5, opacity: 0, rotate: 180 }}
+                transition={{ duration: 0.25, type: "spring", stiffness: 200, damping: 15 }}
+                className="flex items-center justify-center w-full h-full"
+              >
+                {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+              </motion.div>
+            </AnimatePresence>
           </button>
         </div>
 
         <div className="pointer-events-auto">
           <button
-            onClick={toggleDarkMode}
+            onClick={() => {
+              setRotation(prev => prev - 360);
+              resetGameForMode(startingPlayer);
+            }}
             className={navBtnClass}
-            aria-label="Toggle Theme"
+            aria-label="Restart Game"
           >
-            {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+            <motion.div 
+              animate={{ rotate: rotation }} 
+              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+              className="flex items-center justify-center w-full h-full"
+            >
+              <RotateCcw className="w-6 h-6" />
+            </motion.div>
           </button>
         </div>
       </nav>
