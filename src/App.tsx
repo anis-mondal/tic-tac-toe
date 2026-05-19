@@ -526,22 +526,11 @@ export default function App() {
 
             {linePoints && winnerInfo && (
               <svg 
-                className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md"
+                className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible"
                 viewBox="0 0 100 100"
                 preserveAspectRatio="none"
               >
-                <defs>
-                  <filter id="green-border-filter" x="-20%" y="-20%" width="140%" height="140%">
-                    <feMorphology in="SourceAlpha" operator="dilate" radius="0.8" result="dilated" />
-                    <feFlood floodColor="#004d00" floodOpacity="1" result="flood" />
-                    <feComposite in="flood" in2="dilated" operator="in" result="outline" />
-                    <feComposite in="outline" in2="SourceAlpha" operator="out" result="hollow_outline" />
-                    <feMerge>
-                      <feMergeNode in="hollow_outline" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                </defs>
+                {/* ১. গাঢ় সবুজ রঙের বর্ডার লাইন (এটি নিচে থাকবে এবং একটু চওড়া হবে) */}
                 <motion.line
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={{ pathLength: 1, opacity: 1 }}
@@ -549,10 +538,23 @@ export default function App() {
                   y1={`${linePoints.start.y}%`}
                   x2={`${linePoints.end.x}%`}
                   y2={`${linePoints.end.y}%`}
-                  stroke="rgba(56, 142, 60, 0.4)" 
+                  stroke="#004d00" 
+                  strokeWidth="8" 
+                  strokeLinecap="round"
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                />
+
+                {/* ২. স্বচ্ছ সবুজ রঙের মূল লাইন (এটি ওপরে থাকবে এবং বর্ডারের থেকে সরু হবে) */}
+                <motion.line
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  x1={`${linePoints.start.x}%`}
+                  y1={`${linePoints.start.y}%`}
+                  x2={`${linePoints.end.x}%`}
+                  y2={`${linePoints.end.y}%`}
+                  stroke="rgba(56, 142, 60, 0.25)" /* স্বচ্ছতা আরও বাড়ানো হয়েছে যাতে X/O ভালো দেখা যায় */
                   strokeWidth="6"
                   strokeLinecap="round"
-                  filter="url(#green-border-filter)"
                   transition={{ duration: 0.5, ease: "easeOut" }}
                 />
               </svg>
