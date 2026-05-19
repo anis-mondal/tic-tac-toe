@@ -404,17 +404,6 @@ export default function App() {
     }
   }
 
-  const getModeButtonStyle = (isActive: boolean) => {
-    if (!isActive) {
-      return isDarkMode
-        ? { backgroundColor: 'rgba(255, 255, 255, 0.06)', color: '#cac4d0' }
-        : { backgroundColor: 'rgba(0, 0, 0, 0.04)', color: '#49454f' };
-    }
-    return isDarkMode
-      ? { backgroundColor: '#575a89', color: '#ffffff' }
-      : { backgroundColor: '#dbe2f9', color: '#1a1c2e' };
-  };
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-6 bg-surface selection:bg-primary/20 transition-colors duration-300 relative overflow-hidden font-sans">
       
@@ -474,7 +463,8 @@ export default function App() {
           Tic Tac Toe
         </motion.h1>
 
-        <div className="flex gap-3 justify-center">
+        {/* Sliding Segmented Control for Game Modes */}
+        <div className="flex gap-2 justify-center p-1.5 bg-surface-variant/30 rounded-full relative w-fit mx-auto border border-outline/5 shadow-inner">
           <button
             onClick={() => { 
               hapticFeedback(40);
@@ -484,12 +474,19 @@ export default function App() {
             onPointerDown={handleModeHoldStart}
             onPointerUp={handleModeHoldEnd}
             onPointerLeave={handleModeHoldEnd}
-            style={getModeButtonStyle(isSinglePlayer)}
-            className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 select-none ${
-              isSinglePlayer ? 'shadow-md scale-105' : 'hover:opacity-80'
+            className={`relative px-6 py-2.5 rounded-full text-sm font-bold z-10 transition-colors duration-300 select-none ${
+              isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-[#1a1c2e]') : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
-            {isSinglePlayer && aiMovesFirst ? '🤖 1 Player (AI First)' : '🤖 1 Player'}
+            {isSinglePlayer && (
+               <motion.div 
+                 layoutId="modeSwitch" 
+                 className="absolute inset-0 rounded-full -z-10 shadow-sm" 
+                 style={{ backgroundColor: isDarkMode ? '#575a89' : '#dbe2f9' }} 
+                 transition={{ type: "spring", stiffness: 400, damping: 30 }} 
+               />
+            )}
+            <span className="relative z-10">{isSinglePlayer && aiMovesFirst ? '🤖 1 Player (AI First)' : '🤖 1 Player'}</span>
           </button>
           
           <button
@@ -498,12 +495,19 @@ export default function App() {
               setIsSinglePlayer(false); 
               resetGameForMode(startingPlayer); 
             }}
-            style={getModeButtonStyle(!isSinglePlayer)}
-            className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 select-none ${
-              !isSinglePlayer ? 'shadow-md scale-105' : 'hover:opacity-80'
+            className={`relative px-6 py-2.5 rounded-full text-sm font-bold z-10 transition-colors duration-300 select-none ${
+              !isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-[#1a1c2e]') : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
-            👥 2 Players
+            {!isSinglePlayer && (
+               <motion.div 
+                 layoutId="modeSwitch" 
+                 className="absolute inset-0 rounded-full -z-10 shadow-sm" 
+                 style={{ backgroundColor: isDarkMode ? '#575a89' : '#dbe2f9' }} 
+                 transition={{ type: "spring", stiffness: 400, damping: 30 }} 
+               />
+            )}
+            <span className="relative z-10">👥 2 Players</span>
           </button>
         </div>
 
@@ -533,7 +537,7 @@ export default function App() {
                 {isAITurn ? 'AI is thinking...' : (
                   <>
                     Player{' '}
-                    <span className={`inline-block font-black text-2xl px-1 ${isXNext ? 'text-mark-x' : 'text-mark-o'}`}>
+                    <span className={`inline-block font-black text-2xl px-1 ${isXNext ? 'text-[#dc2626] dark:text-[#ff4444]' : 'text-[#2563eb] dark:text-[#4488ff]'}`}>
                       {isXNext ? 'X' : 'O'}
                     </span>
                     's turn
@@ -601,7 +605,7 @@ export default function App() {
                             strokeWidth="4" 
                             strokeLinecap="round" 
                             strokeLinejoin="round" 
-                            className="text-mark-x drop-shadow-sm"
+                            className="text-[#dc2626] dark:text-[#ff4444] drop-shadow-sm"
                           />
                         </svg>
                       </motion.div>
@@ -619,7 +623,7 @@ export default function App() {
                             cx="12" cy="12" r="9" 
                             stroke="currentColor" 
                             strokeWidth="4" 
-                            className="text-mark-o drop-shadow-sm"
+                            className="text-[#2563eb] dark:text-[#4488ff] drop-shadow-sm"
                           />
                         </svg>
                       </motion.div>
