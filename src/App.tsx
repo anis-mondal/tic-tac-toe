@@ -79,17 +79,31 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
     return firstMoves[Math.floor(Math.random() * firstMoves.length)];
   }
 
+  const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
+
+  for (const [a, b, c] of WINNING_COMBINATIONS) {
+    if (!squares[a] && squares[b] === aiPlayer && squares[c] === aiPlayer) return a;
+    if (squares[a] === aiPlayer && !squares[b] && squares[c] === aiPlayer) return b;
+    if (squares[a] === aiPlayer && squares[b] === aiPlayer && !squares[c]) return c;
+  }
+
+  for (const [a, b, c] of WINNING_COMBINATIONS) {
+    if (!squares[a] && squares[b] === humanPlayer && squares[c] === humanPlayer) return a;
+    if (squares[a] === humanPlayer && !squares[b] && squares[c] === humanPlayer) return b;
+    if (squares[a] === humanPlayer && squares[b] === humanPlayer && !squares[c]) return c;
+  }
+
   if (Math.random() < 0.25) {
     return availableMoves[Math.floor(Math.random() * availableMoves.length)];
   }
 
   let bestVal = -Infinity;
-  let bestMove = -1;
+  let bestMove = availableMoves[0];
 
   const trickWeights = [
-    0.1, 0.0, 0.1,
-    0.0, 0.2, 0.0,
-    0.1, 0.0, 0.1
+    0.2, 0.0, 0.2,
+    0.0, 0.3, 0.0,
+    0.2, 0.0, 0.2
   ];
 
   for (let i = 0; i < 9; i++) {
