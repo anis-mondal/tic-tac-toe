@@ -360,6 +360,28 @@ export default function App() {
 
   const lineAnim = getLineAnimProps(linePoints);
 
+  // উইনার ব্যানারের জন্য নিখুঁত এবং গ্যারান্টিড কালার লজিক
+  let bannerStyle: React.CSSProperties = {};
+  if (winnerInfo) {
+    if (winnerInfo.winner === 'X') {
+      bannerStyle = {
+        backgroundColor: isDarkMode ? 'rgba(225, 29, 72, 0.15)' : '#ffe4e6', // Soft Pink
+        color: isDarkMode ? '#fb7185' : '#e11d48',
+        borderColor: isDarkMode ? 'rgba(251, 113, 133, 0.3)' : '#fda4af',
+        borderWidth: '2px',
+        borderStyle: 'solid'
+      };
+    } else {
+      bannerStyle = {
+        backgroundColor: isDarkMode ? 'rgba(2, 132, 199, 0.15)' : '#e0f2fe', // Soft Sky Blue
+        color: isDarkMode ? '#38bdf8' : '#0284c7',
+        borderColor: isDarkMode ? 'rgba(56, 189, 248, 0.3)' : '#7dd3fc',
+        borderWidth: '2px',
+        borderStyle: 'solid'
+      };
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-6 bg-surface selection:bg-primary/20 transition-colors duration-300 relative overflow-hidden font-sans">
       
@@ -440,20 +462,17 @@ export default function App() {
           onPointerLeave={handleTurnHoldEnd}
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
+          style={winnerInfo ? bannerStyle : {}}
           className={`
             mx-auto w-fit px-8 py-4 rounded-[2rem] text-lg font-bold flex flex-col items-center gap-1 shadow-sm transition-all duration-300 select-none
-            ${winnerInfo 
-              ? (winnerInfo.winner === 'X' 
-                  ? 'bg-red-100 text-red-700 border-2 border-red-300 dark:bg-red-900/40 dark:text-red-400 dark:border-red-800/60 scale-105' 
-                  : 'bg-blue-100 text-blue-700 border-2 border-blue-300 dark:bg-blue-900/40 dark:text-blue-400 dark:border-blue-800/60 scale-105')
-              : 'bg-container text-on-container border border-outline/10'}
+            ${winnerInfo ? 'scale-105' : 'bg-container text-on-container border border-outline/10'}
             ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer active:scale-95 hover:bg-surface-variant/80' : ''}
           `}
         >
           <div className="flex items-center gap-3">
             {winnerInfo ? (
               <>
-                <Sparkles className={`w-6 h-6 ${winnerInfo.winner === 'X' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'}`} />
+                <Sparkles className="w-6 h-6" style={{ color: bannerStyle.color }} />
                 <span>Winner: Player {winnerInfo.winner}!</span>
               </>
             ) : isDraw ? (
