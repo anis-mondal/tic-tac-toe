@@ -359,7 +359,15 @@ export default function App() {
     return () => window.removeEventListener('resize', updatePoints);
   }, [winnerInfo, lastMoveIndex]);
 
-  const navBtnClass = "w-14 h-14 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-sm border border-outline/10 flex items-center justify-center overflow-hidden relative";
+  const navBtnClass = "w-14 h-14 rounded-full transition-all active:scale-95 shadow-sm flex items-center justify-center overflow-hidden relative border";
+  
+  const getNavBtnStyle = () => {
+    return {
+      backgroundColor: isDarkMode ? '#1a1a1a' : '#f1f5f9',
+      borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+      color: isDarkMode ? '#ffffff' : '#1a1c2e'
+    };
+  };
 
   const getLineAnimProps = (points: { origin: { x: number, y: number }, start: { x: number, y: number }, end: { x: number, y: number } } | null) => {
     if (!points) return { initial: {}, animate: {} };
@@ -383,7 +391,23 @@ export default function App() {
 
   const lineAnim = getLineAnimProps(linePoints);
 
-  let bannerStyle: React.CSSProperties = {};
+  const semantics = {
+    screenBackground: isDarkMode ? '#000000' : '#ffffff',
+    mainGridBackground: isDarkMode ? '#0c0c0c' : '#e2e8f0', 
+    squareBackground: isDarkMode ? '#111111' : '#f1f5f9',
+    text: isDarkMode ? '#f2f2f2' : '#1a1c2e',
+    modeSliderContainer: isDarkMode ? { bg: '#0c0c0c', border: 'rgba(255, 255, 255, 0.15)' } : { bg: '#f1f5f9', border: 'rgba(0, 0, 0, 0.1)' },
+    bannerDefault: isDarkMode ? { bg: '#0c0c0c', text: '#f2f2f2', border: 'rgba(255, 255, 255, 0.15)' } : { bg: '#f1f5f9', text: '#1a1c2e', border: 'rgba(0, 0, 0, 0.1)' },
+  };
+
+  let bannerStyle: React.CSSProperties = {
+    backgroundColor: semantics.bannerDefault.bg,
+    color: semantics.bannerDefault.text,
+    borderColor: semantics.bannerDefault.border,
+    borderWidth: '2px',
+    borderStyle: 'solid'
+  };
+
   if (winnerInfo) {
     if (winnerInfo.winner === 'X') {
       bannerStyle = {
@@ -404,8 +428,19 @@ export default function App() {
     }
   }
 
+  const getModeButtonStyle = (isActive: boolean) => {
+    if (!isActive) {
+      return { backgroundColor: 'transparent', color: isDarkMode ? '#a1a1aa' : '#64748b' };
+    }
+    return isDarkMode
+      ? { backgroundColor: '#575a89', color: '#ffffff' }
+      : { backgroundColor: '#dbe2f9', color: '#1a1c2e' };
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-6 bg-surface selection:bg-primary/20 transition-colors duration-300 relative overflow-hidden font-sans">
+    <div 
+        style={{ backgroundColor: semantics.screenBackground }}
+        className="min-h-screen flex flex-col items-center justify-center p-4 gap-6 transition-colors duration-300 relative overflow-hidden font-sans">
       
       <canvas 
         ref={canvasRef} 
@@ -417,6 +452,7 @@ export default function App() {
           <button
             onClick={toggleDarkMode}
             className={navBtnClass}
+            style={getNavBtnStyle()}
             aria-label="Toggle Theme"
           >
             <AnimatePresence initial={false}>
@@ -441,6 +477,7 @@ export default function App() {
               resetGameForMode(startingPlayer);
             }}
             className={navBtnClass}
+            style={getNavBtnStyle()}
             aria-label="Restart Game"
           >
             <motion.div 
@@ -458,13 +495,19 @@ export default function App() {
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-5xl sm:text-6xl font-black tracking-tighter text-on-surface drop-shadow-sm"
+          style={{ color: semantics.text }}
+          className="text-5xl sm:text-6xl font-black tracking-tighter drop-shadow-sm"
         >
           Tic Tac Toe
         </motion.h1>
 
-        {/* Sliding Segmented Control for Game Modes */}
-        <div className="flex gap-2 justify-center p-1.5 bg-surface-variant/30 rounded-full relative w-fit mx-auto border border-outline/5 shadow-inner">
+        <div 
+          style={{ 
+            backgroundColor: semantics.modeSliderContainer.bg, 
+            borderColor: semantics.modeSliderContainer.border,
+            borderWidth: '2px',
+          }}
+          className="flex gap-2 justify-center p-1.5 rounded-full relative w-fit mx-auto shadow-inner">
           <button
             onClick={() => { 
               hapticFeedback(40);
@@ -475,7 +518,7 @@ export default function App() {
             onPointerUp={handleModeHoldEnd}
             onPointerLeave={handleModeHoldEnd}
             className={`relative px-6 py-2.5 rounded-full text-sm font-bold z-10 transition-colors duration-300 select-none ${
-              isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-[#1a1c2e]') : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+              isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-[#1a1c2e]') : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             {isSinglePlayer && (
@@ -496,7 +539,7 @@ export default function App() {
               resetGameForMode(startingPlayer); 
             }}
             className={`relative px-6 py-2.5 rounded-full text-sm font-bold z-10 transition-colors duration-300 select-none ${
-              !isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-[#1a1c2e]') : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+              !isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-[#1a1c2e]') : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             {!isSinglePlayer && (
@@ -517,11 +560,11 @@ export default function App() {
           onPointerLeave={handleTurnHoldEnd}
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          style={winnerInfo ? bannerStyle : {}}
+          style={bannerStyle}
           className={`
             mx-auto w-fit px-8 py-4 rounded-[2rem] text-lg font-bold flex flex-col items-center gap-1 shadow-sm transition-all duration-300 select-none
-            ${winnerInfo ? 'scale-105' : 'bg-container text-on-container border border-outline/10'}
-            ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer active:scale-95 hover:bg-surface-variant/80' : ''}
+            ${winnerInfo ? 'scale-105' : ''}
+            ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer active:scale-95 hover:opacity-80' : ''}
           `}
         >
           <div className="flex items-center gap-3">
@@ -557,7 +600,8 @@ export default function App() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative bg-surface-variant/50 p-5 sm:p-6 rounded-[40px] shadow-lg border border-gray-400/30 dark:border-gray-600/30 backdrop-blur-md"
+          style={{ backgroundColor: semantics.mainGridBackground }}
+          className="relative p-5 sm:p-6 rounded-[40px] shadow-lg border border-gray-400/40 dark:border-gray-600/40 backdrop-blur-md overflow-hidden"
         >
           <div 
             ref={boardRef} 
@@ -566,27 +610,24 @@ export default function App() {
             {board.map((value, i) => {
               const isWinningCell = winnerInfo?.line.includes(i);
               
-              const cellBg = isWinningCell 
-                ? (isDarkMode ? '' : 'bg-green-100/50')
-                : 'bg-surface';
-              
               const winningCellStyle = (isWinningCell && isDarkMode)
                 ? { backgroundColor: '#183123' }
-                : {};
+                : (isWinningCell && !isDarkMode)
+                  ? { backgroundColor: '#dcfce7' } 
+                  : (board[i] === null && isAITurn ? { backgroundColor: semantics.mainGridBackground } : { backgroundColor: semantics.squareBackground } );
 
               return (
                 <button
                   key={i}
                   id={`cell-${i}`}
                   onClick={() => handleClick(i)}
+                  style={{ ...winningCellStyle, borderStyle: 'solid' }}
                   className={`
                     w-full h-full rounded-[24px] flex items-center justify-center
                     transition-all duration-300 relative overflow-hidden
-                    shadow-sm border border-gray-400/30 dark:border-gray-600/30
-                    ${cellBg}
-                    ${!value && !winnerInfo && !isAITurn ? 'hover:bg-surface-variant/80 hover:shadow-md cursor-pointer active:scale-95' : 'cursor-default'}
+                    shadow-sm border border-gray-400/40 dark:border-gray-600/40
+                    ${!value && !winnerInfo && !isAITurn ? 'hover:brightness-95 hover:shadow-md cursor-pointer active:scale-95' : 'cursor-default'}
                   `}
-                  style={winningCellStyle}
                   disabled={!!value || !!winnerInfo || isAITurn}
                 >
                   <AnimatePresence mode="wait">
