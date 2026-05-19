@@ -12,23 +12,20 @@ type Player = 'X' | 'O';
 type SquareValue = Player | null;
 
 const WINNING_COMBINATIONS = [
-  [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-  [0, 3, 6], [1, 4, 7], [2, 5, 8], // Cols
-  [0, 4, 8], [2, 4, 6]             // Diagonals
+  [0, 1, 2], [3, 4, 5], [6, 7, 8],
+  [0, 3, 6], [1, 4, 7], [2, 5, 8],
+  [0, 4, 8], [2, 4, 6]
 ];
 
-// --- Haptic Feedback Helper ---
 const hapticFeedback = (pattern: number | number[]) => {
   if (typeof window !== 'undefined' && navigator.vibrate) {
     try {
       navigator.vibrate(pattern);
     } catch (e) {
-      // Ignore if device does not support vibration
     }
   }
 };
 
-// --- Minimax AI Logic Start (Dynamic based on aiPlayer) ---
 const evaluateBoard = (squares: SquareValue[], aiPlayer: Player) => {
   for (const combination of WINNING_COMBINATIONS) {
     const [a, b, c] = combination;
@@ -103,7 +100,6 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
   }
   return bestMove;
 };
-// --- Minimax AI Logic End ---
 
 export default function App() {
   const [board, setBoard] = useState<SquareValue[]>(Array(9).fill(null));
@@ -116,6 +112,7 @@ export default function App() {
   const [isSinglePlayer, setIsSinglePlayer] = useState(true);
   const [aiMovesFirst, setAiMovesFirst] = useState(false); 
   const [linePoints, setLinePoints] = useState<{ start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
+  const [lastMoveIndex, setLastMoveIndex] = useState<number | null>(null);
   
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -229,6 +226,7 @@ export default function App() {
           
           setBoard(newBoard);
           setIsXNext(aiPlayerSymbol === 'O');
+          setLastMoveIndex(bestMove);
         }
       }, 500); 
       
@@ -246,6 +244,7 @@ export default function App() {
     newBoard[index] = isXNext ? 'X' : 'O';
     setBoard(newBoard);
     setIsXNext(!isXNext);
+    setLastMoveIndex(index);
   };
 
   const resetGameForMode = (currentStartingPlayer: Player) => {
@@ -257,7 +256,8 @@ export default function App() {
     setIsXNext(currentStartingPlayer === 'X');
     setWinnerInfo(null);
     setIsDraw(false);
-    setLinePoints(null); 
+    setLinePoints(null);
+    setLastMoveIndex(null); 
   };
 
   const handleTurnHoldStart = () => {
@@ -314,8 +314,16 @@ export default function App() {
           };
         };
 
-        const [start, , end] = winnerInfo.line;
-        setLinePoints({ start: getCellCenter(start), end: getCellCenter(end) });
+        const [a, , c] = winnerInfo.line;
+        
+        let startIdx = a;
+        let endIdx = c;
+        if (lastMoveIndex === c) {
+          startIdx = c;
+          endIdx = a;
+        }
+
+        setLinePoints({ start: getCellCenter(startIdx), end: getCellCenter(endIdx) });
       } else {
         setLinePoints(null);
       }
@@ -324,7 +332,7 @@ export default function App() {
     updatePoints();
     window.addEventListener('resize', updatePoints);
     return () => window.removeEventListener('resize', updatePoints);
-  }, [winnerInfo]);
+  }, [winnerInfo, lastMoveIndex]);
 
   const navBtnClass = "w-14 h-14 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-sm border border-outline/10 flex items-center justify-center";
 
@@ -527,7 +535,7 @@ export default function App() {
                 preserveAspectRatio="none"
               >
                 <defs>
-                  <mask id="hollow-mask">
+                  <mask id="hollow-mask" maskUnits="userSpaceOnUse">
                     <rect width="100%" height="100%" fill="white" />
                     <motion.line
                       initial={{ pathLength: 0 }}
@@ -537,7 +545,7 @@ export default function App() {
                       x2={`${linePoints.end.x}%`}
                       y2={`${linePoints.end.y}%`}
                       stroke="black"
-                      strokeWidth="6.5"
+                      strokeWidth="6"
                       strokeLinecap="round"
                       transition={{ duration: 0.5, ease: "easeOut" }}
                     />
@@ -565,8 +573,8 @@ export default function App() {
                   y1={`${linePoints.start.y}%`}
                   x2={`${linePoints.end.x}%`}
                   y2={`${linePoints.end.y}%`}
-                  stroke="rgba(56, 142, 60, 0.15)"
-                  strokeWidth="7"
+                  stroke="rgba(56, 142, 60, 0.35)"
+                  strokeWidth="6"
                   strokeLinecap="round"
                   transition={{ duration: 0.5, ease: "easeOut" }}
                 />
