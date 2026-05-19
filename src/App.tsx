@@ -60,7 +60,7 @@ const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean, a
     for (let i = 0; i < 9; i++) {
       if (!squares[i]) {
         squares[i] = humanPlayer;
-        best = Math.min(best, minimax(squares, depth + 1, true, aiPlayer));
+        best = Math.min(best, minimax(squares, depth + 1, true, origin));
         squares[i] = null;
       }
     }
@@ -79,40 +79,18 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
     return firstMoves[Math.floor(Math.random() * firstMoves.length)];
   }
 
-  const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
-
-  for (const [a, b, c] of WINNING_COMBINATIONS) {
-    if (!squares[a] && squares[b] === aiPlayer && squares[c] === aiPlayer) return a;
-    if (squares[a] === aiPlayer && !squares[b] && squares[c] === aiPlayer) return b;
-    if (squares[a] === aiPlayer && squares[b] === aiPlayer && !squares[c]) return c;
-  }
-
-  for (const [a, b, c] of WINNING_COMBINATIONS) {
-    if (!squares[a] && squares[b] === humanPlayer && squares[c] === humanPlayer) return a;
-    if (squares[a] === humanPlayer && !squares[b] && squares[c] === humanPlayer) return b;
-    if (squares[a] === humanPlayer && squares[b] === humanPlayer && !squares[c]) return c;
-  }
-
   if (Math.random() < 0.25) {
     return availableMoves[Math.floor(Math.random() * availableMoves.length)];
   }
 
   let bestVal = -Infinity;
-  let bestMove = availableMoves[0];
-
-  const trickWeights = [
-    0.2, 0.0, 0.2,
-    0.0, 0.3, 0.0,
-    0.2, 0.0, 0.2
-  ];
+  let bestMove = -1;
 
   for (let i = 0; i < 9; i++) {
     if (!squares[i]) {
       squares[i] = aiPlayer;
       let moveVal = minimax(squares, 0, false, aiPlayer);
       squares[i] = null;
-
-      moveVal += trickWeights[i];
 
       if (moveVal > bestVal) {
         bestMove = i;
@@ -382,27 +360,6 @@ export default function App() {
 
   const lineAnim = getLineAnimProps(linePoints);
 
-  let bannerStyle: React.CSSProperties = {};
-  if (winnerInfo) {
-    if (winnerInfo.winner === 'X') {
-      bannerStyle = {
-        backgroundColor: isDarkMode ? 'rgba(225, 29, 72, 0.15)' : '#ffe4e6',
-        color: isDarkMode ? '#fb7185' : '#e11d48',
-        borderColor: isDarkMode ? 'rgba(251, 113, 133, 0.3)' : '#fda4af',
-        borderWidth: '2px',
-        borderStyle: 'solid'
-      };
-    } else {
-      bannerStyle = {
-        backgroundColor: isDarkMode ? 'rgba(2, 132, 199, 0.15)' : '#e0f2fe',
-        color: isDarkMode ? '#38bdf8' : '#0284c7',
-        borderColor: isDarkMode ? 'rgba(56, 189, 248, 0.3)' : '#7dd3fc',
-        borderWidth: '2px',
-        borderStyle: 'solid'
-      };
-    }
-  }
-
   const getModeButtonStyle = (isActive: boolean) => {
     if (!isActive) {
       return isDarkMode
@@ -413,6 +370,12 @@ export default function App() {
       ? { backgroundColor: '#575a89', color: '#ffffff' }
       : { backgroundColor: '#dbe2f9', color: '#1a1c2e' };
   };
+
+  const bannerColorLogic = winnerInfo 
+  ? (winnerInfo.winner === 'X' 
+      ? (isDarkMode ? { bg: 'rgba(183, 28, 28, 0.15)', text: '#fb7185', border: 'rgba(251, 113, 133, 0.3)' } : { bg: '#fce4ec', text: '#b71c1c', border: '#f8bbd0' })
+      : (isDarkMode ? { bg: 'rgba(13, 71, 161, 0.15)', text: '#38bdf8', border: 'rgba(56, 189, 248, 0.3)' } : { bg: '#e3f2fd', text: '#0d47a1', border: '#bbdefb' }))
+  : null;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-6 bg-surface selection:bg-primary/20 transition-colors duration-300 relative overflow-hidden font-sans">
@@ -492,17 +455,17 @@ export default function App() {
           onPointerLeave={handleTurnHoldEnd}
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          style={winnerInfo ? bannerStyle : {}}
+          style={bannerColorLogic ? { backgroundColor: bannerColorLogic.bg, color: bannerColorLogic.text, borderColor: bannerColorLogic.border } : {}}
           className={`
             mx-auto w-fit px-8 py-4 rounded-[2rem] text-lg font-bold flex flex-col items-center gap-1 shadow-sm transition-all duration-300 select-none
-            ${winnerInfo ? 'scale-105' : 'bg-container text-on-container border border-outline/10'}
+            ${bannerColorLogic ? 'border-2 scale-105' : 'bg-container text-on-container border border-outline/10'}
             ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer active:scale-95 hover:bg-surface-variant/80' : ''}
           `}
         >
           <div className="flex items-center gap-3">
             {winnerInfo ? (
               <>
-                <Sparkles className="w-6 h-6" style={{ color: bannerStyle.color }} />
+                <Sparkles className="w-6 h-6" style={{ color: bannerColorLogic?.text }} />
                 <span>Winner: Player {winnerInfo.winner}!</span>
               </>
             ) : isDraw ? (
@@ -510,13 +473,13 @@ export default function App() {
             ) : (
               <>
                 {isAITurn ? 'AI is thinking...' : (
-                  <>
-                    Player{' '}
-                    <span className={`inline-block font-black text-2xl px-1 ${isXNext ? 'text-mark-x' : 'text-mark-o'}`}>
-                      {isXNext ? 'X' : 'O'}
-                    </span>
-                    's turn
-                  </>
+                    <>
+                        Player{' '}
+                        <span className={`inline-block font-black text-2xl px-1 ${isXNext ? 'text-mark-x' : 'text-mark-o'}`}>
+                        {isXNext ? 'X' : 'O'}
+                        </span>
+                        's turn
+                    </>
                 )}
               </>
             )}
@@ -540,10 +503,15 @@ export default function App() {
           >
             {board.map((value, i) => {
               const isWinningCell = winnerInfo?.line.includes(i);
+              const oldDarkWinningGreen = '#1a3d1a';
               
-              const cellBg = isWinningCell 
-                ? 'bg-green-100/50 dark:bg-green-900/30'
+              const cellBg = isWinningCell
+                ? (isDarkMode ? '' : 'bg-green-100/50')
                 : 'bg-surface';
+              
+              const winningCellStyle = (isWinningCell && isDarkMode)
+                ? { backgroundColor: oldDarkWinningGreen }
+                : {};
 
               return (
                 <button
@@ -557,6 +525,7 @@ export default function App() {
                     ${cellBg}
                     ${!value && !winnerInfo && !isAITurn ? 'hover:bg-surface-variant/80 hover:shadow-md cursor-pointer active:scale-95' : 'cursor-default'}
                   `}
+                  style={winningCellStyle}
                   disabled={!!value || !!winnerInfo || isAITurn}
                 >
                   <AnimatePresence mode="wait">
