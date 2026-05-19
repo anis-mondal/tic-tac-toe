@@ -530,6 +530,18 @@ export default function App() {
                 viewBox="0 0 100 100"
                 preserveAspectRatio="none"
               >
+                <defs>
+                  <filter id="green-border-filter" x="-20%" y="-20%" width="140%" height="140%">
+                    <feMorphology in="SourceAlpha" operator="dilate" radius="0.8" result="dilated" />
+                    <feFlood floodColor="#004d00" floodOpacity="1" result="flood" />
+                    <feComposite in="flood" in2="dilated" operator="in" result="outline" />
+                    <feComposite in="outline" in2="SourceAlpha" operator="out" result="hollow_outline" />
+                    <feMerge>
+                      <feMergeNode in="hollow_outline" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
                 <motion.line
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={{ pathLength: 1, opacity: 1 }}
@@ -537,9 +549,10 @@ export default function App() {
                   y1={`${linePoints.start.y}%`}
                   x2={`${linePoints.end.x}%`}
                   y2={`${linePoints.end.y}%`}
-                  stroke="#388E3C" 
+                  stroke="rgba(56, 142, 60, 0.4)" 
                   strokeWidth="6"
                   strokeLinecap="round"
+                  filter="url(#green-border-filter)"
                   transition={{ duration: 0.5, ease: "easeOut" }}
                 />
               </svg>
