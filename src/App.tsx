@@ -60,7 +60,7 @@ const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean, a
     for (let i = 0; i < 9; i++) {
       if (!squares[i]) {
         squares[i] = humanPlayer;
-        best = Math.min(best, minimax(squares, depth + 1, true, origin));
+        best = Math.min(best, minimax(squares, depth + 1, true, aiPlayer));
         squares[i] = null;
       }
     }
@@ -79,18 +79,26 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
     return firstMoves[Math.floor(Math.random() * firstMoves.length)];
   }
 
-  if (Math.random() < 0.3) {
+  if (Math.random() < 0.25) {
     return availableMoves[Math.floor(Math.random() * availableMoves.length)];
   }
 
   let bestVal = -Infinity;
   let bestMove = -1;
 
+  const trickWeights = [
+    0.1, 0.0, 0.1,
+    0.0, 0.2, 0.0,
+    0.1, 0.0, 0.1
+  ];
+
   for (let i = 0; i < 9; i++) {
     if (!squares[i]) {
       squares[i] = aiPlayer;
       let moveVal = minimax(squares, 0, false, aiPlayer);
       squares[i] = null;
+
+      moveVal += trickWeights[i];
 
       if (moveVal > bestVal) {
         bestMove = i;
