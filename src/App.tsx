@@ -502,7 +502,18 @@ export default function App() {
             borderColor: semantics.modeSliderContainer.border,
             borderWidth: '2px',
           }}
-          className="flex gap-2 justify-center p-1.5 rounded-full relative w-fit mx-auto shadow-inner">
+          className="flex p-1.5 rounded-full relative w-fit mx-auto shadow-inner overflow-hidden isolation-auto">
+          
+          {/* Stabilized Background Slider using CSS Transitions */}
+          <div 
+            className="absolute top-1.5 bottom-1.5 left-1.5 rounded-full shadow-sm transition-all duration-300 ease-out z-0"
+            style={{ 
+              backgroundColor: isDarkMode ? '#575a89' : '#dbe2f9',
+              width: isSinglePlayer ? 'calc(50% - 1.5px)' : 'calc(50% - 1.5px)',
+              transform: isSinglePlayer ? 'translateX(0)' : 'translateX(100%)'
+            }}
+          />
+
           <button
             onClick={() => { 
               hapticFeedback(40);
@@ -516,14 +527,6 @@ export default function App() {
               isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-[#1a1c2e]') : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            {isSinglePlayer && (
-               <motion.div 
-                 layoutId="modeSwitch" 
-                 className="absolute inset-0 rounded-full -z-10 shadow-sm" 
-                 style={{ backgroundColor: isDarkMode ? '#575a89' : '#dbe2f9' }} 
-                 transition={{ type: "spring", stiffness: 400, damping: 30 }} 
-               />
-            )}
             <span className="relative z-10">{isSinglePlayer && aiMovesFirst ? '🤖 1 Player (AI First)' : '🤖 1 Player'}</span>
           </button>
           
@@ -537,14 +540,6 @@ export default function App() {
               !isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-[#1a1c2e]') : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            {!isSinglePlayer && (
-               <motion.div 
-                 layoutId="modeSwitch" 
-                 className="absolute inset-0 rounded-full -z-10 shadow-sm" 
-                 style={{ backgroundColor: isDarkMode ? '#575a89' : '#dbe2f9' }} 
-                 transition={{ type: "spring", stiffness: 400, damping: 30 }} 
-               />
-            )}
             <span className="relative z-10">👥 2 Players</span>
           </button>
         </div>
