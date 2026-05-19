@@ -136,6 +136,7 @@ export default function App() {
   const [linePoints, setLinePoints] = useState<{ origin: { x: number; y: number }; start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
   const [lastMoveIndex, setLastMoveIndex] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
+  const [isHoldingBanner, setIsHoldingBanner] = useState(false);
   
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -286,6 +287,7 @@ export default function App() {
   const handleTurnHoldStart = () => {
     const isBoardEmpty = board.every((cell) => cell === null);
     if (isBoardEmpty && !winnerInfo) {
+      setIsHoldingBanner(true);
       turnHoldTimer.current = setTimeout(() => {
         setStartingPlayer((prev) => {
           const nextPlayer = prev === 'X' ? 'O' : 'X';
@@ -293,11 +295,13 @@ export default function App() {
           return nextPlayer;
         });
         hapticFeedback([80, 40, 80]); 
+        setIsHoldingBanner(false);
       }, 600);
     }
   };
 
   const handleTurnHoldEnd = () => {
+    setIsHoldingBanner(false);
     if (turnHoldTimer.current) {
       clearTimeout(turnHoldTimer.current);
       turnHoldTimer.current = null;
@@ -428,15 +432,6 @@ export default function App() {
     }
   }
 
-  const getModeButtonStyle = (isActive: boolean) => {
-    if (!isActive) {
-      return { backgroundColor: 'transparent', color: isDarkMode ? '#a1a1aa' : '#64748b' };
-    }
-    return isDarkMode
-      ? { backgroundColor: '#575a89', color: '#ffffff' }
-      : { backgroundColor: '#dbe2f9', color: '#1a1c2e' };
-  };
-
   return (
     <div 
         style={{ backgroundColor: semantics.screenBackground }}
@@ -559,18 +554,21 @@ export default function App() {
           onPointerUp={handleTurnHoldEnd}
           onPointerLeave={handleTurnHoldEnd}
           initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
+          animate={{ 
+            scale: winnerInfo ? 1.05 : (isHoldingBanner ? 0.96 : 1), 
+            opacity: 1 
+          }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
           style={bannerStyle}
           className={`
-            mx-auto w-fit px-8 py-4 rounded-[2rem] text-lg font-bold flex flex-col items-center gap-1 shadow-sm transition-all duration-300 select-none
-            ${winnerInfo ? 'scale-105' : ''}
-            ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer active:scale-95 hover:opacity-80' : ''}
+            mx-auto w-fit px-8 py-4 rounded-[2rem] text-lg font-bold flex flex-col items-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden
+            ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer' : ''}
           `}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 relative z-10">
             {winnerInfo ? (
               <>
-                <Sparkles className="w-6 h-6" style={{ color: bannerStyle.color }} />
+                <Sparkles className="w-6 h-6 mr-1" style={{ color: bannerStyle.color }} />
                 <span>Winner: Player {winnerInfo.winner}!</span>
               </>
             ) : isDraw ? (
@@ -578,20 +576,41 @@ export default function App() {
             ) : (
               <>
                 {isAITurn ? 'AI is thinking...' : (
-                  <>
-                    Player{' '}
-                    <span className={`inline-block font-black text-2xl px-1 ${isXNext ? 'text-[#dc2626] dark:text-[#ff4444]' : 'text-[#2563eb] dark:text-[#4488ff]'}`}>
-                      {isXNext ? 'X' : 'O'}
-                    </span>
-                    's turn
-                  </>
+                  <div className="flex items-center">
+                    Player&nbsp;
+                    <div className="relative h-8 w-6 overflow-hidden flex items-center justify-center">
+                      <AnimatePresence mode="popLayout">
+                        <motion.span
+                          key={isXNext ? 'X' : 'O'}
+                          initial={{ y: 20, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: -20, opacity: 0 }}
+                          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                          className={`absolute font-black text-2xl ${isXNext ? 'text-[#dc2626] dark:text-[#ff4444]' : 'text-[#2563eb] dark:text-[#4488ff]'}`}
+                        >
+                          {isXNext ? 'X' : 'O'}
+                        </motion.span>
+                      </AnimatePresence>
+                    </div>
+                    &nbsp;'s turn
+                  </div>
                 )}
               </>
             )}
           </div>
           
           {board.every(cell => cell === null) && !winnerInfo && (
-            <span className="text-[11px] opacity-70 font-medium tracking-wide uppercase mt-1">Hold to switch first player</span>
+            <div className="relative w-full mt-1 flex flex-col items-center z-10">
+              <span className="text-[11px] opacity-70 font-medium tracking-wide uppercase">Hold to switch first player</span>
+              <div className="h-0.5 w-16 bg-transparent rounded-full overflow-hidden mt-1 relative">
+                 <motion.div
+                   initial={{ x: "-100%" }}
+                   animate={{ x: isHoldingBanner ? "0%" : "-100%" }}
+                   transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }}
+                   className="absolute inset-0 bg-gray-500 dark:bg-gray-300"
+                 />
+              </div>
+            </div>
           )}
         </motion.div>
       </header>
