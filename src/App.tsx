@@ -60,7 +60,7 @@ const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean, a
     for (let i = 0; i < 9; i++) {
       if (!squares[i]) {
         squares[i] = humanPlayer;
-        best = Math.min(best, minimax(squares, depth + 1, true, aiPlayer));
+        best = Math.min(best, minimax(squares, depth + 1, true, humanPlayer));
         squares[i] = null;
       }
     }
@@ -504,13 +504,14 @@ export default function App() {
           }}
           className="flex p-1.5 rounded-full relative w-fit mx-auto shadow-inner overflow-hidden isolation-auto">
           
-          {/* Stabilized Background Slider using CSS Transitions */}
           <div 
-            className="absolute top-1.5 bottom-1.5 left-1.5 rounded-full shadow-sm transition-all duration-300 ease-out z-0"
+            className="absolute top-1.5 bottom-1.5 rounded-full shadow-sm transition-all duration-300 ease-out z-0"
             style={{ 
               backgroundColor: isDarkMode ? '#575a89' : '#dbe2f9',
-              width: isSinglePlayer ? 'calc(50% - 1.5px)' : 'calc(50% - 1.5px)',
-              transform: isSinglePlayer ? 'translateX(0)' : 'translateX(100%)'
+              width: 'calc(50% - 3px)',
+              left: isSinglePlayer ? '1.5px' : 'auto',
+              right: !isSinglePlayer ? '1.5px' : 'auto',
+              transform: 'none'
             }}
           />
 
@@ -544,69 +545,83 @@ export default function App() {
           </button>
         </div>
 
+        {/* Stable Banner with Beautiful Winner Animation */}
         <motion.div 
           onPointerDown={handleTurnHoldStart}
           onPointerUp={handleTurnHoldEnd}
           onPointerLeave={handleTurnHoldEnd}
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ 
-            scale: winnerInfo ? 1.05 : (isHoldingBanner ? 0.96 : 1), 
-            opacity: 1 
-          }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={
+            winnerInfo 
+              ? { scale: [1, 1.15, 1.1], rotate: [0, -4, 4, -2, 0], opacity: 1 } 
+              : { scale: isHoldingBanner ? 0.96 : 1, rotate: 0, opacity: 1 }
+          }
+          transition={{ duration: winnerInfo ? 0.6 : 0.3, type: "spring", stiffness: 300, damping: 15 }}
           style={bannerStyle}
           className={`
-            mx-auto w-fit px-8 py-4 rounded-[2rem] text-lg font-bold flex flex-col items-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden
+            mx-auto w-[280px] sm:w-[320px] h-[88px] rounded-[2rem] text-lg font-bold shadow-sm transition-colors duration-300 select-none relative overflow-hidden
             ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer' : ''}
           `}
         >
-          <div className="flex items-center gap-2 relative z-10">
-            {winnerInfo ? (
-              <>
-                <Sparkles className="w-6 h-6 mr-1" style={{ color: bannerStyle.color }} />
-                <span>Winner: Player {winnerInfo.winner}!</span>
-              </>
-            ) : isDraw ? (
-              "It's a Stalemate!"
-            ) : (
-              <>
-                {isAITurn ? 'AI is thinking...' : (
-                  <div className="flex items-center">
-                    Player&nbsp;
-                    <div className="relative h-8 w-6 overflow-hidden flex items-center justify-center">
-                      <AnimatePresence mode="popLayout">
-                        <motion.span
-                          key={isXNext ? 'X' : 'O'}
-                          initial={{ y: 20, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          exit={{ y: -20, opacity: 0 }}
-                          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                          className={`absolute font-black text-2xl ${isXNext ? 'text-[#dc2626] dark:text-[#ff4444]' : 'text-[#2563eb] dark:text-[#4488ff]'}`}
-                        >
-                          {isXNext ? 'X' : 'O'}
-                        </motion.span>
-                      </AnimatePresence>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 w-full h-full">
+             <div className="flex items-center justify-center gap-2 relative z-10">
+               {winnerInfo ? (
+                 <>
+                   <Sparkles className="w-6 h-6 mr-1" style={{ color: bannerStyle.color }} />
+                   <span>Winner: Player {winnerInfo.winner}!</span>
+                 </>
+               ) : isDraw ? (
+                 "It's a Stalemate!"
+               ) : (
+                 <>
+                   {isAITurn ? 'AI is thinking...' : (
+                     <div className="flex items-center">
+                       Player&nbsp;
+                       <div className="relative h-8 w-6 overflow-hidden flex items-center justify-center">
+                         <AnimatePresence mode="popLayout">
+                           <motion.span
+                             key={isXNext ? 'X' : 'O'}
+                             initial={{ y: 20, opacity: 0 }}
+                             animate={{ y: 0, opacity: 1 }}
+                             exit={{ y: -20, opacity: 0 }}
+                             transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                             className={`absolute font-black text-2xl ${isXNext ? 'text-[#dc2626] dark:text-[#ff4444]' : 'text-[#2563eb] dark:text-[#4488ff]'}`}
+                           >
+                             {isXNext ? 'X' : 'O'}
+                           </motion.span>
+                         </AnimatePresence>
+                       </div>
+                       &nbsp;'s turn
+                     </div>
+                   )}
+                 </>
+               )}
+             </div>
+             
+             {/* Subtitle Placeholder to prevent internal layout shifts */}
+             <div className="h-[16px] flex flex-col items-center justify-center z-10 w-full overflow-hidden">
+                <AnimatePresence>
+                {board.every(cell => cell === null) && !winnerInfo && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    exit={{ opacity: 0, y: -10 }} 
+                    className="w-full flex flex-col items-center"
+                  >
+                    <span className="text-[11px] opacity-70 font-medium tracking-wide uppercase">Hold to switch first player</span>
+                    <div className="h-0.5 w-16 bg-transparent rounded-full overflow-hidden mt-1 relative">
+                       <motion.div
+                         initial={{ x: "-100%" }}
+                         animate={{ x: isHoldingBanner ? "0%" : "-100%" }}
+                         transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }}
+                         className="absolute inset-0 bg-gray-500 dark:bg-gray-300"
+                       />
                     </div>
-                    &nbsp;'s turn
-                  </div>
+                  </motion.div>
                 )}
-              </>
-            )}
+                </AnimatePresence>
+             </div>
           </div>
-          
-          {board.every(cell => cell === null) && !winnerInfo && (
-            <div className="relative w-full mt-1 flex flex-col items-center z-10">
-              <span className="text-[11px] opacity-70 font-medium tracking-wide uppercase">Hold to switch first player</span>
-              <div className="h-0.5 w-16 bg-transparent rounded-full overflow-hidden mt-1 relative">
-                 <motion.div
-                   initial={{ x: "-100%" }}
-                   animate={{ x: isHoldingBanner ? "0%" : "-100%" }}
-                   transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }}
-                   className="absolute inset-0 bg-gray-500 dark:bg-gray-300"
-                 />
-              </div>
-            </div>
-          )}
         </motion.div>
       </header>
 
