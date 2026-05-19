@@ -444,8 +444,8 @@ export default function App() {
             mx-auto w-fit px-8 py-4 rounded-[2rem] text-lg font-bold flex flex-col items-center gap-1 shadow-sm transition-all duration-300 select-none
             ${winnerInfo 
               ? (winnerInfo.winner === 'X' 
-                  ? 'bg-[#ffe4e6] dark:bg-red-950/40 text-[#be123c] dark:text-red-400 border-2 border-red-500/30 scale-105' 
-                  : 'bg-[#e0e7ff] dark:bg-blue-950/40 text-[#4338ca] dark:text-blue-400 border-2 border-blue-500/30 scale-105')
+                  ? 'bg-pink-100 dark:bg-red-900 dark:bg-opacity-40 text-red-600 dark:text-red-400 border-2 border-pink-200 dark:border-red-800 dark:border-opacity-50 scale-105' 
+                  : 'bg-blue-100 dark:bg-blue-900 dark:bg-opacity-40 text-blue-600 dark:text-blue-400 border-2 border-blue-200 dark:border-blue-800 dark:border-opacity-50 scale-105')
               : 'bg-container text-on-container border border-outline/10'}
             ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer active:scale-95 hover:bg-surface-variant/80' : ''}
           `}
@@ -453,7 +453,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             {winnerInfo ? (
               <>
-                <Sparkles className={`w-6 h-6 ${winnerInfo.winner === 'X' ? 'text-[#be123c] dark:text-red-400' : 'text-[#4338ca] dark:text-blue-400'}`} />
+                <Sparkles className={`w-6 h-6 ${winnerInfo.winner === 'X' ? 'text-red-500 dark:text-red-400' : 'text-blue-500 dark:text-blue-400'}`} />
                 <span>Winner: Player {winnerInfo.winner}!</span>
               </>
             ) : isDraw ? (
