@@ -111,7 +111,7 @@ export default function App() {
   const [isDraw, setIsDraw] = useState(false);
   const [isSinglePlayer, setIsSinglePlayer] = useState(true);
   const [aiMovesFirst, setAiMovesFirst] = useState(false); 
-  const [linePoints, setLinePoints] = useState<{ start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
+  const [linePoints, setLinePoints] = useState<{ origin: { x: number; y: number }; start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
   const [lastMoveIndex, setLastMoveIndex] = useState<number | null>(null);
   
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -314,16 +314,18 @@ export default function App() {
           };
         };
 
-        const [a, , c] = winnerInfo.line;
+        const [a, b, c] = winnerInfo.line;
         
-        let startIdx = a;
-        let endIdx = c;
-        if (lastMoveIndex === c) {
-          startIdx = c;
-          endIdx = a;
-        }
+        let originIdx = a;
+        if (lastMoveIndex === c) originIdx = c;
+        else if (lastMoveIndex === b) originIdx = b;
+        else if (lastMoveIndex === a) originIdx = a;
 
-        setLinePoints({ start: getCellCenter(startIdx), end: getCellCenter(endIdx) });
+        setLinePoints({ 
+          origin: getCellCenter(originIdx), 
+          start: getCellCenter(a), 
+          end: getCellCenter(c) 
+        });
       } else {
         setLinePoints(null);
       }
@@ -335,6 +337,28 @@ export default function App() {
   }, [winnerInfo, lastMoveIndex]);
 
   const navBtnClass = "w-14 h-14 rounded-full bg-surface-variant text-on-surface-variant hover:bg-outline/20 transition-all active:scale-95 shadow-sm border border-outline/10 flex items-center justify-center";
+
+  const getLineAnimProps = (points: { origin: { x: number, y: number }, start: { x: number, y: number }, end: { x: number, y: number } } | null) => {
+    if (!points) return { initial: {}, animate: {} };
+    return {
+      initial: {
+        x1: `${points.origin.x}%`,
+        y1: `${points.origin.y}%`,
+        x2: `${points.origin.x}%`,
+        y2: `${points.origin.y}%`,
+        opacity: 0
+      },
+      animate: {
+        x1: `${points.start.x}%`,
+        y1: `${points.start.y}%`,
+        x2: `${points.end.x}%`,
+        y2: `${points.end.y}%`,
+        opacity: 1
+      }
+    };
+  };
+
+  const lineAnim = getLineAnimProps(linePoints);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-6 bg-surface selection:bg-primary/20 transition-colors duration-300 relative overflow-hidden font-sans">
@@ -538,12 +562,8 @@ export default function App() {
                   <mask id="hollow-mask" maskUnits="userSpaceOnUse">
                     <rect width="100%" height="100%" fill="white" />
                     <motion.line
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      x1={`${linePoints.start.x}%`}
-                      y1={`${linePoints.start.y}%`}
-                      x2={`${linePoints.end.x}%`}
-                      y2={`${linePoints.end.y}%`}
+                      initial={lineAnim.initial}
+                      animate={{ ...lineAnim.animate, opacity: 1 }}
                       stroke="black"
                       strokeWidth="6"
                       strokeLinecap="round"
@@ -553,12 +573,8 @@ export default function App() {
                 </defs>
 
                 <motion.line
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: 1 }}
-                  x1={`${linePoints.start.x}%`}
-                  y1={`${linePoints.start.y}%`}
-                  x2={`${linePoints.end.x}%`}
-                  y2={`${linePoints.end.y}%`}
+                  initial={lineAnim.initial}
+                  animate={lineAnim.animate}
                   stroke="#004d00" 
                   strokeWidth="8" 
                   strokeLinecap="round"
@@ -567,13 +583,9 @@ export default function App() {
                 />
 
                 <motion.line
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: 1 }}
-                  x1={`${linePoints.start.x}%`}
-                  y1={`${linePoints.start.y}%`}
-                  x2={`${linePoints.end.x}%`}
-                  y2={`${linePoints.end.y}%`}
-                  stroke="rgba(56, 142, 60, 0.35)"
+                  initial={lineAnim.initial}
+                  animate={lineAnim.animate}
+                  stroke="rgba(56, 142, 60, 0.40)"
                   strokeWidth="6"
                   strokeLinecap="round"
                   transition={{ duration: 0.5, ease: "easeOut" }}
