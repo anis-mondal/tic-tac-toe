@@ -432,15 +432,6 @@ export default function App() {
     }
   }
 
-  const getModeButtonStyle = (isActive: boolean) => {
-    if (!isActive) {
-      return { backgroundColor: 'transparent', color: isDarkMode ? '#a1a1aa' : '#64748b' };
-    }
-    return isDarkMode
-      ? { backgroundColor: '#575a89', color: '#ffffff' }
-      : { backgroundColor: '#dbe2f9', color: '#1a1c2e' };
-  };
-
   return (
     <div 
         style={{ backgroundColor: semantics.screenBackground }}
@@ -459,7 +450,7 @@ export default function App() {
             style={getNavBtnStyle()}
             aria-label="Toggle Theme"
           >
-            <AnimatePresence>
+            <AnimatePresence initial={false}>
               <motion.div
                 key={isDarkMode ? 'dark' : 'light'}
                 initial={{ scale: 0.5, opacity: 0, rotate: -90 }}
@@ -521,9 +512,8 @@ export default function App() {
             onPointerDown={handleModeHoldStart}
             onPointerUp={handleModeHoldEnd}
             onPointerLeave={handleModeHoldEnd}
-            style={getModeButtonStyle(isSinglePlayer)}
-            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 select-none ${
-              isSinglePlayer ? 'shadow-md scale-105' : 'hover:opacity-80'
+            className={`relative px-6 py-2.5 rounded-full text-sm font-bold z-10 transition-colors duration-300 select-none ${
+              isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-[#1a1c2e]') : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             {isSinglePlayer && (
@@ -543,9 +533,8 @@ export default function App() {
               setIsSinglePlayer(false); 
               resetGameForMode(startingPlayer); 
             }}
-            style={getModeButtonStyle(!isSinglePlayer)}
-            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 select-none ${
-              !isSinglePlayer ? 'shadow-md scale-105' : 'hover:opacity-80'
+            className={`relative px-6 py-2.5 rounded-full text-sm font-bold z-10 transition-colors duration-300 select-none ${
+              !isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-[#1a1c2e]') : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             {!isSinglePlayer && (
@@ -570,7 +559,7 @@ export default function App() {
             opacity: 1 
           }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          style={winnerInfo ? bannerStyle : {}}
+          style={bannerStyle}
           className={`
             mx-auto w-fit px-8 py-4 rounded-[2rem] text-lg font-bold flex flex-col items-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden
             ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer' : ''}
@@ -586,22 +575,7 @@ export default function App() {
               "It's a Stalemate!"
             ) : (
               <>
-                {isAITurn ? (
-                  <div className="flex items-center">
-                    AI is thinking
-                    <motion.div className="flex ml-1">
-                      {[0, 1, 2].map((dot) => (
-                        <motion.span 
-                          key={dot}
-                          initial={{ opacity: 0.3 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ repeat: Infinity, repeatType: "reverse", duration: 0.5, delay: dot * 0.2 }}
-                          className="w-1 h-1 bg-current rounded-full mx-0.5"
-                        />
-                      ))}
-                    </motion.div>
-                  </div>
-                ) : (
+                {isAITurn ? 'AI is thinking...' : (
                   <div className="flex items-center">
                     Player&nbsp;
                     <div className="relative h-8 w-6 overflow-hidden flex items-center justify-center">
@@ -648,10 +622,6 @@ export default function App() {
           style={{ backgroundColor: semantics.mainGridBackground }}
           className="relative p-5 sm:p-6 rounded-[40px] shadow-lg border border-gray-400/40 dark:border-gray-600/40 backdrop-blur-md overflow-hidden"
         >
-          <div 
-             style={{ borderColor: semantics.bannerDefault.border, borderWidth: '2px', }}
-             className="absolute inset-0 rounded-[40px] pointer-events-none" />
-
           <div 
             ref={boardRef} 
             className="grid grid-cols-3 grid-rows-3 gap-3 sm:gap-4 relative z-10 w-[280px] sm:w-[340px] aspect-square"
