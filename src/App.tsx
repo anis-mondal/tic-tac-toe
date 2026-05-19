@@ -443,7 +443,9 @@ export default function App() {
           className={`
             mx-auto w-fit px-8 py-4 rounded-[2rem] text-lg font-bold flex flex-col items-center gap-1 shadow-sm transition-all duration-300 select-none
             ${winnerInfo 
-              ? 'bg-success-container text-on-success-container border-2 border-transparent scale-105' 
+              ? (winnerInfo.winner === 'X' 
+                  ? 'bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400 border-2 border-red-500/30 scale-105' 
+                  : 'bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-2 border-blue-500/30 scale-105')
               : 'bg-container text-on-container border border-outline/10'}
             ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer active:scale-95 hover:bg-surface-variant/80' : ''}
           `}
@@ -451,7 +453,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             {winnerInfo ? (
               <>
-                <Sparkles className="w-6 h-6 text-green-600 dark:text-green-400" />
+                <Sparkles className={`w-6 h-6 ${winnerInfo.winner === 'X' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'}`} />
                 <span>Winner: Player {winnerInfo.winner}!</span>
               </>
             ) : isDraw ? (
@@ -585,7 +587,7 @@ export default function App() {
                 <motion.line
                   initial={lineAnim.initial}
                   animate={lineAnim.animate}
-                  stroke="rgba(56, 142, 60, 0.40)"
+                  stroke="rgba(56, 142, 60, 0.55)"
                   strokeWidth="6"
                   strokeLinecap="round"
                   transition={{ duration: 0.5, ease: "easeOut" }}
