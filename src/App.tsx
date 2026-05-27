@@ -140,7 +140,7 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
   return bestMove;
 };
 
-// --- Authentic Material 3 Themes ---
+// --- Highly Distinct Material 3 Themes ---
 const ORIGINAL_THEME = {
   name: 'Classic',
   light: '#f8f9fa', dark: '#000000',
@@ -151,16 +151,16 @@ const ORIGINAL_THEME = {
 };
 
 const CUSTOM_THEMES = [
-  { name: 'M3 Blue', light: '#fdfbff', dark: '#1a1c1e', gridLight: '#e0e2ec', gridDark: '#43474e', cellLight: '#ffffff', cellDark: '#111315', indicatorLight: '#0b57d0', indicatorDark: '#a8c7fa', linesLight: ['#0b57d0', '#0284c7', '#2563eb', '#4f46e5', '#6366f1'], linesDark: ['#a8c7fa', '#7dd3fc', '#60a5fa', '#818cf8', '#a5b4fc'] },
-  { name: 'M3 Green', light: '#fcfdf6', dark: '#1a1c18', gridLight: '#dfe4d6', gridDark: '#42493f', cellLight: '#ffffff', cellDark: '#111412', indicatorLight: '#146c2e', indicatorDark: '#8dd999', linesLight: ['#146c2e', '#16a34a', '#059669', '#65a30d', '#15803d'], linesDark: ['#8dd999', '#4ade80', '#34d399', '#a3e635', '#22c55e'] },
-  { name: 'M3 Purple', light: '#fffbff', dark: '#1c1b1f', gridLight: '#e7e0ec', gridDark: '#49454f', cellLight: '#ffffff', cellDark: '#141317', indicatorLight: '#6750a4', indicatorDark: '#d0bcff', linesLight: ['#6750a4', '#9333ea', '#7e22ce', '#c026d3', '#db2777'], linesDark: ['#d0bcff', '#d8b4fe', '#e879f9', '#f472b6', '#fb7185'] },
-  { name: 'M3 Orange', light: '#fffbff', dark: '#201a18', gridLight: '#f5dfd5', gridDark: '#53433c', cellLight: '#ffffff', cellDark: '#181210', indicatorLight: '#8c4f27', indicatorDark: '#ffb58a', linesLight: ['#8c4f27', '#ea580c', '#d97706', '#c2410c', '#b45309'], linesDark: ['#ffb58a', '#fdba74', '#fcd34d', '#fca5a5', '#f87171'] },
-  { name: 'M3 Pink', light: '#fffbf9', dark: '#201a1b', gridLight: '#f4dddf', gridDark: '#524346', cellLight: '#ffffff', cellDark: '#171213', indicatorLight: '#85535b', indicatorDark: '#e8b8c1', linesLight: ['#85535b', '#e11d48', '#be123c', '#9f1239', '#db2777'], linesDark: ['#e8b8c1', '#fda4af', '#fecdd3', '#fbcfe8', '#f9a8d4'] },
-  { name: 'M3 Cyan', light: '#f3fdfd', dark: '#191c1c', gridLight: '#cce8e7', gridDark: '#3f4948', cellLight: '#ffffff', cellDark: '#111414', indicatorLight: '#006a69', indicatorDark: '#4cdada', linesLight: ['#006a69', '#0891b2', '#0369a1', '#0f766e', '#115e59'], linesDark: ['#4cdada', '#67e8f9', '#7dd3fc', '#5eead4', '#99f6e4'] },
-  { name: 'M3 Yellow', light: '#fffcf2', dark: '#1e1c16', gridLight: '#e7e2d0', gridDark: '#4a473a', cellLight: '#ffffff', cellDark: '#16140e', indicatorLight: '#69603a', indicatorDark: '#d2c89f', linesLight: ['#69603a', '#ca8a04', '#a16207', '#b45309', '#d97706'], linesDark: ['#d2c89f', '#fef08a', '#fde047', '#fcd34d', '#fdba74'] },
-  { name: 'M3 Crimson', light: '#fff8f6', dark: '#201a19', gridLight: '#ffdad5', gridDark: '#680016', cellLight: '#ffffff', cellDark: '#171211', indicatorLight: '#bd002e', indicatorDark: '#ffb4ab', linesLight: ['#bd002e', '#dc2626', '#b91c1c', '#991b1b', '#7f1d1d'], linesDark: ['#ffb4ab', '#fca5a5', '#f87171', '#ef4444', '#f87171'] },
-  { name: 'M3 Indigo', light: '#fdfbff', dark: '#1a1b22', gridLight: '#e0e1eb', gridDark: '#43444e', cellLight: '#ffffff', cellDark: '#111218', indicatorLight: '#4355b9', indicatorDark: '#bac3ff', linesLight: ['#4355b9', '#4f46e5', '#3730a3', '#312e81', '#1e3a8a'], linesDark: ['#bac3ff', '#a5b4fc', '#818cf8', '#93c5fd', '#bfdbfe'] },
-  { name: 'M3 Mint', light: '#f4fbf5', dark: '#181d19', gridLight: '#dbe5dd', gridDark: '#404943', cellLight: '#ffffff', cellDark: '#101511', indicatorLight: '#2c6b45', indicatorDark: '#91d5a8', linesLight: ['#2c6b45', '#16a34a', '#15803d', '#14532d', '#065f46'], linesDark: ['#91d5a8', '#86efac', '#6ee7b7', '#a7f3d0', '#69dba8'] },
+  { name: 'M3 Blue', light: '#eff6ff', dark: '#0f172a', gridLight: '#bfdbfe', gridDark: '#1e3a8a', cellLight: '#ffffff', cellDark: '#111827', indicatorLight: '#2563eb', indicatorDark: '#60a5fa', linesLight: ['#2563eb', '#1d4ed8', '#3b82f6', '#4f46e5', '#0284c7'], linesDark: ['#60a5fa', '#93c5fd', '#3b82f6', '#818cf8', '#38bdf8'] },
+  { name: 'M3 Emerald', light: '#ecfdf5', dark: '#022c22', gridLight: '#a7f3d0', gridDark: '#064e3b', cellLight: '#ffffff', cellDark: '#065f46', indicatorLight: '#16a34a', indicatorDark: '#4ade80', linesLight: ['#16a34a', '#15803d', '#059669', '#65a30d', '#10b981'], linesDark: ['#4ade80', '#86efac', '#34d399', '#a3e635', '#22c55e'] },
+  { name: 'M3 Purple', light: '#f5f3ff', dark: '#2e1065', gridLight: '#d8b4fe', gridDark: '#581c87', cellLight: '#ffffff', cellDark: '#1e1b4b', indicatorLight: '#9333ea', indicatorDark: '#c084fc', linesLight: ['#9333ea', '#7e22ce', '#a855f7', '#c026d3', '#db2777'], linesDark: ['#c084fc', '#e9d5ff', '#d8b4fe', '#f472b6', '#fb7185'] },
+  { name: 'M3 Orange', light: '#fff7ed', dark: '#431407', gridLight: '#fdba74', gridDark: '#7c2d12', cellLight: '#ffffff', cellDark: '#2a1200', indicatorLight: '#ea580c', indicatorDark: '#fb923c', linesLight: ['#ea580c', '#c2410c', '#d97706', '#dc2626', '#b45309'], linesDark: ['#fb923c', '#fcd34d', '#fca5a5', '#f87171', '#fdba74'] },
+  { name: 'M3 Rose', light: '#fff1f2', dark: '#4c0519', gridLight: '#fecdd3', gridDark: '#881337', cellLight: '#ffffff', cellDark: '#240000', indicatorLight: '#e11d48', indicatorDark: '#fb7185', linesLight: ['#e11d48', '#be123c', '#9f1239', '#db2777', '#f43f5e'], linesDark: ['#fb7185', '#fda4af', '#fecdd3', '#fbcfe8', '#f9a8d4'] },
+  { name: 'M3 Cyan', light: '#ecfeff', dark: '#083344', gridLight: '#67e8f9', gridDark: '#164e63', cellLight: '#ffffff', cellDark: '#0b2e59', indicatorLight: '#0891b2', indicatorDark: '#22d3ee', linesLight: ['#0891b2', '#0e7490', '#0369a1', '#0f766e', '#115e59'], linesDark: ['#22d3ee', '#67e8f9', '#7dd3fc', '#5eead4', '#99f6e4'] },
+  { name: 'M3 Amber', light: '#fffbeb', dark: '#451a03', gridLight: '#fde047', gridDark: '#713f12', cellLight: '#ffffff', cellDark: '#2e1503', indicatorLight: '#d97706', indicatorDark: '#fbbf24', linesLight: ['#d97706', '#ca8a04', '#b45309', '#a16207', '#ea580c'], linesDark: ['#fbbf24', '#fef08a', '#fcd34d', '#fdba74', '#fde047'] },
+  { name: 'M3 Crimson', light: '#fef2f2', dark: '#450a0a', gridLight: '#fca5a5', gridDark: '#7f1d1d', cellLight: '#ffffff', cellDark: '#1a0505', indicatorLight: '#dc2626', indicatorDark: '#f87171', linesLight: ['#dc2626', '#b91c1c', '#991b1b', '#7f1d1d', '#e11d48'], linesDark: ['#f87171', '#fca5a5', '#ef4444', '#fb7185', '#f87171'] },
+  { name: 'M3 Indigo', light: '#eef2ff', dark: '#1e1b4b', gridLight: '#c7d2fe', gridDark: '#312e81', cellLight: '#ffffff', cellDark: '#111827', indicatorLight: '#4f46e5', indicatorDark: '#818cf8', linesLight: ['#4f46e5', '#4338ca', '#3730a3', '#312e81', '#1e3a8a'], linesDark: ['#818cf8', '#a5b4fc', '#93c5fd', '#bfdbfe', '#60a5fa'] },
+  { name: 'M3 Mint', light: '#f0fdfa', dark: '#042f2e', gridLight: '#99f6e4', gridDark: '#134e4a', cellLight: '#ffffff', cellDark: '#021a1a', indicatorLight: '#0d9488', indicatorDark: '#5eead4', linesLight: ['#0d9488', '#0f766e', '#0b1d1d', '#14532d', '#065f46'], linesDark: ['#5eead4', '#6ee7b7', '#a7f3d0', '#86efac', '#69dba8'] },
 ];
 
 const X_COLORS = ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#d946ef', '#f43f5e'];
@@ -168,13 +168,14 @@ const O_COLORS = ['#3b82f6', '#0ea5e9', '#06b6d4', '#14b8a6', '#22c55e', '#84cc1
 
 export default function App() {
   const [board, setBoard] = useState<SquareValue[]>(Array(9).fill(null));
-  const [startingPlayer, setStartingPlayer] = useState<Player>('X');
-  const [isXNext, setIsXNext] = useState(true);
+  
+  // By Default, Human is 'O' and goes first. AI is 'X'.
+  const [startingPlayer, setStartingPlayer] = useState<Player>('O'); 
+  const [isXNext, setIsXNext] = useState(false); // Since 'O' starts, X is not next initially
   
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(null);
   const [isDraw, setIsDraw] = useState(false);
   const [isSinglePlayer, setIsSinglePlayer] = useState(true);
-  const [aiMovesFirst, setAiMovesFirst] = useState(false); 
   
   const lastMoveIdxRef = useRef<number | null>(null);
   const [linePoints, setLinePoints] = useState<{ type: 'normal' | 'center-out', start: { x: number; y: number }; end: { x: number; y: number }, mid: { x: number; y: number } } | null>(null);
@@ -198,7 +199,6 @@ export default function App() {
   const [customLineIdx, setCustomLineIdx] = useState(0);
   
   const [targetScore, setTargetScore] = useState(5);
-  // Separate state to track user's intention vs current active state
   const [userWantsTargetScore, setUserWantsTargetScore] = useState(true);
   const [isTargetScoreEnabled, setIsTargetScoreEnabled] = useState(true);
 
@@ -281,7 +281,7 @@ export default function App() {
     }
   }, [board, isSoundOn, isResetting, xColorIdx, oColorIdx, winnerInfo, isDraw, overallWinner, targetScore, isTargetScoreEnabled]);
 
-  const aiPlayerSymbol = isSinglePlayer ? (aiMovesFirst ? startingPlayer : (startingPlayer === 'X' ? 'O' : 'X')) : null;
+  const aiPlayerSymbol = isSinglePlayer ? 'X' : null; // AI is always X in 1-player mode
   const isAITurn = isSinglePlayer && aiPlayerSymbol && ((isXNext && aiPlayerSymbol === 'X') || (!isXNext && aiPlayerSymbol === 'O'));
 
   useEffect(() => {
@@ -334,7 +334,6 @@ export default function App() {
       if (hardReset) {
          setScores({ X: 0, O: 0, Draws: 0 });
          setOverallWinner(null);
-         // If user originally wanted target score, re-enable it on hard reset
          if (userWantsTargetScore) setIsTargetScoreEnabled(true);
       }
       setIsResetting(false);
@@ -362,12 +361,13 @@ export default function App() {
 
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
-      setAiMovesFirst(prev => {
-        hapticFeedback([80, 40, 80]); 
-        setIsSinglePlayer(true);
-        resetGameForMode(startingPlayer, true); 
-        return !prev;
-      });
+      hapticFeedback([80, 40, 80]); 
+      setIsSinglePlayer(true);
+      
+      // If 1 Player is hold, set AI (X) to start
+      setStartingPlayer('X');
+      setIsXNext(true);
+      resetGameForMode('X', true); 
     }, 600);
   };
   const handleModeHoldEnd = () => {
@@ -380,13 +380,13 @@ export default function App() {
     resetGameForMode(startingPlayer, true); 
   };
 
-  const performHardReset = (startingPlayer: Player) => {
+  const performHardReset = (startingPlayerOverride: Player) => {
       if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
       if (myConfettiRef.current) myConfettiRef.current.reset();
       setScores({ X: 0, O: 0, Draws: 0 });
-      setStartingPlayer(startingPlayer);
+      setStartingPlayer(startingPlayerOverride);
       setBoard(Array(9).fill(null));
-      setIsXNext(startingPlayer === 'X');
+      setIsXNext(startingPlayerOverride === 'X');
       setWinnerInfo(null);
       setIsDraw(false);
       setLinePoints(null);
@@ -394,7 +394,6 @@ export default function App() {
       setOverallWinner(null);
       setIsOverallWinModalOpen(false);
       setIsResetting(false);
-      // If user originally wanted target score, re-enable it on hard reset
       if (userWantsTargetScore) setIsTargetScoreEnabled(true);
   };
 
@@ -475,22 +474,6 @@ export default function App() {
     boxShadow: isDarkMode ? '0 2px 6px rgba(0,0,0,0.4)' : '0 2px 6px rgba(0,0,0,0.06)'
   });
 
-  const getLineAnimProps = (points: { type: string, start: { x: number, y: number }, end: { x: number, y: number }, mid: { x: number, y: number } } | null) => {
-    if (!points) return { initial: {}, animate: {} };
-    if (points.type === 'center-out') {
-       return {
-         initial: { x1: `${points.mid.x}%`, y1: `${points.mid.y}%`, x2: `${points.mid.x}%`, y2: `${points.mid.y}%`, opacity: 0 },
-         animate: { x1: `${points.start.x}%`, y1: `${points.start.y}%`, x2: `${points.end.x}%`, y2: `${points.end.y}%`, opacity: 1 }
-       }
-    }
-    return {
-      initial: { x1: `${points.start.x}%`, y1: `${points.start.y}%`, x2: `${points.start.x}%`, y2: `${points.start.y}%`, opacity: 0 },
-      animate: { x1: `${points.start.x}%`, y1: `${points.start.y}%`, x2: `${points.end.x}%`, y2: `${points.end.y}%`, opacity: 1 }
-    };
-  };
-
-  const lineAnim = getLineAnimProps(linePoints);
-
   const displayScore = (score: number) => {
      return isTargetScoreEnabled ? `${score} / ${targetScore}` : score;
   };
@@ -559,7 +542,7 @@ export default function App() {
           <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm">
             <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative px-6 py-3 rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
-              <span className="relative z-10">{isSinglePlayer && aiMovesFirst ? '🤖 1 Player (AI First)' : '🤖 1 Player'}</span>
+              <span className="relative z-10">{isSinglePlayer && startingPlayer === 'X' ? '🤖 1 Player (AI First)' : '🤖 1 Player'}</span>
             </button>
             <button onClick={() => switchModeClick(false)} className={`relative px-6 py-3 rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none ${!isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {!isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
@@ -676,61 +659,51 @@ export default function App() {
                 </button>
               ))}
 
-              {/* Exact Classic Hollow Winning Line (Transparent Center + Colored Border) */}
+              {/* Exact Classic Hollow Winning Line (Transparent Center + Thin Colored Border) */}
               <AnimatePresence>
                 {linePoints && winnerInfo && (
                   <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
                     
-                    {linePoints.type === 'center-out' ? (
-                       <>
-                         <defs>
-                          <mask id="hollow-mask-1" maskUnits="userSpaceOnUse">
-                            <rect width="100%" height="100%" fill="white" />
-                            <motion.line
-                              initial={{ x1: `${linePoints.mid.x}%`, y1: `${linePoints.mid.y}%`, x2: `${linePoints.mid.x}%`, y2: `${linePoints.mid.y}%`, opacity: 0 }}
-                              animate={isResetting ? { x1: `${linePoints.mid.x}%`, y1: `${linePoints.mid.y}%`, x2: `${linePoints.mid.x}%`, y2: `${linePoints.mid.y}%`, opacity: 0 } : { x1: `${linePoints.start.x}%`, y1: `${linePoints.start.y}%`, x2: `${linePoints.mid.x}%`, y2: `${linePoints.mid.y}%`, opacity: 1 }}
-                              stroke="black" strokeWidth="4" strokeLinecap="round" transition={{ duration: 0.45, ease: "easeOut" }}
-                            />
-                          </mask>
-                          <mask id="hollow-mask-2" maskUnits="userSpaceOnUse">
-                            <rect width="100%" height="100%" fill="white" />
-                            <motion.line
-                              initial={{ x1: `${linePoints.mid.x}%`, y1: `${linePoints.mid.y}%`, x2: `${linePoints.mid.x}%`, y2: `${linePoints.mid.y}%`, opacity: 0 }}
-                              animate={isResetting ? { x1: `${linePoints.mid.x}%`, y1: `${linePoints.mid.y}%`, x2: `${linePoints.mid.x}%`, y2: `${linePoints.mid.y}%`, opacity: 0 } : { x1: `${linePoints.end.x}%`, y1: `${linePoints.end.y}%`, x2: `${linePoints.mid.x}%`, y2: `${linePoints.mid.y}%`, opacity: 1 }}
-                              stroke="black" strokeWidth="4" strokeLinecap="round" transition={{ duration: 0.45, ease: "easeOut" }}
-                            />
-                          </mask>
-                        </defs>
+                    <defs>
+                      <clipPath id="center-out-clip">
+                         <motion.circle 
+                           cx={`${linePoints.mid.x}%`} cy={`${linePoints.mid.y}%`} 
+                           initial={{ r: 0 }} animate={{ r: isResetting ? 0 : 150 }} 
+                           transition={{ duration: 0.45, ease: "easeInOut" }} 
+                         />
+                      </clipPath>
+                      
+                      <mask id="hollow-mask" maskUnits="userSpaceOnUse">
+                        <rect width="100%" height="100%" fill="white" />
                         <motion.line
-                           initial={{ x1: `${linePoints.mid.x}%`, y1: `${linePoints.mid.y}%`, x2: `${linePoints.mid.x}%`, y2: `${linePoints.mid.y}%`, opacity: 0 }}
-                           animate={isResetting ? { x1: `${linePoints.mid.x}%`, y1: `${linePoints.mid.y}%`, x2: `${linePoints.mid.x}%`, y2: `${linePoints.mid.y}%`, opacity: 0 } : { x1: `${linePoints.start.x}%`, y1: `${linePoints.start.y}%`, x2: `${linePoints.mid.x}%`, y2: `${linePoints.mid.y}%`, opacity: 1 }}
-                           stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask-1)" transition={{ duration: 0.45, ease: "easeOut" }}
+                          x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
+                          x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                          stroke="black" strokeWidth="6" strokeLinecap="round"
                         />
-                        <motion.line
-                           initial={{ x1: `${linePoints.mid.x}%`, y1: `${linePoints.mid.y}%`, x2: `${linePoints.mid.x}%`, y2: `${linePoints.mid.y}%`, opacity: 0 }}
-                           animate={isResetting ? { x1: `${linePoints.mid.x}%`, y1: `${linePoints.mid.y}%`, x2: `${linePoints.mid.x}%`, y2: `${linePoints.mid.y}%`, opacity: 0 } : { x1: `${linePoints.end.x}%`, y1: `${linePoints.end.y}%`, x2: `${linePoints.mid.x}%`, y2: `${linePoints.mid.y}%`, opacity: 1 }}
-                           stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask-2)" transition={{ duration: 0.45, ease: "easeOut" }}
-                        />
-                       </>
-                    ) : (
-                      <>
-                        <defs>
-                          <mask id="hollow-mask" maskUnits="userSpaceOnUse">
-                            <rect width="100%" height="100%" fill="white" />
-                            <motion.line
-                              initial={{ x1: `${linePoints.start.x}%`, y1: `${linePoints.start.y}%`, x2: `${linePoints.start.x}%`, y2: `${linePoints.start.y}%`, opacity: 0 }}
-                              animate={isResetting ? { x1: `${linePoints.start.x}%`, y1: `${linePoints.start.y}%`, x2: `${linePoints.start.x}%`, y2: `${linePoints.start.y}%`, opacity: 0 } : { x1: `${linePoints.start.x}%`, y1: `${linePoints.start.y}%`, x2: `${linePoints.end.x}%`, y2: `${linePoints.end.y}%`, opacity: 1 }}
-                              stroke="black" strokeWidth="4" strokeLinecap="round" transition={{ duration: 0.45, ease: "easeInOut" }}
-                            />
-                          </mask>
-                        </defs>
-                        <motion.line
-                          initial={{ x1: `${linePoints.start.x}%`, y1: `${linePoints.start.y}%`, x2: `${linePoints.start.x}%`, y2: `${linePoints.start.y}%`, opacity: 0 }}
-                          animate={isResetting ? { x1: `${linePoints.start.x}%`, y1: `${linePoints.start.y}%`, x2: `${linePoints.start.x}%`, y2: `${linePoints.start.y}%`, opacity: 0 } : { x1: `${linePoints.start.x}%`, y1: `${linePoints.start.y}%`, x2: `${linePoints.end.x}%`, y2: `${linePoints.end.y}%`, opacity: 1 }}
-                          stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)" transition={{ duration: 0.45, ease: "easeInOut" }}
-                        />
-                      </>
-                    )}
+                      </mask>
+                    </defs>
+
+                    {/* Outer Stroke Layer (Masked to be hollow) */}
+                    <motion.line
+                      x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
+                      x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                      stroke={activeLineColor} strokeWidth="10" strokeLinecap="round" mask="url(#hollow-mask)"
+                      clipPath={linePoints.type === 'center-out' ? "url(#center-out-clip)" : undefined}
+                      initial={linePoints.type === 'normal' ? { pathLength: 0 } : undefined}
+                      animate={linePoints.type === 'normal' ? { pathLength: isResetting ? 0 : 1 } : undefined}
+                      transition={{ duration: 0.45, ease: "easeInOut" }}
+                    />
+
+                    {/* Inner 25% Transparent Fill */}
+                    <motion.line
+                      x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
+                      x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                      stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.25}
+                      clipPath={linePoints.type === 'center-out' ? "url(#center-out-clip)" : undefined}
+                      initial={linePoints.type === 'normal' ? { pathLength: 0 } : undefined}
+                      animate={linePoints.type === 'normal' ? { pathLength: isResetting ? 0 : 1 } : undefined}
+                      transition={{ duration: 0.45, ease: "easeInOut" }}
+                    />
                   </svg>
                 )}
               </AnimatePresence>
@@ -903,7 +876,7 @@ export default function App() {
                     <h4 className="text-lg font-extrabold tracking-tight opacity-90 pt-3">Controls</h4>
                     <p>🔄 <span className="font-bold text-sky-500">Soft Reset:</span> Tap the Restart button to clear the board and start a new round.</p>
                     <p>⚠️ <span className="font-bold text-sky-500">Hard Reset:</span> <strong>Press and hold</strong> the Restart button to wipe all scores and start completely fresh. This will also re-enable the Target Score logic if it was disabled.</p>
-                    <p>✨ <span className="font-bold text-sky-500">First Player:</span> <strong>Press and hold</strong> the turn banner before starting a match to swap who goes first.</p>
+                    <p>✨ <span className="font-bold text-sky-500">First Player:</span> <strong>Press and hold</strong> the "1 Player" button to allow the AI (X) to go first instead of you.</p>
                   </div>
                   
                 </div>
