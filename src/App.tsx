@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RotateCcw, Moon, Sun, Sparkles } from 'lucide-react';
+import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 type Player = 'X' | 'O';
@@ -23,6 +23,45 @@ const hapticFeedback = (pattern: number | number[]) => {
       navigator.vibrate(pattern);
     } catch (e) {
     }
+  }
+};
+
+// --- Sound System ---
+const playGameSound = (type: 'tap' | 'win', enabled: boolean) => {
+  if (!enabled || typeof window === 'undefined') return;
+  try {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    
+    if (type === 'tap') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime); 
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.1);
+    } else if (type === 'win') {
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => { 
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.1 + 0.4);
+        osc.start(ctx.currentTime + i * 0.1);
+        osc.stop(ctx.currentTime + i * 0.1 + 0.4);
+      });
+    }
+  } catch(e) {
+    console.error("Audio error", e);
   }
 };
 
@@ -138,6 +177,8 @@ export default function App() {
   const [rotation, setRotation] = useState(0);
   const [isHoldingBanner, setIsHoldingBanner] = useState(false);
   
+  const [isSoundOn, setIsSoundOn] = useState(true);
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       return document.documentElement.classList.contains('dark') || 
@@ -165,6 +206,11 @@ export default function App() {
   const toggleDarkMode = () => {
     hapticFeedback(40);
     setIsDarkMode(!isDarkMode);
+  };
+
+  const toggleSound = () => {
+    hapticFeedback(40);
+    setIsSoundOn(!isSoundOn);
   };
 
   const fireConfetti = (winner: Player) => {
@@ -217,6 +263,7 @@ export default function App() {
         setWinnerInfo({ winner, line: combination });
         
         hapticFeedback([100, 50, 100, 50, 300]); 
+        playGameSound('win', isSoundOn);
         
         fireConfetti(winner);
         hasWinner = true;
@@ -228,7 +275,7 @@ export default function App() {
       hapticFeedback([200, 100, 200]);
       setIsDraw(true);
     }
-  }, [board]);
+  }, [board, isSoundOn]);
 
   const aiPlayerSymbol = isSinglePlayer 
     ? (aiMovesFirst ? startingPlayer : (startingPlayer === 'X' ? 'O' : 'X')) 
@@ -247,6 +294,7 @@ export default function App() {
           newBoard[bestMove] = aiPlayerSymbol;
           
           hapticFeedback(50); 
+          playGameSound('tap', isSoundOn);
           
           setBoard(newBoard);
           setIsXNext(aiPlayerSymbol === 'O');
@@ -256,13 +304,14 @@ export default function App() {
       
       return () => clearTimeout(aiTimer);
     }
-  }, [isXNext, isSinglePlayer, board, winnerInfo, isDraw, aiPlayerSymbol, isAITurn]);
+  }, [isXNext, isSinglePlayer, board, winnerInfo, isDraw, aiPlayerSymbol, isAITurn, isSoundOn]);
 
   const handleClick = (index: number) => {
     if (board[index] || winnerInfo) return;
     if (isAITurn) return; 
 
     hapticFeedback(50); 
+    playGameSound('tap', isSoundOn);
 
     const newBoard = [...board];
     newBoard[index] = isXNext ? 'X' : 'O';
@@ -401,7 +450,8 @@ export default function App() {
     squareBackground: isDarkMode ? '#111111' : '#f1f5f9',
     text: isDarkMode ? '#f2f2f2' : '#1a1c2e',
     modeSliderContainer: isDarkMode ? { bg: '#0c0c0c', border: 'rgba(255, 255, 255, 0.15)' } : { bg: '#f1f5f9', border: 'rgba(0, 0, 0, 0.1)' },
-    bannerDefault: isDarkMode ? { bg: '#0c0c0c', text: '#f2f2f2', border: 'rgba(255, 255, 255, 0.15)' } : { bg: '#f1f5f9', text: '#1a1c2e', border: 'rgba(0, 0, 0, 0.1)' },
+    // Banner color matched with mode buttons
+    bannerDefault: isDarkMode ? { bg: '#575a89', text: '#ffffff', border: 'transparent' } : { bg: '#dbe2f9', text: '#1a1c2e', border: 'transparent' },
   };
 
   let bannerStyle: React.CSSProperties = {
@@ -432,6 +482,8 @@ export default function App() {
     }
   }
 
+  const isGameNotStarted = board.every(cell => cell === null) && !winnerInfo;
+
   return (
     <div 
         style={{ backgroundColor: semantics.screenBackground }}
@@ -442,7 +494,8 @@ export default function App() {
         className="fixed inset-0 w-full h-full pointer-events-none z-[100]" 
       />
 
-      <nav className="fixed top-0 left-0 right-0 h-20 px-6 flex items-center justify-between z-50 pointer-events-none">
+      <nav className="fixed top-0 left-0 right-0 h-20 px-6 flex items-center justify-between z-50 pointer-events-none w-full">
+        {/* Left Side: Dark/Light Mode */}
         <div className="pointer-events-auto">
           <button
             onClick={toggleDarkMode}
@@ -465,7 +518,8 @@ export default function App() {
           </button>
         </div>
 
-        <div className="pointer-events-auto">
+        {/* Center: Restart Button */}
+        <div className="pointer-events-auto absolute left-1/2 -translate-x-1/2">
           <button
             onClick={() => {
               setRotation(prev => prev - 360);
@@ -482,6 +536,29 @@ export default function App() {
             >
               <RotateCcw className="w-6 h-6" />
             </motion.div>
+          </button>
+        </div>
+
+        {/* Right Side: Sound Toggle */}
+        <div className="pointer-events-auto">
+          <button
+            onClick={toggleSound}
+            className={navBtnClass}
+            style={getNavBtnStyle()}
+            aria-label="Toggle Sound"
+          >
+            <AnimatePresence initial={false}>
+              <motion.div
+                key={isSoundOn ? 'on' : 'off'}
+                initial={{ scale: 0.5, opacity: 0, rotate: -90 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                exit={{ scale: 0.5, opacity: 0, rotate: 90 }}
+                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                className="absolute flex items-center justify-center w-full h-full"
+              >
+                {isSoundOn ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
+              </motion.div>
+            </AnimatePresence>
           </button>
         </div>
       </nav>
@@ -561,8 +638,8 @@ export default function App() {
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
           style={bannerStyle}
           className={`
-            mx-auto w-fit px-8 py-4 rounded-[2rem] text-lg font-bold flex flex-col items-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden
-            ${board.every(cell => cell === null) && !winnerInfo ? 'cursor-pointer' : ''}
+            mx-auto w-[280px] h-[92px] rounded-[2rem] text-lg font-bold flex flex-col items-center justify-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden
+            ${isGameNotStarted ? 'cursor-pointer' : ''}
           `}
         >
           <div className="flex items-center gap-2 relative z-10">
@@ -575,8 +652,15 @@ export default function App() {
               "It's a Stalemate!"
             ) : (
               <>
-                {isAITurn ? 'AI is thinking...' : (
-                  <div className="flex items-center">
+                {isAITurn ? (
+                  <div className="flex items-center gap-1.5 h-8">
+                    <span className="font-semibold mr-1">AI Thinking</span>
+                    <motion.span animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
+                    <motion.span animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.15 }} className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
+                    <motion.span animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.3 }} className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
+                  </div>
+                ) : (
+                  <div className="flex items-center h-8">
                     Player&nbsp;
                     <div className="relative h-8 w-6 overflow-hidden flex items-center justify-center">
                       <AnimatePresence mode="popLayout">
@@ -586,7 +670,9 @@ export default function App() {
                           animate={{ y: 0, opacity: 1 }}
                           exit={{ y: -20, opacity: 0 }}
                           transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                          className={`absolute font-black text-2xl ${isXNext ? 'text-[#dc2626] dark:text-[#ff4444]' : 'text-[#2563eb] dark:text-[#4488ff]'}`}
+                          className={`absolute font-black text-2xl ${
+                            isDarkMode ? (isXNext ? 'text-[#ff7b7b]' : 'text-[#7ca2ff]') : (isXNext ? 'text-[#dc2626]' : 'text-[#2563eb]')
+                          }`}
                         >
                           {isXNext ? 'X' : 'O'}
                         </motion.span>
@@ -599,19 +685,17 @@ export default function App() {
             )}
           </div>
           
-          {board.every(cell => cell === null) && !winnerInfo && (
-            <div className="relative w-full mt-1 flex flex-col items-center z-10">
-              <span className="text-[11px] opacity-70 font-medium tracking-wide uppercase">Hold to switch first player</span>
-              <div className="h-0.5 w-16 bg-transparent rounded-full overflow-hidden mt-1 relative">
-                 <motion.div
-                   initial={{ x: "-100%" }}
-                   animate={{ x: isHoldingBanner ? "0%" : "-100%" }}
-                   transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }}
-                   className="absolute inset-0 bg-gray-500 dark:bg-gray-300"
-                 />
-              </div>
+          <div className={`absolute bottom-2 w-full flex flex-col items-center z-10 transition-opacity duration-300 pointer-events-none ${isGameNotStarted ? 'opacity-100' : 'opacity-0'}`}>
+            <span className="text-[10px] opacity-70 font-medium tracking-wide uppercase">Hold to switch first player</span>
+            <div className="h-[2px] w-16 bg-transparent rounded-full overflow-hidden mt-[2px] relative">
+               <motion.div
+                 initial={{ x: "-100%" }}
+                 animate={{ x: isHoldingBanner ? "0%" : "-100%" }}
+                 transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }}
+                 className="absolute inset-0 bg-gray-500 dark:bg-gray-300"
+               />
             </div>
-          )}
+          </div>
         </motion.div>
       </header>
 
