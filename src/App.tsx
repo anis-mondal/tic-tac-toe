@@ -140,7 +140,7 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
   return bestMove;
 };
 
-// --- Highly Distinct Material 3 Themes ---
+// --- Authentic Material 3 Themes ---
 const ORIGINAL_THEME = {
   name: 'Classic',
   light: '#f8f9fa', dark: '#000000',
@@ -152,12 +152,12 @@ const ORIGINAL_THEME = {
 
 const CUSTOM_THEMES = [
   { name: 'M3 Blue', light: '#eff6ff', dark: '#0f172a', gridLight: '#bfdbfe', gridDark: '#1e3a8a', cellLight: '#ffffff', cellDark: '#111827', indicatorLight: '#2563eb', indicatorDark: '#60a5fa', linesLight: ['#2563eb', '#1d4ed8', '#3b82f6', '#4f46e5', '#0284c7'], linesDark: ['#60a5fa', '#93c5fd', '#3b82f6', '#818cf8', '#38bdf8'] },
-  { name: 'M3 Emerald', light: '#ecfdf5', dark: '#022c22', gridLight: '#a7f3d0', gridDark: '#064e3b', cellLight: '#ffffff', cellDark: '#065f46', indicatorLight: '#16a34a', indicatorDark: '#4ade80', linesLight: ['#16a34a', '#15803d', '#059669', '#65a30d', '#10b981'], linesDark: ['#4ade80', '#86efac', '#34d399', '#a3e635', '#22c55e'] },
+  { name: 'M3 Green', light: '#ecfdf5', dark: '#022c22', gridLight: '#a7f3d0', gridDark: '#064e3b', cellLight: '#ffffff', cellDark: '#065f46', indicatorLight: '#16a34a', indicatorDark: '#4ade80', linesLight: ['#16a34a', '#15803d', '#059669', '#65a30d', '#10b981'], linesDark: ['#4ade80', '#86efac', '#34d399', '#a3e635', '#22c55e'] },
   { name: 'M3 Purple', light: '#f5f3ff', dark: '#2e1065', gridLight: '#d8b4fe', gridDark: '#581c87', cellLight: '#ffffff', cellDark: '#1e1b4b', indicatorLight: '#9333ea', indicatorDark: '#c084fc', linesLight: ['#9333ea', '#7e22ce', '#a855f7', '#c026d3', '#db2777'], linesDark: ['#c084fc', '#e9d5ff', '#d8b4fe', '#f472b6', '#fb7185'] },
   { name: 'M3 Orange', light: '#fff7ed', dark: '#431407', gridLight: '#fdba74', gridDark: '#7c2d12', cellLight: '#ffffff', cellDark: '#2a1200', indicatorLight: '#ea580c', indicatorDark: '#fb923c', linesLight: ['#ea580c', '#c2410c', '#d97706', '#dc2626', '#b45309'], linesDark: ['#fb923c', '#fcd34d', '#fca5a5', '#f87171', '#fdba74'] },
   { name: 'M3 Rose', light: '#fff1f2', dark: '#4c0519', gridLight: '#fecdd3', gridDark: '#881337', cellLight: '#ffffff', cellDark: '#240000', indicatorLight: '#e11d48', indicatorDark: '#fb7185', linesLight: ['#e11d48', '#be123c', '#9f1239', '#db2777', '#f43f5e'], linesDark: ['#fb7185', '#fda4af', '#fecdd3', '#fbcfe8', '#f9a8d4'] },
   { name: 'M3 Cyan', light: '#ecfeff', dark: '#083344', gridLight: '#67e8f9', gridDark: '#164e63', cellLight: '#ffffff', cellDark: '#0b2e59', indicatorLight: '#0891b2', indicatorDark: '#22d3ee', linesLight: ['#0891b2', '#0e7490', '#0369a1', '#0f766e', '#115e59'], linesDark: ['#22d3ee', '#67e8f9', '#7dd3fc', '#5eead4', '#99f6e4'] },
-  { name: 'M3 Amber', light: '#fffbeb', dark: '#451a03', gridLight: '#fde047', gridDark: '#713f12', cellLight: '#ffffff', cellDark: '#2e1503', indicatorLight: '#d97706', indicatorDark: '#fbbf24', linesLight: ['#d97706', '#ca8a04', '#b45309', '#a16207', '#ea580c'], linesDark: ['#fbbf24', '#fef08a', '#fcd34d', '#fdba74', '#fde047'] },
+  { name: 'M3 Yellow', light: '#fffcf2', dark: '#1e1c16', gridLight: '#e7e2d0', gridDark: '#4a473a', cellLight: '#ffffff', cellDark: '#16140e', indicatorLight: '#d97706', indicatorDark: '#fbbf24', linesLight: ['#d97706', '#ca8a04', '#b45309', '#a16207', '#ea580c'], linesDark: ['#fbbf24', '#fef08a', '#fcd34d', '#fdba74', '#fde047'] },
   { name: 'M3 Crimson', light: '#fef2f2', dark: '#450a0a', gridLight: '#fca5a5', gridDark: '#7f1d1d', cellLight: '#ffffff', cellDark: '#1a0505', indicatorLight: '#dc2626', indicatorDark: '#f87171', linesLight: ['#dc2626', '#b91c1c', '#991b1b', '#7f1d1d', '#e11d48'], linesDark: ['#f87171', '#fca5a5', '#ef4444', '#fb7185', '#f87171'] },
   { name: 'M3 Indigo', light: '#eef2ff', dark: '#1e1b4b', gridLight: '#c7d2fe', gridDark: '#312e81', cellLight: '#ffffff', cellDark: '#111827', indicatorLight: '#4f46e5', indicatorDark: '#818cf8', linesLight: ['#4f46e5', '#4338ca', '#3730a3', '#312e81', '#1e3a8a'], linesDark: ['#818cf8', '#a5b4fc', '#93c5fd', '#bfdbfe', '#60a5fa'] },
   { name: 'M3 Mint', light: '#f0fdfa', dark: '#042f2e', gridLight: '#99f6e4', gridDark: '#134e4a', cellLight: '#ffffff', cellDark: '#021a1a', indicatorLight: '#0d9488', indicatorDark: '#5eead4', linesLight: ['#0d9488', '#0f766e', '#0b1d1d', '#14532d', '#065f46'], linesDark: ['#5eead4', '#6ee7b7', '#a7f3d0', '#86efac', '#69dba8'] },
@@ -168,14 +168,13 @@ const O_COLORS = ['#3b82f6', '#0ea5e9', '#06b6d4', '#14b8a6', '#22c55e', '#84cc1
 
 export default function App() {
   const [board, setBoard] = useState<SquareValue[]>(Array(9).fill(null));
-  
-  // By Default, Human is 'O' and goes first. AI is 'X'.
   const [startingPlayer, setStartingPlayer] = useState<Player>('O'); 
-  const [isXNext, setIsXNext] = useState(false); // Since 'O' starts, X is not next initially
+  const [isXNext, setIsXNext] = useState(false);
   
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(null);
   const [isDraw, setIsDraw] = useState(false);
   const [isSinglePlayer, setIsSinglePlayer] = useState(true);
+  const [aiMovesFirst, setAiMovesFirst] = useState(false); 
   
   const lastMoveIdxRef = useRef<number | null>(null);
   const [linePoints, setLinePoints] = useState<{ type: 'normal' | 'center-out', start: { x: number; y: number }; end: { x: number; y: number }, mid: { x: number; y: number } } | null>(null);
@@ -257,7 +256,7 @@ export default function App() {
         
         setScores(prev => {
             const newScore = prev[winner] + 1;
-            if (isTargetScoreEnabled && newScore >= targetScore) {
+            if (isTargetScoreEnabled && newScore === targetScore) {
                setOverallWinner(winner);
                playEnhancedSound('win', isSoundOn);
                setTimeout(() => setIsOverallWinModalOpen(true), 1200); 
@@ -281,7 +280,7 @@ export default function App() {
     }
   }, [board, isSoundOn, isResetting, xColorIdx, oColorIdx, winnerInfo, isDraw, overallWinner, targetScore, isTargetScoreEnabled]);
 
-  const aiPlayerSymbol = isSinglePlayer ? 'X' : null; // AI is always X in 1-player mode
+  const aiPlayerSymbol = isSinglePlayer ? 'X' : null;
   const isAITurn = isSinglePlayer && aiPlayerSymbol && ((isXNext && aiPlayerSymbol === 'X') || (!isXNext && aiPlayerSymbol === 'O'));
 
   useEffect(() => {
@@ -337,7 +336,7 @@ export default function App() {
          if (userWantsTargetScore) setIsTargetScoreEnabled(true);
       }
       setIsResetting(false);
-    }, 500); 
+    }, 450); 
   };
 
   const handleTurnHoldStart = () => {
@@ -359,20 +358,6 @@ export default function App() {
     if (turnHoldTimer.current) clearTimeout(turnHoldTimer.current);
   };
 
-  const handleModeHoldStart = () => {
-    modeHoldTimer.current = setTimeout(() => {
-      hapticFeedback([80, 40, 80]); 
-      setIsSinglePlayer(true);
-      
-      // If 1 Player is hold, set AI (X) to start
-      setStartingPlayer('X');
-      setIsXNext(true);
-      resetGameForMode('X', true); 
-    }, 600);
-  };
-  const handleModeHoldEnd = () => {
-    if (modeHoldTimer.current) clearTimeout(modeHoldTimer.current);
-  };
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
     hapticFeedback(40);
@@ -404,7 +389,7 @@ export default function App() {
       hapticFeedback([100, 50, 100, 50]); 
       setRotation(prev => prev - 720);
       performHardReset(startingPlayer); 
-    }, 600);
+    }, 800);
   };
   
   const handleRestartPointerUp = () => {
@@ -437,7 +422,6 @@ export default function App() {
 
         setLinePoints({ 
           type: lastMoveIdxRef.current === b ? 'center-out' : 'normal',
-          origin: getCellCenter(originIdx), 
           start: getCellCenter(a), 
           end: getCellCenter(c),
           mid: getCellCenter(b)
@@ -540,9 +524,9 @@ export default function App() {
           </motion.h1>
 
           <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm">
-            <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative px-6 py-3 rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
+            <button onClick={() => switchModeClick(true)} className={`relative px-6 py-3 rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
-              <span className="relative z-10">{isSinglePlayer && startingPlayer === 'X' ? '🤖 1 Player (AI First)' : '🤖 1 Player'}</span>
+              <span className="relative z-10">🤖 1 Player</span>
             </button>
             <button onClick={() => switchModeClick(false)} className={`relative px-6 py-3 rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none ${!isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {!isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
@@ -584,17 +568,6 @@ export default function App() {
                 </>
               )}
             </div>
-            {isGameCompletelyFresh && (
-              <div className={`absolute bottom-1.5 w-full flex flex-col items-center z-10 transition-opacity duration-300 pointer-events-none opacity-100`}>
-                <div className="h-[2px] w-12 bg-transparent rounded-full overflow-hidden relative">
-                   <motion.div
-                     initial={{ x: "-100%" }} animate={{ x: isHoldingBanner ? "0%" : "-100%" }}
-                     transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }}
-                     className="absolute inset-0 bg-gray-500 dark:bg-gray-300"
-                   />
-                </div>
-              </div>
-            )}
           </motion.div>
         </header>
 
@@ -659,84 +632,35 @@ export default function App() {
                 </button>
               ))}
 
-              {/* Exact Classic Hollow Winning Line (Transparent Center + Thin Colored Border) */}
+              {/* Hollow Winning Line: Transparent center (masked) + 70% opacity colored border */}
               <AnimatePresence>
                 {linePoints && winnerInfo && (
                   <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    
                     <defs>
-                      <clipPath id="center-out-clip">
-                         <motion.circle 
-                           cx={`${linePoints.mid.x}%`} cy={`${linePoints.mid.y}%`} 
-                           initial={{ r: 0 }} animate={{ r: isResetting ? 0 : 150 }} 
-                           transition={{ duration: 0.45, ease: "easeInOut" }} 
-                         />
-                      </clipPath>
-                      
                       <mask id="hollow-mask" maskUnits="userSpaceOnUse">
                         <rect width="100%" height="100%" fill="white" />
                         <motion.line
                           x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
                           x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
+                          transition={{ duration: 0.5, ease: "easeInOut" }}
                           stroke="black" strokeWidth="6" strokeLinecap="round"
                         />
                       </mask>
                     </defs>
-
-                    {/* Outer Stroke Layer (Masked to be hollow) */}
+                    
+                    {/* Outer Stroke with 70% opacity */}
                     <motion.line
                       x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
                       x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                      stroke={activeLineColor} strokeWidth="10" strokeLinecap="round" mask="url(#hollow-mask)"
-                      clipPath={linePoints.type === 'center-out' ? "url(#center-out-clip)" : undefined}
-                      initial={linePoints.type === 'normal' ? { pathLength: 0 } : undefined}
-                      animate={linePoints.type === 'normal' ? { pathLength: isResetting ? 0 : 1 } : undefined}
-                      transition={{ duration: 0.45, ease: "easeInOut" }}
-                    />
-
-                    {/* Inner 25% Transparent Fill */}
-                    <motion.line
-                      x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
-                      x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                      stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.25}
-                      clipPath={linePoints.type === 'center-out' ? "url(#center-out-clip)" : undefined}
-                      initial={linePoints.type === 'normal' ? { pathLength: 0 } : undefined}
-                      animate={linePoints.type === 'normal' ? { pathLength: isResetting ? 0 : 1 } : undefined}
-                      transition={{ duration: 0.45, ease: "easeInOut" }}
+                      initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
+                      transition={{ duration: 0.5, ease: "easeInOut" }}
+                      stroke={activeLineColor} strokeWidth="12" strokeLinecap="round" mask="url(#hollow-mask)" opacity={0.7}
                     />
                   </svg>
                 )}
               </AnimatePresence>
-
             </div>
-
-            {/* In-Board Target Score Winner Popup */}
-            <AnimatePresence>
-              {isOverallWinModalOpen && overallWinner && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-3 bg-black/60 backdrop-blur-[2px] rounded-[36px] sm:rounded-[40px]">
-                  <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full h-full p-4 rounded-[28px] shadow-2xl relative border border-white/10 flex flex-col items-center justify-center gap-3 text-center overflow-hidden">
-                     
-                     <div className="flex flex-col items-center gap-1.5 z-10">
-                       <h2 className="text-xl font-black tracking-tight leading-tight pt-1">Winner!</h2>
-                       <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="text-4xl font-black" style={{ color: overallWinner === 'X' ? X_COLORS[xColorIdx] : O_COLORS[oColorIdx] }}>
-                        {overallWinner}
-                       </motion.span>
-                     </div>
-                     
-                     <div className="flex flex-col w-full gap-2.5 pt-2 z-10">
-                        <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: isDarkMode ? activeTheme.cellDark : activeTheme.cellLight, border: `2px solid ${activeLineColor}`, color: activeLineColor }}>
-                           Start a New Game
-                        </motion.button>
-                        <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer, false); setIsOverallWinModalOpen(false); setOverallWinner(null); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
-                           Continue This Game
-                        </motion.button>
-                     </div>
-
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
           </motion.div>
         </div>
 
@@ -758,8 +682,6 @@ export default function App() {
                 </div>
                 
                 <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 m3-scrollbar">
-                  
-                  {/* Theme Mode Toggle */}
                   <div>
                      <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Theme Style</h3>
                      <div className="flex gap-2 p-1.5 rounded-2xl" style={{ backgroundColor: semantics.scoreBg }}>
@@ -772,7 +694,6 @@ export default function App() {
                      </div>
                   </div>
                   
-                  {/* Target Score Win Condition */}
                   <div className="rounded-2xl p-4 space-y-3" style={{ backgroundColor: semantics.scoreBg }}>
                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
@@ -819,30 +740,7 @@ export default function App() {
                       </div>
                     </motion.div>
                   )}
-
-                  <div>
-                    <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Player X Color</h3>
-                    <div className="flex flex-wrap gap-3">
-                      {X_COLORS.map((color, idx) => (
-                        <button key={`x-${idx}`} onClick={() => { hapticFeedback(20); setXColorIdx(idx); }} style={{ backgroundColor: color, borderColor: xColorIdx === idx ? (isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center">
-                           {xColorIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Player O Color</h3>
-                    <div className="flex flex-wrap gap-3">
-                      {O_COLORS.map((color, idx) => (
-                        <button key={`o-${idx}`} onClick={() => { hapticFeedback(20); setOColorIdx(idx); }} style={{ backgroundColor: color, borderColor: oColorIdx === idx ? (isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center">
-                          {oColorIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 </div>
-
               </motion.div>
             </motion.div>
           )}
@@ -853,32 +751,19 @@ export default function App() {
           {isAboutOpen && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
               <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-[420px] p-7 rounded-[36px] shadow-2xl relative border border-white/5">
-                
                 <button onClick={() => setIsAboutOpen(false)} className="absolute top-5 right-5 p-2.5 rounded-full bg-gray-500/10 hover:bg-gray-500/20 transition-colors z-[170]">
                   <X className="w-5 h-5" />
                 </button>
-                
-                <div className="flex items-center gap-2.5 mb-6 opacity-80">
-                    <Info className="w-6 h-6 mr-1" />
-                    <h2 className="text-3xl font-black">About Game</h2>
-                </div>
-                
-                <div className="space-y-6 max-h-[65vh] overflow-y-auto pr-3 m3-scrollbar font-sans font-normal text-[15px] opacity-80">
-                  <p>This is a premium <span className="font-bold">Tic-Tac-Toe</span> game crafted with Google's <span className="font-bold text-sky-500">Material You (M3)</span> design system. Customize themes, colors, and target scores for a personalized experience.</p>
-                  
-                  <div className="space-y-3.5">
-                    <h4 className="text-lg font-extrabold tracking-tight opacity-90 pt-2">Key Features</h4>
-                    <p>🤖 <span className="font-bold">1 Player (AI):</span> Play against an intelligent AI.</p>
-                    <p>👥 <span className="font-bold">2 Players:</span> Switch modes with one tap and play with a friend on the same device.</p>
-                    <p>🎯 <span className="font-bold">Target Score Win:</span> Set a custom point target (1-20) to win the full match. Note: You cannot set the target below the current highest score.</p>
-                    <p>🎨 <span className="font-bold">Material You Themes:</span> Choose from 10 beautiful color schemes, and customize the Player colors and Winning Line colors.</p>
-                    
-                    <h4 className="text-lg font-extrabold tracking-tight opacity-90 pt-3">Controls</h4>
-                    <p>🔄 <span className="font-bold text-sky-500">Soft Reset:</span> Tap the Restart button to clear the board and start a new round.</p>
-                    <p>⚠️ <span className="font-bold text-sky-500">Hard Reset:</span> <strong>Press and hold</strong> the Restart button to wipe all scores and start completely fresh. This will also re-enable the Target Score logic if it was disabled.</p>
-                    <p>✨ <span className="font-bold text-sky-500">First Player:</span> <strong>Press and hold</strong> the "1 Player" button to allow the AI (X) to go first instead of you.</p>
-                  </div>
-                  
+                <h2 className="text-3xl font-black mb-6">About Game</h2>
+                <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 m3-scrollbar">
+                  <p>Welcome to our Premium Tic-Tac-Toe! Built with Google Material You (M3) design principles.</p>
+                  <p><strong>Controls:</strong></p>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li><b>Tap Restart:</b> Resets the board for a new round.</li>
+                    <li><b>Long Press Restart:</b> Performs a "Hard Reset" which clears all scores, target points, and game data.</li>
+                    <li><b>Switch Starting Player:</b> Long press the "1 Player" button to allow the AI to move first.</li>
+                    <li><b>Target Score:</b> In settings, you can define a target score (1-20). The first player to reach it wins the match. You cannot lower the target score below current top score.</li>
+                  </ul>
                 </div>
               </motion.div>
             </motion.div>
