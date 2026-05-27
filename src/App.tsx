@@ -25,7 +25,7 @@ const hapticFeedback = (pattern: number | number[]) => {
   }
 };
 
-// --- Enhanced Sound System ---
+// --- Audio System ---
 const audioState = { ctx: null as AudioContext | null };
 const playEnhancedSound = (type: 'tap' | 'win' | 'pop', enabled: boolean) => {
   if (!enabled || typeof window === 'undefined') return;
@@ -162,10 +162,17 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
   return bestMove;
 };
 
-// --- Customization Data ---
-const THEMES = [
-  { name: 'Default', light: '#f4f7fb', dark: '#000000', gridLight: '#e2e8f0', gridDark: '#0c0c0c', cellLight: '#c0e9f8', cellDark: '#225b6c' },
-  { name: 'Blue', light: '#e0f2fe', dark: '#020617', gridLight: '#bae6fd', gridDark: '#0f172a', cellLight: '#7dd3fc', cellDark: '#1e3a8a' },
+// --- Themes Data ---
+const ORIGINAL_THEME = {
+  name: 'Default (Classic)',
+  light: '#ffffff', dark: '#000000',
+  gridLight: '#e2e8f0', gridDark: '#0c0c0c',
+  cellLight: '#f1f5f9', cellDark: '#111111'
+};
+
+const CUSTOM_THEMES = [
+  { name: 'Teal/Blue', light: '#f4f7fb', dark: '#000000', gridLight: '#e2e8f0', gridDark: '#0c0c0c', cellLight: '#c0e9f8', cellDark: '#225b6c' },
+  { name: 'Sky', light: '#e0f2fe', dark: '#020617', gridLight: '#bae6fd', gridDark: '#0f172a', cellLight: '#7dd3fc', cellDark: '#1e3a8a' },
   { name: 'Mint', light: '#f0fdfa', dark: '#042f2e', gridLight: '#ccfbf1', gridDark: '#134e4a', cellLight: '#99f6e4', cellDark: '#0f766e' },
   { name: 'Rose', light: '#fff1f2', dark: '#4c0519', gridLight: '#ffe4e6', gridDark: '#881337', cellLight: '#fecdd3', cellDark: '#e11d48' },
   { name: 'Purple', light: '#faf5ff', dark: '#2e1065', gridLight: '#f3e8ff', gridDark: '#4c1d95', cellLight: '#e9d5ff', cellDark: '#7e22ce' },
@@ -198,6 +205,7 @@ export default function App() {
 
   // Settings State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [useDefaultTheme, setUseDefaultTheme] = useState(true); // Toggle for Original vs Custom
   const [themeIdx, setThemeIdx] = useState(0);
   const [xColorIdx, setXColorIdx] = useState(0);
   const [oColorIdx, setOColorIdx] = useState(0);
@@ -207,7 +215,7 @@ export default function App() {
       return document.documentElement.classList.contains('dark') || 
              window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
-    return true; // Default to dark as per preference
+    return true; 
   });
   
   const boardRef = useRef<HTMLDivElement>(null);
@@ -297,8 +305,8 @@ export default function App() {
     setIsXNext(!isXNext);
   };
 
-  // Reverse Animation Reset Logic
   const resetGameForMode = (currentStartingPlayer: Player) => {
+    if (isResetting) return; // Prevent double click
     hapticFeedback(40); 
     playEnhancedSound('pop', isSoundOn);
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
@@ -306,7 +314,7 @@ export default function App() {
 
     setIsResetting(true);
     
-    // Wait for reverse animation to finish before clearing state
+    // Allow reverse animation to complete before clearing states
     setTimeout(() => {
       setBoard(Array(9).fill(null));
       setIsXNext(currentStartingPlayer === 'X');
@@ -367,30 +375,32 @@ export default function App() {
         };
         const [a, , c] = winnerInfo.line;
         setLinePoints({ start: getCellCenter(a), end: getCellCenter(c) });
-      } else {
+      } else if (!winnerInfo && !isResetting) {
         setLinePoints(null);
       }
     };
     updatePoints();
     window.addEventListener('resize', updatePoints);
     return () => window.removeEventListener('resize', updatePoints);
-  }, [winnerInfo]);
+  }, [winnerInfo, isResetting]);
 
-  const activeTheme = THEMES[themeIdx];
+  const activeTheme = useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[themeIdx];
+  
   const semantics = {
     screenBackground: isDarkMode ? activeTheme.dark : activeTheme.light,
     mainGridBackground: isDarkMode ? activeTheme.gridDark : activeTheme.gridLight,
     squareBackground: isDarkMode ? activeTheme.cellDark : activeTheme.cellLight,
-    text: isDarkMode ? '#ffffff' : '#000000',
-    modeSliderContainer: isDarkMode ? { bg: activeTheme.gridDark, border: 'rgba(255, 255, 255, 0.1)' } : { bg: activeTheme.gridLight, border: 'rgba(0, 0, 0, 0.05)' },
-    bannerDefault: isDarkMode ? { bg: activeTheme.gridDark, text: '#ffffff' } : { bg: activeTheme.gridLight, text: '#000000' },
+    text: isDarkMode ? '#ffffff' : '#111111',
+    modeSliderContainer: isDarkMode ? { bg: activeTheme.gridDark, border: 'rgba(255, 255, 255, 0.1)' } : { bg: activeTheme.gridLight, border: 'rgba(0, 0, 0, 0.08)' },
+    bannerDefault: isDarkMode ? { bg: activeTheme.gridDark, text: '#ffffff' } : { bg: activeTheme.gridLight, text: '#111111' },
   };
 
-  const navBtnClass = "w-12 h-12 rounded-full transition-all active:scale-95 shadow-sm flex items-center justify-center overflow-hidden relative border";
+  // Nav Button Styling based on active theme
+  const navBtnClass = "w-[50px] h-[50px] rounded-full transition-all active:scale-95 shadow-sm flex items-center justify-center overflow-hidden relative border z-50";
   const getNavBtnStyle = () => ({
-    backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff',
-    borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-    color: isDarkMode ? '#ffffff' : '#000000'
+    backgroundColor: semantics.squareBackground,
+    borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+    color: semantics.text
   });
 
   return (
@@ -406,71 +416,68 @@ export default function App() {
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-        {/* Top Navigation Bar */}
-        <nav className="fixed top-0 left-0 right-0 h-20 px-4 flex items-center justify-between z-50 w-full">
-          {/* Left: Dark Mode Toggle */}
-          <button onClick={() => { hapticFeedback(40); setIsDarkMode(!isDarkMode); }} className={navBtnClass} style={getNavBtnStyle()}>
+        {/* Top Navigation Bar - Equally Spaced */}
+        <nav className="fixed top-0 left-0 right-0 h-24 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
+          <button onClick={() => { hapticFeedback(40); setIsDarkMode(!isDarkMode); }} className={navBtnClass} style={getNavBtnStyle()} aria-label="Toggle Theme">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div key={isDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {isDarkMode ? <Sun className="w-[22px] h-[22px]" /> : <Moon className="w-[22px] h-[22px]" />}
               </motion.div>
             </AnimatePresence>
           </button>
 
-          {/* Center: Restart */}
-          <button onClick={() => { setRotation(prev => prev - 360); resetGameForMode(startingPlayer); }} className={navBtnClass} style={getNavBtnStyle()}>
+          <button onClick={() => { setRotation(prev => prev - 360); resetGameForMode(startingPlayer); }} className={navBtnClass} style={getNavBtnStyle()} aria-label="Restart">
             <motion.div animate={{ rotate: rotation }} transition={{ type: "spring", stiffness: 300, damping: 25 }}>
-              <RotateCcw className="w-5 h-5" />
+              <RotateCcw className="w-[22px] h-[22px]" />
             </motion.div>
           </button>
 
-          {/* Right: Sound & Settings */}
-          <div className="flex gap-2 items-center">
-            <button onClick={() => { hapticFeedback(40); setIsSoundOn(!isSoundOn); }} className={navBtnClass} style={getNavBtnStyle()}>
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div key={isSoundOn ? 'on' : 'off'} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ duration: 0.2 }}>
-                  {isSoundOn ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-                </motion.div>
-              </AnimatePresence>
-            </button>
-            <button onClick={() => { hapticFeedback(40); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
-              <MoreVertical className="w-5 h-5" />
-            </button>
-          </div>
+          <button onClick={() => { hapticFeedback(40); setIsSoundOn(!isSoundOn); }} className={navBtnClass} style={getNavBtnStyle()} aria-label="Toggle Sound">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div key={isSoundOn ? 'on' : 'off'} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ duration: 0.2 }}>
+                {isSoundOn ? <Volume2 className="w-[22px] h-[22px]" /> : <VolumeX className="w-[22px] h-[22px]" />}
+              </motion.div>
+            </AnimatePresence>
+          </button>
+          
+          <button onClick={() => { hapticFeedback(40); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()} aria-label="Settings">
+            <MoreVertical className="w-[22px] h-[22px]" />
+          </button>
         </nav>
 
         {/* Header & Modes */}
-        <header className="mb-2 text-center space-y-6 pt-12 z-10 relative w-full max-w-md">
-          <motion.h1 initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} style={{ color: semantics.text }} className="text-4xl sm:text-5xl font-black tracking-tight drop-shadow-sm">
+        <header className="mb-2 text-center space-y-6 pt-16 z-10 relative w-full max-w-md">
+          <motion.h1 initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} style={{ color: semantics.text }} className="text-[40px] sm:text-[48px] font-black tracking-tight drop-shadow-sm">
             Tic Tac Toe
           </motion.h1>
 
           <div style={{ backgroundColor: semantics.modeSliderContainer.bg, borderColor: semantics.modeSliderContainer.border, borderWidth: '2px' }} className="flex gap-2 justify-center p-1.5 rounded-full relative w-fit mx-auto shadow-inner">
-            <button onClick={() => { hapticFeedback(40); setIsSinglePlayer(true); resetGameForMode(startingPlayer); }} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative px-5 py-2.5 rounded-full text-sm z-10 transition-colors duration-300 select-none ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
+            <button onClick={() => { hapticFeedback(40); setIsSinglePlayer(true); resetGameForMode(startingPlayer); }} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative px-5 py-2.5 rounded-full text-[15px] z-10 transition-colors duration-300 select-none ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-full -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
               <span className="relative z-10">{isSinglePlayer && aiMovesFirst ? '🤖 1 Player (AI First)' : '🤖 1 Player'}</span>
             </button>
-            <button onClick={() => { hapticFeedback(40); setIsSinglePlayer(false); resetGameForMode(startingPlayer); }} className={`relative px-5 py-2.5 rounded-full text-sm z-10 transition-colors duration-300 select-none ${!isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
+            <button onClick={() => { hapticFeedback(40); setIsSinglePlayer(false); resetGameForMode(startingPlayer); }} className={`relative px-5 py-2.5 rounded-full text-[15px] z-10 transition-colors duration-300 select-none ${!isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {!isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-full -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
               <span className="relative z-10">👥 2 Players</span>
             </button>
           </div>
 
-          <motion.div onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} animate={{ scale: winnerInfo ? 1.05 : (isHoldingBanner ? 0.96 : 1) }} style={{ backgroundColor: semantics.bannerDefault.bg, color: semantics.bannerDefault.text }} className="mx-auto w-[240px] h-[80px] rounded-[24px] text-lg flex flex-col items-center justify-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden cursor-pointer">
+          {/* Turn Banner - Fully Rounded (Pill Shape) and Smaller */}
+          <motion.div onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} animate={{ scale: winnerInfo ? 1.05 : (isHoldingBanner ? 0.96 : 1) }} style={{ backgroundColor: semantics.bannerDefault.bg, color: semantics.bannerDefault.text }} className="mx-auto w-[220px] h-[60px] rounded-full text-[17px] flex flex-col items-center justify-center gap-1 shadow-sm border border-black/5 dark:border-white/10 transition-colors duration-300 select-none relative overflow-hidden cursor-pointer">
             <div className="flex items-center gap-2 relative z-10">
               {winnerInfo ? (
-                <><Sparkles className="w-5 h-5 text-yellow-400" /><span>Winner: Player {winnerInfo.winner}!</span></>
-              ) : isDraw ? ("It's a Stalemate!") : (
+                <><Sparkles className="w-5 h-5 text-yellow-400" /><span className="font-bold">Winner: Player {winnerInfo.winner}!</span></>
+              ) : isDraw ? (<span className="font-bold">It's a Stalemate!</span>) : (
                 <>
                   {isAITurn ? (
                     <div className="flex items-center gap-1.5 h-8">
-                      <span className="mr-1">AI Thinking</span>
+                      <span className="mr-1 font-bold">AI Thinking</span>
                       <motion.span animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
                       <motion.span animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.15 }} className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
                       <motion.span animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.3 }} className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
                     </div>
                   ) : (
-                    <div className="flex items-center h-8">
+                    <div className="flex items-center h-8 font-bold">
                       Player&nbsp;
                       <div className="relative h-8 w-6 overflow-hidden flex items-center justify-center">
                         <AnimatePresence mode="popLayout">
@@ -490,12 +497,11 @@ export default function App() {
 
         {/* Game Board */}
         <div className="relative group z-10">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ backgroundColor: semantics.mainGridBackground }} className="relative p-4 sm:p-5 rounded-[32px] sm:rounded-[36px] shadow-lg border border-white/5 backdrop-blur-md overflow-hidden">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ backgroundColor: semantics.mainGridBackground }} className="relative p-4 sm:p-5 rounded-[32px] sm:rounded-[36px] shadow-lg border border-black/5 dark:border-white/5 backdrop-blur-md overflow-hidden">
             <div ref={boardRef} className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] aspect-square">
               {board.map((value, i) => (
-                <button key={i} id={`cell-${i}`} onClick={() => handleClick(i)} style={{ backgroundColor: semantics.squareBackground }} className={`w-full h-full rounded-[20px] flex items-center justify-center transition-all duration-300 relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting ? 'hover:brightness-110 cursor-pointer active:scale-95' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting}>
+                <button key={i} id={`cell-${i}`} onClick={() => handleClick(i)} style={{ backgroundColor: semantics.squareBackground }} className={`w-full h-full rounded-[20px] flex items-center justify-center transition-all duration-300 relative overflow-hidden shadow-sm border border-black/5 dark:border-white/5 ${!value && !winnerInfo && !isAITurn && !isResetting ? 'hover:brightness-110 cursor-pointer active:scale-95' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting}>
                   <AnimatePresence mode="wait">
-                    {/* Only show 'X' or 'O' if it exists AND we are not resetting. If resetting, trigger exit animation. */}
                     {value === 'X' && !isResetting && (
                       <motion.div initial={{ scale: 0, rotate: -180, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0, rotate: 180, opacity: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="w-full h-full flex items-center justify-center">
                         <svg viewBox="0 0 24 24" className="w-3/5 h-3/5" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -514,18 +520,35 @@ export default function App() {
                 </button>
               ))}
 
-              {/* Winning Line with Reverse Animation via pathLength */}
+              {/* Original Style Winning Line with Smooth Forward & Reverse Animation */}
               <AnimatePresence>
                 {linePoints && winnerInfo && !isResetting && (
                   <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <defs>
+                      <mask id="hollow-mask" maskUnits="userSpaceOnUse">
+                        <rect width="100%" height="100%" fill="white" />
+                        <motion.line
+                          x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
+                          x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
+                          transition={{ duration: 0.5, ease: "easeInOut" }}
+                          stroke="black" strokeWidth="6" strokeLinecap="round"
+                        />
+                      </mask>
+                    </defs>
                     <motion.line
                       x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
                       x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 1 }}
-                      exit={{ pathLength: 0, opacity: 0 }}
+                      initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
                       transition={{ duration: 0.5, ease: "easeInOut" }}
-                      stroke="#22c55e" strokeWidth="8" strokeLinecap="round"
+                      stroke="#004d00" strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)"
+                    />
+                    <motion.line
+                      x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
+                      x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                      initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
+                      transition={{ duration: 0.5, ease: "easeInOut" }}
+                      stroke="rgba(56, 142, 60, 0.55)" strokeWidth="6" strokeLinecap="round"
                     />
                   </svg>
                 )}
@@ -540,26 +563,42 @@ export default function App() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
               <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff', color: isDarkMode ? '#ffffff' : '#000000' }} className="w-full max-w-sm p-6 rounded-[32px] shadow-2xl relative">
                 
-                <button onClick={() => setIsSettingsOpen(false)} className="absolute top-4 right-4 p-2 rounded-full bg-gray-200/20 hover:bg-gray-200/40 transition-colors">
+                <button onClick={() => setIsSettingsOpen(false)} className="absolute top-4 right-4 p-2 rounded-full bg-gray-500/20 hover:bg-gray-500/40 transition-colors">
                   <X className="w-5 h-5" />
                 </button>
                 
                 <h2 className="text-2xl font-black mb-6">Appearance</h2>
                 
-                <div className="space-y-6">
-                  {/* Theme Selector */}
+                <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
+                  
+                  {/* Theme Mode Toggle */}
                   <div>
-                    <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3">Background Theme</h3>
-                    <div className="flex flex-wrap gap-3">
-                      {THEMES.map((theme, idx) => (
-                        <button key={theme.name} onClick={() => { hapticFeedback(20); setThemeIdx(idx); }} style={{ backgroundColor: isDarkMode ? theme.dark : theme.light, borderColor: themeIdx === idx ? (isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-8 h-8 rounded-full border-[3px] shadow-sm transition-transform active:scale-90" aria-label={`Theme ${theme.name}`} />
-                      ))}
-                    </div>
+                     <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Theme Style</h3>
+                     <div className="flex gap-2 p-1 bg-gray-500/10 rounded-xl">
+                        <button onClick={() => setUseDefaultTheme(true)} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${useDefaultTheme ? 'bg-white text-black shadow-sm' : 'opacity-70'}`}>
+                           Default
+                        </button>
+                        <button onClick={() => setUseDefaultTheme(false)} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${!useDefaultTheme ? 'bg-white text-black shadow-sm' : 'opacity-70'}`}>
+                           Custom
+                        </button>
+                     </div>
                   </div>
+
+                  {/* Custom Theme Selector (Only visible if Custom is selected) */}
+                  {!useDefaultTheme && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
+                      <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold mt-4">Background Colors</h3>
+                      <div className="flex flex-wrap gap-3">
+                        {CUSTOM_THEMES.map((theme, idx) => (
+                          <button key={theme.name} onClick={() => { hapticFeedback(20); setThemeIdx(idx); }} style={{ backgroundColor: isDarkMode ? theme.dark : theme.light, borderColor: themeIdx === idx ? (isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-8 h-8 rounded-full border-[3px] shadow-sm transition-transform active:scale-90" aria-label={`Theme ${theme.name}`} />
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
 
                   {/* X Color Selector */}
                   <div>
-                    <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3">Player X Color</h3>
+                    <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Player X Color</h3>
                     <div className="flex flex-wrap gap-3">
                       {X_COLORS.map((color, idx) => (
                         <button key={color} onClick={() => { hapticFeedback(20); setXColorIdx(idx); }} style={{ backgroundColor: color, borderColor: xColorIdx === idx ? (isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-8 h-8 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center">
@@ -571,7 +610,7 @@ export default function App() {
 
                   {/* O Color Selector */}
                   <div>
-                    <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3">Player O Color</h3>
+                    <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Player O Color</h3>
                     <div className="flex flex-wrap gap-3">
                       {O_COLORS.map((color, idx) => (
                         <button key={color} onClick={() => { hapticFeedback(20); setOColorIdx(idx); }} style={{ backgroundColor: color, borderColor: oColorIdx === idx ? (isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-8 h-8 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center">
