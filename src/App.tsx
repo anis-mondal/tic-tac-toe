@@ -255,7 +255,8 @@ export default function App() {
         setScores(prev => {
             const newScore = prev[winner] + 1;
             
-            if (isTargetScoreEnabled && newScore >= targetScore) {
+            // Show overall winner modal only when reaching exact target score
+            if (isTargetScoreEnabled && newScore === targetScore) {
                setOverallWinner(winner);
                playEnhancedSound('win', isSoundOn);
                setTimeout(() => setIsOverallWinModalOpen(true), 1200); 
@@ -328,7 +329,10 @@ export default function App() {
       setIsDraw(false);
       setLinePoints(null);
       lastMoveIdxRef.current = null;
-      if (hardReset) setScores({ X: 0, O: 0, Draws: 0 });
+      if (hardReset) {
+         setScores({ X: 0, O: 0, Draws: 0 });
+         setOverallWinner(null);
+      }
       setIsResetting(false);
     }, 450); 
   };
@@ -385,9 +389,8 @@ export default function App() {
       lastMoveIdxRef.current = null;
       setOverallWinner(null);
       setIsOverallWinModalOpen(false);
-      setTargetScore(5); 
-      setIsTargetScoreEnabled(true);
       setIsResetting(false);
+      // NOTE: targetScore and isTargetScoreEnabled are explicitly NOT reset here so they remember user preference.
   };
 
   const handleRestartPointerDown = () => {
@@ -639,31 +642,28 @@ export default function App() {
                 </button>
               ))}
 
-              {/* Exact Hollow Winning Line (Thick Border, Transparent Center) */}
+              {/* Glowing Classic Winning Line (Solid Inner + Glowing Aura) */}
               <AnimatePresence>
                 {linePoints && winnerInfo && !isResetting && (
                   <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <defs>
-                      <mask id="winner-hollow-mask" maskUnits="userSpaceOnUse">
-                        <rect width="100%" height="100%" fill="white" />
-                        {linePoints.type === 'center-out' ? (
-                          <>
-                            <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeInOut" }} stroke="black" strokeWidth="6" strokeLinecap="round" />
-                            <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeInOut" }} stroke="black" strokeWidth="6" strokeLinecap="round" />
-                          </>
-                        ) : (
-                          <motion.line x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeInOut" }} stroke="black" strokeWidth="6" strokeLinecap="round" />
-                        )}
-                      </mask>
-                    </defs>
-                    
                     {linePoints.type === 'center-out' ? (
                        <>
-                         <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeInOut" }} stroke={activeLineColor} strokeWidth="14" strokeLinecap="round" mask="url(#winner-hollow-mask)" />
-                         <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeInOut" }} stroke={activeLineColor} strokeWidth="14" strokeLinecap="round" mask="url(#winner-hollow-mask)" />
+                         {/* Glow / Aura layer */}
+                         <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeOut" }} stroke={activeLineColor} strokeWidth="16" opacity={0.3} strokeLinecap="round" />
+                         <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeOut" }} stroke={activeLineColor} strokeWidth="16" opacity={0.3} strokeLinecap="round" />
+                         
+                         {/* Solid inner line layer */}
+                         <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeOut" }} stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" />
+                         <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeOut" }} stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" />
                        </>
                     ) : (
-                      <motion.line x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeInOut" }} stroke={activeLineColor} strokeWidth="14" strokeLinecap="round" mask="url(#winner-hollow-mask)" />
+                      <>
+                         {/* Glow / Aura layer */}
+                         <motion.line x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeInOut" }} stroke={activeLineColor} strokeWidth="16" opacity={0.3} strokeLinecap="round" />
+                         
+                         {/* Solid inner line layer */}
+                         <motion.line x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeInOut" }} stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" />
+                      </>
                     )}
                   </svg>
                 )}
@@ -785,13 +785,16 @@ export default function App() {
           {isAboutOpen && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
               <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-[420px] p-7 rounded-[36px] shadow-2xl relative border border-white/5">
+                
                 <button onClick={() => setIsAboutOpen(false)} className="absolute top-5 right-5 p-2.5 rounded-full bg-gray-500/10 hover:bg-gray-500/20 transition-colors z-[170]">
                   <X className="w-5 h-5" />
                 </button>
+                
                 <div className="flex items-center gap-2.5 mb-6 opacity-80">
                     <Info className="w-6 h-6 mr-1" />
                     <h2 className="text-3xl font-black">About Game</h2>
                 </div>
+                
                 <div className="space-y-6 max-h-[65vh] overflow-y-auto pr-3 m3-scrollbar font-sans font-normal text-[15px] opacity-80">
                   <p>This is a premium <span className="font-bold">Tic-Tac-Toe</span> game designed completely using Google's <span className="font-bold text-sky-500">Material You (M3)</span> design language. Customize your themes, colors, and enjoy a beautiful gameplay experience.</p>
                   
@@ -802,9 +805,16 @@ export default function App() {
                     <p>🎨 <span className="font-bold">Material You Themes:</span> 10 beautifully crafted custom M3 themes with matching light and dark modes.</p>
                     <p>💡 <span className="font-bold">Full Customization:</span> Change Player X and O symbols, surface colors, and even the winning line color from settings.</p>
                     <p>🔇 <span className="font-bold">Haptic & Sound:</span> Immersive sound effects and haptic feedback (vibrations) that can be toggled on/off.</p>
-                    <p>🔄 <span className="font-bold">Smart Reset:</span> Tap the Restart button once to reset the current round. <strong>Press & Hold</strong> the button to perform a complete Hard Reset (clears scores, settings, and target points).</p>
+                    
+                    <p>🔄 <span className="font-bold text-sky-500">Soft & Hard Reset:</span><br/> 
+                    • <b>Soft Reset:</b> Tap the Restart button once to reset the current round.<br/> 
+                    • <b>Hard Reset (Long Press):</b> Press & Hold the Restart button to perform a complete Hard Reset. This clears scores and resets the board but keeps your Target Score settings intact.</p>
+                    
+                    <p>✨ <span className="font-bold text-sky-500">Change Starting Player:</span><br/>
+                    • <b>Long Press</b> the "Player X's turn" banner *before* making any moves on a fresh board to switch who starts first.</p>
+
                     <p>🎯 <span className="font-bold">Target Score Win:</span> Set a custom target point (1-20) in the settings. The first player to reach the target wins the entire game! This feature can also be toggled off for endless play.</p>
-                    <p>🎉 <span className="font-bold">Premium Animations:</span> Enjoy satisfying confetti, smooth hollow winning line drawings, and unique center-out animations.</p>
+                    <p>🎉 <span className="font-bold">Premium Animations:</span> Enjoy satisfying confetti, smooth glowing winning line drawings, and unique center-out animations when winning from the middle cell.</p>
                   </div>
                   
                 </div>
@@ -840,7 +850,7 @@ export default function App() {
                        <motion.div animate={{ rotate: [0, -10, 10, 0], scale: [1, 1.1, 0.9, 1] }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}><Sparkles className="w-5 h-5"/></motion.div>
                        Start a New Game
                     </motion.button>
-                    <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer); setIsOverallWinModalOpen(false); setOverallWinner(null); }} className="w-full h-14 rounded-full flex items-center justify-center gap-2.5 text-lg font-bold transition-all shadow select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
+                    <motion.button onClick={() => { hapticFeedback(30); resetGameForMode(startingPlayer, false); setIsOverallWinModalOpen(false); setOverallWinner(null); }} className="w-full h-14 rounded-full flex items-center justify-center gap-2.5 text-lg font-bold transition-all shadow select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
                        <motion.div animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}><RefreshCw className="w-5 h-5"/></motion.div>
                        Continue This Game
                     </motion.button>
