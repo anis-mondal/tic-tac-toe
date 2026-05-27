@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X } from 'lucide-react';
+import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X, Target, Info, Play, RefreshCw } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 type Player = 'X' | 'O';
@@ -25,7 +25,7 @@ const hapticFeedback = (pattern: number | number[]) => {
 
 // --- Audio System ---
 const audioState = { ctx: null as AudioContext | null };
-const playEnhancedSound = (type: 'tap' | 'win' | 'pop', enabled: boolean) => {
+const playEnhancedSound = (type: 'tap' | 'win' | 'pop' | 'point', enabled: boolean) => {
   if (!enabled || typeof window === 'undefined') return;
   try {
     if (!audioState.ctx) {
@@ -43,10 +43,8 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'pop', enabled: boolean) => {
       osc.frequency.exponentialRampToValueAtTime(200, t + 0.15);
       gain.gain.setValueAtTime(0.3, t);
       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(t);
-      osc.stop(t + 0.15);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.15);
     } else if (type === 'pop') {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -55,24 +53,27 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'pop', enabled: boolean) => {
       osc.frequency.exponentialRampToValueAtTime(600, t + 0.1);
       gain.gain.setValueAtTime(0.2, t);
       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(t);
-      osc.stop(t + 0.1);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.1);
     } else if (type === 'win') {
       [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => { 
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
+        osc.type = 'sine'; osc.frequency.value = freq;
         gain.gain.setValueAtTime(0, t + i * 0.1);
         gain.gain.linearRampToValueAtTime(0.3, t + i * 0.1 + 0.05);
         gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.1 + 0.5);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(t + i * 0.1);
-        osc.stop(t + i * 0.1 + 0.5);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t + i * 0.1); osc.stop(t + i * 0.1 + 0.5);
       });
+    } else if (type === 'point') {
+       const osc = ctx.createOscillator();
+       const gain = ctx.createGain();
+       osc.type = 'sine'; osc.frequency.setValueAtTime(800, t);
+       osc.frequency.exponentialRampToValueAtTime(1000, t + 0.1);
+       gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+       osc.connect(gain); gain.connect(ctx.destination);
+       osc.start(t); osc.stop(t + 0.1);
     }
   } catch(e) {}
 };
@@ -145,12 +146,12 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
 
 // --- Authentic Material 3 Themes ---
 const ORIGINAL_THEME = {
-  name: 'Default',
+  name: 'Classic',
   light: '#f8f9fa', dark: '#000000',
   gridLight: '#e2e8f0', gridDark: '#1a1c1e',
   cellLight: '#ffffff', cellDark: '#2a2d31',
   indicatorLight: '#64748b', indicatorDark: '#94a3b8',
-  linesLight: ['#004d00'], linesDark: ['#004d00'] // Default line
+  linesLight: ['#004d00'], linesDark: ['#004d00'] // Classic line
 };
 
 const CUSTOM_THEMES = [
@@ -188,14 +189,23 @@ export default function App() {
   const [isSoundOn, setIsSoundOn] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
   const [isLongPressRestart, setIsLongPressRestart] = useState(false);
+  
+  // Game Flow - Overall Win Modal
+  const [isOverallWinModalOpen, setIsOverallWinModalOpen] = useState(false);
+  const [overallWinner, setOverallWinner] = useState<Player | null>(null);
 
-  // Settings State
+  // Settings & About State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [useDefaultTheme, setUseDefaultTheme] = useState(true);
   const [themeIdx, setThemeIdx] = useState(0);
   const [xColorIdx, setXColorIdx] = useState(0);
   const [oColorIdx, setOColorIdx] = useState(0);
   const [customLineIdx, setCustomLineIdx] = useState(0);
+  
+  // New Setting: Target Score
+  const [targetScore, setTargetScore] = useState(5);
+  const [isTargetScoreEnabled, setIsTargetScoreEnabled] = useState(true);
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') return document.documentElement.classList.contains('dark') || window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -240,7 +250,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (isResetting || winnerInfo || isDraw) return;
+    if (isResetting || winnerInfo || isDraw || overallWinner) return;
     
     let hasWinner = false;
     for (const combination of WINNING_COMBINATIONS) {
@@ -248,10 +258,31 @@ export default function App() {
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
         const winner = board[a] as Player;
         setWinnerInfo({ winner, line: combination });
+        const newXScore = scores.X + (winner === 'X' ? 1 : 0);
+        const newOScore = scores.O + (winner === 'O' ? 1 : 0);
+        
         setScores(prev => ({ ...prev, [winner]: prev[winner] + 1 })); 
         hapticFeedback([100, 50, 100, 50, 300]); 
-        playEnhancedSound('win', isSoundOn);
+        
+        // Point Confetti - Always fire on round win
         fireConfetti(winner);
+        
+        // Check for Overall Win condition
+        if (isTargetScoreEnabled) {
+           if (newXScore >= targetScore || newOScore >= targetScore) {
+              setOverallWinner(winner);
+              playEnhancedSound('win', isSoundOn); // Play overall win sound
+              setTimeout(() => {
+                 setIsOverallWinModalOpen(true);
+              }, 1200); // Wait for round line animation
+              
+              hasWinner = true;
+              break; 
+           }
+        }
+        
+        // Normal Round sound and end logic
+        playEnhancedSound('point', isSoundOn);
         hasWinner = true;
         break;
       }
@@ -259,15 +290,16 @@ export default function App() {
     if (!hasWinner && !board.includes(null)) {
       setIsDraw(true);
       setScores(prev => ({ ...prev, Draws: prev.Draws + 1 })); 
+      playEnhancedSound('point', isSoundOn);
       hapticFeedback([200, 100, 200]);
     }
-  }, [board, isSoundOn, isResetting, xColorIdx, oColorIdx, winnerInfo, isDraw]);
+  }, [board, isSoundOn, isResetting, xColorIdx, oColorIdx, winnerInfo, isDraw, overallWinner, targetScore, isTargetScoreEnabled]);
 
   const aiPlayerSymbol = isSinglePlayer ? (aiMovesFirst ? startingPlayer : (startingPlayer === 'X' ? 'O' : 'X')) : null;
   const isAITurn = isSinglePlayer && aiPlayerSymbol && ((isXNext && aiPlayerSymbol === 'X') || (!isXNext && aiPlayerSymbol === 'O'));
 
   useEffect(() => {
-    if (isAITurn && !winnerInfo && !isDraw && !isResetting) {
+    if (isAITurn && !winnerInfo && !isDraw && !isResetting && !overallWinner) {
       const aiTimer = setTimeout(() => {
         const bestMove = findBestMove([...board], aiPlayerSymbol);
         if (bestMove !== -1) {
@@ -282,10 +314,10 @@ export default function App() {
       }, 500); 
       return () => clearTimeout(aiTimer);
     }
-  }, [isXNext, isSinglePlayer, board, winnerInfo, isDraw, aiPlayerSymbol, isAITurn, isSoundOn, isResetting]);
+  }, [isXNext, isSinglePlayer, board, winnerInfo, isDraw, aiPlayerSymbol, isAITurn, isSoundOn, isResetting, overallWinner]);
 
   const handleClick = (index: number) => {
-    if (board[index] || winnerInfo || isAITurn || isResetting) return;
+    if (board[index] || winnerInfo || isAITurn || isResetting || overallWinner) return;
     hapticFeedback(50); 
     playEnhancedSound('tap', isSoundOn);
     const newBoard = [...board];
@@ -293,26 +325,6 @@ export default function App() {
     setLastMoveIdx(index);
     setBoard(newBoard);
     setIsXNext(!isXNext);
-  };
-
-  const resetGameForMode = (currentStartingPlayer: Player, hardReset: boolean = false) => {
-    if (isResetting && !hardReset) return; 
-    hapticFeedback(40); 
-    playEnhancedSound('pop', isSoundOn);
-    if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
-    if (myConfettiRef.current) myConfettiRef.current.reset();
-
-    setIsResetting(true);
-    setTimeout(() => {
-      setBoard(Array(9).fill(null));
-      setIsXNext(currentStartingPlayer === 'X');
-      setWinnerInfo(null);
-      setIsDraw(false);
-      setLinePoints(null);
-      setLastMoveIdx(null);
-      if (hardReset) setScores({ X: 0, O: 0, Draws: 0 });
-      setIsResetting(false);
-    }, 550); // Matches reverse animation duration
   };
 
   // Turn Switch Hold: Only allowed if completely fresh game (no scores, empty board)
@@ -337,31 +349,62 @@ export default function App() {
     if (turnHoldTimer.current) clearTimeout(turnHoldTimer.current);
   };
 
+  // Mode Switch Click & Hold
+  const handleModeHoldStart = () => {
+    modeHoldTimer.current = setTimeout(() => {
+      setAiMovesFirst(prev => {
+        hapticFeedback([80, 40, 80]); 
+        setIsSinglePlayer(true);
+        resetGameForMode(startingPlayer, true); // Hard Reset scores on mode switch hold
+        return !prev;
+      });
+    }, 600);
+  };
+  const handleModeHoldEnd = () => {
+    if (modeHoldTimer.current) clearTimeout(modeHoldTimer.current);
+  };
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
     hapticFeedback(40);
     setIsSinglePlayer(single);
-    resetGameForMode(startingPlayer, true);
+    resetGameForMode(startingPlayer, true); // Hard Reset scores on mode switch click
+  };
+  
+  // Custom Long Press Reset: Performs fully hard reset
+  const performHardReset = (startingPlayer: Player) => {
+      if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
+      if (myConfettiRef.current) myConfettiRef.current.reset();
+      setScores({ X: 0, O: 0, Draws: 0 }); // Pure Reset
+      setStartingPlayer(startingPlayer);
+      setBoard(Array(9).fill(null));
+      setIsXNext(startingPlayer === 'X');
+      setWinnerInfo(null);
+      setIsDraw(false);
+      setLinePoints(null);
+      setLastMoveIdx(null);
+      setOverallWinner(null);
+      setIsOverallWinModalOpen(false);
+      setTargetScore(5); // Revert to default target score
+      setIsTargetScoreEnabled(true); // Re-enable win condition
   };
 
-  // Restart Long Press (Hard Reset)
   const handleRestartPointerDown = () => {
     setIsLongPressRestart(false);
     restartHoldTimer.current = setTimeout(() => {
       setIsLongPressRestart(true);
       hapticFeedback([100, 50, 100, 50]); 
       setRotation(prev => prev - 720);
-      resetGameForMode(startingPlayer, true);
+      performHardReset(startingPlayer); // Full Hard Reset
     }, 800);
   };
   const handleRestartPointerUp = () => {
     if (restartHoldTimer.current) clearTimeout(restartHoldTimer.current);
     if (!isLongPressRestart) {
       setRotation(prev => prev - 360);
-      resetGameForMode(startingPlayer, false);
+      resetGameForMode(startingPlayer); // Normal round reset
     }
   };
-
+  
   // Calculate Line Points and Handle Center-out Logic
   useEffect(() => {
     const updatePoints = () => {
@@ -377,6 +420,7 @@ export default function App() {
           };
         };
         const [a, b, c] = winnerInfo.line;
+        // Center-out logic based on if 'b' was the last move
         const type = lastMoveIdx === b ? 'center-out' : 'normal';
         setLinePoints({ type, start: getCellCenter(a), end: getCellCenter(c), mid: getCellCenter(b) });
       } else if (!winnerInfo && !isResetting) {
@@ -467,13 +511,13 @@ export default function App() {
         </nav>
 
         {/* Header & Modes */}
-        <header className="text-center space-y-5 pt-16 z-10 relative w-full max-w-md">
+        <header className="text-center space-y-5 pt-16 z-10 relative w-full max-w-md overflow-visible">
           <motion.h1 initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} style={{ color: semantics.text }} className="text-[40px] sm:text-[44px] font-black tracking-tight drop-shadow-sm">
             Tic Tac Toe
           </motion.h1>
 
           <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm">
-            <button onClick={() => switchModeClick(true)} className={`relative px-6 py-3 rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
+            <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative px-6 py-3 rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
               <span className="relative z-10">{isSinglePlayer && aiMovesFirst ? '🤖 1 Player (AI First)' : '🤖 1 Player'}</span>
             </button>
@@ -531,8 +575,8 @@ export default function App() {
           </motion.div>
         </header>
 
-        {/* Scoreboard */}
-        <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px]">
+        {/* Scoreboard Feature */}
+        <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible">
            <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg }}>
               <span className="text-[10px] sm:text-xs font-black uppercase opacity-90" style={{ color: X_COLORS[xColorIdx] }}>Player X</span>
               <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
@@ -567,12 +611,12 @@ export default function App() {
            </div>
         </div>
 
-        {/* Game Board */}
+        {/* Game Board with Center-Out Winning Line Support */}
         <div className="relative group z-10 mt-2">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ backgroundColor: semantics.mainGridBackground }} className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden">
             <div ref={boardRef} className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] aspect-square">
               {board.map((value, i) => (
-                <button key={i} id={`cell-${i}`} onClick={() => handleClick(i)} style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value ? 'inset 0 2px 4px rgba(255,255,255,0.02)' : 'none' }} className={`w-full h-full rounded-[20px] flex items-center justify-center transition-all duration-300 relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting ? 'hover:brightness-110 cursor-pointer active:scale-[0.92]' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting}>
+                <button key={i} id={`cell-${i}`} onClick={() => handleClick(i)} style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value ? 'inset 0 2px 4px rgba(255,255,255,0.015)' : 'none' }} className={`w-full h-full rounded-[20px] flex items-center justify-center transition-all duration-300 relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer active:scale-[0.92]' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}>
                   <AnimatePresence mode="wait">
                     {value === 'X' && !isResetting && (
                       <motion.div initial={{ scale: 0, rotate: -180, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0, rotate: 180, opacity: 0 }} transition={{ type: 'spring', stiffness: 350, damping: 25 }} className="w-full h-full flex items-center justify-center">
@@ -592,33 +636,36 @@ export default function App() {
                 </button>
               ))}
 
-              {/* Dynamic Theme Winning Line with Center-Out Support */}
+              {/* Unique Center-Out Hollow Winning Line with Mask */}
               <AnimatePresence>
                 {linePoints && winnerInfo && !isResetting && (
                   <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
                     
-                    {/* If Center-Out Draw */}
-                    {linePoints.type === 'center-out' ? (
-                      <>
-                        <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.4, ease: "easeOut" }} stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" />
-                        <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.4, ease: "easeOut" }} stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" />
+                    {/* Define Mask for Hollow Effect */}
+                    <defs>
+                      <mask id="winner-hollow-mask" maskUnits="userSpaceOnUse">
+                        <rect width="100%" height="100%" fill="white" />
                         
-                        <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.4, ease: "easeOut" }} stroke={useDefaultTheme ? '#000000' : '#ffffff'} strokeWidth="4" opacity={useDefaultTheme ? 0.3 : 0.4} strokeLinecap="round" />
-                        <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.4, ease: "easeOut" }} stroke={useDefaultTheme ? '#000000' : '#ffffff'} strokeWidth="4" opacity={useDefaultTheme ? 0.3 : 0.4} strokeLinecap="round" />
-                      </>
+                        {/* Normal or Center-Out masked lines */}
+                        {linePoints.type === 'center-out' ? (
+                          <>
+                            <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeInOut" }} stroke="black" strokeWidth="6.5" strokeLinecap="round" />
+                            <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeInOut" }} stroke="black" strokeWidth="6.5" strokeLinecap="round" />
+                          </>
+                        ) : (
+                          <motion.line x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.5, ease: "easeInOut" }} stroke="black" strokeWidth="6.5" strokeLinecap="round" />
+                        )}
+                      </mask>
+                    </defs>
+                    
+                    {/* Draw Line (The Masked Border) */}
+                    {linePoints.type === 'center-out' ? (
+                       <>
+                         <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeInOut" }} stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#winner-hollow-mask)" />
+                         <motion.line x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.45, ease: "easeInOut" }} stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#winner-hollow-mask)" />
+                       </>
                     ) : (
-                      <>
-                        {/* Normal Draw */}
-                        <defs>
-                          <mask id="hollow-mask" maskUnits="userSpaceOnUse">
-                            <rect width="100%" height="100%" fill="white" />
-                            <motion.line x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.5, ease: "easeInOut" }} stroke="black" strokeWidth="6" strokeLinecap="round" />
-                          </mask>
-                        </defs>
-                        <motion.line x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.5, ease: "easeInOut" }} stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask={useDefaultTheme ? "url(#hollow-mask)" : undefined} />
-                        {useDefaultTheme && <motion.line x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.5, ease: "easeInOut" }} stroke="rgba(56, 142, 60, 0.55)" strokeWidth="6" strokeLinecap="round" />}
-                        {!useDefaultTheme && <motion.line x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.5, ease: "easeInOut" }} stroke="#ffffff" strokeWidth="4" opacity={0.4} strokeLinecap="round" />}
-                      </>
+                      <motion.line x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }} transition={{ duration: 0.5, ease: "easeInOut" }} stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#winner-hollow-mask)" />
                     )}
                   </svg>
                 )}
@@ -627,7 +674,7 @@ export default function App() {
           </motion.div>
         </div>
 
-        {/* Settings Modal */}
+        {/* Settings Modal (including Target Score) */}
         <AnimatePresence>
           {isSettingsOpen && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -637,20 +684,51 @@ export default function App() {
                   <X className="w-5 h-5" />
                 </button>
                 
-                <h2 className="text-2xl font-black mb-6">Appearance</h2>
+                <div className="flex gap-4 items-center mb-6">
+                    <button onClick={() => setIsAboutOpen(true)} className={`${getNavBtnStyle()} border border-current opacity-70`}>
+                        <Info className="w-5 h-5" />
+                    </button>
+                    <h2 className="text-2xl font-black">Appearance</h2>
+                </div>
                 
                 <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 m3-scrollbar">
                   
+                  {/* Theme Mode Toggle */}
                   <div>
                      <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Theme Style</h3>
                      <div className="flex gap-2 p-1.5 rounded-2xl" style={{ backgroundColor: semantics.scoreBg }}>
                         <button onClick={() => { hapticFeedback(20); setUseDefaultTheme(true); }} className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${useDefaultTheme ? 'bg-white text-black shadow-sm' : 'opacity-70 text-current'}`}>
-                           Default
+                           {ORIGINAL_THEME.name}
                         </button>
                         <button onClick={() => { hapticFeedback(20); setUseDefaultTheme(false); }} className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${!useDefaultTheme ? 'bg-white text-black shadow-sm' : 'opacity-70 text-current'}`}>
                            Custom (M3)
                         </button>
                      </div>
+                  </div>
+                  
+                  {/* Target Score Win Condition */}
+                  <div className="rounded-2xl p-4 space-y-3" style={{ backgroundColor: semantics.scoreBg }}>
+                     <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                           <Target className="w-5 h-5 opacity-70" />
+                           <h3 className="text-sm uppercase tracking-wider opacity-90 font-bold">Target Point Win</h3>
+                        </div>
+                        {/* Switch Toggle for Enabling Win Condition */}
+                        <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(!isTargetScoreEnabled); }} className="w-12 h-6.5 rounded-full p-1.5 flex items-center shadow-inner relative overflow-hidden" style={{ backgroundColor: isTargetScoreEnabled ? '#0ea5e9' : (isDarkMode ? '#3f4753' : '#e0e2ec') }}>
+                            <motion.div animate={{ x: isTargetScoreEnabled ? 20 : 0 }} className="w-4.5 h-4.5 rounded-full bg-white shadow" transition={{ type: "spring", stiffness: 500, damping: 30 }} />
+                        </motion.button>
+                     </div>
+                     
+                     {isTargetScoreEnabled && (
+                        <div className="flex items-center gap-4">
+                           <span className="text-sm opacity-80 font-medium">Points to Win:</span>
+                           <div className="flex gap-2.5 items-center bg-transparent/10 p-1 rounded-xl">
+                              <button onClick={() => { hapticFeedback(20); setTargetScore(s => Math.max(1, s-1)); }} className="w-9 h-9 rounded-full bg-transparent/20 flex items-center justify-center font-black">-</button>
+                              <span className="text-lg font-black w-8 text-center">{targetScore}</span>
+                              <button onClick={() => { hapticFeedback(20); setTargetScore(s => Math.min(20, s+1)); }} className="w-9 h-9 rounded-full bg-transparent/20 flex items-center justify-center font-black">+</button>
+                           </div>
+                        </div>
+                     )}
                   </div>
 
                   {!useDefaultTheme && (
@@ -702,8 +780,108 @@ export default function App() {
             </motion.div>
           )}
         </AnimatePresence>
+        
+        {/* About Modal */}
+        <AnimatePresence>
+          {isAboutOpen && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+              <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-[420px] p-7 rounded-[36px] shadow-2xl relative border border-white/5">
+                <button onClick={() => setIsAboutOpen(false)} className="absolute top-5 right-5 p-2.5 rounded-full bg-gray-500/10 hover:bg-gray-500/20 transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+                <div className="flex items-center gap-2.5 mb-6 opacity-80">
+                    <Info className="w-6 h-6 mr-1" />
+                    <h2 className="text-3xl font-black">গেম পরিচিতি</h2>
+                </div>
+                <div className="space-y-6 max-h-[65vh] overflow-y-auto pr-3 m3-scrollbar font-sans font-normal text-[15px] opacity-80">
+                  <p>এটি একটি প্রিমিয়াম <span className="font-bold">টিক-ট্যাক-টো</span> গেম, যা সম্পূর্ণরূপে <span className="font-bold text-sky-500">মেটেরিয়াল ৩ (Material You)</span> ডিজাইন অনুসরণ করে বানানো হয়েছে। এখানে আপনি আপনার পছন্দমতো থিম এবং রঙ কাস্টমাইজ করে চমৎকার খেলার অভিজ্ঞতা পাবেন।</p>
+                  
+                  <div className="space-y-3.5">
+                    <h4 className="text-lg font-extrabold tracking-tight opacity-90">প্রধান ফিচারসমূহ</h4>
+                    <p>🤖 <span className="font-bold">১ জন প্লেয়ার (AI):</span> আপনি চাইলে উন্নত AI এর সাথে খেলতে পারেন। AI প্রতিটি চাল ভেবেচিন্তে দেবে।</p>
+                    <p>👥 <span className="font-bold">২ জন প্লেয়ার:</span> এক বাটন দিয়ে মুড পাল্টে নিয়ে একই ফোনে দুই বন্ধু মিলে খেলতে পারেন।</p>
+                    <p>🎨 <span className="font-bold">Material You থিম:</span> এখানে ১০টি প্রিমিয়াম কাস্টম থিম আছে, যা গুগলের মেটেরিয়াল ইউ স্টাইলে বানানো।</p>
+                    <p>💡 <span className="font-bold">পূর্ণ কাস্টমাইজেশন:</span> প্লেয়ার X এবং O এর প্রতীক, ব্যাকগ্রাউন্ড কালার, এবং এমনকি জেতার লাইনের কালারও আপনি সেটিংসে পাল্টাতে পারেন।</p>
+                    <p>🔇 <span className="font-bold">সাউন্ড এবং ভাইব্রেশন:</span> গেমে আকর্ষণীয় সাউন্ড ইফেক্ট এবং হ্যাপটিক ফিডব্যাক (ભાઈબ્રેશન) আছে, যা চাইলেই অন/অফ করা যায়।</p>
+                    <p>🔄 <span className="font-bold">স্মার্ট রিসেট:</span> রিস্টার্ট বাটন ১ বার ট্যাপ করলে বর্তমান খেলা রিসেট হবে। চেপে ধরে রাখলে স্কোরবোর্ড, সেটিংস, টার্গেট পয়েন্ট—সবকিছু Hard Reset হয়ে যাবে।</p>
+                    <p>🎯 <span className="font-bold">টার্গেট পয়েন্ট:</span> সেটিংসে আপনি নির্দিষ্ট পয়েন্ট (১-২০) সেট করতে পারেন। যে প্লেয়ার আগে সেই পয়েন্টে পৌঁছাবে, সে সম্পূর্ণ গেমে জিতে যাবে। এটি অফ করে অনির্দিষ্টভাবেও খেলা যায়।</p>
+                    <p>🎉 <span className="font-bold">প্রিমিয়াম অ্যানিমেশন:</span> জেতার পর বোর্ডের ওপর সুন্দর কনফেটি এবং হলো লাইন অ্যানিমেশন দেখা যাবে। মাঝখানের ঘরে চাল দিয়ে জিতলে লাইনটি দুদিকে ছড়িয়ে যাবে।</p>
+                  </div>
+                  
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Target Score Winner Popup (Modal) */}
+        <AnimatePresence>
+          {isOverallWinModalOpen && overallWinner && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[170] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm pointer-events-auto">
+              <motion.div initial={{ scale: 0.8, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 30 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-sm p-9 rounded-[36px] shadow-2xl relative border border-white/5 flex flex-col items-center gap-6 text-center">
+                 
+                 <ConfettiOnOverallWin color={overallWinner === 'X' ? X_COLORS[xColorIdx] : O_COLORS[oColorIdx]} />
+                 
+                 <div className="flex flex-col items-center gap-2">
+                   <motion.div animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, ease: "easeOut" }} style={{ color: activeLineColor }} className="opacity-90">
+                     <Sparkles className="w-14 h-14" />
+                   </motion.div>
+                   <h2 className="text-4xl font-black tracking-tight leading-tight pt-3">গেমের বিজয়ী!</h2>
+                 </div>
+                 
+                 <div className="flex flex-col items-center gap-2">
+                   <motion.span animate={{ scale: [1, 1.3, 0.9, 1], y: [0, -10, 5, 0] }} transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }} className="text-7xl font-black" style={{ color: overallWinner === 'X' ? X_COLORS[xColorIdx] : O_COLORS[oColorIdx] }}>
+                    {overallWinner}
+                   </motion.span>
+                   <p className="text-xl font-medium opacity-70 px-4 leading-normal pt-2">অভিনন্দন! প্লেয়ার <span className="font-bold">{overallWinner}</span> আগে <span className="font-extrabold">{targetScore}</span> পয়েন্টে পৌঁছে সম্পূর্ণ গেমে জিতে গেছে।</p>
+                 </div>
+                 
+                 <div className="flex flex-col w-full gap-4.5 pt-4">
+                    {/* Start a New Game - Performs Fully Hard Reset */}
+                    <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-14 rounded-full flex items-center justify-center gap-2.5 text-lg font-bold transition-all shadow select-none" style={{ backgroundColor: isDarkMode ? activeTheme.cellDark : activeTheme.cellLight, border: `2px solid ${activeLineColor}`, color: activeLineColor }}>
+                       <motion.div animate={{ rotate: [0, -10, 10, 0], scale: [1, 1.1, 0.9, 1] }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}><Sparkles className="w-5 h-5"/></motion.div>
+                       স্টার্ট এ নিউ গেম
+                    </motion.button>
+                    {/* Continue This Game - Performs Round Reset and disables win check */}
+                    <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); setScores({ X: 0, O: 0, Draws: 0 }); // reset scores temporarily to allow continuous play
+resetGameForMode(startingPlayer); setIsOverallWinModalOpen(false); setOverallWinner(null); }} className="w-full h-14 rounded-full flex items-center justify-center gap-2.5 text-lg font-bold transition-all shadow select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
+                       <motion.div animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}><RefreshCw className="w-5 h-5"/></motion.div>
+                       কন্টিনিউ দিস গেম
+                    </motion.button>
+                 </div>
+
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
     </>
   );
+}
+
+// Special Confetti Component for Overall Win Popup
+const ConfettiOnOverallWin = ({ color }: { color: string }) => {
+    useEffect(() => {
+        const fire = (particleRatio: number, opts: confetti.Options) => {
+            confetti(
+                Object.assign({}, {
+                    particleCount: Math.floor(200 * particleRatio),
+                    angle: 60, spread: 55, origin: { x: 0, y: 0.8 },
+                }, opts)
+            );
+            confetti(
+                Object.assign({}, {
+                    particleCount: Math.floor(200 * particleRatio),
+                    angle: 120, spread: 55, origin: { x: 1, y: 0.8 },
+                }, opts)
+            );
+        };
+        fire(0.25, { spread: 26, startVelocity: 55, colors: [color, '#ffffff'] });
+        fire(0.2, { spread: 60, colors: [color, '#ffffff'] });
+        fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8, colors: [color, '#ffffff'] });
+        fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2, colors: [color, '#ffffff'] });
+        fire(0.1, { spread: 120, startVelocity: 45, colors: [color, '#ffffff'] });
+    }, [color]);
+    return null;
 }
