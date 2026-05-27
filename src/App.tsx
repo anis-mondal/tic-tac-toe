@@ -140,7 +140,7 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
   return bestMove;
 };
 
-// --- Highly Distinct Material 3 Themes ---
+// --- Themes Data ---
 const ORIGINAL_THEME = {
   name: 'Classic',
   light: '#f8f9fa', dark: '#000000',
@@ -150,30 +150,26 @@ const ORIGINAL_THEME = {
   linesLight: ['#22c55e'], linesDark: ['#22c55e'] 
 };
 
-// Heavily muted (pastel/earthy) colors for M3 Custom Themes
 const CUSTOM_THEMES = [
-  { name: 'M3 Blue', light: '#f4f6f8', dark: '#15171a', gridLight: '#e0e5eb', gridDark: '#23272e', cellLight: '#ffffff', cellDark: '#1a1d21', indicatorLight: '#6d839c', indicatorDark: '#7991ac', linesLight: ['#6d839c', '#5b738c', '#839ab8', '#737b9c', '#578496'], linesDark: ['#7991ac', '#8ca7c4', '#677a94', '#858ebb', '#6a9bb0'] },
-  { name: 'M3 Emerald', light: '#f2f7f4', dark: '#141c17', gridLight: '#dbe3dd', gridDark: '#202e26', cellLight: '#ffffff', cellDark: '#18211b', indicatorLight: '#678c73', indicatorDark: '#759e83', linesLight: ['#678c73', '#567a62', '#51856b', '#738f51', '#528a71'], linesDark: ['#759e83', '#8db89d', '#6ca387', '#93b569', '#6aa88d'] },
-  { name: 'M3 Purple', light: '#f6f5f7', dark: '#1d1524', gridLight: '#e1dce6', gridDark: '#32263d', cellLight: '#ffffff', cellDark: '#1f1826', indicatorLight: '#8469a3', indicatorDark: '#997ec4', linesLight: ['#8469a3', '#71588c', '#8a6bb0', '#9c5b9f', '#a6567c'], linesDark: ['#997ec4', '#b39ce0', '#9f80c7', '#bf76c2', '#c27697'] },
-  { name: 'M3 Orange', light: '#fcf8f5', dark: '#241712', gridLight: '#ebe1d8', gridDark: '#402a20', cellLight: '#ffffff', cellDark: '#211611', indicatorLight: '#ad7656', indicatorDark: '#c48b68', linesLight: ['#ad7656', '#9c6444', '#a8794c', '#a85151', '#916342'], linesDark: ['#c48b68', '#d6a885', '#cc9797', '#c26d6d', '#bf8e69'] },
-  { name: 'M3 Rose', light: '#fcf5f6', dark: '#261217', gridLight: '#ebdce0', gridDark: '#45212a', cellLight: '#ffffff', cellDark: '#211215', indicatorLight: '#ab5c6d', indicatorDark: '#c26b7f', linesLight: ['#ab5c6d', '#96485a', '#8a4050', '#a85675', '#ba6378'], linesDark: ['#c26b7f', '#d68798', '#d198a6', '#cc9ba9', '#c4899b'] },
-  { name: 'M3 Cyan', light: '#f2f9fa', dark: '#121f21', gridLight: '#d6e8eb', gridDark: '#20393d', cellLight: '#ffffff', cellDark: '#142124', indicatorLight: '#598f9c', indicatorDark: '#6db1c2', linesLight: ['#598f9c', '#4a7d8a', '#44788c', '#49807b', '#487a76'], linesDark: ['#6db1c2', '#86c9d9', '#8cc3d6', '#71b5ae', '#83c4bd'] },
-  { name: 'M3 Amber', light: '#fcfaf5', dark: '#261b11', gridLight: '#ebe7d3', gridDark: '#402e1c', cellLight: '#ffffff', cellDark: '#211811', indicatorLight: '#a37b46', indicatorDark: '#c2965b', linesLight: ['#a37b46', '#96713e', '#8a6031', '#856434', '#ab6c42'], linesDark: ['#c2965b', '#dbb884', '#c9a35d', '#cc9766', '#d6ce8b'] },
-  { name: 'M3 Crimson', light: '#fcf4f4', dark: '#261212', gridLight: '#ebd3d3', gridDark: '#452222', cellLight: '#ffffff', cellDark: '#211313', indicatorLight: '#ab5c5c', indicatorDark: '#c76f6f', linesLight: ['#ab5c5c', '#964a4a', '#853e3e', '#7a3939', '#ab5c6d'], linesDark: ['#c76f6f', '#d18a8a', '#c26b6b', '#c77d8a', '#c26f6f'] },
-  { name: 'M3 Indigo', light: '#f4f5f7', dark: '#151521', gridLight: '#dfe1eb', gridDark: '#272640', cellLight: '#ffffff', cellDark: '#15151c', indicatorLight: '#65619e', indicatorDark: '#7d79bf', linesLight: ['#65619e', '#595691', '#514c8a', '#413e70', '#41517a'], linesDark: ['#7d79bf', '#9996d9', '#8ca7c4', '#a1b4cc', '#88a6d1'] },
-  { name: 'M3 Mint', light: '#f2fcf9', dark: '#12211f', gridLight: '#d6ebe4', gridDark: '#1e3834', cellLight: '#ffffff', cellDark: '#121c1a', indicatorLight: '#548f87', indicatorDark: '#6ab5ab', linesLight: ['#548f87', '#4b8078', '#384d4b', '#416653', '#396353'], linesDark: ['#6ab5ab', '#84c9bf', '#a0c7bb', '#8cc4a8', '#7bb89d'] },
+  { name: 'M3 Blue', light: '#eff6ff', dark: '#0f172a', gridLight: '#bfdbfe', gridDark: '#1e3a8a', cellLight: '#ffffff', cellDark: '#111827', indicatorLight: '#2563eb', indicatorDark: '#60a5fa', linesLight: ['#2563eb', '#1d4ed8', '#3b82f6', '#4f46e5', '#0284c7'], linesDark: ['#60a5fa', '#93c5fd', '#3b82f6', '#818cf8', '#38bdf8'] },
+  { name: 'M3 Emerald', light: '#ecfdf5', dark: '#022c22', gridLight: '#a7f3d0', gridDark: '#064e3b', cellLight: '#ffffff', cellDark: '#065f46', indicatorLight: '#16a34a', indicatorDark: '#4ade80', linesLight: ['#16a34a', '#15803d', '#059669', '#65a30d', '#10b981'], linesDark: ['#4ade80', '#86efac', '#34d399', '#a3e635', '#22c55e'] },
+  { name: 'M3 Purple', light: '#f5f3ff', dark: '#2e1065', gridLight: '#d8b4fe', gridDark: '#581c87', cellLight: '#ffffff', cellDark: '#1e1b4b', indicatorLight: '#9333ea', indicatorDark: '#c084fc', linesLight: ['#9333ea', '#7e22ce', '#a855f7', '#c026d3', '#db2777'], linesDark: ['#c084fc', '#e9d5ff', '#d8b4fe', '#f472b6', '#fb7185'] },
+  { name: 'M3 Orange', light: '#fff7ed', dark: '#431407', gridLight: '#fdba74', gridDark: '#7c2d12', cellLight: '#ffffff', cellDark: '#2a1200', indicatorLight: '#ea580c', indicatorDark: '#fb923c', linesLight: ['#ea580c', '#c2410c', '#d97706', '#dc2626', '#b45309'], linesDark: ['#fb923c', '#fcd34d', '#fca5a5', '#f87171', '#fdba74'] },
+  { name: 'M3 Rose', light: '#fff1f2', dark: '#4c0519', gridLight: '#fecdd3', gridDark: '#881337', cellLight: '#ffffff', cellDark: '#240000', indicatorLight: '#e11d48', indicatorDark: '#fb7185', linesLight: ['#e11d48', '#be123c', '#9f1239', '#db2777', '#f43f5e'], linesDark: ['#fb7185', '#fda4af', '#fecdd3', '#fbcfe8', '#f9a8d4'] },
+  { name: 'M3 Cyan', light: '#ecfeff', dark: '#083344', gridLight: '#67e8f9', gridDark: '#164e63', cellLight: '#ffffff', cellDark: '#0b2e59', indicatorLight: '#0891b2', indicatorDark: '#22d3ee', linesLight: ['#0891b2', '#0e7490', '#0369a1', '#0f766e', '#115e59'], linesDark: ['#22d3ee', '#67e8f9', '#7dd3fc', '#5eead4', '#99f6e4'] },
+  { name: 'M3 Amber', light: '#fffbeb', dark: '#451a03', gridLight: '#fde047', gridDark: '#713f12', cellLight: '#ffffff', cellDark: '#2e1503', indicatorLight: '#d97706', indicatorDark: '#fbbf24', linesLight: ['#d97706', '#ca8a04', '#b45309', '#a16207', '#ea580c'], linesDark: ['#fbbf24', '#fef08a', '#fcd34d', '#fdba74', '#fde047'] },
+  { name: 'M3 Crimson', light: '#fef2f2', dark: '#450a0a', gridLight: '#fca5a5', gridDark: '#7f1d1d', cellLight: '#ffffff', cellDark: '#1a0505', indicatorLight: '#dc2626', indicatorDark: '#f87171', linesLight: ['#dc2626', '#b91c1c', '#991b1b', '#7f1d1d', '#e11d48'], linesDark: ['#f87171', '#fca5a5', '#ef4444', '#fb7185', '#f87171'] },
+  { name: 'M3 Indigo', light: '#eef2ff', dark: '#1e1b4b', gridLight: '#c7d2fe', gridDark: '#312e81', cellLight: '#ffffff', cellDark: '#111827', indicatorLight: '#4f46e5', indicatorDark: '#818cf8', linesLight: ['#4f46e5', '#4338ca', '#3730a3', '#312e81', '#1e3a8a'], linesDark: ['#818cf8', '#a5b4fc', '#93c5fd', '#bfdbfe', '#60a5fa'] },
+  { name: 'M3 Mint', light: '#f0fdfa', dark: '#042f2e', gridLight: '#99f6e4', gridDark: '#134e4a', cellLight: '#ffffff', cellDark: '#021a1a', indicatorLight: '#0d9488', indicatorDark: '#5eead4', linesLight: ['#0d9488', '#0f766e', '#0b1d1d', '#14532d', '#065f46'], linesDark: ['#5eead4', '#6ee7b7', '#a7f3d0', '#86efac', '#69dba8'] },
 ];
 
-// Heavily muted (pastel/earthy) colors for X and O Players
-const X_COLORS = ['#b86a6a', '#bd8153', '#ab9146', '#839e55', '#579e70', '#4e95a3', '#6a8bc4', '#8a73b8', '#a865b3', '#ba6c7d'];
-const O_COLORS = ['#6a8bc4', '#5594b5', '#4e95a3', '#539e94', '#579e70', '#839e55', '#ab9146', '#bd8153', '#b86a6a', '#a865b3'];
+const X_COLORS = ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#d946ef', '#f43f5e'];
+const O_COLORS = ['#3b82f6', '#0ea5e9', '#06b6d4', '#14b8a6', '#22c55e', '#84cc16', '#eab308', '#f97316', '#ef4444', '#d946ef'];
 
 export default function App() {
   const [board, setBoard] = useState<SquareValue[]>(Array(9).fill(null));
-  
-  // By Default, Human is 'O' and goes first. AI is 'X'.
   const [startingPlayer, setStartingPlayer] = useState<Player>('O'); 
-  const [isXNext, setIsXNext] = useState(false); // Since 'O' starts, X is not next initially
+  const [isXNext, setIsXNext] = useState(false); 
   
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(null);
   const [isDraw, setIsDraw] = useState(false);
@@ -283,7 +279,7 @@ export default function App() {
     }
   }, [board, isSoundOn, isResetting, xColorIdx, oColorIdx, winnerInfo, isDraw, overallWinner, targetScore, isTargetScoreEnabled]);
 
-  const aiPlayerSymbol = isSinglePlayer ? 'X' : null; // AI is always X in 1-player mode
+  const aiPlayerSymbol = isSinglePlayer ? 'X' : null;
   const isAITurn = isSinglePlayer && aiPlayerSymbol && ((isXNext && aiPlayerSymbol === 'X') || (!isXNext && aiPlayerSymbol === 'O'));
 
   useEffect(() => {
@@ -339,7 +335,7 @@ export default function App() {
          if (userWantsTargetScore) setIsTargetScoreEnabled(true);
       }
       setIsResetting(false);
-    }, 500); 
+    }, 450); 
   };
 
   const handleTurnHoldStart = () => {
@@ -361,20 +357,23 @@ export default function App() {
     if (turnHoldTimer.current) clearTimeout(turnHoldTimer.current);
   };
 
+  // Toggle 1 Player AI First Logic
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
       hapticFeedback([80, 40, 80]); 
       setIsSinglePlayer(true);
-      
-      // If 1 Player is hold, set AI (X) to start
-      setStartingPlayer('X');
-      setIsXNext(true);
-      resetGameForMode('X', true); 
+      setStartingPlayer(prev => {
+         const newPlayer = prev === 'O' ? 'X' : 'O';
+         setIsXNext(newPlayer === 'X');
+         resetGameForMode(newPlayer, true); 
+         return newPlayer;
+      });
     }, 600);
   };
   const handleModeHoldEnd = () => {
     if (modeHoldTimer.current) clearTimeout(modeHoldTimer.current);
   };
+  
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
     hapticFeedback(40);
@@ -661,7 +660,7 @@ export default function App() {
                 </button>
               ))}
 
-              {/* Exact Classic Hollow Winning Line (Transparent Center + Thin Colored Border) */}
+              {/* Exact Classic Hollow Winning Line (Thin Border, 70% Transparent Center) */}
               <AnimatePresence>
                 {linePoints && winnerInfo && (
                   <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -689,18 +688,18 @@ export default function App() {
                     <motion.line
                       x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
                       x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                      stroke={activeLineColor} strokeWidth="10" strokeLinecap="round" mask="url(#hollow-mask)"
+                      stroke={activeLineColor} strokeWidth="12" strokeLinecap="round" mask="url(#hollow-mask)"
                       clipPath={linePoints.type === 'center-out' ? "url(#center-out-clip)" : undefined}
                       initial={linePoints.type === 'normal' ? { pathLength: 0 } : undefined}
                       animate={linePoints.type === 'normal' ? { pathLength: isResetting ? 0 : 1 } : undefined}
                       transition={{ duration: 0.45, ease: "easeInOut" }}
                     />
 
-                    {/* Inner 25% Transparent Fill */}
+                    {/* Inner 30% Opacity Fill (which means 70% transparent) */}
                     <motion.line
                       x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
                       x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                      stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.25}
+                      stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.3}
                       clipPath={linePoints.type === 'center-out' ? "url(#center-out-clip)" : undefined}
                       initial={linePoints.type === 'normal' ? { pathLength: 0 } : undefined}
                       animate={linePoints.type === 'normal' ? { pathLength: isResetting ? 0 : 1 } : undefined}
@@ -716,23 +715,20 @@ export default function App() {
             <AnimatePresence>
               {isOverallWinModalOpen && overallWinner && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-3 bg-black/60 backdrop-blur-[2px] rounded-[36px] sm:rounded-[40px]">
-                  <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full h-full p-4 rounded-[28px] shadow-2xl relative border border-white/10 flex flex-col items-center justify-center gap-3 text-center overflow-hidden">
+                  <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full h-full p-4 rounded-[28px] shadow-2xl relative border border-white/10 flex flex-col items-center justify-center gap-2 text-center overflow-hidden">
                      
-                     <div className="flex flex-col items-center gap-1.5 z-10">
-                       <h2 className="text-xl font-black tracking-tight leading-tight pt-1">Winner!</h2>
-                       <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="text-4xl font-black" style={{ color: overallWinner === 'X' ? X_COLORS[xColorIdx] : O_COLORS[oColorIdx] }}>
+                     <h2 className="text-xl font-black">Winner!</h2>
+                     <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} className="text-5xl font-black mt-[-4px]" style={{ color: overallWinner === 'X' ? X_COLORS[xColorIdx] : O_COLORS[oColorIdx] }}>
                         {overallWinner}
-                       </motion.span>
-                     </div>
+                     </motion.span>
+                     <p className="text-[13px] opacity-70 mt-1 mb-2 font-medium">Reached {targetScore} points first.</p>
                      
-                     <div className="flex flex-col w-full gap-2.5 pt-2 z-10">
-                        <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: isDarkMode ? activeTheme.cellDark : activeTheme.cellLight, border: `2px solid ${activeLineColor}`, color: activeLineColor }}>
-                           Start a New Game
-                        </motion.button>
-                        <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer, false); setIsOverallWinModalOpen(false); setOverallWinner(null); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
-                           Continue This Game
-                        </motion.button>
-                     </div>
+                     <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-[14px] font-bold transition-all shadow select-none" style={{ backgroundColor: isDarkMode ? activeTheme.cellDark : activeTheme.cellLight, border: `2px solid ${activeLineColor}`, color: activeLineColor }}>
+                        Start a New Game
+                     </motion.button>
+                     <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer, false); setIsOverallWinModalOpen(false); setOverallWinner(null); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-[14px] font-bold transition-all shadow select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
+                        Continue This Game
+                     </motion.button>
 
                   </motion.div>
                 </motion.div>
@@ -760,8 +756,6 @@ export default function App() {
                 </div>
                 
                 <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 m3-scrollbar">
-                  
-                  {/* Theme Mode Toggle */}
                   <div>
                      <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Theme Style</h3>
                      <div className="flex gap-2 p-1.5 rounded-2xl" style={{ backgroundColor: semantics.scoreBg }}>
@@ -774,7 +768,6 @@ export default function App() {
                      </div>
                   </div>
                   
-                  {/* Target Score Win Condition */}
                   <div className="rounded-2xl p-4 space-y-3" style={{ backgroundColor: semantics.scoreBg }}>
                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
@@ -877,8 +870,8 @@ export default function App() {
                     
                     <h4 className="text-lg font-extrabold tracking-tight opacity-90 pt-3">Controls</h4>
                     <p>🔄 <span className="font-bold text-sky-500">Soft Reset:</span> Tap the Restart button to clear the board and start a new round.</p>
-                    <p>⚠️ <span className="font-bold text-sky-500">Hard Reset:</span> <strong>Press and hold</strong> the Restart button to wipe all scores and start completely fresh. This will also re-enable the Target Score logic if it was disabled.</p>
-                    <p>✨ <span className="font-bold text-sky-500">First Player:</span> <strong>Press and hold</strong> the "1 Player" button to allow the AI (X) to go first instead of you.</p>
+                    <p>⚠️ <span className="font-bold text-sky-500">Hard Reset:</span> <strong>Press and hold</strong> the Restart button to wipe all scores and start completely fresh. This will also re-enable the Target Score logic if it was previously hidden.</p>
+                    <p>✨ <span className="font-bold text-sky-500">Toggle First Player:</span> <strong>Press and hold</strong> the "1 Player" button to toggle who moves first (You or AI).</p>
                   </div>
                   
                 </div>
