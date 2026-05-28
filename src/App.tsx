@@ -396,7 +396,6 @@ export default function App() {
     }, 450); 
   };
 
-  // Turn Banner Interactions (Hold for Symbol change on Hard Reset, Click for Soft Reset Starter change)
   const handleTurnHoldStart = () => {
     if (isGameCompletelyFresh && !winnerInfo) {
       setIsHoldingBanner(true);
@@ -421,7 +420,7 @@ export default function App() {
   const handleTurnBannerClick = () => {
     if (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) {
        hapticFeedback(40);
-       playEnhancedSound('mode', isSoundOn);
+       playEnhancedSound('mode', isSoundOn); 
        setStartingPlayer(prev => {
           const next = prev === 'X' ? 'O' : 'X';
           setIsXNext(next === 'X');
@@ -430,7 +429,6 @@ export default function App() {
     }
   };
 
-  // 1-Player Hold to let AI Start (Toggles AI first vs Human First)
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
       hapticFeedback([80, 40, 80]); 
@@ -454,7 +452,6 @@ export default function App() {
     hapticFeedback(40);
     playEnhancedSound('mode', isSoundOn);
     setIsSinglePlayer(single);
-    // When switching mode normally, reset to human going first to be safe
     performHardReset(humanSymbol); 
   };
 
@@ -479,7 +476,6 @@ export default function App() {
     resetGameForMode(startingPlayer); 
   };
 
-  // Winning Line Calculation with pure mathematical centers
   useEffect(() => {
     const updatePoints = () => {
       if (winnerInfo && boardRef.current) {
@@ -607,7 +603,7 @@ export default function App() {
           <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm">
             <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none flex items-center justify-center gap-1.5 ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
-              <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <>🤖 1 Player</>}</span>
+              <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
             </button>
             <button onClick={() => switchModeClick(false)} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none flex items-center justify-center gap-1.5 ${!isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {!isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
@@ -731,11 +727,11 @@ export default function App() {
                   <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
                     
                     <defs>
-                      <filter id="win-blur" x="-50%" y="-50%" width="200%" height="200%" filterUnits="userSpaceOnUse">
-                        <feGaussianBlur stdDeviation="3" />
+                      <filter id="win-blur" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="2.5" />
                       </filter>
-                      <mask id="hollow-mask" maskUnits="userSpaceOnUse" x="-50%" y="-50%" width="200%" height="200%">
-                        <rect x="-50" y="-50" width="200" height="200" fill="white" />
+                      <mask id="hollow-mask" maskUnits="userSpaceOnUse">
+                        <rect width="100%" height="100%" fill="white" />
                         {linePoints.type === 'center-out' ? (
                            <>
                              <motion.line
