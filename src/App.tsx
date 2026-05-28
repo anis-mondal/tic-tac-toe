@@ -8,6 +8,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X, Target, Info, RefreshCw } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
+// --- Capacitor Plugins Added ---
+import { Capacitor } from '@capacitor/core';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+
 type Player = 'X' | 'O';
 type SquareValue = Player | null;
 
@@ -17,9 +22,14 @@ const WINNING_COMBINATIONS = [
   [0, 4, 8], [2, 4, 6]
 ];
 
+// Updated Haptic Feedback Function for both Web and Mobile Native
 const hapticFeedback = (pattern: number | number[]) => {
-  if (typeof window !== 'undefined' && navigator.vibrate) {
-    try { navigator.vibrate(pattern); } catch (e) {}
+  if (Capacitor.isNativePlatform()) {
+     // Use Capacitor Haptics for Native App
+     try { Haptics.impact({ style: ImpactStyle.Light }); } catch (e) {}
+  } else if (typeof window !== 'undefined' && navigator.vibrate) {
+     // Fallback to Web Vibrate API for Browser
+     try { navigator.vibrate(pattern); } catch (e) {}
   }
 };
 
@@ -255,10 +265,24 @@ export default function App() {
   const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartPointerDown = useRef(false);
 
+  // --- Dynamic Status Bar Effect ---
   useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const activeBgColor = useDefaultTheme 
+          ? (isDarkMode ? ORIGINAL_THEME.dark : ORIGINAL_THEME.light) 
+          : (isDarkMode ? CUSTOM_THEMES[themeIdx].dark : CUSTOM_THEMES[themeIdx].light);
+        
+        StatusBar.setBackgroundColor({ color: activeBgColor });
+        StatusBar.setStyle({ style: isDarkMode ? Style.Dark : Style.Light });
+      } catch (e) {
+        console.warn("Status bar customization failed:", e);
+      }
+    }
+    
     if (isDarkMode) document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
-  }, [isDarkMode]);
+  }, [isDarkMode, themeIdx, useDefaultTheme]);
 
   const toggleSound = () => {
     hapticFeedback(40);
