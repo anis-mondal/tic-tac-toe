@@ -1,8 +1,0 @@
-{
-  "name": "Material Tic-Tac-Toe",
-  "description": "A modern, Material 3 inspired Tic-Tac-Toe game with elegant animations and precise winning highlights.",
-  "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
-}
