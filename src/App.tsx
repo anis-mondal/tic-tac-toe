@@ -429,6 +429,7 @@ export default function App() {
     }
   };
 
+  // 1-Player Hold to let AI Start
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
       hapticFeedback([80, 40, 80]); 
@@ -476,6 +477,7 @@ export default function App() {
     resetGameForMode(startingPlayer); 
   };
 
+  // Winning Line Calculation with Safe SVG Padding for Straight lines
   useEffect(() => {
     const updatePoints = () => {
       if (winnerInfo && boardRef.current) {
@@ -491,8 +493,13 @@ export default function App() {
         };
         const [a, b, c] = winnerInfo.line;
         
-        const pA = getCellCenter(a);
-        const pC = getCellCenter(c);
+        let pA = getCellCenter(a);
+        let pC = getCellCenter(c);
+        
+        // Anti-Clip Bug Fix: Add a tiny offset to perfectly straight lines so browser doesn't drop the blur filter
+        if (Math.abs(pA.x - pC.x) < 0.1) pC.x += 0.01;
+        if (Math.abs(pA.y - pC.y) < 0.1) pC.y += 0.01;
+
         const pB = { x: (pA.x + pC.x) / 2, y: (pA.y + pC.y) / 2 };
 
         if (lastMoveIdxRef.current === b) {
@@ -721,17 +728,19 @@ export default function App() {
                 </button>
               ))}
 
-              {/* Exact Classic Hollow Winning Line (Thin Border, 35% Blur, 65% Transparent Center) */}
+              {/* Exact Classic Hollow Winning Line (1px Border, 35% Blur, 65% Transparent Center) */}
               <AnimatePresence>
                 {linePoints && winnerInfo && (
                   <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
                     
                     <defs>
-                      <filter id="win-blur" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur stdDeviation="2.5" />
+                      {/* Fixed: Absolute positioning for filter to prevent bug on straight lines */}
+                      <filter id="win-blur" x="-50" y="-50" width="200" height="200" filterUnits="userSpaceOnUse">
+                        <feGaussianBlur stdDeviation="3" />
                       </filter>
-                      <mask id="hollow-mask" maskUnits="userSpaceOnUse">
-                        <rect width="100%" height="100%" fill="white" />
+
+                      <mask id="hollow-mask" maskUnits="userSpaceOnUse" x="-50" y="-50" width="200" height="200">
+                        <rect x="-50" y="-50" width="200" height="200" fill="white" />
                         {linePoints.type === 'center-out' ? (
                            <>
                              <motion.line
@@ -825,18 +834,18 @@ export default function App() {
             {/* In-Board Target Score Winner Popup (50% Blur, 50% Transparent Background) */}
             <AnimatePresence>
               {isOverallWinModalOpen && overallWinner && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-3 rounded-[36px] sm:rounded-[40px] border border-white/5" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-3 rounded-[36px] sm:rounded-[40px] border border-white/5" style={{ backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
                   <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text }} className="w-full h-full p-4 rounded-[28px] relative flex flex-col items-center justify-center gap-3 text-center overflow-hidden">
                      
                      <div className="flex flex-col items-center gap-1.5 z-10">
-                       <h2 className="text-xl font-black tracking-tight leading-tight pt-1 text-white">Winner!</h2>
+                       <h2 className="text-xl font-black tracking-tight leading-tight pt-1 drop-shadow-sm">Winner!</h2>
                        <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="text-5xl font-black drop-shadow-md" style={{ color: overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx] }}>
                         {overallWinner}
                        </motion.span>
                      </div>
                      
                      <div className="flex flex-col w-full gap-3 pt-2 z-10">
-                        <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: 'transparent', border: `2px solid ${activeLineColor}`, color: activeLineColor }}>
+                        <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none bg-transparent" style={{ border: `2px solid ${activeLineColor}`, color: isDarkMode ? '#ffffff' : '#000000' }}>
                            Start a New Game
                         </motion.button>
                         <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer, false); setIsOverallWinModalOpen(false); setOverallWinner(null); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
