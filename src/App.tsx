@@ -23,6 +23,21 @@ const hapticFeedback = (pattern: number | number[]) => {
   }
 };
 
+// --- Custom AI Logo Component ---
+const AILogo = () => (
+  <svg width="18" height="18" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-sm">
+    <defs>
+      <linearGradient id="ai-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ff007f" />
+        <stop offset="50%" stopColor="#ff7f00" />
+        <stop offset="100%" stopColor="#00e5ff" />
+      </linearGradient>
+    </defs>
+    <circle cx="50" cy="50" r="42" fill="none" stroke="url(#ai-grad)" strokeWidth="12" />
+    <text x="50" y="68" fontFamily="Nunito, sans-serif" fontWeight="900" fontSize="48" fill="url(#ai-grad)" textAnchor="middle">Ai</text>
+  </svg>
+);
+
 // --- Audio System ---
 const audioState = { ctx: null as AudioContext | null };
 const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point' | 'unmute' | 'mode', enabled: boolean) => {
@@ -51,14 +66,16 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point'
       gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
       osc.connect(gain); gain.connect(ctx.destination);
       osc.start(t); osc.stop(t + 0.1);
-    } else if (type === 'mode' || type === 'unmute') {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine'; osc.frequency.setValueAtTime(800, t);
-      osc.frequency.exponentialRampToValueAtTime(1200, t + 0.1);
-      gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.1);
+    } else if (type === 'mode') {
+      [600, 800].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine'; osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.2, t + i * 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.15 + 0.1);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t + i * 0.15); osc.stop(t + i * 0.15 + 0.1);
+      });
     } else if (type === 'win') {
       [440, 554.37, 659.25].forEach((freq, i) => { 
         const osc = ctx.createOscillator();
@@ -81,7 +98,7 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point'
         osc.connect(gain); gain.connect(ctx.destination);
         osc.start(t + i * 0.1); osc.stop(t + i * 0.1 + 0.6);
       });
-    } else if (type === 'point') {
+    } else if (type === 'point' || type === 'unmute') {
        const osc = ctx.createOscillator();
        const gain = ctx.createGain();
        osc.type = 'sine'; osc.frequency.setValueAtTime(800, t);
@@ -170,7 +187,7 @@ const ORIGINAL_THEME = {
 };
 
 const CUSTOM_THEMES = [
-  { name: 'M3 Blue', light: '#eff6ff', dark: '#040b17', gridLight: '#bfdbfe', gridDark: '#0a1229', cellLight: '#ffffff', cellDark: '#121e38', indicatorLight: '#2563eb', indicatorDark: '#3b82f6', linesLight: ['#1e3a8a', '#1d4ed8', '#0891b2', '#4f46e5', '#3b82f6'], linesDark: ['#93c5fd', '#60a5fa', '#3b82f6', '#818cf8', '#7dd3fc'] },
+  { name: 'M3 Blue', light: '#eff6ff', dark: '#040b17', gridLight: '#bfdbfe', gridDark: '#0a1229', cellLight: '#ffffff', cellDark: '#121e38', indicatorLight: '#2563eb', indicatorDark: '#3b82f6', linesLight: ['#1e3a8a', '#1d4ed8', '#0891b2', '#4f46e5', '#3b82f6'], linesDark: ['#60a5fa', '#93c5fd', '#3b82f6', '#818cf8', '#7dd3fc'] },
   { name: 'M3 Emerald', light: '#ecfdf5', dark: '#020f0a', gridLight: '#a7f3d0', gridDark: '#052115', cellLight: '#ffffff', cellDark: '#0a3321', indicatorLight: '#16a34a', indicatorDark: '#22c55e', linesLight: ['#166534', '#059669', '#15803d', '#10b981', '#16a34a'], linesDark: ['#4ade80', '#22c55e', '#34d399', '#86efac', '#8dd999'] },
   { name: 'M3 Purple', light: '#f5f3ff', dark: '#0b0412', gridLight: '#d8b4fe', gridDark: '#160826', cellLight: '#ffffff', cellDark: '#200e33', indicatorLight: '#9333ea', indicatorDark: '#a855f7', linesLight: ['#7e22ce', '#9333ea', '#a855f7', '#c026d3', '#db2777'], linesDark: ['#c084fc', '#d8b4fe', '#e879f9', '#f472b6', '#fb7185'] },
   { name: 'M3 Orange', light: '#fff7ed', dark: '#120701', gridLight: '#fdba74', gridDark: '#240d02', cellLight: '#ffffff', cellDark: '#331304', indicatorLight: '#ea580c', indicatorDark: '#f97316', linesLight: ['#c2410c', '#ea580c', '#d97706', '#dc2626', '#b45309'], linesDark: ['#fb923c', '#fcd34d', '#fca5a5', '#f87171', '#fdba74'] },
@@ -182,7 +199,6 @@ const CUSTOM_THEMES = [
   { name: 'M3 Mint', light: '#f0fdfa', dark: '#01120f', gridLight: '#99f6e4', gridDark: '#03241d', cellLight: '#ffffff', cellDark: '#06362c', indicatorLight: '#0d9488', indicatorDark: '#14b8a6', linesLight: ['#0f766e', '#0d9488', '#0b1d1d', '#14532d', '#065f46'], linesDark: ['#6ab5ab', '#84c9bf', '#a0c7bb', '#8cc4a8', '#7bb89d'] },
 ];
 
-// 15 Distinct and Beautiful Colors for Player Customization
 const PLAYER_COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', 
   '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', 
@@ -192,20 +208,20 @@ const PLAYER_COLORS = [
 export default function App() {
   const [board, setBoard] = useState<SquareValue[]>(Array(9).fill(null));
   
-  // Game state
-  const [isSinglePlayer, setIsSinglePlayer] = useState(true);
   const [humanSymbol, setHumanSymbol] = useState<Player>('O'); 
-  const [isXNext, setIsXNext] = useState(true); 
+  const [startingPlayer, setStartingPlayer] = useState<Player>('O'); 
+  const [isXNext, setIsXNext] = useState(false); 
   
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(null);
   const [isDraw, setIsDraw] = useState(false);
+  const [isSinglePlayer, setIsSinglePlayer] = useState(true);
+  const [aiMovesFirst, setAiMovesFirst] = useState(false); 
   
   const lastMoveIdxRef = useRef<number | null>(null);
   const [linePoints, setLinePoints] = useState<{ type: 'normal' | 'center-out', start: { x: number; y: number }; end: { x: number; y: number }, mid: { x: number; y: number } } | null>(null);
   
   const [scores, setScores] = useState({ X: 0, O: 0, Draws: 0 });
   const [rotation, setRotation] = useState(0);
-  const [isHoldingBanner, setIsHoldingBanner] = useState(false);
   const [isSoundOn, setIsSoundOn] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
   
@@ -236,7 +252,6 @@ export default function App() {
   const myConfettiRef = useRef<confetti.CreateTypes | null>(null);
   const modeHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartHoldTimer = useRef<NodeJS.Timeout | null>(null);
-  const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartPointerDown = useRef(false);
 
   useEffect(() => {
@@ -344,12 +359,13 @@ export default function App() {
 
   const isGameCompletelyFresh = scores.X === 0 && scores.O === 0 && scores.Draws === 0 && board.every(c => c === null);
 
-  const performHardReset = () => {
+  const performHardReset = (startingPlayerOverride: Player) => {
       if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
       if (myConfettiRef.current) myConfettiRef.current.reset();
       setScores({ X: 0, O: 0, Draws: 0 });
+      setStartingPlayer(startingPlayerOverride);
       setBoard(Array(9).fill(null));
-      setIsXNext(true); // X always goes first globally
+      setIsXNext(startingPlayerOverride === 'X');
       setWinnerInfo(null);
       setIsDraw(false);
       setLinePoints(null);
@@ -360,7 +376,7 @@ export default function App() {
       if (userWantsTargetScore) setIsTargetScoreEnabled(true);
   };
 
-  const resetGameForMode = () => {
+  const resetGameForMode = (currentStartingPlayer: Player) => {
     hapticFeedback(40); 
     playEnhancedSound('pop', isSoundOn);
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
@@ -368,10 +384,9 @@ export default function App() {
 
     setIsResetting(true);
     
-    setTimeout(() => {
+    resetTimerRef.current = setTimeout(() => {
       setBoard(Array(9).fill(null));
-      // Standard TicTacToe rule: X starts first in a new round
-      setIsXNext(true); 
+      setIsXNext(currentStartingPlayer === 'X');
       setWinnerInfo(null);
       setIsDraw(false);
       setLinePoints(null);
@@ -380,41 +395,52 @@ export default function App() {
     }, 450); 
   };
 
-  // Turn Banner Interactions (Hold for Symbol change on Hard Reset, Click for Soft Reset Starter change)
-  const handleTurnHoldStart = () => {
+  // Switch First Player Logic
+  const handleTurnBannerClick = () => {
+    if (!isSinglePlayer && !isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) {
+       hapticFeedback(40);
+       playEnhancedSound('mode', isSoundOn); 
+       setStartingPlayer(prev => {
+          const next = prev === 'X' ? 'O' : 'X';
+          setIsXNext(next === 'X');
+          return next;
+       });
+    }
+  };
+
+  // Hard Reset Banner Hold (Change Symbol)
+  let bannerHoldTimer: any = null;
+  const handleTurnBannerHoldStart = () => {
     if (isGameCompletelyFresh && !winnerInfo) {
-      setIsHoldingBanner(true);
-      turnHoldTimer.current = setTimeout(() => {
+      bannerHoldTimer = setTimeout(() => {
         hapticFeedback([80, 40, 80]); 
-        playEnhancedSound('mode', isSoundOn); // Tone on symbol change
-        setHumanSymbol(prev => prev === 'X' ? 'O' : 'X');
-        setIsHoldingBanner(false);
+        playEnhancedSound('mode', isSoundOn); 
+        setHumanSymbol(prev => {
+          const next = prev === 'X' ? 'O' : 'X';
+          setStartingPlayer(next);
+          setIsXNext(next === 'X');
+          return next;
+        });
       }, 600);
     }
   };
-  const handleTurnHoldEnd = () => {
-    setIsHoldingBanner(false);
-    if (turnHoldTimer.current) clearTimeout(turnHoldTimer.current);
+  const handleTurnBannerHoldEnd = () => {
+    if (bannerHoldTimer) clearTimeout(bannerHoldTimer);
   };
 
-  const handleTurnBannerClick = () => {
-    // Only allow changing who goes first if it's a soft reset state (empty board, but not completely fresh)
-    if (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) {
-       hapticFeedback(40);
-       playEnhancedSound('mode', isSoundOn); // Attractive tone
-       setIsXNext(!isXNext);
-    }
-  };
-
-  // 1-Player Hold to let AI Start
+  // 1-Player Toggle AI First
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
       hapticFeedback([80, 40, 80]); 
       playEnhancedSound('mode', isSoundOn);
       setIsSinglePlayer(true);
-      // Toggle human symbol which forces AI to go first or second
-      setHumanSymbol(prev => prev === 'X' ? 'O' : 'X');
-      performHardReset(); 
+      
+      setAiMovesFirst(prev => {
+         const nextVal = !prev;
+         const newStarter = nextVal ? (humanSymbol === 'X' ? 'O' : 'X') : humanSymbol;
+         performHardReset(newStarter); 
+         return nextVal;
+      });
     }, 600);
   };
   const handleModeHoldEnd = () => {
@@ -424,9 +450,10 @@ export default function App() {
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
     hapticFeedback(40);
-    playEnhancedSound('pop', isSoundOn);
+    playEnhancedSound('mode', isSoundOn);
     setIsSinglePlayer(single);
-    performHardReset(); 
+    setAiMovesFirst(false);
+    performHardReset(humanSymbol); 
   };
 
   const handleRestartPointerDown = () => {
@@ -435,7 +462,7 @@ export default function App() {
       if (!restartPointerDown.current) return;
       hapticFeedback([100, 50, 100, 50]); 
       setRotation(prev => prev - 720);
-      performHardReset(); 
+      performHardReset(startingPlayer); 
     }, 600);
   };
   
@@ -447,10 +474,10 @@ export default function App() {
         if (Date.now() - holdTime._calledAt > 600) return;
     }
     setRotation(prev => prev - 360);
-    resetGameForMode(); 
+    resetGameForMode(startingPlayer); 
   };
 
-  // Winning Line Calculation with Perfect Center Match
+  // Winning Line Calculation
   useEffect(() => {
     const updatePoints = () => {
       if (winnerInfo && boardRef.current) {
@@ -502,7 +529,7 @@ export default function App() {
     topNavBtn: isDarkMode ? activeTheme.gridDark : activeTheme.gridLight,
   };
 
-  const navBtnClass = "w-[48px] h-[48px] rounded-full transition-all shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer";
+  const navBtnClass = "w-[48px] h-[48px] rounded-full transition-all active:scale-95 shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer";
   const getNavBtnStyle = () => ({
     backgroundColor: semantics.topNavBtn,
     color: semantics.text,
@@ -536,7 +563,7 @@ export default function App() {
 
         {/* Top Navigation */}
         <nav className="fixed top-0 left-0 right-0 h-24 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
-          <motion.button whileTap={{ scale: 0.85, rotate: 10 }} onClick={() => { hapticFeedback(40); playEnhancedSound('pop', isSoundOn); setIsDarkMode(!isDarkMode); }} className={navBtnClass} style={getNavBtnStyle()}>
+          <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { hapticFeedback(40); playEnhancedSound('pop', isSoundOn); setIsDarkMode(!isDarkMode); }} className={navBtnClass} style={getNavBtnStyle()}>
             <AnimatePresence mode="wait" initial={false}>
               <motion.div key={isDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
                 {isDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
@@ -545,7 +572,7 @@ export default function App() {
           </motion.button>
 
           <motion.button 
-             whileTap={{ scale: 0.85 }}
+             whileTap={{ scale: 0.85, y: 2 }}
              onPointerDown={handleRestartPointerDown} 
              onPointerUp={handleRestartPointerUp}
              onPointerLeave={handleRestartPointerUp}
@@ -556,7 +583,7 @@ export default function App() {
             </motion.div>
           </motion.button>
 
-          <motion.button whileTap={{ scale: 0.85, rotate: -10 }} onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
+          <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
             <AnimatePresence mode="wait" initial={false}>
               <motion.div key={isSoundOn ? 'on' : 'off'} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ duration: 0.2 }}>
                 {isSoundOn ? <Volume2 className="w-[20px] h-[20px]" /> : <VolumeX className="w-[20px] h-[20px]" />}
@@ -564,7 +591,7 @@ export default function App() {
             </AnimatePresence>
           </motion.button>
           
-          <motion.button whileTap={{ scale: 0.85 }} onClick={() => { hapticFeedback(40); playEnhancedSound('pop', isSoundOn); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
+          <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { hapticFeedback(40); playEnhancedSound('pop', isSoundOn); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
             <MoreVertical className="w-[20px] h-[20px]" />
           </motion.button>
         </nav>
@@ -576,11 +603,11 @@ export default function App() {
           </motion.h1>
 
           <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm">
-            <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative px-6 py-3 rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
+            <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none flex items-center justify-center gap-1.5 ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
-              <span className="relative z-10">{isSinglePlayer && humanSymbol === 'O' ? '🤖 1 Player (AI First)' : '🤖 1 Player'}</span>
+              <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && aiMovesFirst ? <><AILogo /> AI First</> : <>🤖 1 Player</>}</span>
             </button>
-            <button onClick={() => switchModeClick(false)} className={`relative px-6 py-3 rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none ${!isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
+            <button onClick={() => switchModeClick(false)} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none flex items-center justify-center gap-1.5 ${!isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {!isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
               <span className="relative z-10">👥 2 Players</span>
             </button>
@@ -588,10 +615,10 @@ export default function App() {
 
           <motion.div 
             onClick={handleTurnBannerClick}
-            onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} 
-            animate={{ scale: winnerInfo ? 1.05 : (isHoldingBanner ? 0.96 : 1) }} 
+            onPointerDown={handleTurnBannerHoldStart} onPointerUp={handleTurnBannerHoldEnd} onPointerLeave={handleTurnBannerHoldEnd} 
+            animate={{ scale: winnerInfo ? 1.05 : 1 }} 
             style={{ backgroundColor: semantics.bannerDefault.bg, color: semantics.bannerDefault.text }} 
-            className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden ${isGameCompletelyFresh || (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) ? 'cursor-pointer' : ''}`}
+            className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden ${isGameCompletelyFresh || (!isSinglePlayer && !isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) ? 'cursor-pointer' : ''}`}
           >
             <div className="flex items-center gap-2 relative z-10">
               {winnerInfo ? (
@@ -600,10 +627,10 @@ export default function App() {
                 <>
                   {isAITurn ? (
                     <div className="flex items-center gap-1.5 h-8">
-                      <span className="mr-1 font-bold">AI Thinking</span>
-                      <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
-                      <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.15 }} className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
-                      <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.3 }} className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
+                      <span className="mr-1 font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#ff007f] via-[#ff7f00] to-[#00e5ff]">AI Thinking</span>
+                      <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} className="w-1.5 h-1.5 rounded-full" style={{ background: '#ff007f' }} />
+                      <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.15 }} className="w-1.5 h-1.5 rounded-full" style={{ background: '#ff7f00' }} />
+                      <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.3 }} className="w-1.5 h-1.5 rounded-full" style={{ background: '#00e5ff' }} />
                     </div>
                   ) : (
                     <div className="flex items-center h-8 font-bold">
@@ -621,17 +648,6 @@ export default function App() {
                 </>
               )}
             </div>
-            {isGameCompletelyFresh && (
-              <div className={`absolute bottom-1.5 w-full flex flex-col items-center z-10 transition-opacity duration-300 pointer-events-none opacity-100`}>
-                <div className="h-[2px] w-12 bg-transparent rounded-full overflow-hidden relative">
-                   <motion.div
-                     initial={{ x: "-100%" }} animate={{ x: isHoldingBanner ? "0%" : "-100%" }}
-                     transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }}
-                     className="absolute inset-0 bg-gray-500 dark:bg-gray-300"
-                   />
-                </div>
-              </div>
-            )}
           </motion.div>
         </header>
 
@@ -696,71 +712,100 @@ export default function App() {
                 </button>
               ))}
 
-              {/* Exact Classic Hollow Winning Line (Thin Border, 35% Blur/Opacity) */}
+              {/* Exact Classic Hollow Winning Line (1px Border, 35% Blur, 65% Transparent Center) */}
               <AnimatePresence>
                 {linePoints && winnerInfo && (
                   <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
                     
                     <defs>
-                      {/* Fixed Filter bounds to ensure blur doesn't cut off on vertical/horizontal lines */}
-                      <filter id="win-blur" x="-50%" y="-50%" width="200%" height="200%" filterUnits="userSpaceOnUse">
-                        <feGaussianBlur stdDeviation="3" />
+                      <filter id="win-blur" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="2.5" />
                       </filter>
-
                       <mask id="hollow-mask" maskUnits="userSpaceOnUse">
                         <rect width="100%" height="100%" fill="white" />
-                        <motion.line
-                          initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                          transition={{ duration: 0.45, ease: "easeInOut" }}
-                          x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
-                          x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                          stroke="black" strokeWidth="6" strokeLinecap="round"
-                        />
+                        {linePoints.type === 'center-out' ? (
+                           <>
+                             <motion.line
+                               initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
+                               transition={{ duration: 0.45, ease: "easeInOut" }}
+                               x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
+                               x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`}
+                               stroke="black" strokeWidth="6" strokeLinecap="round"
+                             />
+                             <motion.line
+                               initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
+                               transition={{ duration: 0.45, ease: "easeInOut" }}
+                               x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
+                               x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                               stroke="black" strokeWidth="6" strokeLinecap="round"
+                             />
+                           </>
+                        ) : (
+                           <motion.line
+                             initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
+                             transition={{ duration: 0.45, ease: "easeInOut" }}
+                             x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
+                             x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                             stroke="black" strokeWidth="6" strokeLinecap="round"
+                           />
+                        )}
                       </mask>
-                      
-                      <clipPath id="center-out-clip">
-                         <motion.circle 
-                           cx={`${linePoints.mid.x}%`} cy={`${linePoints.mid.y}%`} 
-                           initial={{ r: 0 }} animate={{ r: isResetting ? 0 : 150 }} 
-                           transition={{ duration: 0.45, ease: "easeInOut" }} 
-                         />
-                      </clipPath>
                     </defs>
 
                     {/* Outer Stroke Layer (Masked to be hollow) 8px stroke minus 6px inner mask = 1px super thin border */}
                     {linePoints.type === 'center-out' ? (
-                      <motion.line
-                        x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
-                        x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                        stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)"
-                        clipPath="url(#center-out-clip)"
-                      />
+                       <>
+                         <motion.line
+                           initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
+                           transition={{ duration: 0.45, ease: "easeInOut" }}
+                           x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
+                           x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`}
+                           stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)"
+                         />
+                         <motion.line
+                           initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
+                           transition={{ duration: 0.45, ease: "easeInOut" }}
+                           x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
+                           x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                           stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)"
+                         />
+                       </>
                     ) : (
-                      <motion.line
-                        initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                        transition={{ duration: 0.45, ease: "easeInOut" }}
-                        x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
-                        x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                        stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)"
-                      />
+                       <motion.line
+                         initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
+                         transition={{ duration: 0.45, ease: "easeInOut" }}
+                         x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
+                         x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                         stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)"
+                       />
                     )}
 
                     {/* Inner 35% Blur Fill */}
                     {linePoints.type === 'center-out' ? (
-                      <motion.line
-                        x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
-                        x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                        stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
-                        clipPath="url(#center-out-clip)"
-                      />
+                       <>
+                         <motion.line
+                           initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
+                           transition={{ duration: 0.45, ease: "easeInOut" }}
+                           x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
+                           x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`}
+                           stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
+                         />
+                         <motion.line
+                           initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
+                           transition={{ duration: 0.45, ease: "easeInOut" }}
+                           x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
+                           x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                           stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
+                         />
+                       </>
                     ) : (
-                      <motion.line
-                        initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                        transition={{ duration: 0.45, ease: "easeInOut" }}
-                        x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
-                        x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                        stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
-                      />
+                       <motion.line
+                         initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
+                         transition={{ duration: 0.45, ease: "easeInOut" }}
+                         x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
+                         x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                         stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
+                       />
                     )}
                   </svg>
                 )}
@@ -768,14 +813,14 @@ export default function App() {
 
             </div>
 
-            {/* In-Board Target Score Winner Popup */}
+            {/* In-Board Target Score Winner Popup (50% Blur, 50% Transparent Background) */}
             <AnimatePresence>
               {isOverallWinModalOpen && overallWinner && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-3 rounded-[36px] sm:rounded-[40px] border border-white/5" style={{ backgroundColor: hexToRgba(semantics.screenBackground, 0.5), backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-3 rounded-[36px] sm:rounded-[40px] border border-white/5" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
                   <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text }} className="w-full h-full p-4 rounded-[28px] relative flex flex-col items-center justify-center gap-3 text-center overflow-hidden">
                      
                      <div className="flex flex-col items-center gap-1.5 z-10">
-                       <h2 className="text-xl font-black tracking-tight leading-tight pt-1">Winner!</h2>
+                       <h2 className="text-xl font-black tracking-tight leading-tight pt-1 text-white">Winner!</h2>
                        <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="text-5xl font-black drop-shadow-md" style={{ color: overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx] }}>
                         {overallWinner}
                        </motion.span>
