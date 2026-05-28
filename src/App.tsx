@@ -23,17 +23,9 @@ const hapticFeedback = (pattern: number | number[]) => {
   }
 };
 
-// --- Helper for Hex to RGBA (Used for Popup Transparency) ---
-const hexToRgba = (hex: string, alpha: number) => {
-  const r = parseInt(hex.slice(1, 3), 16) || 0;
-  const g = parseInt(hex.slice(3, 5), 16) || 0;
-  const b = parseInt(hex.slice(5, 7), 16) || 0;
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
-
 // --- Audio System ---
 const audioState = { ctx: null as AudioContext | null };
-const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point' | 'unmute' | 'mode', enabled: boolean) => {
+const playEnhancedSound = (type: 'tap' | 'win' | 'pop' | 'point' | 'unmute' | 'mode', enabled: boolean) => {
   if (!enabled || typeof window === 'undefined') return;
   try {
     if (!audioState.ctx) {
@@ -59,40 +51,16 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point'
       gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
       osc.connect(gain); gain.connect(ctx.destination);
       osc.start(t); osc.stop(t + 0.1);
-    } else if (type === 'mode') {
-      // Distinct double blip for mode switch
-      [600, 800].forEach((freq, i) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine'; osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.2, t + i * 0.15);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.15 + 0.1);
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.15); osc.stop(t + i * 0.15 + 0.1);
-      });
     } else if (type === 'win') {
-      // 3-note attractive arpeggio for round win
-      [440, 554.37, 659.25].forEach((freq, i) => { 
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => { 
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine'; osc.frequency.value = freq;
         gain.gain.setValueAtTime(0, t + i * 0.1);
-        gain.gain.linearRampToValueAtTime(0.25, t + i * 0.1 + 0.05);
+        gain.gain.linearRampToValueAtTime(0.3, t + i * 0.1 + 0.05);
         gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.1 + 0.5);
         osc.connect(gain); gain.connect(ctx.destination);
         osc.start(t + i * 0.1); osc.stop(t + i * 0.1 + 0.5);
-      });
-    } else if (type === 'overall-win') {
-      // 5-note fanfare for final target score win
-      [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, i) => { 
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle'; osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0, t + i * 0.1);
-        gain.gain.linearRampToValueAtTime(0.3, t + i * 0.1 + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.1 + 0.6);
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.1); osc.stop(t + i * 0.1 + 0.6);
       });
     } else if (type === 'point' || type === 'unmute') {
        const osc = ctx.createOscillator();
@@ -102,6 +70,14 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point'
        gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
        osc.connect(gain); gain.connect(ctx.destination);
        osc.start(t); osc.stop(t + 0.1);
+    } else if (type === 'mode') {
+       const osc = ctx.createOscillator();
+       const gain = ctx.createGain();
+       osc.type = 'square'; osc.frequency.setValueAtTime(300, t);
+       osc.frequency.exponentialRampToValueAtTime(500, t + 0.15);
+       gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+       osc.connect(gain); gain.connect(ctx.destination);
+       osc.start(t); osc.stop(t + 0.15);
     }
   } catch(e) {}
 };
@@ -172,7 +148,7 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
   return bestMove;
 };
 
-// --- Muted Dark Mode Themes ---
+// --- Muted Dark Mode Themes (কালচে ব্যাকগ্রাউন্ড) ---
 const ORIGINAL_THEME = {
   name: 'Classic',
   light: '#f8f9fa', dark: '#000000',
@@ -183,31 +159,30 @@ const ORIGINAL_THEME = {
 };
 
 const CUSTOM_THEMES = [
-  { name: 'M3 Blue', light: '#eff6ff', dark: '#040b17', gridLight: '#bfdbfe', gridDark: '#0a1229', cellLight: '#ffffff', cellDark: '#121e38', indicatorLight: '#2563eb', indicatorDark: '#3b82f6', linesLight: ['#1e3a8a', '#1d4ed8', '#0891b2', '#4f46e5', '#3b82f6'], linesDark: ['#60a5fa', '#93c5fd', '#3b82f6', '#818cf8', '#7dd3fc'] },
-  { name: 'M3 Emerald', light: '#ecfdf5', dark: '#020f0a', gridLight: '#a7f3d0', gridDark: '#052115', cellLight: '#ffffff', cellDark: '#0a3321', indicatorLight: '#16a34a', indicatorDark: '#22c55e', linesLight: ['#166534', '#059669', '#15803d', '#10b981', '#16a34a'], linesDark: ['#4ade80', '#22c55e', '#34d399', '#86efac', '#8dd999'] },
-  { name: 'M3 Purple', light: '#f5f3ff', dark: '#0b0412', gridLight: '#d8b4fe', gridDark: '#160826', cellLight: '#ffffff', cellDark: '#200e33', indicatorLight: '#9333ea', indicatorDark: '#a855f7', linesLight: ['#7e22ce', '#9333ea', '#a855f7', '#c026d3', '#db2777'], linesDark: ['#c084fc', '#d8b4fe', '#e879f9', '#f472b6', '#fb7185'] },
-  { name: 'M3 Orange', light: '#fff7ed', dark: '#120701', gridLight: '#fdba74', gridDark: '#240d02', cellLight: '#ffffff', cellDark: '#331304', indicatorLight: '#ea580c', indicatorDark: '#f97316', linesLight: ['#c2410c', '#ea580c', '#d97706', '#dc2626', '#b45309'], linesDark: ['#fb923c', '#fcd34d', '#fca5a5', '#f87171', '#fdba74'] },
-  { name: 'M3 Rose', light: '#fff1f2', dark: '#140306', gridLight: '#fecdd3', gridDark: '#2e0a13', cellLight: '#ffffff', cellDark: '#400e1c', indicatorLight: '#e11d48', indicatorDark: '#f43f5e', linesLight: ['#be123c', '#e11d48', '#9f1239', '#db2777', '#f43f5e'], linesDark: ['#fb7185', '#fda4af', '#fecdd3', '#fbcfe8', '#f9a8d4'] },
-  { name: 'M3 Cyan', light: '#ecfeff', dark: '#020d12', gridLight: '#67e8f9', gridDark: '#051f2b', cellLight: '#ffffff', cellDark: '#093142', indicatorLight: '#0891b2', indicatorDark: '#06b6d4', linesLight: ['#0e7490', '#0891b2', '#0369a1', '#0f766e', '#115e59'], linesDark: ['#4cdada', '#67e8f9', '#7dd3fc', '#5eead4', '#99f6e4'] },
-  { name: 'M3 Amber', light: '#fffbeb', dark: '#140b01', gridLight: '#fde047', gridDark: '#291702', cellLight: '#ffffff', cellDark: '#3d2304', indicatorLight: '#d97706', indicatorDark: '#f59e0b', linesLight: ['#ca8a04', '#d97706', '#b45309', '#a16207', '#ea580c'], linesDark: ['#f59e0b', '#fbbf24', '#fcd34d', '#fdba74', '#fde047'] },
-  { name: 'M3 Crimson', light: '#fef2f2', dark: '#140303', gridLight: '#fca5a5', gridDark: '#290707', cellLight: '#ffffff', cellDark: '#400c0c', indicatorLight: '#dc2626', indicatorDark: '#ef4444', linesLight: ['#b91c1c', '#dc2626', '#991b1b', '#7f1d1d', '#e11d48'], linesDark: ['#ef4444', '#f87171', '#fca5a5', '#fb7185', '#f87171'] },
-  { name: 'M3 Indigo', light: '#eef2ff', dark: '#050512', gridLight: '#c7d2fe', gridDark: '#0e0c29', cellLight: '#ffffff', cellDark: '#161340', indicatorLight: '#4f46e5', indicatorDark: '#6366f1', linesLight: ['#4338ca', '#4f46e5', '#3730a3', '#312e81', '#1e3a8a'], linesDark: ['#6366f1', '#818cf8', '#a5b4fc', '#93c5fd', '#bfdbfe'] },
-  { name: 'M3 Mint', light: '#f0fdfa', dark: '#01120f', gridLight: '#99f6e4', gridDark: '#03241d', cellLight: '#ffffff', cellDark: '#06362c', indicatorLight: '#0d9488', indicatorDark: '#14b8a6', linesLight: ['#0f766e', '#0d9488', '#0b1d1d', '#14532d', '#065f46'], linesDark: ['#6ab5ab', '#84c9bf', '#a0c7bb', '#8cc4a8', '#7bb89d'] },
+  { name: 'M3 Blue', light: '#eff6ff', dark: '#020617', gridLight: '#bfdbfe', gridDark: '#0f172a', cellLight: '#ffffff', cellDark: '#1e293b', indicatorLight: '#2563eb', indicatorDark: '#3b82f6', linesLight: ['#3b82f6', '#60a5fa', '#2563eb', '#06b6d4', '#818cf8'], linesDark: ['#3b82f6', '#60a5fa', '#2563eb', '#06b6d4', '#818cf8'] },
+  { name: 'M3 Emerald', light: '#ecfdf5', dark: '#02120b', gridLight: '#a7f3d0', gridDark: '#042b1c', cellLight: '#ffffff', cellDark: '#0a422d', indicatorLight: '#16a34a', indicatorDark: '#22c55e', linesLight: ['#22c55e', '#4ade80', '#16a34a', '#84cc16', '#10b981'], linesDark: ['#22c55e', '#4ade80', '#16a34a', '#84cc16', '#10b981'] },
+  { name: 'M3 Purple', light: '#f5f3ff', dark: '#11051c', gridLight: '#d8b4fe', gridDark: '#240b3b', cellLight: '#ffffff', cellDark: '#361259', indicatorLight: '#9333ea', indicatorDark: '#a855f7', linesLight: ['#a855f7', '#c084fc', '#9333ea', '#d946ef', '#8b5cf6'], linesDark: ['#a855f7', '#c084fc', '#9333ea', '#d946ef', '#8b5cf6'] },
+  { name: 'M3 Orange', light: '#fff7ed', dark: '#1a0902', gridLight: '#fdba74', gridDark: '#361404', cellLight: '#ffffff', cellDark: '#542008', indicatorLight: '#ea580c', indicatorDark: '#f97316', linesLight: ['#f97316', '#fb923c', '#ea580c', '#f59e0b', '#ef4444'], linesDark: ['#f97316', '#fb923c', '#ea580c', '#f59e0b', '#ef4444'] },
+  { name: 'M3 Rose', light: '#fff1f2', dark: '#1c050a', gridLight: '#fecdd3', gridDark: '#3b0816', cellLight: '#ffffff', cellDark: '#5e0d24', indicatorLight: '#e11d48', indicatorDark: '#f43f5e', linesLight: ['#f43f5e', '#fb7185', '#e11d48', '#db2777', '#fda4af'], linesDark: ['#f43f5e', '#fb7185', '#e11d48', '#db2777', '#fda4af'] },
+  { name: 'M3 Cyan', light: '#ecfeff', dark: '#041217', gridLight: '#67e8f9', gridDark: '#083344', cellLight: '#ffffff', cellDark: '#0e4a61', indicatorLight: '#0891b2', indicatorDark: '#06b6d4', linesLight: ['#06b6d4', '#22d3ee', '#0891b2', '#14b8a6', '#38bdf8'], linesDark: ['#06b6d4', '#22d3ee', '#0891b2', '#14b8a6', '#38bdf8'] },
+  { name: 'M3 Amber', light: '#fffbeb', dark: '#1c1002', gridLight: '#fde047', gridDark: '#361f03', cellLight: '#ffffff', cellDark: '#543206', indicatorLight: '#d97706', indicatorDark: '#f59e0b', linesLight: ['#f59e0b', '#fbbf24', '#d97706', '#eab308', '#fcd34d'], linesDark: ['#f59e0b', '#fbbf24', '#d97706', '#eab308', '#fcd34d'] },
+  { name: 'M3 Crimson', light: '#fef2f2', dark: '#1c0404', gridLight: '#fca5a5', gridDark: '#380a0a', cellLight: '#ffffff', cellDark: '#591111', indicatorLight: '#dc2626', indicatorDark: '#ef4444', linesLight: ['#ef4444', '#f87171', '#dc2626', '#b91c1c', '#fca5a5'], linesDark: ['#ef4444', '#f87171', '#dc2626', '#b91c1c', '#fca5a5'] },
+  { name: 'M3 Indigo', light: '#eef2ff', dark: '#070717', gridLight: '#c7d2fe', gridDark: '#16143b', cellLight: '#ffffff', cellDark: '#25235e', indicatorLight: '#4f46e5', indicatorDark: '#6366f1', linesLight: ['#6366f1', '#818cf8', '#4f46e5', '#8b5cf6', '#a5b4fc'], linesDark: ['#6366f1', '#818cf8', '#4f46e5', '#8b5cf6', '#a5b4fc'] },
+  { name: 'M3 Mint', light: '#f0fdfa', dark: '#021210', gridLight: '#99f6e4', gridDark: '#052926', cellLight: '#ffffff', cellDark: '#0a453f', indicatorLight: '#0d9488', indicatorDark: '#14b8a6', linesLight: ['#14b8a6', '#2dd4bf', '#0f766e', '#10b981', '#34d399'], linesDark: ['#14b8a6', '#2dd4bf', '#0f766e', '#10b981', '#34d399'] },
 ];
 
 const PLAYER_COLORS = [
-  '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', 
-  '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', 
-  '#3b82f6', '#6366f1', '#8b5cf6', '#d946ef', '#f43f5e'
+  '#ef4444', '#f97316', '#f59e0b', '#84cc16', '#22c55e', 
+  '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6', 
+  '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#f43f5e'
 ];
 
 export default function App() {
   const [board, setBoard] = useState<SquareValue[]>(Array(9).fill(null));
   
+  const [humanSymbol, setHumanSymbol] = useState<Player>('O'); 
   const [startingPlayer, setStartingPlayer] = useState<Player>('O'); 
   const [isXNext, setIsXNext] = useState(false); 
-  const startingPlayerRef = useRef<Player>(startingPlayer);
-  useEffect(() => { startingPlayerRef.current = startingPlayer; }, [startingPlayer]);
   
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(null);
   const [isDraw, setIsDraw] = useState(false);
@@ -218,6 +193,7 @@ export default function App() {
   
   const [scores, setScores] = useState({ X: 0, O: 0, Draws: 0 });
   const [rotation, setRotation] = useState(0);
+  const [isHoldingBanner, setIsHoldingBanner] = useState(false);
   const [isSoundOn, setIsSoundOn] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
   
@@ -246,6 +222,7 @@ export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const confettiIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const myConfettiRef = useRef<confetti.CreateTypes | null>(null);
+  const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const modeHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -300,10 +277,10 @@ export default function App() {
             const newScore = prev[winner] + 1;
             if (isTargetScoreEnabled && newScore >= targetScore) {
                setOverallWinner(winner);
-               playEnhancedSound('overall-win', isSoundOn);
+               playEnhancedSound('win', isSoundOn);
                setTimeout(() => setIsOverallWinModalOpen(true), 1200); 
             } else {
-               playEnhancedSound('win', isSoundOn);
+               playEnhancedSound('point', isSoundOn);
             }
             return { ...prev, [winner]: newScore };
         }); 
@@ -322,7 +299,7 @@ export default function App() {
     }
   }, [board, isSoundOn, isResetting, xColorIdx, oColorIdx, winnerInfo, isDraw, overallWinner, targetScore, isTargetScoreEnabled]);
 
-  const aiPlayerSymbol = isSinglePlayer ? 'X' : null;
+  const aiPlayerSymbol = isSinglePlayer ? (humanSymbol === 'X' ? 'O' : 'X') : null;
   const isAITurn = isSinglePlayer && aiPlayerSymbol && ((isXNext && aiPlayerSymbol === 'X') || (!isXNext && aiPlayerSymbol === 'O'));
 
   useEffect(() => {
@@ -354,6 +331,33 @@ export default function App() {
     setIsXNext(!isXNext);
   };
 
+  const isGameCompletelyFresh = scores.X === 0 && scores.O === 0 && scores.Draws === 0 && board.every(c => c === null);
+
+  const resetGameForMode = (currentStartingPlayer: Player, hardReset: boolean = false) => {
+    if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    hapticFeedback(40); 
+    playEnhancedSound('pop', isSoundOn);
+    if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
+    if (myConfettiRef.current) myConfettiRef.current.reset();
+
+    setIsResetting(true);
+    
+    resetTimerRef.current = setTimeout(() => {
+      setBoard(Array(9).fill(null));
+      setIsXNext(currentStartingPlayer === 'X');
+      setWinnerInfo(null);
+      setIsDraw(false);
+      setLinePoints(null);
+      lastMoveIdxRef.current = null;
+      if (hardReset) {
+         setScores({ X: 0, O: 0, Draws: 0 });
+         setOverallWinner(null);
+         if (userWantsTargetScore) setIsTargetScoreEnabled(true);
+      }
+      setIsResetting(false);
+    }, 450); 
+  };
+
   const performHardReset = (startingPlayerOverride: Player) => {
       if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
       if (myConfettiRef.current) myConfettiRef.current.reset();
@@ -371,46 +375,60 @@ export default function App() {
       if (userWantsTargetScore) setIsTargetScoreEnabled(true);
   };
 
-  const resetGameForMode = (currentStartingPlayer: Player) => {
-    hapticFeedback(40); 
-    playEnhancedSound('pop', isSoundOn);
-    if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
-    if (myConfettiRef.current) myConfettiRef.current.reset();
-
-    setIsResetting(true);
-    
-    resetTimerRef.current = setTimeout(() => {
-      setBoard(Array(9).fill(null));
-      setIsXNext(currentStartingPlayer === 'X');
-      setWinnerInfo(null);
-      setIsDraw(false);
-      setLinePoints(null);
-      lastMoveIdxRef.current = null;
-      setIsResetting(false);
-    }, 450); 
+  // Turn Banner Interactions (Hold for Symbol change on Hard Reset, Click for Soft Reset Starter change)
+  const handleTurnHoldStart = () => {
+    if (isGameCompletelyFresh && !winnerInfo) {
+      setIsHoldingBanner(true);
+      turnHoldTimer.current = setTimeout(() => {
+        hapticFeedback([80, 40, 80]); 
+        playEnhancedSound('mode', isSoundOn); // Tone on symbol change
+        setHumanSymbol(prev => {
+          const next = prev === 'X' ? 'O' : 'X';
+          setStartingPlayer(next);
+          setIsXNext(next === 'X');
+          return next;
+        });
+        setIsHoldingBanner(false);
+      }, 600);
+    }
+  };
+  const handleTurnHoldEnd = () => {
+    setIsHoldingBanner(false);
+    if (turnHoldTimer.current) clearTimeout(turnHoldTimer.current);
   };
 
-  // Toggle AI First with exact state reference
+  const handleTurnBannerClick = () => {
+    if (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) {
+       hapticFeedback(40);
+       playEnhancedSound('unmute', isSoundOn); // Attractive tone
+       setStartingPlayer(prev => {
+          const next = prev === 'X' ? 'O' : 'X';
+          setIsXNext(next === 'X');
+          return next;
+       });
+    }
+  };
+
+  // 1-Player Hold to let AI Start
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
       hapticFeedback([80, 40, 80]); 
       playEnhancedSound('mode', isSoundOn);
       setIsSinglePlayer(true);
-      const nextP = startingPlayerRef.current === 'O' ? 'X' : 'O';
-      performHardReset(nextP); 
+      const aiSym = humanSymbol === 'X' ? 'O' : 'X';
+      setStartingPlayer(aiSym);
+      setIsXNext(aiSym === 'X');
+      resetGameForMode(aiSym, true); 
     }, 600);
   };
-  
   const handleModeHoldEnd = () => {
     if (modeHoldTimer.current) clearTimeout(modeHoldTimer.current);
   };
-  
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
     hapticFeedback(40);
-    playEnhancedSound('mode', isSoundOn);
     setIsSinglePlayer(single);
-    performHardReset(startingPlayerRef.current); 
+    performHardReset(startingPlayer); 
   };
 
   const handleRestartPointerDown = () => {
@@ -419,7 +437,7 @@ export default function App() {
       if (!restartPointerDown.current) return;
       hapticFeedback([100, 50, 100, 50]); 
       setRotation(prev => prev - 720);
-      performHardReset(startingPlayerRef.current); 
+      performHardReset(startingPlayer); 
     }, 600);
   };
   
@@ -431,10 +449,10 @@ export default function App() {
         if (Date.now() - holdTime._calledAt > 600) return;
     }
     setRotation(prev => prev - 360);
-    resetGameForMode(startingPlayerRef.current); 
+    resetGameForMode(startingPlayer); 
   };
 
-  // Winning Line Calculation with Perfect Center Math
+  // Winning Line Calculation with Perfect Center Match
   useEffect(() => {
     const updatePoints = () => {
       if (winnerInfo && boardRef.current) {
@@ -451,9 +469,8 @@ export default function App() {
         const [a, b, c] = winnerInfo.line;
         
         const pA = getCellCenter(a);
+        const pB = getCellCenter(b);
         const pC = getCellCenter(c);
-        // Force absolute mathematical center for perfect alignment
-        const pB = { x: (pA.x + pC.x) / 2, y: (pA.y + pC.y) / 2 };
 
         if (lastMoveIdxRef.current === b) {
            setLinePoints({ type: 'center-out', start: pA, end: pC, mid: pB });
@@ -487,7 +504,7 @@ export default function App() {
     topNavBtn: isDarkMode ? activeTheme.gridDark : activeTheme.gridLight,
   };
 
-  const navBtnClass = "w-[48px] h-[48px] rounded-full transition-all shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer";
+  const navBtnClass = "w-[48px] h-[48px] rounded-full transition-all active:scale-95 shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer";
   const getNavBtnStyle = () => ({
     backgroundColor: semantics.topNavBtn,
     color: semantics.text,
@@ -563,7 +580,7 @@ export default function App() {
           <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm">
             <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative px-6 py-3 rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
-              <span className="relative z-10">{isSinglePlayer && startingPlayer === 'X' ? '🤖 1 Player (AI First)' : '🤖 1 Player'}</span>
+              <span className="relative z-10">{isSinglePlayer && startingPlayer !== humanSymbol ? '🤖 AI First' : '🤖 1 Player'}</span>
             </button>
             <button onClick={() => switchModeClick(false)} className={`relative px-6 py-3 rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none ${!isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {!isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
@@ -572,9 +589,11 @@ export default function App() {
           </div>
 
           <motion.div 
-            animate={{ scale: winnerInfo ? 1.05 : 1 }} 
+            onClick={handleTurnBannerClick}
+            onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} 
+            animate={{ scale: winnerInfo ? 1.05 : (isHoldingBanner ? 0.96 : 1) }} 
             style={{ backgroundColor: semantics.bannerDefault.bg, color: semantics.bannerDefault.text }} 
-            className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden`}
+            className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden ${isGameCompletelyFresh || (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) ? 'cursor-pointer' : ''}`}
           >
             <div className="flex items-center gap-2 relative z-10">
               {winnerInfo ? (
@@ -604,11 +623,22 @@ export default function App() {
                 </>
               )}
             </div>
+            {isGameCompletelyFresh && (
+              <div className={`absolute bottom-1.5 w-full flex flex-col items-center z-10 transition-opacity duration-300 pointer-events-none opacity-100`}>
+                <div className="h-[2px] w-12 bg-transparent rounded-full overflow-hidden relative">
+                   <motion.div
+                     initial={{ x: "-100%" }} animate={{ x: isHoldingBanner ? "0%" : "-100%" }}
+                     transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }}
+                     className="absolute inset-0 bg-gray-500 dark:bg-gray-300"
+                   />
+                </div>
+              </div>
+            )}
           </motion.div>
         </header>
 
         {/* Scoreboard Feature */}
-        <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible">
+        <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible select-none">
            <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg }}>
               <span className="text-[10px] sm:text-xs font-black uppercase opacity-90" style={{ color: PLAYER_COLORS[xColorIdx] }}>Player X</span>
               <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
@@ -674,59 +704,38 @@ export default function App() {
                   <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
                     
                     <defs>
-                      <filter id="win-blur" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur stdDeviation="2" />
+                      <filter id="win-blur" x="-50%" y="-50%" width="200%" height="200%" filterUnits="userSpaceOnUse">
+                        <feGaussianBlur stdDeviation="3" />
                       </filter>
 
                       <mask id="hollow-mask" maskUnits="userSpaceOnUse">
                         <rect width="100%" height="100%" fill="white" />
-                        {linePoints.type === 'center-out' ? (
-                          <>
-                            <motion.line
-                              initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                              transition={{ duration: 0.45, ease: "easeInOut" }}
-                              x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
-                              x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`}
-                              stroke="black" strokeWidth="6" strokeLinecap="round"
-                            />
-                            <motion.line
-                              initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                              transition={{ duration: 0.45, ease: "easeInOut" }}
-                              x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
-                              x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                              stroke="black" strokeWidth="6" strokeLinecap="round"
-                            />
-                          </>
-                        ) : (
-                          <motion.line
-                            initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                            transition={{ duration: 0.45, ease: "easeInOut" }}
-                            x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
-                            x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                            stroke="black" strokeWidth="6" strokeLinecap="round"
-                          />
-                        )}
+                        <motion.line
+                          initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
+                          transition={{ duration: 0.45, ease: "easeInOut" }}
+                          x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
+                          x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                          stroke="black" strokeWidth="6" strokeLinecap="round"
+                        />
                       </mask>
+                      
+                      <clipPath id="center-out-clip">
+                         <motion.circle 
+                           cx={`${linePoints.mid.x}%`} cy={`${linePoints.mid.y}%`} 
+                           initial={{ r: 0 }} animate={{ r: isResetting ? 0 : 150 }} 
+                           transition={{ duration: 0.45, ease: "easeInOut" }} 
+                         />
+                      </clipPath>
                     </defs>
 
                     {/* Outer Stroke Layer (Masked to be hollow) 8px stroke minus 6px inner mask = 1px super thin border */}
                     {linePoints.type === 'center-out' ? (
-                       <>
-                         <motion.line
-                           initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                           transition={{ duration: 0.45, ease: "easeInOut" }}
-                           x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
-                           x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`}
-                           stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)"
-                         />
-                         <motion.line
-                           initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                           transition={{ duration: 0.45, ease: "easeInOut" }}
-                           x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
-                           x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                           stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)"
-                         />
-                       </>
+                      <motion.line
+                        x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
+                        x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                        stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)"
+                        clipPath="url(#center-out-clip)"
+                      />
                     ) : (
                       <motion.line
                         initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
@@ -739,22 +748,12 @@ export default function App() {
 
                     {/* Inner 35% Blur Fill */}
                     {linePoints.type === 'center-out' ? (
-                       <>
-                         <motion.line
-                           initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                           transition={{ duration: 0.45, ease: "easeInOut" }}
-                           x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
-                           x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`}
-                           stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
-                         />
-                         <motion.line
-                           initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                           transition={{ duration: 0.45, ease: "easeInOut" }}
-                           x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
-                           x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                           stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
-                         />
-                       </>
+                      <motion.line
+                        x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
+                        x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
+                        stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
+                        clipPath="url(#center-out-clip)"
+                      />
                     ) : (
                       <motion.line
                         initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
@@ -773,21 +772,21 @@ export default function App() {
             {/* In-Board Target Score Winner Popup */}
             <AnimatePresence>
               {isOverallWinModalOpen && overallWinner && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ backgroundColor: hexToRgba(semantics.screenBackground, 0.85), backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }} className="absolute inset-0 z-50 flex items-center justify-center p-3 rounded-[36px] sm:rounded-[40px] border border-white/5">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-3 rounded-[36px] sm:rounded-[40px] border border-white/5" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
                   <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text }} className="w-full h-full p-4 rounded-[28px] relative flex flex-col items-center justify-center gap-3 text-center overflow-hidden">
                      
                      <div className="flex flex-col items-center gap-1.5 z-10">
-                       <h2 className="text-xl font-black tracking-tight leading-tight pt-1">Winner!</h2>
-                       <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="text-4xl font-black" style={{ color: overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx] }}>
+                       <h2 className="text-xl font-black tracking-tight leading-tight pt-1 text-white">Winner!</h2>
+                       <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="text-5xl font-black drop-shadow-md" style={{ color: overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx] }}>
                         {overallWinner}
                        </motion.span>
                      </div>
                      
-                     <div className="flex flex-col w-full gap-2.5 pt-2 z-10">
-                        <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayerRef.current); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: 'transparent', border: `2px solid ${activeLineColor}`, color: activeLineColor }}>
+                     <div className="flex flex-col w-full gap-3 pt-2 z-10">
+                        <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: 'transparent', border: `2px solid ${activeLineColor}`, color: activeLineColor }}>
                            Start a New Game
                         </motion.button>
-                        <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayerRef.current, false); setIsOverallWinModalOpen(false); setOverallWinner(null); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
+                        <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer, false); setIsOverallWinModalOpen(false); setOverallWinner(null); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
                            Continue This Game
                         </motion.button>
                      </div>
@@ -933,7 +932,8 @@ export default function App() {
                     <h4 className="text-lg font-extrabold tracking-tight opacity-90 pt-3">Controls</h4>
                     <p>🔄 <span className="font-bold text-sky-500">Soft Reset:</span> Tap the Restart button to clear the board and start a new round.</p>
                     <p>⚠️ <span className="font-bold text-sky-500">Hard Reset:</span> <strong>Press and hold</strong> the Restart button to wipe all scores and start completely fresh. This will also re-enable the Target Score logic if it was previously disabled.</p>
-                    <p>✨ <span className="font-bold text-sky-500">Toggle First Player:</span> <strong>Press and hold</strong> the "1 Player" button to toggle who moves first (You or AI). By default, AI (X) plays second.</p>
+                    <p>✨ <span className="font-bold text-sky-500">Change Player Symbol:</span> <strong>Press and hold</strong> the turn banner when the game is hard reset to switch your symbol (X/O).</p>
+                    <p>✨ <span className="font-bold text-sky-500">Change Turn:</span> <strong>Tap</strong> the turn banner before starting a new round to swap who goes first. In 1-Player mode, holding the button lets AI play first.</p>
                   </div>
                   
                 </div>
