@@ -25,7 +25,7 @@ const hapticFeedback = (pattern: number | number[]) => {
 
 // --- Custom AI Logo Component ---
 const AILogo = () => (
-  <svg width="18" height="18" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-sm">
+  <svg width="20" height="20" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-sm shrink-0">
     <defs>
       <linearGradient id="ai-grad" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#ff007f" />
@@ -202,7 +202,7 @@ const CUSTOM_THEMES = [
 const PLAYER_COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', 
   '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', 
-  '#3b82f6', '#6366f1', '#8b5cf6', '#d946ef', '#f43f5e'
+  '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'
 ];
 
 export default function App() {
@@ -215,13 +215,13 @@ export default function App() {
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(null);
   const [isDraw, setIsDraw] = useState(false);
   const [isSinglePlayer, setIsSinglePlayer] = useState(true);
-  const [aiMovesFirst, setAiMovesFirst] = useState(false); 
   
   const lastMoveIdxRef = useRef<number | null>(null);
   const [linePoints, setLinePoints] = useState<{ type: 'normal' | 'center-out', start: { x: number; y: number }; end: { x: number; y: number }, mid: { x: number; y: number } } | null>(null);
   
   const [scores, setScores] = useState({ X: 0, O: 0, Draws: 0 });
   const [rotation, setRotation] = useState(0);
+  const [isHoldingBanner, setIsHoldingBanner] = useState(false);
   const [isSoundOn, setIsSoundOn] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
   
@@ -252,6 +252,7 @@ export default function App() {
   const myConfettiRef = useRef<confetti.CreateTypes | null>(null);
   const modeHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartHoldTimer = useRef<NodeJS.Timeout | null>(null);
+  const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartPointerDown = useRef(false);
 
   useEffect(() => {
@@ -384,7 +385,7 @@ export default function App() {
 
     setIsResetting(true);
     
-    resetTimerRef.current = setTimeout(() => {
+    setTimeout(() => {
       setBoard(Array(9).fill(null));
       setIsXNext(currentStartingPlayer === 'X');
       setWinnerInfo(null);
@@ -395,24 +396,11 @@ export default function App() {
     }, 450); 
   };
 
-  // Switch First Player Logic
-  const handleTurnBannerClick = () => {
-    if (!isSinglePlayer && !isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) {
-       hapticFeedback(40);
-       playEnhancedSound('mode', isSoundOn); 
-       setStartingPlayer(prev => {
-          const next = prev === 'X' ? 'O' : 'X';
-          setIsXNext(next === 'X');
-          return next;
-       });
-    }
-  };
-
-  // Hard Reset Banner Hold (Change Symbol)
-  let bannerHoldTimer: any = null;
-  const handleTurnBannerHoldStart = () => {
+  // Turn Banner Interactions (Hold for Symbol change on Hard Reset, Click for Soft Reset Starter change)
+  const handleTurnHoldStart = () => {
     if (isGameCompletelyFresh && !winnerInfo) {
-      bannerHoldTimer = setTimeout(() => {
+      setIsHoldingBanner(true);
+      turnHoldTimer.current = setTimeout(() => {
         hapticFeedback([80, 40, 80]); 
         playEnhancedSound('mode', isSoundOn); 
         setHumanSymbol(prev => {
@@ -421,25 +409,39 @@ export default function App() {
           setIsXNext(next === 'X');
           return next;
         });
+        setIsHoldingBanner(false);
       }, 600);
     }
   };
-  const handleTurnBannerHoldEnd = () => {
-    if (bannerHoldTimer) clearTimeout(bannerHoldTimer);
+  const handleTurnHoldEnd = () => {
+    setIsHoldingBanner(false);
+    if (turnHoldTimer.current) clearTimeout(turnHoldTimer.current);
   };
 
-  // 1-Player Toggle AI First
+  const handleTurnBannerClick = () => {
+    if (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) {
+       hapticFeedback(40);
+       playEnhancedSound('mode', isSoundOn);
+       setStartingPlayer(prev => {
+          const next = prev === 'X' ? 'O' : 'X';
+          setIsXNext(next === 'X');
+          return next;
+       });
+    }
+  };
+
+  // 1-Player Hold to let AI Start (Toggles AI first vs Human First)
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
       hapticFeedback([80, 40, 80]); 
       playEnhancedSound('mode', isSoundOn);
       setIsSinglePlayer(true);
       
-      setAiMovesFirst(prev => {
-         const nextVal = !prev;
-         const newStarter = nextVal ? (humanSymbol === 'X' ? 'O' : 'X') : humanSymbol;
-         performHardReset(newStarter); 
-         return nextVal;
+      setStartingPlayer(prevStarter => {
+         const aiSym = humanSymbol === 'X' ? 'O' : 'X';
+         const newStarter = prevStarter === humanSymbol ? aiSym : humanSymbol;
+         setTimeout(() => performHardReset(newStarter), 0);
+         return newStarter;
       });
     }, 600);
   };
@@ -452,7 +454,7 @@ export default function App() {
     hapticFeedback(40);
     playEnhancedSound('mode', isSoundOn);
     setIsSinglePlayer(single);
-    setAiMovesFirst(false);
+    // When switching mode normally, reset to human going first to be safe
     performHardReset(humanSymbol); 
   };
 
@@ -477,7 +479,7 @@ export default function App() {
     resetGameForMode(startingPlayer); 
   };
 
-  // Winning Line Calculation
+  // Winning Line Calculation with pure mathematical centers
   useEffect(() => {
     const updatePoints = () => {
       if (winnerInfo && boardRef.current) {
@@ -494,8 +496,8 @@ export default function App() {
         const [a, b, c] = winnerInfo.line;
         
         const pA = getCellCenter(a);
-        const pB = getCellCenter(b);
         const pC = getCellCenter(c);
+        const pB = { x: (pA.x + pC.x) / 2, y: (pA.y + pC.y) / 2 };
 
         if (lastMoveIdxRef.current === b) {
            setLinePoints({ type: 'center-out', start: pA, end: pC, mid: pB });
@@ -605,7 +607,7 @@ export default function App() {
           <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm">
             <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none flex items-center justify-center gap-1.5 ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
-              <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && aiMovesFirst ? <><AILogo /> AI First</> : <>🤖 1 Player</>}</span>
+              <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <>🤖 1 Player</>}</span>
             </button>
             <button onClick={() => switchModeClick(false)} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none flex items-center justify-center gap-1.5 ${!isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
               {!isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
@@ -615,10 +617,10 @@ export default function App() {
 
           <motion.div 
             onClick={handleTurnBannerClick}
-            onPointerDown={handleTurnBannerHoldStart} onPointerUp={handleTurnBannerHoldEnd} onPointerLeave={handleTurnBannerHoldEnd} 
+            onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} 
             animate={{ scale: winnerInfo ? 1.05 : 1 }} 
             style={{ backgroundColor: semantics.bannerDefault.bg, color: semantics.bannerDefault.text }} 
-            className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden ${isGameCompletelyFresh || (!isSinglePlayer && !isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) ? 'cursor-pointer' : ''}`}
+            className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden ${isGameCompletelyFresh || (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) ? 'cursor-pointer' : ''}`}
           >
             <div className="flex items-center gap-2 relative z-10">
               {winnerInfo ? (
@@ -648,6 +650,17 @@ export default function App() {
                 </>
               )}
             </div>
+            {isGameCompletelyFresh && (
+              <div className={`absolute bottom-1.5 w-full flex flex-col items-center z-10 transition-opacity duration-300 pointer-events-none opacity-100`}>
+                <div className="h-[2px] w-12 bg-transparent rounded-full overflow-hidden relative">
+                   <motion.div
+                     initial={{ x: "-100%" }} animate={{ x: isHoldingBanner ? "0%" : "-100%" }}
+                     transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }}
+                     className="absolute inset-0 bg-gray-500 dark:bg-gray-300"
+                   />
+                </div>
+              </div>
+            )}
           </motion.div>
         </header>
 
@@ -712,17 +725,17 @@ export default function App() {
                 </button>
               ))}
 
-              {/* Exact Classic Hollow Winning Line (1px Border, 35% Blur, 65% Transparent Center) */}
+              {/* Exact Classic Hollow Winning Line (Thin Border, 35% Blur, 65% Transparent Center) */}
               <AnimatePresence>
                 {linePoints && winnerInfo && (
                   <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
                     
                     <defs>
-                      <filter id="win-blur" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur stdDeviation="2.5" />
+                      <filter id="win-blur" x="-50%" y="-50%" width="200%" height="200%" filterUnits="userSpaceOnUse">
+                        <feGaussianBlur stdDeviation="3" />
                       </filter>
-                      <mask id="hollow-mask" maskUnits="userSpaceOnUse">
-                        <rect width="100%" height="100%" fill="white" />
+                      <mask id="hollow-mask" maskUnits="userSpaceOnUse" x="-50%" y="-50%" width="200%" height="200%">
+                        <rect x="-50" y="-50" width="200" height="200" fill="white" />
                         {linePoints.type === 'center-out' ? (
                            <>
                              <motion.line
