@@ -25,10 +25,8 @@ const WINNING_COMBINATIONS = [
 // Updated Haptic Feedback Function for both Web and Mobile Native
 const hapticFeedback = (pattern: number | number[]) => {
   if (Capacitor.isNativePlatform()) {
-     // Use Capacitor Haptics for Native App
      try { Haptics.impact({ style: ImpactStyle.Light }); } catch (e) {}
   } else if (typeof window !== 'undefined' && navigator.vibrate) {
-     // Fallback to Web Vibrate API for Browser
      try { navigator.vibrate(pattern); } catch (e) {}
   }
 };
@@ -186,7 +184,7 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
   return bestMove;
 };
 
-// --- Muted Dark Mode Themes (Deep & Calming Backgrounds) ---
+// --- Muted Dark Mode Themes ---
 const ORIGINAL_THEME = {
   name: 'Classic',
   light: '#f8f9fa', dark: '#000000',
@@ -265,24 +263,20 @@ export default function App() {
   const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartPointerDown = useRef(false);
 
-  // --- Dynamic Status Bar Effect ---
+  // --- Dynamic Status Bar Effect (Icons only, Background is transparent via Edge-to-Edge) ---
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       try {
-        const activeBgColor = useDefaultTheme 
-          ? (isDarkMode ? ORIGINAL_THEME.dark : ORIGINAL_THEME.light) 
-          : (isDarkMode ? CUSTOM_THEMES[themeIdx].dark : CUSTOM_THEMES[themeIdx].light);
-        
-        StatusBar.setBackgroundColor({ color: activeBgColor });
+        // Just set the icon styles to contrast with the app background
         StatusBar.setStyle({ style: isDarkMode ? Style.Dark : Style.Light });
       } catch (e) {
-        console.warn("Status bar customization failed:", e);
+        console.warn("Status bar icon customization failed:", e);
       }
     }
     
     if (isDarkMode) document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
-  }, [isDarkMode, themeIdx, useDefaultTheme]);
+  }, [isDarkMode]);
 
   const toggleSound = () => {
     hapticFeedback(40);
@@ -520,7 +514,6 @@ export default function App() {
         let pA = getCellCenter(a);
         let pC = getCellCenter(c);
         
-        // Anti-Clip Bug Fix: Add a tiny offset to perfectly straight lines so browser doesn't drop the blur filter
         if (Math.abs(pA.x - pC.x) < 0.1) pC.x += 0.01;
         if (Math.abs(pA.y - pC.y) < 0.1) pC.y += 0.01;
 
@@ -585,13 +578,20 @@ export default function App() {
       `}</style>
       
       <div 
-          style={{ backgroundColor: semantics.screenBackground }}
+          style={{ 
+            backgroundColor: semantics.screenBackground,
+            paddingTop: 'max(24px, env(safe-area-inset-top))',
+            paddingBottom: 'max(24px, env(safe-area-inset-bottom))'
+          }}
           className="min-h-screen flex flex-col items-center justify-center p-4 gap-4 transition-colors duration-500 relative overflow-hidden font-nunito">
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-        {/* Top Navigation */}
-        <nav className="fixed top-0 left-0 right-0 h-24 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
+        {/* Top Navigation adjusted for transparent status bar */}
+        <nav 
+          style={{ top: 'max(16px, env(safe-area-inset-top))' }}
+          className="absolute left-0 right-0 h-20 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
+          
           <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { hapticFeedback(40); playEnhancedSound('pop', isSoundOn); setIsDarkMode(!isDarkMode); }} className={navBtnClass} style={getNavBtnStyle()}>
             <AnimatePresence mode="wait" initial={false}>
               <motion.div key={isDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
@@ -752,13 +752,12 @@ export default function App() {
                 </button>
               ))}
 
-              {/* Exact Classic Hollow Winning Line (1px Border, 35% Blur, 65% Transparent Center) */}
+              {/* Exact Classic Hollow Winning Line */}
               <AnimatePresence>
                 {linePoints && winnerInfo && (
                   <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
                     
                     <defs>
-                      {/* Fixed: Absolute positioning for filter to prevent bug on straight lines */}
                       <filter id="win-blur" x="-50" y="-50" width="200" height="200" filterUnits="userSpaceOnUse">
                         <feGaussianBlur stdDeviation="3" />
                       </filter>
@@ -794,7 +793,6 @@ export default function App() {
                       </mask>
                     </defs>
 
-                    {/* Outer Stroke Layer (Masked to be hollow) 8px stroke minus 6px inner mask = 1px super thin border */}
                     {linePoints.type === 'center-out' ? (
                        <>
                          <motion.line
@@ -822,7 +820,6 @@ export default function App() {
                        />
                     )}
 
-                    {/* Inner 35% Blur Fill */}
                     {linePoints.type === 'center-out' ? (
                        <>
                          <motion.line
@@ -855,7 +852,7 @@ export default function App() {
 
             </div>
 
-            {/* In-Board Target Score Winner Popup (50% Blur, 50% Transparent Background) */}
+            {/* In-Board Target Score Winner Popup */}
             <AnimatePresence>
               {isOverallWinModalOpen && overallWinner && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-3 rounded-[36px] sm:rounded-[40px] border border-white/5" style={{ backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
