@@ -23,9 +23,17 @@ const hapticFeedback = (pattern: number | number[]) => {
   }
 };
 
+// --- Helper for Hex to RGBA (Used for Popup Transparency) ---
+const hexToRgba = (hex: string, alpha: number) => {
+  const r = parseInt(hex.slice(1, 3), 16) || 0;
+  const g = parseInt(hex.slice(3, 5), 16) || 0;
+  const b = parseInt(hex.slice(5, 7), 16) || 0;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 // --- Audio System ---
 const audioState = { ctx: null as AudioContext | null };
-const playEnhancedSound = (type: 'tap' | 'win' | 'pop' | 'point' | 'unmute' | 'mode', enabled: boolean) => {
+const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point' | 'unmute' | 'mode', enabled: boolean) => {
   if (!enabled || typeof window === 'undefined') return;
   try {
     if (!audioState.ctx) {
@@ -51,18 +59,42 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'pop' | 'point' | 'unmute' | 'm
       gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
       osc.connect(gain); gain.connect(ctx.destination);
       osc.start(t); osc.stop(t + 0.1);
+    } else if (type === 'mode') {
+      // Distinct double blip for mode switch
+      [600, 800].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine'; osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.2, t + i * 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.15 + 0.1);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t + i * 0.15); osc.stop(t + i * 0.15 + 0.1);
+      });
     } else if (type === 'win') {
-      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => { 
+      // 3-note attractive arpeggio for round win
+      [440, 554.37, 659.25].forEach((freq, i) => { 
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine'; osc.frequency.value = freq;
         gain.gain.setValueAtTime(0, t + i * 0.1);
-        gain.gain.linearRampToValueAtTime(0.3, t + i * 0.1 + 0.05);
+        gain.gain.linearRampToValueAtTime(0.25, t + i * 0.1 + 0.05);
         gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.1 + 0.5);
         osc.connect(gain); gain.connect(ctx.destination);
         osc.start(t + i * 0.1); osc.stop(t + i * 0.1 + 0.5);
       });
-    } else if (type === 'point' || type === 'unmute' || type === 'mode') {
+    } else if (type === 'overall-win') {
+      // 5-note fanfare for final target score win
+      [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, i) => { 
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle'; osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, t + i * 0.1);
+        gain.gain.linearRampToValueAtTime(0.3, t + i * 0.1 + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.1 + 0.6);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t + i * 0.1); osc.stop(t + i * 0.1 + 0.6);
+      });
+    } else if (type === 'point' || type === 'unmute') {
        const osc = ctx.createOscillator();
        const gain = ctx.createGain();
        osc.type = 'sine'; osc.frequency.setValueAtTime(800, t);
@@ -140,7 +172,7 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
   return bestMove;
 };
 
-// --- Muted Dark Mode Themes (Deep & Calming Backgrounds) ---
+// --- Muted Dark Mode Themes ---
 const ORIGINAL_THEME = {
   name: 'Classic',
   light: '#f8f9fa', dark: '#000000',
@@ -163,7 +195,6 @@ const CUSTOM_THEMES = [
   { name: 'M3 Mint', light: '#f0fdfa', dark: '#01120f', gridLight: '#99f6e4', gridDark: '#03241d', cellLight: '#ffffff', cellDark: '#06362c', indicatorLight: '#0d9488', indicatorDark: '#14b8a6', linesLight: ['#0f766e', '#0d9488', '#0b1d1d', '#14532d', '#065f46'], linesDark: ['#6ab5ab', '#84c9bf', '#a0c7bb', '#8cc4a8', '#7bb89d'] },
 ];
 
-// 15 Distinct and Beautiful Colors for Player Customization
 const PLAYER_COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', 
   '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', 
@@ -173,9 +204,10 @@ const PLAYER_COLORS = [
 export default function App() {
   const [board, setBoard] = useState<SquareValue[]>(Array(9).fill(null));
   
-  // Default: Human 'O' starts, AI is 'X'
   const [startingPlayer, setStartingPlayer] = useState<Player>('O'); 
   const [isXNext, setIsXNext] = useState(false); 
+  const startingPlayerRef = useRef<Player>(startingPlayer);
+  useEffect(() => { startingPlayerRef.current = startingPlayer; }, [startingPlayer]);
   
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(null);
   const [isDraw, setIsDraw] = useState(false);
@@ -186,7 +218,6 @@ export default function App() {
   
   const [scores, setScores] = useState({ X: 0, O: 0, Draws: 0 });
   const [rotation, setRotation] = useState(0);
-  const [isHoldingBanner, setIsHoldingBanner] = useState(false);
   const [isSoundOn, setIsSoundOn] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
   
@@ -199,10 +230,11 @@ export default function App() {
   const [themeIdx, setThemeIdx] = useState(0);
   
   const [xColorIdx, setXColorIdx] = useState(0); 
-  const [oColorIdx, setOColorIdx] = useState(8); 
+  const [oColorIdx, setOColorIdx] = useState(9); 
   const [customLineIdx, setCustomLineIdx] = useState(0);
   
   const [targetScore, setTargetScore] = useState(5);
+  const [userWantsTargetScore, setUserWantsTargetScore] = useState(true);
   const [isTargetScoreEnabled, setIsTargetScoreEnabled] = useState(true);
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -216,7 +248,7 @@ export default function App() {
   const myConfettiRef = useRef<confetti.CreateTypes | null>(null);
   const modeHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartHoldTimer = useRef<NodeJS.Timeout | null>(null);
-  const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
+  const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
   const restartPointerDown = useRef(false);
 
   useEffect(() => {
@@ -229,12 +261,6 @@ export default function App() {
     if (!isSoundOn) playEnhancedSound('unmute', true);
     setIsSoundOn(!isSoundOn);
   };
-
-  const toggleDarkMode = () => {
-    hapticFeedback(40);
-    playEnhancedSound('pop', isSoundOn);
-    setIsDarkMode(!isDarkMode);
-  }
 
   const fireConfetti = (winner: Player) => {
     if (!canvasRef.current) return;
@@ -274,10 +300,10 @@ export default function App() {
             const newScore = prev[winner] + 1;
             if (isTargetScoreEnabled && newScore >= targetScore) {
                setOverallWinner(winner);
-               playEnhancedSound('win', isSoundOn);
+               playEnhancedSound('overall-win', isSoundOn);
                setTimeout(() => setIsOverallWinModalOpen(true), 1200); 
             } else {
-               playEnhancedSound('point', isSoundOn);
+               playEnhancedSound('win', isSoundOn);
             }
             return { ...prev, [winner]: newScore };
         }); 
@@ -328,8 +354,6 @@ export default function App() {
     setIsXNext(!isXNext);
   };
 
-  const isGameCompletelyFresh = scores.X === 0 && scores.O === 0 && scores.Draws === 0 && board.every(c => c === null);
-
   const performHardReset = (startingPlayerOverride: Player) => {
       if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
       if (myConfettiRef.current) myConfettiRef.current.reset();
@@ -344,6 +368,7 @@ export default function App() {
       setOverallWinner(null);
       setIsOverallWinModalOpen(false);
       setIsResetting(false);
+      if (userWantsTargetScore) setIsTargetScoreEnabled(true);
   };
 
   const resetGameForMode = (currentStartingPlayer: Player) => {
@@ -354,7 +379,7 @@ export default function App() {
 
     setIsResetting(true);
     
-    setTimeout(() => {
+    resetTimerRef.current = setTimeout(() => {
       setBoard(Array(9).fill(null));
       setIsXNext(currentStartingPlayer === 'X');
       setWinnerInfo(null);
@@ -365,47 +390,14 @@ export default function App() {
     }, 450); 
   };
 
-  // Turn Banner Interactions (Hold for Hard Reset, Click for Soft Reset)
-  const handleTurnHoldStart = () => {
-    if (isGameCompletelyFresh && !winnerInfo) {
-      setIsHoldingBanner(true);
-      turnHoldTimer.current = setTimeout(() => {
-        hapticFeedback([80, 40, 80]); 
-        setStartingPlayer(prev => {
-          const next = prev === 'X' ? 'O' : 'X';
-          setIsXNext(next === 'X');
-          return next;
-        });
-        setIsHoldingBanner(false);
-      }, 600);
-    }
-  };
-  const handleTurnHoldEnd = () => {
-    setIsHoldingBanner(false);
-    if (turnHoldTimer.current) clearTimeout(turnHoldTimer.current);
-  };
-  
-  const handleTurnBannerClick = () => {
-    // If soft reset state (board empty, but scores > 0) -> single tap switches first player
-    if (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) {
-       hapticFeedback(40);
-       playEnhancedSound('mode', isSoundOn);
-       setStartingPlayer(prev => {
-          const next = prev === 'X' ? 'O' : 'X';
-          setIsXNext(next === 'X');
-          return next;
-       });
-    }
-  };
-
-  // 1 Player AI First Toggle Logic
+  // Toggle AI First with exact state reference
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
       hapticFeedback([80, 40, 80]); 
+      playEnhancedSound('mode', isSoundOn);
       setIsSinglePlayer(true);
-      
-      const newStartingPlayer = startingPlayer === 'O' ? 'X' : 'O';
-      performHardReset(newStartingPlayer); 
+      const nextP = startingPlayerRef.current === 'O' ? 'X' : 'O';
+      performHardReset(nextP); 
     }, 600);
   };
   
@@ -416,8 +408,9 @@ export default function App() {
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
     hapticFeedback(40);
+    playEnhancedSound('mode', isSoundOn);
     setIsSinglePlayer(single);
-    performHardReset(startingPlayer); 
+    performHardReset(startingPlayerRef.current); 
   };
 
   const handleRestartPointerDown = () => {
@@ -426,7 +419,7 @@ export default function App() {
       if (!restartPointerDown.current) return;
       hapticFeedback([100, 50, 100, 50]); 
       setRotation(prev => prev - 720);
-      performHardReset(startingPlayer); 
+      performHardReset(startingPlayerRef.current); 
     }, 600);
   };
   
@@ -438,10 +431,10 @@ export default function App() {
         if (Date.now() - holdTime._calledAt > 600) return;
     }
     setRotation(prev => prev - 360);
-    resetGameForMode(startingPlayer); 
+    resetGameForMode(startingPlayerRef.current); 
   };
 
-  // Winning Line Calculation
+  // Winning Line Calculation with Perfect Center Math
   useEffect(() => {
     const updatePoints = () => {
       if (winnerInfo && boardRef.current) {
@@ -458,8 +451,9 @@ export default function App() {
         const [a, b, c] = winnerInfo.line;
         
         const pA = getCellCenter(a);
-        const pB = getCellCenter(b);
         const pC = getCellCenter(c);
+        // Force absolute mathematical center for perfect alignment
+        const pB = { x: (pA.x + pC.x) / 2, y: (pA.y + pC.y) / 2 };
 
         if (lastMoveIdxRef.current === b) {
            setLinePoints({ type: 'center-out', start: pA, end: pC, mid: pB });
@@ -527,7 +521,7 @@ export default function App() {
 
         {/* Top Navigation */}
         <nav className="fixed top-0 left-0 right-0 h-24 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
-          <motion.button whileTap={{ scale: 0.85 }} onClick={toggleDarkMode} className={navBtnClass} style={getNavBtnStyle()}>
+          <motion.button whileTap={{ scale: 0.85 }} onClick={() => { hapticFeedback(40); playEnhancedSound('pop', isSoundOn); setIsDarkMode(!isDarkMode); }} className={navBtnClass} style={getNavBtnStyle()}>
             <AnimatePresence mode="wait" initial={false}>
               <motion.div key={isDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
                 {isDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
@@ -555,7 +549,7 @@ export default function App() {
             </AnimatePresence>
           </motion.button>
           
-          <motion.button whileTap={{ scale: 0.85 }} onClick={() => { hapticFeedback(40); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
+          <motion.button whileTap={{ scale: 0.85 }} onClick={() => { hapticFeedback(40); playEnhancedSound('pop', isSoundOn); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
             <MoreVertical className="w-[20px] h-[20px]" />
           </motion.button>
         </nav>
@@ -568,21 +562,19 @@ export default function App() {
 
           <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm">
             <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative px-6 py-3 rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
-              {isSinglePlayer && <motion.div layoutId="modeSwitch" style={{ borderRadius: 9999, backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} className="absolute inset-0 -z-10 shadow-sm" transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
-              <span className="relative z-10">{isSinglePlayer && startingPlayer === 'X' ? '🤖 AI First' : '🤖 1 Player'}</span>
+              {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
+              <span className="relative z-10">{isSinglePlayer && startingPlayer === 'X' ? '🤖 1 Player (AI First)' : '🤖 1 Player'}</span>
             </button>
             <button onClick={() => switchModeClick(false)} className={`relative px-6 py-3 rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none ${!isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
-              {!isSinglePlayer && <motion.div layoutId="modeSwitch" style={{ borderRadius: 9999, backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} className="absolute inset-0 -z-10 shadow-sm" transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
+              {!isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
               <span className="relative z-10">👥 2 Players</span>
             </button>
           </div>
 
           <motion.div 
-            onClick={handleTurnBannerClick}
-            onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} 
-            animate={{ scale: winnerInfo ? 1.05 : (isHoldingBanner ? 0.96 : 1) }} 
+            animate={{ scale: winnerInfo ? 1.05 : 1 }} 
             style={{ backgroundColor: semantics.bannerDefault.bg, color: semantics.bannerDefault.text }} 
-            className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden ${isGameCompletelyFresh || (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo) ? 'cursor-pointer' : ''}`}
+            className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden`}
           >
             <div className="flex items-center gap-2 relative z-10">
               {winnerInfo ? (
@@ -612,22 +604,11 @@ export default function App() {
                 </>
               )}
             </div>
-            {isGameCompletelyFresh && (
-              <div className={`absolute bottom-1.5 w-full flex flex-col items-center z-10 transition-opacity duration-300 pointer-events-none opacity-100`}>
-                <div className="h-[2px] w-12 bg-transparent rounded-full overflow-hidden relative">
-                   <motion.div
-                     initial={{ x: "-100%" }} animate={{ x: isHoldingBanner ? "0%" : "-100%" }}
-                     transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }}
-                     className="absolute inset-0 bg-gray-500 dark:bg-gray-300"
-                   />
-                </div>
-              </div>
-            )}
           </motion.div>
         </header>
 
         {/* Scoreboard Feature */}
-        <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible select-none">
+        <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible">
            <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg }}>
               <span className="text-[10px] sm:text-xs font-black uppercase opacity-90" style={{ color: PLAYER_COLORS[xColorIdx] }}>Player X</span>
               <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
@@ -643,7 +624,7 @@ export default function App() {
               <span className="text-[10px] sm:text-xs font-black uppercase opacity-60">Draws</span>
               <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
                 <AnimatePresence mode="popLayout">
-                  <motion.span key={scores.Draws.toString()} initial={{ y: 25, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -25, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute text-lg sm:text-xl font-black opacity-80">
+                  <motion.span key={scores.Draws} initial={{ y: 25, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -25, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute text-lg sm:text-xl font-black opacity-80">
                     {scores.Draws}
                   </motion.span>
                 </AnimatePresence>
@@ -687,10 +668,10 @@ export default function App() {
                 </button>
               ))}
 
-              {/* Exact Classic Hollow Winning Line (Thin Border, 70% Transparent Center, 30% Blur) */}
+              {/* Exact Classic Hollow Winning Line (Thin Border, 35% Blur/Opacity) */}
               <AnimatePresence>
                 {linePoints && winnerInfo && (
-                  <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
                     
                     <defs>
                       <filter id="win-blur" x="-20%" y="-20%" width="140%" height="140%">
@@ -756,7 +737,7 @@ export default function App() {
                       />
                     )}
 
-                    {/* Inner 30% Blur / 70% Transparent Fill */}
+                    {/* Inner 35% Blur Fill */}
                     {linePoints.type === 'center-out' ? (
                        <>
                          <motion.line
@@ -764,14 +745,14 @@ export default function App() {
                            transition={{ duration: 0.45, ease: "easeInOut" }}
                            x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
                            x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`}
-                           stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.3} filter="url(#win-blur)"
+                           stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
                          />
                          <motion.line
                            initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
                            transition={{ duration: 0.45, ease: "easeInOut" }}
                            x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
                            x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                           stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.3} filter="url(#win-blur)"
+                           stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
                          />
                        </>
                     ) : (
@@ -780,7 +761,7 @@ export default function App() {
                         transition={{ duration: 0.45, ease: "easeInOut" }}
                         x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
                         x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                        stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.3} filter="url(#win-blur)"
+                        stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
                       />
                     )}
                   </svg>
@@ -792,23 +773,21 @@ export default function App() {
             {/* In-Board Target Score Winner Popup */}
             <AnimatePresence>
               {isOverallWinModalOpen && overallWinner && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-3 bg-black/40 backdrop-blur-md rounded-[36px] sm:rounded-[40px]">
-                  <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-[95%] h-auto max-h-full py-6 px-4 rounded-[28px] shadow-2xl relative border border-white/10 flex flex-col items-center justify-center gap-3 text-center overflow-hidden">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ backgroundColor: hexToRgba(semantics.screenBackground, 0.85), backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }} className="absolute inset-0 z-50 flex items-center justify-center p-3 rounded-[36px] sm:rounded-[40px] border border-white/5">
+                  <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text }} className="w-full h-full p-4 rounded-[28px] relative flex flex-col items-center justify-center gap-3 text-center overflow-hidden">
                      
-                     <div className="flex flex-col items-center gap-1 z-10">
+                     <div className="flex flex-col items-center gap-1.5 z-10">
                        <h2 className="text-xl font-black tracking-tight leading-tight pt-1">Winner!</h2>
-                       <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="text-5xl font-black" style={{ color: overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx] }}>
+                       <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="text-4xl font-black" style={{ color: overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx] }}>
                         {overallWinner}
                        </motion.span>
                      </div>
                      
-                     <div className="flex flex-col w-full gap-2.5 pt-3 z-10">
-                        {/* Start a New Game - Outlined Border */}
-                        <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: 'transparent', border: `2px solid ${activeLineColor}`, color: activeLineColor }}>
+                     <div className="flex flex-col w-full gap-2.5 pt-2 z-10">
+                        <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayerRef.current); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: 'transparent', border: `2px solid ${activeLineColor}`, color: activeLineColor }}>
                            Start a New Game
                         </motion.button>
-                        {/* Continue This Game - Filled Background */}
-                        <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer, false); setIsOverallWinModalOpen(false); setOverallWinner(null); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
+                        <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayerRef.current, false); setIsOverallWinModalOpen(false); setOverallWinner(null); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
                            Continue This Game
                         </motion.button>
                      </div>
@@ -954,7 +933,7 @@ export default function App() {
                     <h4 className="text-lg font-extrabold tracking-tight opacity-90 pt-3">Controls</h4>
                     <p>🔄 <span className="font-bold text-sky-500">Soft Reset:</span> Tap the Restart button to clear the board and start a new round.</p>
                     <p>⚠️ <span className="font-bold text-sky-500">Hard Reset:</span> <strong>Press and hold</strong> the Restart button to wipe all scores and start completely fresh. This will also re-enable the Target Score logic if it was previously disabled.</p>
-                    <p>✨ <span className="font-bold text-sky-500">Change Turn:</span> <strong>Tap</strong> the turn banner before starting a new round to swap who goes first. In 1-Player mode, holding the button lets AI play first.</p>
+                    <p>✨ <span className="font-bold text-sky-500">Toggle First Player:</span> <strong>Press and hold</strong> the "1 Player" button to toggle who moves first (You or AI). By default, AI (X) plays second.</p>
                   </div>
                   
                 </div>
