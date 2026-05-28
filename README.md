@@ -1,20 +1,21 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Premium Tic Tac Toe
 
-# Run and deploy your AI Studio app
+A beautiful, fully responsive Tic Tac Toe game crafted with React and Material You (M3) design system. It features an unbeatable offline AI and customizable themes.
 
-This contains everything you need to run your app locally.
+## ✨ Features
 
-View your app in AI Studio: https://ai.studio/apps/6152e846-5afe-4c62-9579-e9151c1cbb5a
+* **1 Player Mode:** Play against an intelligent, built-in AI (powered by the Minimax algorithm). No internet or API keys required!
+* **2 Players Mode:** Play with a friend on the same device.
+* **Material You Themes:** Choose from 10 dynamic color schemes.
+* **Custom Target Score:** Set a custom point target (1-20) to win the full match.
+* **Fully Offline:** Runs 100% locally on your browser.
 
-## Run Locally
+## 🚀 How to Run Locally
 
-**Prerequisites:**  Node.js
+To run this project on your local machine, follow these simple steps:
 
+**Prerequisites:** Make sure you have [Node.js](https://nodejs.org/) installed.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1. **Install dependencies:**
+   ```bash
+   npm install
