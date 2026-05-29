@@ -156,7 +156,7 @@ const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean, a
   }
 };
 
-// Updated: Added humanScore, targetScore, and isTargetScoreEnabled for Dynamic Accuracy
+// Updated: Added humanScore, targetScore, and isTargetScoreEnabled for perfectly matched Dynamic Accuracy
 const findBestMove = (
   squares: SquareValue[], 
   aiPlayer: Player, 
@@ -172,16 +172,22 @@ const findBestMove = (
   const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
 
   // --- Dynamic Accuracy Logic ---
-  let accuracy = 0.75; // Default 75% accuracy if target score is off
+  let accuracy = 0.75; // Default 75% accuracy if target score is NOT set
   
   if (isTargetScoreEnabled && targetScore > 0) {
-    // Calculate how close the human player is to the target score (0.0 to 1.0)
-    const progress = Math.min(humanScore / targetScore, 1);
-    // Accuracy scales from 50% (0.50) to 85% (0.85) based on progress
-    accuracy = 0.50 + (0.35 * progress);
+    // Determine the percentage step per win (e.g., target 5 = 20%, target 10 = 10%)
+    const stepPercentage = 1 / targetScore; 
+    
+    // Calculate total progress percentage based on human score
+    const progressPercentage = Math.min(humanScore * stepPercentage, 1);
+    
+    // The gap between Max Accuracy (85%) and Min Accuracy (50%) is 35%
+    // Accuracy increases by applying the progress percentage to this 35% gap
+    accuracy = 0.50 + (0.35 * progressPercentage);
   }
 
-  // Determine whether to play randomly or optimally based on accuracy
+  // Apply the calculated accuracy
+  // If Math.random() is greater than the accuracy, the AI plays randomly
   if (Math.random() > accuracy) {
     return availableMoves[Math.floor(Math.random() * availableMoves.length)];
   }
@@ -383,7 +389,6 @@ export default function App() {
   const aiPlayerSymbol = isSinglePlayer ? (humanSymbol === 'X' ? 'O' : 'X') : null;
   const isAITurn = isSinglePlayer && aiPlayerSymbol && ((isXNext && aiPlayerSymbol === 'X') || (!isXNext && aiPlayerSymbol === 'O'));
 
-  // Updated AI useEffect to pass dynamic accuracy requirements
   useEffect(() => {
     if (isAITurn && !winnerInfo && !isDraw && !isResetting && !overallWinner) {
       const aiTimer = setTimeout(() => {
@@ -493,7 +498,6 @@ export default function App() {
     }
   };
 
-  // 1-Player Hold to let AI Start
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
       hapticFeedback([80, 40, 80]); 
