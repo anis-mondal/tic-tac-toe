@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X, Target, Info, RefreshCw } from 'lucide-react';
+import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X, Target, Info } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // --- Capacitor Plugins Added ---
@@ -42,7 +42,7 @@ const AILogo = () => (
       </linearGradient>
     </defs>
     <circle cx="50" cy="50" r="42" fill="none" stroke="url(#ai-grad)" strokeWidth="12" />
-    <text x="50" y="68" fontFamily="Nunito, sans-serif" fontWeight="900" fontSize="48" fill="url(#ai-grad)" textAnchor="middle">Ai</text>
+    <text x="50" y="68" fontFamily="NunitoCustom, sans-serif" fontWeight="900" fontSize="48" fill="url(#ai-grad)" textAnchor="middle">Ai</text>
   </svg>
 );
 
@@ -156,7 +156,6 @@ const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean, a
   }
 };
 
-// Updated: Added humanScore, targetScore, and isTargetScoreEnabled for perfectly matched Dynamic Accuracy
 const findBestMove = (
   squares: SquareValue[], 
   aiPlayer: Player, 
@@ -172,26 +171,17 @@ const findBestMove = (
   const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
 
   // --- Dynamic Accuracy Logic ---
-  let accuracy = 0.75; // Default 75% accuracy if target score is NOT set
+  let accuracy = 0.75; 
   
   if (isTargetScoreEnabled && targetScore > 0) {
-    // Determine the percentage step per win (e.g., target 5 = 20%, target 10 = 10%)
     const stepPercentage = 1 / targetScore; 
-    
-    // Calculate total progress percentage based on human score
     const progressPercentage = Math.min(humanScore * stepPercentage, 1);
-    
-    // The gap between Max Accuracy (85%) and Min Accuracy (50%) is 35%
-    // Accuracy increases by applying the progress percentage to this 35% gap
     accuracy = 0.50 + (0.35 * progressPercentage);
   }
 
-  // Apply the calculated accuracy
-  // If Math.random() is greater than the accuracy, the AI plays randomly
   if (Math.random() > accuracy) {
     return availableMoves[Math.floor(Math.random() * availableMoves.length)];
   }
-  // ------------------------------
 
   // 1. Check for immediate win
   for (const [a, b, c] of WINNING_COMBINATIONS) {
@@ -618,8 +608,16 @@ export default function App() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
-        .font-nunito { font-family: 'Nunito', sans-serif; font-weight: 700; }
+        @font-face {
+          font-family: 'NunitoCustom';
+          src: url('/Nunito-Bold.ttf') format('truetype');
+          font-weight: 700;
+          font-style: normal;
+          font-display: swap;
+        }
+
+        .font-nunito { font-family: 'NunitoCustom', sans-serif; font-weight: 700; }
+        
         .m3-scrollbar::-webkit-scrollbar { width: 6px; }
         .m3-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .m3-scrollbar::-webkit-scrollbar-thumb { 
@@ -1053,8 +1051,8 @@ export default function App() {
                     <h2 className="text-3xl font-black">About Game</h2>
                 </div>
                 
-                <div className="space-y-6 max-h-[65vh] overflow-y-auto pr-3 m3-scrollbar font-sans font-normal text-[15px] opacity-80">
-                  <p>This is a premium <span className="font-bold">Tic-Tac-Toe</span> game crafted with Google's <span className="font-bold text-sky-500">Material You (M3)</span> design system. Customize themes, colors, and target scores for a personalized experience.</p>
+                <div className="space-y-6 max-h-[65vh] overflow-y-auto pr-3 m3-scrollbar font-nunito font-normal text-[15px] opacity-80">
+                  <p>This is a premium <span className="font-bold">Tic Tac Toe</span> game crafted with Google's <span className="font-bold text-sky-500">Material You (M3)</span> design system. Customize themes, colors, and target scores for a personalized experience.</p>
                   
                   <div className="space-y-3.5">
                     <h4 className="text-lg font-extrabold tracking-tight opacity-90 pt-2">Key Features</h4>
