@@ -8,6 +8,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X, Target, Info } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
+// --- Import Local Font Perfectly ---
+// @ts-ignore
+import nunitoFont from './Nunito-Bold.ttf';
+
 // --- Capacitor Plugins Added ---
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -170,7 +174,6 @@ const findBestMove = (
   
   const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
 
-  // --- Dynamic Accuracy Logic ---
   let accuracy = 0.75; 
   
   if (isTargetScoreEnabled && targetScore > 0) {
@@ -183,21 +186,18 @@ const findBestMove = (
     return availableMoves[Math.floor(Math.random() * availableMoves.length)];
   }
 
-  // 1. Check for immediate win
   for (const [a, b, c] of WINNING_COMBINATIONS) {
     if (!squares[a] && squares[b] === aiPlayer && squares[c] === aiPlayer) return a;
     if (squares[a] === aiPlayer && !squares[b] && squares[c] === aiPlayer) return b;
     if (squares[a] === aiPlayer && squares[b] === aiPlayer && !squares[c]) return c;
   }
   
-  // 2. Block immediate threat
   for (const [a, b, c] of WINNING_COMBINATIONS) {
     if (!squares[a] && squares[b] === humanPlayer && squares[c] === humanPlayer) return a;
     if (squares[a] === humanPlayer && !squares[b] && squares[c] === humanPlayer) return b;
     if (squares[a] === humanPlayer && squares[b] === humanPlayer && !squares[c]) return c;
   }
   
-  // 3. Minimax calculation
   let bestVal = -Infinity, bestMove = availableMoves[0];
   const trickWeights = [0.2, 0.0, 0.2, 0.0, 0.3, 0.0, 0.2, 0.0, 0.2];
   for (let i = 0; i < 9; i++) {
@@ -610,7 +610,7 @@ export default function App() {
       <style>{`
         @font-face {
           font-family: 'NunitoCustom';
-          src: url('/Nunito-Bold.ttf') format('truetype');
+          src: url('${nunitoFont}') format('truetype');
           font-weight: 700;
           font-style: normal;
           font-display: swap;
