@@ -126,6 +126,7 @@ const evaluateBoard = (squares: SquareValue[], aiPlayer: Player) => {
   }
   return 0;
 };
+
 const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean, aiPlayer: Player): number => {
   const score = evaluateBoard(squares, aiPlayer);
   if (score === 10) return score - depth;
@@ -154,22 +155,53 @@ const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean, a
     return best;
   }
 };
-const findBestMove = (squares: SquareValue[], aiPlayer: Player) => {
+
+// Updated: Added humanScore, targetScore, and isTargetScoreEnabled for Dynamic Accuracy
+const findBestMove = (
+  squares: SquareValue[], 
+  aiPlayer: Player, 
+  humanScore: number, 
+  targetScore: number, 
+  isTargetScoreEnabled: boolean
+) => {
   const availableMoves: number[] = [];
   for (let i = 0; i < 9; i++) if (!squares[i]) availableMoves.push(i);
+  
   if (availableMoves.length === 9) return [0, 2, 4, 6, 8][Math.floor(Math.random() * 5)];
+  
   const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
+
+  // --- Dynamic Accuracy Logic ---
+  let accuracy = 0.75; // Default 75% accuracy if target score is off
+  
+  if (isTargetScoreEnabled && targetScore > 0) {
+    // Calculate how close the human player is to the target score (0.0 to 1.0)
+    const progress = Math.min(humanScore / targetScore, 1);
+    // Accuracy scales from 50% (0.50) to 85% (0.85) based on progress
+    accuracy = 0.50 + (0.35 * progress);
+  }
+
+  // Determine whether to play randomly or optimally based on accuracy
+  if (Math.random() > accuracy) {
+    return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+  }
+  // ------------------------------
+
+  // 1. Check for immediate win
   for (const [a, b, c] of WINNING_COMBINATIONS) {
     if (!squares[a] && squares[b] === aiPlayer && squares[c] === aiPlayer) return a;
     if (squares[a] === aiPlayer && !squares[b] && squares[c] === aiPlayer) return b;
     if (squares[a] === aiPlayer && squares[b] === aiPlayer && !squares[c]) return c;
   }
+  
+  // 2. Block immediate threat
   for (const [a, b, c] of WINNING_COMBINATIONS) {
     if (!squares[a] && squares[b] === humanPlayer && squares[c] === humanPlayer) return a;
     if (squares[a] === humanPlayer && !squares[b] && squares[c] === humanPlayer) return b;
     if (squares[a] === humanPlayer && squares[b] === humanPlayer && !squares[c]) return c;
   }
-  if (Math.random() < 0.25) return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+  
+  // 3. Minimax calculation
   let bestVal = -Infinity, bestMove = availableMoves[0];
   const trickWeights = [0.2, 0.0, 0.2, 0.0, 0.3, 0.0, 0.2, 0.0, 0.2];
   for (let i = 0; i < 9; i++) {
@@ -271,7 +303,6 @@ export default function App() {
           ? (isDarkMode ? ORIGINAL_THEME.dark : ORIGINAL_THEME.light) 
           : (isDarkMode ? CUSTOM_THEMES[themeIdx].dark : CUSTOM_THEMES[themeIdx].light);
         
-        // শুধু স্ট্যাটাস বারের রঙ পরিবর্তন (অফিসিয়াল এবং ১০০% নিরাপদ)
         StatusBar.setBackgroundColor({ color: activeBgColor });
         StatusBar.setStyle({ style: isDarkMode ? Style.Dark : Style.Light });
       } catch (e) {
@@ -352,10 +383,19 @@ export default function App() {
   const aiPlayerSymbol = isSinglePlayer ? (humanSymbol === 'X' ? 'O' : 'X') : null;
   const isAITurn = isSinglePlayer && aiPlayerSymbol && ((isXNext && aiPlayerSymbol === 'X') || (!isXNext && aiPlayerSymbol === 'O'));
 
+  // Updated AI useEffect to pass dynamic accuracy requirements
   useEffect(() => {
     if (isAITurn && !winnerInfo && !isDraw && !isResetting && !overallWinner) {
       const aiTimer = setTimeout(() => {
-        const bestMove = findBestMove([...board], aiPlayerSymbol);
+        const humanScore = scores[humanSymbol];
+        const bestMove = findBestMove(
+           [...board], 
+           aiPlayerSymbol, 
+           humanScore, 
+           targetScore, 
+           isTargetScoreEnabled
+        );
+        
         if (bestMove !== -1) {
           const newBoard = [...board];
           newBoard[bestMove] = aiPlayerSymbol;
@@ -368,7 +408,7 @@ export default function App() {
       }, 500); 
       return () => clearTimeout(aiTimer);
     }
-  }, [isXNext, isSinglePlayer, board, winnerInfo, isDraw, aiPlayerSymbol, isAITurn, isSoundOn, isResetting, overallWinner]);
+  }, [isXNext, isSinglePlayer, board, winnerInfo, isDraw, aiPlayerSymbol, isAITurn, isSoundOn, isResetting, overallWinner, scores, humanSymbol, targetScore, isTargetScoreEnabled]);
 
   const handleClick = (index: number) => {
     if (board[index] || winnerInfo || isAITurn || isResetting || overallWinner) return;
@@ -435,6 +475,7 @@ export default function App() {
       }, 600);
     }
   };
+  
   const handleTurnHoldEnd = () => {
     setIsHoldingBanner(false);
     if (turnHoldTimer.current) clearTimeout(turnHoldTimer.current);
@@ -467,6 +508,7 @@ export default function App() {
       });
     }, 600);
   };
+  
   const handleModeHoldEnd = () => {
     if (modeHoldTimer.current) clearTimeout(modeHoldTimer.current);
   };
