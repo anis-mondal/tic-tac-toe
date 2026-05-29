@@ -11,9 +11,6 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         
-        // এই লাইনটি আপনার APK এর নাম পরিবর্তন করে দেবে
-        setProperty("archivesBaseName", "Tic Tac Toe")
-        
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
@@ -24,6 +21,13 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    
+    // Custom logic to completely remove the "-debug" suffix from the final APK name
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "Tic Tac Toe.apk"
         }
     }
 }
