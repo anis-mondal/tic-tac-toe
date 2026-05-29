@@ -10,7 +10,7 @@ import confetti from 'canvas-confetti';
 
 // --- Import Local Font Perfectly ---
 // @ts-ignore
-import nunitoFont from './Nunito-Bold.ttf';
+import nunitoFont from './Nunito-ExtraBold.ttf';
 
 // --- Capacitor Plugins Added ---
 import { Capacitor } from '@capacitor/core';
@@ -170,36 +170,40 @@ const findBestMove = (
   const availableMoves: number[] = [];
   for (let i = 0; i < 9; i++) if (!squares[i]) availableMoves.push(i);
   
+  // If it is the first move of the AI, make a random move in corners or center for variety
   if (availableMoves.length === 9) return [0, 2, 4, 6, 8][Math.floor(Math.random() * 5)];
   
   const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
 
-  let accuracy = 0.75; 
-  
-  if (isTargetScoreEnabled && targetScore > 0) {
-    const stepPercentage = 1 / targetScore; 
-    const progressPercentage = Math.min(humanScore * stepPercentage, 1);
-    accuracy = 0.50 + (0.35 * progressPercentage);
-  }
+  // Set the AI accuracy strictly to 75% as requested
+  const accuracy = 0.75; 
 
+  // 25% of the time, the AI will make a random move (Error margin)
   if (Math.random() > accuracy) {
     return availableMoves[Math.floor(Math.random() * availableMoves.length)];
   }
 
+  // --- The remaining 75% of the time, the AI will play perfectly ---
+
+  // 1. Offense: Check if the AI can win in the current move
   for (const [a, b, c] of WINNING_COMBINATIONS) {
     if (!squares[a] && squares[b] === aiPlayer && squares[c] === aiPlayer) return a;
     if (squares[a] === aiPlayer && !squares[b] && squares[c] === aiPlayer) return b;
     if (squares[a] === aiPlayer && squares[b] === aiPlayer && !squares[c]) return c;
   }
   
+  // 2. Defense: Check if the human is about to win, and block them
   for (const [a, b, c] of WINNING_COMBINATIONS) {
     if (!squares[a] && squares[b] === humanPlayer && squares[c] === humanPlayer) return a;
     if (squares[a] === humanPlayer && !squares[b] && squares[c] === humanPlayer) return b;
     if (squares[a] === humanPlayer && squares[b] === humanPlayer && !squares[c]) return c;
   }
   
-  let bestVal = -Infinity, bestMove = availableMoves[0];
+  // 3. Minimax with tricks: Evaluate the best possible move using Minimax algorithm
+  let bestVal = -Infinity;
+  let bestMove = availableMoves[0];
   const trickWeights = [0.2, 0.0, 0.2, 0.0, 0.3, 0.0, 0.2, 0.0, 0.2];
+  
   for (let i = 0; i < 9; i++) {
     if (!squares[i]) {
       squares[i] = aiPlayer;
@@ -209,6 +213,7 @@ const findBestMove = (
       if (moveVal > bestVal) { bestMove = i; bestVal = moveVal; }
     }
   }
+  
   return bestMove;
 };
 
