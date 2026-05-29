@@ -12,6 +12,7 @@ import confetti from 'canvas-confetti';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { NavigationBar } from '@capacitor-community/navigation-bar'; // <-- Added NavigationBar Plugin
 
 type Player = 'X' | 'O';
 type SquareValue = Player | null;
@@ -263,20 +264,29 @@ export default function App() {
   const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartPointerDown = useRef(false);
 
-  // --- Dynamic Status Bar Effect (Icons only, Background is transparent via Edge-to-Edge) ---
+  // --- Dynamic Status and Navigation Bar Effect ---
+  // <-- The fix for applying the active theme background to both top & bottom bars
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       try {
-        // Just set the icon styles to contrast with the app background
+        const activeBgColor = useDefaultTheme 
+          ? (isDarkMode ? ORIGINAL_THEME.dark : ORIGINAL_THEME.light) 
+          : (isDarkMode ? CUSTOM_THEMES[themeIdx].dark : CUSTOM_THEMES[themeIdx].light);
+        
+        // 1. Top Status Bar Color
+        StatusBar.setBackgroundColor({ color: activeBgColor });
         StatusBar.setStyle({ style: isDarkMode ? Style.Dark : Style.Light });
+
+        // 2. Bottom Navigation Bar Color
+        NavigationBar.setColor({ color: activeBgColor, darkButtons: !isDarkMode });
       } catch (e) {
-        console.warn("Status bar icon customization failed:", e);
+        console.warn("Bar customization failed:", e);
       }
     }
     
     if (isDarkMode) document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
-  }, [isDarkMode]);
+  }, [isDarkMode, themeIdx, useDefaultTheme]);
 
   const toggleSound = () => {
     hapticFeedback(40);
@@ -1009,7 +1019,7 @@ export default function App() {
                     <h4 className="text-lg font-extrabold tracking-tight opacity-90 pt-2">Key Features</h4>
                     <p>🤖 <span className="font-bold">1 Player (AI):</span> Play against an intelligent AI.</p>
                     <p>👥 <span className="font-bold">2 Players:</span> Switch modes with one tap and play with a friend on the same device.</p>
-                    <p>🎯 <span className="font-bold">Target Score Win:</span> Set a custom point target (1-20) to win the full match. Note: You cannot set the target below the current highest score.</p>
+                    <p>🎯 <span className="font-bold">Target Score Win:</span> Set a custom point target (1-20) to win the full match. Note: You হারানোর target below the current highest score.</p>
                     <p>🎨 <span className="font-bold">Material You Themes:</span> Choose from 10 beautiful color schemes, and customize the Player colors and Winning Line colors.</p>
                     
                     <h4 className="text-lg font-extrabold tracking-tight opacity-90 pt-3">Controls</h4>
