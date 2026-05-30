@@ -37,7 +37,8 @@ const hapticFeedback = (pattern: number | number[]) => {
 
 // --- Custom AI Logo Component ---
 const AILogo = () => (
-  <svg width="20" height="20" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-sm shrink-0">
+  // xmlns লিংকটি সরিয়ে দেওয়া হয়েছে, React এটি নিজে থেকেই হ্যান্ডেল করবে
+  <svg width="20" height="20" viewBox="0 0 100 100" className="drop-shadow-sm shrink-0">
     <defs>
       <linearGradient id="ai-grad" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#ff007f" />
@@ -50,7 +51,7 @@ const AILogo = () => (
   </svg>
 );
 
-// --- Audio System (Fixed Harsh Startup Sound) ---
+// --- Audio System ---
 const audioState = { ctx: null as AudioContext | null };
 const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point' | 'unmute' | 'mode', enabled: boolean) => {
   if (!enabled || typeof window === 'undefined') return;
@@ -67,8 +68,8 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point'
       const gain = ctx.createGain();
       osc.type = 'sine'; osc.frequency.setValueAtTime(600, t);
       osc.frequency.exponentialRampToValueAtTime(200, t + 0.15);
-      gain.gain.setValueAtTime(0, t); // Start from 0 to prevent harsh click
-      gain.gain.linearRampToValueAtTime(0.3, t + 0.02); // Soft attack
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.3, t + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
       osc.connect(gain); gain.connect(ctx.destination);
       osc.start(t); osc.stop(t + 0.15);
@@ -177,7 +178,6 @@ const findBestMove = (
   const availableMoves: number[] = [];
   for (let i = 0; i < 9; i++) if (!squares[i]) availableMoves.push(i);
   
-  // If it is the first move of the AI, make a random move in corners or center for variety
   if (availableMoves.length === 9) return [0, 2, 4, 6, 8][Math.floor(Math.random() * 5)];
   
   const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
@@ -258,7 +258,6 @@ const getSaved = (key: string, defaultVal: any) => {
 };
 
 export default function App() {
-  // Use LocalStorage to initialize all settings and game states
   const [board, setBoard] = useState<SquareValue[]>(() => getSaved('board', Array(9).fill(null)));
   const [humanSymbol, setHumanSymbol] = useState<Player>(() => getSaved('humanSymbol', 'O'));
   const [startingPlayer, setStartingPlayer] = useState<Player>(() => getSaved('startingPlayer', 'O'));
@@ -284,7 +283,6 @@ export default function App() {
     return true; 
   });
 
-  // Save changes to localStorage automatically
   useEffect(() => {
     localStorage.setItem('board', JSON.stringify(board));
     localStorage.setItem('humanSymbol', JSON.stringify(humanSymbol));
@@ -327,7 +325,6 @@ export default function App() {
   const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartPointerDown = useRef(false);
 
-  // --- Dynamic Status Bar Effect ---
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       try {
@@ -574,7 +571,6 @@ export default function App() {
     resetGameForMode(startingPlayer); 
   };
 
-  // Winning Line Calculation with Safe SVG Padding for Straight lines
   useEffect(() => {
     const updatePoints = () => {
       if (winnerInfo && boardRef.current) {
@@ -674,7 +670,6 @@ export default function App() {
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-        {/* --- FIXED: Top Navigation is moved OUTSIDE the animation wrapper --- */}
         <motion.nav 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -715,14 +710,12 @@ export default function App() {
           </motion.button>
         </motion.nav>
 
-        {/* Intro Animation Wrapper for the rest of the app */}
         <motion.div 
            initial={{ opacity: 0, scale: 0.9, y: 15 }} 
            animate={{ opacity: 1, scale: 1, y: 0 }} 
            transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
            className="w-full max-w-md mx-auto flex flex-col items-center gap-4 relative"
         >
-          {/* Header & Modes */}
           <header className="text-center space-y-5 pt-24 z-10 relative w-full overflow-visible">
             <motion.h1 style={{ color: semantics.text }} className="text-[40px] sm:text-[44px] font-black tracking-tight drop-shadow-sm">
               Tic Tac Toe
@@ -788,7 +781,6 @@ export default function App() {
             </motion.div>
           </header>
 
-          {/* Scoreboard Feature */}
           <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible select-none">
              <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg }}>
                 <span className="text-[10px] sm:text-xs font-black uppercase opacity-90" style={{ color: PLAYER_COLORS[xColorIdx] }}>Player X</span>
@@ -824,7 +816,6 @@ export default function App() {
              </div>
           </div>
 
-          {/* Game Board */}
           <div className="relative group z-10 mt-2">
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ backgroundColor: semantics.mainGridBackground }} className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden">
               <div ref={boardRef} className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] aspect-square">
@@ -832,15 +823,17 @@ export default function App() {
                   <button key={i} id={`cell-${i}`} onClick={() => handleClick(i)} style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value ? 'inset 0 2px 4px rgba(255,255,255,0.015)' : 'none' }} className={`w-full h-full rounded-[20px] flex items-center justify-center transition-all duration-300 relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer active:scale-[0.92]' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}>
                     <AnimatePresence mode="wait">
                       {value === 'X' && !isResetting && (
+                        // xmlns লিংকটি সরিয়ে দেওয়া হয়েছে
                         <motion.div initial={{ scale: 0, rotate: -180, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0, rotate: 180, opacity: 0 }} transition={{ type: 'spring', stiffness: 350, damping: 25 }} className="w-full h-full flex items-center justify-center">
-                          <svg viewBox="0 0 24 24" className="w-3/5 h-3/5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <svg viewBox="0 0 24 24" className="w-3/5 h-3/5" fill="none">
                             <path d="M18 6L6 18M6 6L18 18" stroke={PLAYER_COLORS[xColorIdx]} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm" />
                           </svg>
                         </motion.div>
                       )}
                       {value === 'O' && !isResetting && (
+                        // xmlns লিংকটি সরিয়ে দেওয়া হয়েছে
                         <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ type: 'spring', stiffness: 350, damping: 25 }} className="w-full h-full flex items-center justify-center">
-                          <svg viewBox="0 0 24 24" className="w-3/5 h-3/5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <svg viewBox="0 0 24 24" className="w-3/5 h-3/5" fill="none">
                             <circle cx="12" cy="12" r="8.5" stroke={PLAYER_COLORS[oColorIdx]} strokeWidth="4.5" className="drop-shadow-sm" />
                           </svg>
                         </motion.div>
@@ -849,7 +842,6 @@ export default function App() {
                   </button>
                 ))}
 
-                {/* Exact Classic Hollow Winning Line */}
                 <AnimatePresence>
                   {linePoints && winnerInfo && (
                     <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -949,7 +941,6 @@ export default function App() {
 
               </div>
 
-              {/* In-Board Target Score Winner Popup */}
               <AnimatePresence>
                 {isOverallWinModalOpen && overallWinner && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-3 rounded-[36px] sm:rounded-[40px] border border-white/5" style={{ backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
@@ -981,7 +972,6 @@ export default function App() {
           
         </motion.div>
 
-        {/* Settings Modal */}
         <AnimatePresence>
           {isSettingsOpen && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -1086,7 +1076,6 @@ export default function App() {
           )}
         </AnimatePresence>
         
-        {/* About Modal */}
         <AnimatePresence>
           {isAboutOpen && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
