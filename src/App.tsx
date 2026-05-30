@@ -180,6 +180,7 @@ const findBestMove = (
   if (availableMoves.length === 9) return [0, 2, 4, 6, 8][Math.floor(Math.random() * 5)];
   
   const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
+
   const accuracy = 0.75; 
 
   if (Math.random() > accuracy) {
@@ -211,6 +212,7 @@ const findBestMove = (
       if (moveVal > bestVal) { bestMove = i; bestVal = moveVal; }
     }
   }
+  
   return bestMove;
 };
 
@@ -666,11 +668,11 @@ export default function App() {
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-        {/* --- PERFECT TOP NAVIGATION DROP DOWN --- */}
+        {/* --- PREMIUM SMOOTH ANIMATION: TOP NAV --- */}
         <motion.nav 
-          initial={Capacitor.isNativePlatform() ? { opacity: 0, y: -50 } : false}
+          initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1, type: "spring", stiffness: 250, damping: 25, mass: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
           style={{ top: 'max(16px, env(safe-area-inset-top))' }}
           className="absolute left-0 right-0 h-20 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
           
@@ -707,11 +709,11 @@ export default function App() {
           </motion.button>
         </motion.nav>
 
-        {/* --- PREMIUM POP-OUT ANIMATION FOR MAIN CONTENT --- */}
+        {/* --- PREMIUM SMOOTH ANIMATION: MAIN CONTENT --- */}
         <motion.div 
-           initial={Capacitor.isNativePlatform() ? { opacity: 0, scale: 0.85, y: 40 } : false} 
+           initial={{ opacity: 0, scale: 0.94, y: 20 }} 
            animate={{ opacity: 1, scale: 1, y: 0 }} 
-           transition={{ duration: 0.8, delay: 0.2, type: "spring", stiffness: 280, damping: 24, mass: 1 }}
+           transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
            className="w-full max-w-md mx-auto flex flex-col items-center gap-4 relative"
         >
           {/* Header & Modes */}
