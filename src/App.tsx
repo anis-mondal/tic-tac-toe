@@ -180,7 +180,6 @@ const findBestMove = (
   if (availableMoves.length === 9) return [0, 2, 4, 6, 8][Math.floor(Math.random() * 5)];
   
   const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
-
   const accuracy = 0.75; 
 
   if (Math.random() > accuracy) {
@@ -668,9 +667,9 @@ export default function App() {
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-        {/* --- PREMIUM SMOOTH ANIMATION: TOP NAV --- */}
+        {/* --- PERFECT ANIMATION: No gap for Mobile! --- */}
         <motion.nav 
-          initial={{ opacity: 0, y: -30 }}
+          initial={Capacitor.isNativePlatform() ? false : { opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           style={{ top: 'max(16px, env(safe-area-inset-top))' }}
@@ -709,9 +708,9 @@ export default function App() {
           </motion.button>
         </motion.nav>
 
-        {/* --- PREMIUM SMOOTH ANIMATION: MAIN CONTENT --- */}
+        {/* --- PERFECT ANIMATION: No gap for Mobile! --- */}
         <motion.div 
-           initial={{ opacity: 0, scale: 0.94, y: 20 }} 
+           initial={Capacitor.isNativePlatform() ? false : { opacity: 0, scale: 0.94, y: 20 }} 
            animate={{ opacity: 1, scale: 1, y: 0 }} 
            transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
            className="w-full max-w-md mx-auto flex flex-col items-center gap-4 relative"
