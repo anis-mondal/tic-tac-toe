@@ -177,6 +177,7 @@ const findBestMove = (
   const availableMoves: number[] = [];
   for (let i = 0; i < 9; i++) if (!squares[i]) availableMoves.push(i);
   
+  // If it is the first move of the AI, make a random move in corners or center for variety
   if (availableMoves.length === 9) return [0, 2, 4, 6, 8][Math.floor(Math.random() * 5)];
   
   const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
@@ -673,54 +674,56 @@ export default function App() {
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-        {/* Intro Animation Wrapper for beautiful startup */}
+        {/* --- FIXED: Top Navigation is moved OUTSIDE the animation wrapper --- */}
+        <motion.nav 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.1, type: "spring", bounce: 0.4 }}
+          style={{ top: 'max(16px, env(safe-area-inset-top))' }}
+          className="absolute left-0 right-0 h-20 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
+          
+          <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { hapticFeedback(40); playEnhancedSound('pop', isSoundOn); setIsDarkMode(!isDarkMode); }} className={navBtnClass} style={getNavBtnStyle()}>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div key={isDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
+                {isDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
+              </motion.div>
+            </AnimatePresence>
+          </motion.button>
+
+          <motion.button 
+             whileTap={{ scale: 0.85, y: 2 }}
+             onPointerDown={handleRestartPointerDown} 
+             onPointerUp={handleRestartPointerUp}
+             onPointerLeave={handleRestartPointerUp}
+             className={navBtnClass} style={getNavBtnStyle()}
+          >
+            <motion.div animate={{ rotate: rotation }} transition={{ type: "spring", stiffness: 300, damping: 25 }}>
+              <RotateCcw className="w-[20px] h-[20px]" />
+            </motion.div>
+          </motion.button>
+
+          <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div key={isSoundOn ? 'on' : 'off'} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ duration: 0.2 }}>
+                {isSoundOn ? <Volume2 className="w-[20px] h-[20px]" /> : <VolumeX className="w-[20px] h-[20px]" />}
+              </motion.div>
+            </AnimatePresence>
+          </motion.button>
+          
+          <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { hapticFeedback(40); playEnhancedSound('pop', isSoundOn); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
+            <MoreVertical className="w-[20px] h-[20px]" />
+          </motion.button>
+        </motion.nav>
+
+        {/* Intro Animation Wrapper for the rest of the app */}
         <motion.div 
            initial={{ opacity: 0, scale: 0.9, y: 15 }} 
            animate={{ opacity: 1, scale: 1, y: 0 }} 
            transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
            className="w-full max-w-md mx-auto flex flex-col items-center gap-4 relative"
         >
-
-          {/* Top Navigation */}
-          <nav 
-            style={{ top: 'max(16px, env(safe-area-inset-top))' }}
-            className="absolute left-0 right-0 h-20 px-2 flex items-center justify-between z-50 w-full">
-            
-            <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { hapticFeedback(40); playEnhancedSound('pop', isSoundOn); setIsDarkMode(!isDarkMode); }} className={navBtnClass} style={getNavBtnStyle()}>
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div key={isDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
-                  {isDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
-                </motion.div>
-              </AnimatePresence>
-            </motion.button>
-
-            <motion.button 
-               whileTap={{ scale: 0.85, y: 2 }}
-               onPointerDown={handleRestartPointerDown} 
-               onPointerUp={handleRestartPointerUp}
-               onPointerLeave={handleRestartPointerUp}
-               className={navBtnClass} style={getNavBtnStyle()}
-            >
-              <motion.div animate={{ rotate: rotation }} transition={{ type: "spring", stiffness: 300, damping: 25 }}>
-                <RotateCcw className="w-[20px] h-[20px]" />
-              </motion.div>
-            </motion.button>
-
-            <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div key={isSoundOn ? 'on' : 'off'} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ duration: 0.2 }}>
-                  {isSoundOn ? <Volume2 className="w-[20px] h-[20px]" /> : <VolumeX className="w-[20px] h-[20px]" />}
-                </motion.div>
-              </AnimatePresence>
-            </motion.button>
-            
-            <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { hapticFeedback(40); playEnhancedSound('pop', isSoundOn); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
-              <MoreVertical className="w-[20px] h-[20px]" />
-            </motion.button>
-          </nav>
-
           {/* Header & Modes */}
-          <header className="text-center space-y-5 pt-20 z-10 relative w-full overflow-visible">
+          <header className="text-center space-y-5 pt-24 z-10 relative w-full overflow-visible">
             <motion.h1 style={{ color: semantics.text }} className="text-[40px] sm:text-[44px] font-black tracking-tight drop-shadow-sm">
               Tic Tac Toe
             </motion.h1>
