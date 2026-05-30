@@ -67,8 +67,8 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point'
       const gain = ctx.createGain();
       osc.type = 'sine'; osc.frequency.setValueAtTime(600, t);
       osc.frequency.exponentialRampToValueAtTime(200, t + 0.15);
-      gain.gain.setValueAtTime(0, t); // Start from 0 to prevent harsh click
-      gain.gain.linearRampToValueAtTime(0.3, t + 0.02); // Soft attack
+      gain.gain.setValueAtTime(0, t); 
+      gain.gain.linearRampToValueAtTime(0.3, t + 0.02); 
       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
       osc.connect(gain); gain.connect(ctx.destination);
       osc.start(t); osc.stop(t + 0.15);
@@ -177,11 +177,9 @@ const findBestMove = (
   const availableMoves: number[] = [];
   for (let i = 0; i < 9; i++) if (!squares[i]) availableMoves.push(i);
   
-  // If it is the first move of the AI, make a random move in corners or center for variety
   if (availableMoves.length === 9) return [0, 2, 4, 6, 8][Math.floor(Math.random() * 5)];
   
   const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
-
   const accuracy = 0.75; 
 
   if (Math.random() > accuracy) {
@@ -213,7 +211,6 @@ const findBestMove = (
       if (moveVal > bestVal) { bestMove = i; bestVal = moveVal; }
     }
   }
-  
   return bestMove;
 };
 
@@ -258,7 +255,6 @@ const getSaved = (key: string, defaultVal: any) => {
 };
 
 export default function App() {
-  // Use LocalStorage to initialize all settings and game states
   const [board, setBoard] = useState<SquareValue[]>(() => getSaved('board', Array(9).fill(null)));
   const [humanSymbol, setHumanSymbol] = useState<Player>(() => getSaved('humanSymbol', 'O'));
   const [startingPlayer, setStartingPlayer] = useState<Player>(() => getSaved('startingPlayer', 'O'));
@@ -284,7 +280,6 @@ export default function App() {
     return true; 
   });
 
-  // Save changes to localStorage automatically
   useEffect(() => {
     localStorage.setItem('board', JSON.stringify(board));
     localStorage.setItem('humanSymbol', JSON.stringify(humanSymbol));
@@ -327,7 +322,6 @@ export default function App() {
   const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartPointerDown = useRef(false);
 
-  // --- Dynamic Status Bar Effect ---
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       try {
@@ -341,7 +335,6 @@ export default function App() {
         console.warn("Status bar customization failed:", e);
       }
     }
-    
     if (isDarkMode) document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
   }, [isDarkMode, themeIdx, useDefaultTheme]);
@@ -574,7 +567,6 @@ export default function App() {
     resetGameForMode(startingPlayer); 
   };
 
-  // Winning Line Calculation with Safe SVG Padding for Straight lines
   useEffect(() => {
     const updatePoints = () => {
       if (winnerInfo && boardRef.current) {
@@ -674,11 +666,11 @@ export default function App() {
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-        {/* --- FIXED: Top Navigation is moved OUTSIDE the animation wrapper --- */}
+        {/* --- PERFECT TOP NAVIGATION DROP DOWN --- */}
         <motion.nav 
-          initial={{ opacity: 0, y: -20 }}
+          initial={Capacitor.isNativePlatform() ? { opacity: 0, y: -50 } : false}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.1, type: "spring", bounce: 0.4 }}
+          transition={{ duration: 0.8, delay: 0.1, type: "spring", stiffness: 250, damping: 25, mass: 1 }}
           style={{ top: 'max(16px, env(safe-area-inset-top))' }}
           className="absolute left-0 right-0 h-20 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
           
@@ -715,11 +707,11 @@ export default function App() {
           </motion.button>
         </motion.nav>
 
-        {/* Intro Animation Wrapper for the rest of the app */}
+        {/* --- PREMIUM POP-OUT ANIMATION FOR MAIN CONTENT --- */}
         <motion.div 
-           initial={{ opacity: 0, scale: 0.9, y: 15 }} 
+           initial={Capacitor.isNativePlatform() ? { opacity: 0, scale: 0.85, y: 40 } : false} 
            animate={{ opacity: 1, scale: 1, y: 0 }} 
-           transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
+           transition={{ duration: 0.8, delay: 0.2, type: "spring", stiffness: 280, damping: 24, mass: 1 }}
            className="w-full max-w-md mx-auto flex flex-col items-center gap-4 relative"
         >
           {/* Header & Modes */}
