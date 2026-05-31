@@ -38,7 +38,6 @@ const hapticFeedback = (pattern: number | number[]) => {
 
 // --- Custom AI Logo Component ---
 const AILogo = () => (
-  // xmlns লিংকটি সরিয়ে দেওয়া হয়েছে, React এটি নিজে থেকেই হ্যান্ডেল করবে
   <svg width="20" height="20" viewBox="0 0 100 100" className="drop-shadow-sm shrink-0">
     <defs>
       <linearGradient id="ai-grad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -370,7 +369,11 @@ export default function App() {
     if (myConfettiRef.current) myConfettiRef.current.reset();
 
     myConfettiRef.current = confetti.create(canvasRef.current, { resize: true, useWorker: true });
-    const colors = winner === 'X' ? [PLAYER_COLORS[xColorIdx], '#ffffff'] : [PLAYER_COLORS[oColorIdx], '#ffffff']; 
+    
+    // --- UPDATED CONFETTI LOGIC ---
+    // এখন শুধু যে জিতবে, তার রঙের কনফেটি উড়বে। সাদা রঙ রিমুভ করে দেওয়া হয়েছে।
+    const colors = winner === 'X' ? [PLAYER_COLORS[xColorIdx]] : [PLAYER_COLORS[oColorIdx]]; 
+    
     const duration = 6000;
     const animationEnd = Date.now() + duration;
 
@@ -838,7 +841,6 @@ export default function App() {
                   <button key={i} id={`cell-${i}`} onClick={() => handleClick(i)} style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value ? 'inset 0 2px 4px rgba(255,255,255,0.015)' : 'none' }} className={`w-full h-full rounded-[20px] flex items-center justify-center transition-all duration-300 relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer active:scale-[0.92]' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}>
                     <AnimatePresence mode="wait">
                       {value === 'X' && !isResetting && (
-                        // xmlns লিংকটি সরিয়ে দেওয়া হয়েছে
                         <motion.div initial={{ scale: 0, rotate: -180, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0, rotate: 180, opacity: 0 }} transition={{ type: 'spring', stiffness: 350, damping: 25 }} className="w-full h-full flex items-center justify-center">
                           <svg viewBox="0 0 24 24" className="w-3/5 h-3/5" fill="none">
                             <path d="M18 6L6 18M6 6L18 18" stroke={PLAYER_COLORS[xColorIdx]} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm" />
@@ -846,7 +848,6 @@ export default function App() {
                         </motion.div>
                       )}
                       {value === 'O' && !isResetting && (
-                        // xmlns লিংকটি সরিয়ে দেওয়া হয়েছে
                         <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ type: 'spring', stiffness: 350, damping: 25 }} className="w-full h-full flex items-center justify-center">
                           <svg viewBox="0 0 24 24" className="w-3/5 h-3/5" fill="none">
                             <circle cx="12" cy="12" r="8.5" stroke={PLAYER_COLORS[oColorIdx]} strokeWidth="4.5" className="drop-shadow-sm" />
