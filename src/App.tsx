@@ -16,6 +16,7 @@ import nunitoFont from './Nunito-ExtraBold.ttf';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { App as CapApp } from '@capacitor/app';
 
 type Player = 'X' | 'O';
 type SquareValue = Player | null;
@@ -283,6 +284,29 @@ export default function App() {
     return true; 
   });
 
+  const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(() => getSaved('winnerInfo', null));
+  const [isDraw, setIsDraw] = useState(() => getSaved('isDraw', false));
+  const lastMoveIdxRef = useRef<number | null>(getSaved('lastMoveIdx', null));
+  const [linePoints, setLinePoints] = useState<{ type: 'normal' | 'center-out', start: { x: number; y: number }; end: { x: number; y: number }, mid: { x: number; y: number } } | null>(null);
+  const [rotation, setRotation] = useState(0);
+  const [isHoldingBanner, setIsHoldingBanner] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  
+  const [isOverallWinModalOpen, setIsOverallWinModalOpen] = useState(false);
+  const [overallWinner, setOverallWinner] = useState<Player | null>(() => getSaved('overallWinner', null));
+
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
+  
+  const boardRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const confettiIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const myConfettiRef = useRef<confetti.CreateTypes | null>(null);
+  const modeHoldTimer = useRef<NodeJS.Timeout | null>(null);
+  const restartHoldTimer = useRef<NodeJS.Timeout | null>(null);
+  const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
+  const restartPointerDown = useRef(false);
+
   useEffect(() => {
     localStorage.setItem('board', JSON.stringify(board));
     localStorage.setItem('humanSymbol', JSON.stringify(humanSymbol));
@@ -300,30 +324,21 @@ export default function App() {
     localStorage.setItem('userWantsTargetScore', JSON.stringify(userWantsTargetScore));
     localStorage.setItem('isTargetScoreEnabled', JSON.stringify(isTargetScoreEnabled));
     localStorage.setItem('isDarkMode', JSON.stringify(isDarkMode));
-  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode]);
-  
-  const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(null);
-  const [isDraw, setIsDraw] = useState(false);
-  const lastMoveIdxRef = useRef<number | null>(null);
-  const [linePoints, setLinePoints] = useState<{ type: 'normal' | 'center-out', start: { x: number; y: number }; end: { x: number; y: number }, mid: { x: number; y: number } } | null>(null);
-  const [rotation, setRotation] = useState(0);
-  const [isHoldingBanner, setIsHoldingBanner] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
-  
-  const [isOverallWinModalOpen, setIsOverallWinModalOpen] = useState(false);
-  const [overallWinner, setOverallWinner] = useState<Player | null>(null);
+    localStorage.setItem('winnerInfo', JSON.stringify(winnerInfo));
+    localStorage.setItem('isDraw', JSON.stringify(isDraw));
+    localStorage.setItem('overallWinner', JSON.stringify(overallWinner));
+    localStorage.setItem('lastMoveIdx', JSON.stringify(lastMoveIdxRef.current));
+  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, winnerInfo, isDraw, overallWinner]);
 
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isAboutOpen, setIsAboutOpen] = useState(false);
-  
-  const boardRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const confettiIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const myConfettiRef = useRef<confetti.CreateTypes | null>(null);
-  const modeHoldTimer = useRef<NodeJS.Timeout | null>(null);
-  const restartHoldTimer = useRef<NodeJS.Timeout | null>(null);
-  const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
-  const restartPointerDown = useRef(false);
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    const backSub = CapApp.addListener('backButton', () => {
+      if (isAboutOpen) setIsAboutOpen(false);
+      else if (isSettingsOpen) setIsSettingsOpen(false);
+      else CapApp.exitApp();
+    });
+    return () => { backSub.then(sub => sub.remove()); };
+  }, [isAboutOpen, isSettingsOpen]);
 
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
@@ -974,8 +989,8 @@ export default function App() {
 
         <AnimatePresence>
           {isSettingsOpen && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-              <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-sm p-6 rounded-[36px] shadow-2xl relative border border-white/5">
+            <motion.div onClick={() => setIsSettingsOpen(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+              <motion.div onClick={(e) => e.stopPropagation()} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-sm p-6 rounded-[36px] shadow-2xl relative border border-white/5">
                 
                 <button onClick={() => setIsSettingsOpen(false)} className="absolute top-5 right-5 p-2 transition-opacity hover:opacity-70 z-[160]">
                   <X className="w-6 h-6" />
@@ -1078,8 +1093,8 @@ export default function App() {
         
         <AnimatePresence>
           {isAboutOpen && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-              <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-[420px] p-7 rounded-[36px] shadow-2xl relative border border-white/5">
+            <motion.div onClick={() => setIsAboutOpen(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+              <motion.div onClick={(e) => e.stopPropagation()} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-[420px] p-7 rounded-[36px] shadow-2xl relative border border-white/5">
                 
                 <button onClick={() => setIsAboutOpen(false)} className="absolute top-5 right-5 p-2 transition-opacity hover:opacity-70 z-[170]">
                   <X className="w-6 h-6" />
