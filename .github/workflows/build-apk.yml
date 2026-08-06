@@ -55,22 +55,21 @@ jobs:
       - name: Sign Release APK
         run: |
           cd android
-          # একটি স্বয়ংক্রিয় Keystore তৈরি করা হচ্ছে
           keytool -genkey -v -keystore release.keystore -alias tictactoe -keyalg RSA -keysize 2048 -validity 10000 -storepass "game1234" -keypass "game1234" -dname "CN=TicTacToe, O=Game"
-          
-          # Android-এর apksigner টুল খুঁজে বের করা
           BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
-          
-          # ফোল্ডারে থাকা রিলিজ APK ফাইলটি স্বয়ংক্রিয়ভাবে খুঁজে বের করা
           APK_FILE=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
-          
-          # খুঁজে পাওয়া APK-টিকে সাইন করা হচ্ছে
           $BUILD_TOOLS_DIR/apksigner sign --ks release.keystore --ks-pass pass:game1234 --key-pass pass:game1234 --out app/build/outputs/apk/release/app-release-signed.apk "$APK_FILE"
+
+      - name: Organize and Rename APKs
+        run: |
+          mkdir -p final-apks
+          # ডিবাগ এপিকে ফাইল রিনেম করা
+          cp android/app/build/outputs/apk/debug/app-debug.apk final-apks/TicTacToe-Debug.apk
+          # রিলিজ এপিকে ফাইল রিনেম করা
+          cp android/app/build/outputs/apk/release/app-release-signed.apk final-apks/TicTacToe-Release.apk
 
       - name: Upload Finished APKs
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Final-APKs
-          path: |
-            android/app/build/outputs/apk/debug/**/*.apk
-            android/app/build/outputs/apk/release/*signed.apk
+          path: final-apks/
