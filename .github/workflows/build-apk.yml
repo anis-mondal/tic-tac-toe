@@ -15,11 +15,10 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
 
       - name: Install Project Dependencies
         run: |
-          npm install -g npm@latest
           rm -rf node_modules package-lock.json
           npm cache clean --force
           npm install --include=optional
