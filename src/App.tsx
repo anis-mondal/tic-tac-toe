@@ -27,7 +27,6 @@ const WINNING_COMBINATIONS = [
   [0, 4, 8], [2, 4, 6]
 ];
 
-// Updated Haptic Feedback Function for both Web and Mobile Native
 const hapticFeedback = (pattern: number | number[]) => {
   if (Capacitor.isNativePlatform()) {
      try { Haptics.impact({ style: ImpactStyle.Light }); } catch (e) {}
@@ -36,7 +35,6 @@ const hapticFeedback = (pattern: number | number[]) => {
   }
 };
 
-// --- Custom AI Logo Component ---
 const AILogo = () => (
   <svg width="20" height="20" viewBox="0 0 100 100" className="drop-shadow-sm shrink-0">
     <defs>
@@ -51,7 +49,6 @@ const AILogo = () => (
   </svg>
 );
 
-// --- Audio System ---
 const audioState = { ctx: null as AudioContext | null };
 const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point' | 'unmute' | 'mode', enabled: boolean) => {
   if (!enabled || typeof window === 'undefined') return;
@@ -130,7 +127,6 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point'
   } catch(e) {}
 };
 
-// --- Minimax AI ---
 const evaluateBoard = (squares: SquareValue[], aiPlayer: Player) => {
   for (const combination of WINNING_COMBINATIONS) {
     const [a, b, c] = combination;
@@ -168,13 +164,7 @@ const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean, a
   }
 };
 
-const findBestMove = (
-  squares: SquareValue[], 
-  aiPlayer: Player, 
-  humanScore: number, 
-  targetScore: number, 
-  isTargetScoreEnabled: boolean
-) => {
+const findBestMove = (squares: SquareValue[], aiPlayer: Player, humanScore: number, targetScore: number, isTargetScoreEnabled: boolean) => {
   const availableMoves: number[] = [];
   for (let i = 0; i < 9; i++) if (!squares[i]) availableMoves.push(i);
   
@@ -212,24 +202,20 @@ const findBestMove = (
       if (moveVal > bestVal) { bestMove = i; bestVal = moveVal; }
     }
   }
-  
   return bestMove;
 };
 
-// --- Muted Dark Mode Themes + Dynamic M3 Theme ---
 const ORIGINAL_THEME = {
   name: 'Classic',
   light: '#f8f9fa', dark: '#000000',
   gridLight: '#e2e8f0', gridDark: '#1a1c1e',
   cellLight: '#ffffff', cellDark: '#2a2d31',
   indicatorLight: '#64748b', indicatorDark: '#94a3b8',
-  // Expanded to 5 colors to match custom themes
   linesLight: ['#22c55e', '#16a34a', '#15803d', '#10b981', '#059669'], 
   linesDark: ['#22c55e', '#4ade80', '#86efac', '#34d399', '#6ee7b7']
 };
 
 const CUSTOM_THEMES = [
-  // New Material You Dynamic Theme Simulator
   { name: 'Dynamic M3', light: '#fdf8fd', dark: '#141218', gridLight: '#e8def8', gridDark: '#2b2930', cellLight: '#ffffff', cellDark: '#36343b', indicatorLight: '#6750a4', indicatorDark: '#d0bcff', linesLight: ['#6750a4', '#b3261e', '#9c4146', '#316934', '#006a6a'], linesDark: ['#d0bcff', '#f2b8b5', '#ffb4ab', '#82c986', '#4cdada'] },
   { name: 'M3 Blue', light: '#eff6ff', dark: '#040b17', gridLight: '#bfdbfe', gridDark: '#0a1229', cellLight: '#ffffff', cellDark: '#121e38', indicatorLight: '#2563eb', indicatorDark: '#3b82f6', linesLight: ['#1e3a8a', '#1d4ed8', '#0891b2', '#4f46e5', '#3b82f6'], linesDark: ['#60a5fa', '#93c5fd', '#3b82f6', '#818cf8', '#7dd3fc'] },
   { name: 'M3 Emerald', light: '#ecfdf5', dark: '#020f0a', gridLight: '#a7f3d0', gridDark: '#052115', cellLight: '#ffffff', cellDark: '#0a3321', indicatorLight: '#16a34a', indicatorDark: '#22c55e', linesLight: ['#166534', '#059669', '#15803d', '#10b981', '#16a34a'], linesDark: ['#4ade80', '#22c55e', '#34d399', '#86efac', '#8dd999'] },
@@ -249,13 +235,11 @@ const PLAYER_COLORS = [
   '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'
 ];
 
-// 10 Global Standard Colors for Winning Line (Merged with 5 Theme Colors = 15 Colors)
 const EXTRA_LINE_COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#eab308', '#06b6d4', 
   '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#64748b'
 ];
 
-// --- LocalStorage Helper ---
 const getSaved = (key: string, defaultVal: any) => {
   if (typeof window === 'undefined') return defaultVal;
   try {
@@ -292,7 +276,6 @@ export default function App() {
     return true; 
   });
   
-  // NEW: Pure Black AMOLED State
   const [isAmoled, setIsAmoled] = useState(() => getSaved('isAmoled', false));
 
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(() => getSaved('winnerInfo', null));
@@ -308,9 +291,6 @@ export default function App() {
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
-  
-  // NEW: Theme Reveal Animation State
-  const [themeReveal, setThemeReveal] = useState<{ x: number, y: number, color: string } | null>(null);
   
   const boardRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -375,31 +355,46 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [isDarkMode, isAmoled, themeIdx, useDefaultTheme]);
 
-  // NEW: Theme Toggle with Circular Reveal Animation
+  // NEW: True Native Circular View Transition for Theme Toggle
   const handleThemeToggle = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
     const nextDark = !isDarkMode;
 
-    let targetColor = '';
-    if (nextDark && isAmoled) {
-        targetColor = '#000000';
-    } else {
-        const themeToUse = useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[themeIdx];
-        targetColor = nextDark ? themeToUse.dark : themeToUse.light;
-    }
-
-    setThemeReveal({ x, y, color: targetColor });
     hapticFeedback(40);
     playEnhancedSound('pop', isSoundOn);
 
-    setTimeout(() => {
+    // @ts-ignore - Using native View Transitions API for true element masking
+    if (!document.startViewTransition) {
         setIsDarkMode(nextDark);
-        setTimeout(() => {
-            setThemeReveal(null);
-        }, 50); 
-    }, 450);
+        return;
+    }
+
+    // @ts-ignore
+    const transition = document.startViewTransition(() => {
+        setIsDarkMode(nextDark);
+    });
+
+    transition.ready.then(() => {
+        const radius = Math.hypot(
+            Math.max(x, window.innerWidth - x),
+            Math.max(y, window.innerHeight - y)
+        );
+        document.documentElement.animate(
+            {
+                clipPath: [
+                    `circle(0px at ${x}px ${y}px)`,
+                    `circle(${radius}px at ${x}px ${y}px)`
+                ]
+            },
+            {
+                duration: 600,
+                easing: 'ease-in-out',
+                pseudoElement: '::view-transition-new(root)'
+            }
+        );
+    });
   };
 
   const toggleSound = () => {
@@ -672,21 +667,20 @@ export default function App() {
   }, [winnerInfo, isResetting]);
 
   const activeTheme = useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[themeIdx];
-  
-  // Combine 5 Theme Line Colors with 10 Global Line Colors
   const availableLinesLight = [...activeTheme.linesLight, ...EXTRA_LINE_COLORS];
   const availableLinesDark = [...activeTheme.linesDark, ...EXTRA_LINE_COLORS];
   const activeLineColor = isDarkMode ? availableLinesDark[customLineIdx] : availableLinesLight[customLineIdx];
   
+  // NEW: Updated AMOLED Semantics (Only pure black for screen, components are Dark Grey for visibility)
   const semantics = {
     screenBackground: isDarkMode && isAmoled ? '#000000' : (isDarkMode ? activeTheme.dark : activeTheme.light),
-    mainGridBackground: isDarkMode && isAmoled ? '#0a0a0a' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
-    squareBackground: isDarkMode && isAmoled ? '#121212' : (isDarkMode ? activeTheme.cellDark : activeTheme.cellLight),
+    mainGridBackground: isDarkMode && isAmoled ? '#121212' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    squareBackground: isDarkMode && isAmoled ? '#1e1e1e' : (isDarkMode ? activeTheme.cellDark : activeTheme.cellLight),
     text: isDarkMode ? '#ffffff' : '#111111',
-    modeSliderContainer: { bg: isDarkMode && isAmoled ? '#0a0a0a' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight) },
-    bannerDefault: isDarkMode ? { bg: isAmoled ? '#0a0a0a' : activeTheme.gridDark, text: '#ffffff' } : { bg: activeTheme.gridLight, text: '#111111' },
-    scoreBg: isDarkMode && isAmoled ? '#0a0a0a' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
-    topNavBtn: isDarkMode && isAmoled ? '#0a0a0a' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    modeSliderContainer: { bg: isDarkMode && isAmoled ? '#121212' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight) },
+    bannerDefault: isDarkMode ? { bg: isAmoled ? '#121212' : activeTheme.gridDark, text: '#ffffff' } : { bg: activeTheme.gridLight, text: '#111111' },
+    scoreBg: isDarkMode && isAmoled ? '#121212' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    topNavBtn: isDarkMode && isAmoled ? '#121212' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
   };
 
   const navBtnClass = "w-[48px] h-[48px] rounded-full transition-all active:scale-95 shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer";
@@ -721,21 +715,16 @@ export default function App() {
           background-color: ${isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'}; 
           border-radius: 10px; 
         }
+
+        /* NEW: Global CSS for Native View Transitions */
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+          animation: none;
+          mix-blend-mode: normal;
+        }
+        ::view-transition-old(root) { z-index: 1; }
+        ::view-transition-new(root) { z-index: 2; }
       `}</style>
-      
-      {/* Circular Reveal Overlay for Theme Changes */}
-      <AnimatePresence>
-        {themeReveal && (
-          <motion.div
-            initial={{ clipPath: `circle(0px at ${themeReveal.x}px ${themeReveal.y}px)` }}
-            animate={{ clipPath: `circle(150% at ${themeReveal.x}px ${themeReveal.y}px)` }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: "circIn" }}
-            style={{ backgroundColor: themeReveal.color }}
-            className="fixed inset-0 pointer-events-none z-[9999]"
-          />
-        )}
-      </AnimatePresence>
       
       <div 
           style={{ 
@@ -743,7 +732,7 @@ export default function App() {
             paddingTop: 'max(24px, env(safe-area-inset-top))',
             paddingBottom: 'max(24px, env(safe-area-inset-bottom))'
           }}
-          className="min-h-screen flex flex-col items-center justify-center p-4 gap-4 transition-colors duration-500 relative overflow-hidden font-nunito">
+          className="min-h-screen flex flex-col items-center justify-center p-4 gap-4 transition-colors duration-200 relative overflow-hidden font-nunito">
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
@@ -859,7 +848,7 @@ export default function App() {
           </header>
 
           <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible select-none">
-             <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg }}>
+             <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
                 <span className="text-[10px] sm:text-xs font-black uppercase opacity-90" style={{ color: PLAYER_COLORS[xColorIdx] }}>Player X</span>
                 <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
                   <AnimatePresence mode="popLayout">
@@ -870,7 +859,7 @@ export default function App() {
                 </div>
              </div>
 
-             <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg, color: semantics.text }}>
+             <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg, color: semantics.text }}>
                 <span className="text-[10px] sm:text-xs font-black uppercase opacity-60">Draws</span>
                 <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
                   <AnimatePresence mode="popLayout">
@@ -881,7 +870,7 @@ export default function App() {
                 </div>
              </div>
 
-             <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg }}>
+             <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
                 <span className="text-[10px] sm:text-xs font-black uppercase opacity-90" style={{ color: PLAYER_COLORS[oColorIdx] }}>Player O</span>
                 <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
                   <AnimatePresence mode="popLayout">
@@ -894,10 +883,10 @@ export default function App() {
           </div>
 
           <div className="relative group z-10 mt-2">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ backgroundColor: semantics.mainGridBackground }} className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ backgroundColor: semantics.mainGridBackground }} className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden transition-colors duration-200">
               <div ref={boardRef} className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] aspect-square">
                 {board.map((value, i) => (
-                  <button key={i} id={`cell-${i}`} onClick={() => handleClick(i)} style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value ? 'inset 0 2px 4px rgba(255,255,255,0.015)' : 'none' }} className={`w-full h-full rounded-[20px] flex items-center justify-center transition-all duration-300 relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer active:scale-[0.92]' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}>
+                  <button key={i} id={`cell-${i}`} onClick={() => handleClick(i)} style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value && !isAmoled ? 'inset 0 2px 4px rgba(255,255,255,0.015)' : 'none' }} className={`w-full h-full rounded-[20px] flex items-center justify-center transition-all duration-200 relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer active:scale-[0.92]' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}>
                     <AnimatePresence mode="wait">
                       {value === 'X' && !isResetting && (
                         <motion.div initial={{ scale: 0, rotate: -180, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0, rotate: 180, opacity: 0 }} transition={{ type: 'spring', stiffness: 350, damping: 25 }} className="w-full h-full flex items-center justify-center">
@@ -920,12 +909,10 @@ export default function App() {
                 <AnimatePresence>
                   {linePoints && winnerInfo && (
                     <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
-                      
                       <defs>
                         <filter id="win-blur" x="-50" y="-50" width="200" height="200" filterUnits="userSpaceOnUse">
                           <feGaussianBlur stdDeviation="3" />
                         </filter>
-
                         <mask id="hollow-mask" maskUnits="userSpaceOnUse" x="-50" y="-50" width="200" height="200">
                           <rect x="-50" y="-50" width="200" height="200" fill="white" />
                           {linePoints.type === 'center-out' ? (
@@ -1050,7 +1037,7 @@ export default function App() {
         <AnimatePresence>
           {isSettingsOpen && (
             <motion.div onClick={() => setIsSettingsOpen(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-              <motion.div onClick={(e) => e.stopPropagation()} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-sm p-6 rounded-[36px] shadow-2xl relative border border-white/5">
+              <motion.div onClick={(e) => e.stopPropagation()} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-sm p-6 rounded-[36px] shadow-2xl relative border border-white/5 transition-colors duration-200">
                 
                 <button onClick={() => setIsSettingsOpen(false)} className="absolute top-5 right-5 p-2 transition-opacity hover:opacity-70 z-[160]">
                   <X className="w-6 h-6" />
@@ -1066,7 +1053,7 @@ export default function App() {
                 <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 m3-scrollbar">
                   <div>
                      <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Theme Style</h3>
-                     <div className="flex gap-2 p-1.5 rounded-2xl" style={{ backgroundColor: semantics.scoreBg }}>
+                     <div className="flex gap-2 p-1.5 rounded-2xl transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
                         <button onClick={() => { hapticFeedback(20); setUseDefaultTheme(true); }} className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${useDefaultTheme ? 'bg-white text-black shadow-sm' : 'opacity-70 text-current'}`}>
                            {ORIGINAL_THEME.name}
                         </button>
@@ -1076,11 +1063,10 @@ export default function App() {
                      </div>
                   </div>
                   
-                  {/* AMOLED Toggle for Dark Mode Only */}
                   <AnimatePresence>
                     {isDarkMode && (
                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                          <div className="flex items-center justify-between rounded-2xl p-4" style={{ backgroundColor: semantics.scoreBg }}>
+                          <div className="flex items-center justify-between rounded-2xl p-4 transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
                               <div className="flex items-center gap-2.5">
                                  <Moon className="w-5 h-5 opacity-70" />
                                  <h3 className="text-sm uppercase tracking-wider opacity-90 font-bold">Pure Black (AMOLED)</h3>
@@ -1093,7 +1079,7 @@ export default function App() {
                     )}
                   </AnimatePresence>
                   
-                  <div className="rounded-2xl p-4 space-y-3" style={{ backgroundColor: semantics.scoreBg }}>
+                  <div className="rounded-2xl p-4 space-y-3 transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
                            <Target className="w-5 h-5 opacity-70" />
@@ -1131,7 +1117,6 @@ export default function App() {
                     </motion.div>
                   )}
                   
-                  {/* Winning Line Color - Now available in both Default and Custom themes */}
                   <div>
                     <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold mt-4">Winning Line Color</h3>
                     <div className="flex flex-wrap gap-3">
@@ -1174,7 +1159,7 @@ export default function App() {
         <AnimatePresence>
           {isAboutOpen && (
             <motion.div onClick={() => setIsAboutOpen(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-              <motion.div onClick={(e) => e.stopPropagation()} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-[420px] p-7 rounded-[36px] shadow-2xl relative border border-white/5">
+              <motion.div onClick={(e) => e.stopPropagation()} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-[420px] p-7 rounded-[36px] shadow-2xl relative border border-white/5 transition-colors duration-200">
                 
                 <button onClick={() => setIsAboutOpen(false)} className="absolute top-5 right-5 p-2 transition-opacity hover:opacity-70 z-[170]">
                   <X className="w-6 h-6" />
