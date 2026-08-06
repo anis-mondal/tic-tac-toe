@@ -25,7 +25,7 @@ jobs:
 
       - name: Install Capacitor Packages
         run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/app @capacitor/haptics
 
       - name: Build Web Application
         run: npm run build
