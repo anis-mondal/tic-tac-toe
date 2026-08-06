@@ -1,0 +1,13 @@
+{
+  "appId": "com.tictactoe.game",
+  "appName": "Tic Tac Toe",
+  "webDir": "dist",
+  "backgroundColor": "#00000000",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0,
+      "launchFadeOutDuration": 0,
+      "launchAutoHide": true
+    }
+  }
+}
