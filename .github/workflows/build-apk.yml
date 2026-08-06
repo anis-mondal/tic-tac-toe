@@ -32,7 +32,7 @@ jobs:
 
       - name: Initialize Capacitor Config
         run: |
-          echo '{"appId": "com.tictactoe.game", "appName": "Tic Tac Toe", "webDir": "dist", "bundledWebRuntime": false}' > capacitor.config.json
+          echo '{"appId": "com.tictactoe.game", "appName": "Tic Tac Toe", "webDir": "dist", "backgroundColor": "#00000000", "plugins": {"SplashScreen": {"launchShowDuration": 0, "launchFadeOutDuration": 0, "launchAutoHide": true}}}' > capacitor.config.json
 
       - name: Add Android Platform
         run: npx cap add android || true
@@ -46,14 +46,28 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
-      - name: Build APK with Gradle
+      - name: Build Debug & Release APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug assembleRelease
 
-      - name: Upload Finished APK
+      - name: Sign Release APK
+        run: |
+          cd android
+          # একটি স্বয়ংক্রিয় Keystore তৈরি করা হচ্ছে
+          keytool -genkey -v -keystore release.keystore -alias tictactoe -keyalg RSA -keysize 2048 -validity 10000 -storepass "game1234" -keypass "game1234" -dname "CN=TicTacToe, O=Game"
+          
+          # Android-এর apksigner টুল খুঁজে বের করা
+          BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
+          
+          # রিলিজ এপিকে সাইন করা হচ্ছে
+          $BUILD_TOOLS_DIR/apksigner sign --ks release.keystore --ks-pass pass:game1234 --key-pass pass:game1234 --out app/build/outputs/apk/release/app-release-signed.apk app/build/outputs/apk/release/app-release-unsigned.apk
+
+      - name: Upload Finished APKs
         uses: actions/upload-artifact@v4
         with:
-          name: TicTacToe-Offline-APK
-          path: '**/*.apk'
+          name: TicTacToe-Final-APKs
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            android/app/build/outputs/apk/release/app-release-signed.apk
