@@ -364,7 +364,7 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [isDarkMode, isAmoled, themeIdx, useDefaultTheme]);
 
-  // --- UPDATED: Ultra Smooth Native View Transition ---
+  // --- UPDATED: Ultra Smooth Native View Transition (Perfect Ease-In-Out) ---
   const handleThemeToggle = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
@@ -398,8 +398,9 @@ export default function App() {
                 ]
             },
             {
-                duration: 750, // Slightly longer duration for smoothness
-                easing: 'cubic-bezier(0.25, 1, 0.2, 1)', // Buttery smooth easing curve
+                // একদম পারফেক্ট ব্যালেন্সড সময় (800ms) এবং স্মুথ ease-in-out কার্ভ
+                duration: 800,
+                easing: 'cubic-bezier(0.45, 0.05, 0.55, 0.95)',
                 pseudoElement: '::view-transition-new(root)'
             }
         );
@@ -680,9 +681,6 @@ export default function App() {
   const availableLinesDark = [...activeTheme.linesDark, ...EXTRA_LINE_COLORS];
   const activeLineColor = isDarkMode ? availableLinesDark[customLineIdx] : availableLinesLight[customLineIdx];
   
-  // --- UPDATED: AMOLED Semantics with Custom Theme Blending ---
-  // Default AMOLED uses dark grey (#0c0c0c & #171717)
-  // Custom Theme AMOLED blends 60% with original color (making it 40% darker, mixing with pitch black)
   const semantics = {
     screenBackground: isDarkMode && isAmoled ? '#000000' : (isDarkMode ? activeTheme.dark : activeTheme.light),
     mainGridBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#0c0c0c' : blendDarker(activeTheme.gridDark, 0.6)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
