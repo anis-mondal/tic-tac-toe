@@ -101,7 +101,7 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point'
         osc.type = 'sine'; osc.frequency.value = freq;
         gain.gain.setValueAtTime(0, t + i * 0.1);
         gain.gain.linearRampToValueAtTime(0.25, t + i * 0.1 + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.1 + 0.5);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.5);
         osc.connect(gain); gain.connect(ctx.destination);
         osc.start(t + i * 0.1); osc.stop(t + i * 0.1 + 0.5);
       });
@@ -181,7 +181,6 @@ const findBestMove = (
   if (availableMoves.length === 9) return [0, 2, 4, 6, 8][Math.floor(Math.random() * 5)];
   
   const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
-
   const accuracy = 0.75; 
 
   if (Math.random() > accuracy) {
@@ -217,17 +216,21 @@ const findBestMove = (
   return bestMove;
 };
 
-// --- Muted Dark Mode Themes ---
+// --- Muted Dark Mode Themes + Dynamic M3 Theme ---
 const ORIGINAL_THEME = {
   name: 'Classic',
   light: '#f8f9fa', dark: '#000000',
   gridLight: '#e2e8f0', gridDark: '#1a1c1e',
   cellLight: '#ffffff', cellDark: '#2a2d31',
   indicatorLight: '#64748b', indicatorDark: '#94a3b8',
-  linesLight: ['#22c55e'], linesDark: ['#22c55e'] 
+  // Expanded to 5 colors to match custom themes
+  linesLight: ['#22c55e', '#16a34a', '#15803d', '#10b981', '#059669'], 
+  linesDark: ['#22c55e', '#4ade80', '#86efac', '#34d399', '#6ee7b7']
 };
 
 const CUSTOM_THEMES = [
+  // New Material You Dynamic Theme Simulator
+  { name: 'Dynamic M3', light: '#fdf8fd', dark: '#141218', gridLight: '#e8def8', gridDark: '#2b2930', cellLight: '#ffffff', cellDark: '#36343b', indicatorLight: '#6750a4', indicatorDark: '#d0bcff', linesLight: ['#6750a4', '#b3261e', '#9c4146', '#316934', '#006a6a'], linesDark: ['#d0bcff', '#f2b8b5', '#ffb4ab', '#82c986', '#4cdada'] },
   { name: 'M3 Blue', light: '#eff6ff', dark: '#040b17', gridLight: '#bfdbfe', gridDark: '#0a1229', cellLight: '#ffffff', cellDark: '#121e38', indicatorLight: '#2563eb', indicatorDark: '#3b82f6', linesLight: ['#1e3a8a', '#1d4ed8', '#0891b2', '#4f46e5', '#3b82f6'], linesDark: ['#60a5fa', '#93c5fd', '#3b82f6', '#818cf8', '#7dd3fc'] },
   { name: 'M3 Emerald', light: '#ecfdf5', dark: '#020f0a', gridLight: '#a7f3d0', gridDark: '#052115', cellLight: '#ffffff', cellDark: '#0a3321', indicatorLight: '#16a34a', indicatorDark: '#22c55e', linesLight: ['#166534', '#059669', '#15803d', '#10b981', '#16a34a'], linesDark: ['#4ade80', '#22c55e', '#34d399', '#86efac', '#8dd999'] },
   { name: 'M3 Purple', light: '#f5f3ff', dark: '#0b0412', gridLight: '#d8b4fe', gridDark: '#160826', cellLight: '#ffffff', cellDark: '#200e33', indicatorLight: '#9333ea', indicatorDark: '#a855f7', linesLight: ['#7e22ce', '#9333ea', '#a855f7', '#c026d3', '#db2777'], linesDark: ['#c084fc', '#d8b4fe', '#e879f9', '#f472b6', '#fb7185'] },
@@ -244,6 +247,12 @@ const PLAYER_COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', 
   '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', 
   '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'
+];
+
+// 10 Global Standard Colors for Winning Line (Merged with 5 Theme Colors = 15 Colors)
+const EXTRA_LINE_COLORS = [
+  '#ef4444', '#f97316', '#f59e0b', '#eab308', '#06b6d4', 
+  '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#64748b'
 ];
 
 // --- LocalStorage Helper ---
@@ -282,6 +291,9 @@ export default function App() {
     if (typeof window !== 'undefined') return document.documentElement.classList.contains('dark') || window.matchMedia('(prefers-color-scheme: dark)').matches;
     return true; 
   });
+  
+  // NEW: Pure Black AMOLED State
+  const [isAmoled, setIsAmoled] = useState(() => getSaved('isAmoled', false));
 
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(() => getSaved('winnerInfo', null));
   const [isDraw, setIsDraw] = useState(() => getSaved('isDraw', false));
@@ -296,6 +308,9 @@ export default function App() {
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  
+  // NEW: Theme Reveal Animation State
+  const [themeReveal, setThemeReveal] = useState<{ x: number, y: number, color: string } | null>(null);
   
   const boardRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -323,11 +338,12 @@ export default function App() {
     localStorage.setItem('userWantsTargetScore', JSON.stringify(userWantsTargetScore));
     localStorage.setItem('isTargetScoreEnabled', JSON.stringify(isTargetScoreEnabled));
     localStorage.setItem('isDarkMode', JSON.stringify(isDarkMode));
+    localStorage.setItem('isAmoled', JSON.stringify(isAmoled));
     localStorage.setItem('winnerInfo', JSON.stringify(winnerInfo));
     localStorage.setItem('isDraw', JSON.stringify(isDraw));
     localStorage.setItem('overallWinner', JSON.stringify(overallWinner));
     localStorage.setItem('lastMoveIdx', JSON.stringify(lastMoveIdxRef.current));
-  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, winnerInfo, isDraw, overallWinner]);
+  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner]);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -342,9 +358,11 @@ export default function App() {
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       try {
-        const activeBgColor = useDefaultTheme 
-          ? (isDarkMode ? ORIGINAL_THEME.dark : ORIGINAL_THEME.light) 
-          : (isDarkMode ? CUSTOM_THEMES[themeIdx].dark : CUSTOM_THEMES[themeIdx].light);
+        const activeBgColor = isDarkMode && isAmoled 
+          ? '#000000' 
+          : (useDefaultTheme 
+              ? (isDarkMode ? ORIGINAL_THEME.dark : ORIGINAL_THEME.light) 
+              : (isDarkMode ? CUSTOM_THEMES[themeIdx].dark : CUSTOM_THEMES[themeIdx].light));
         
         StatusBar.setBackgroundColor({ color: activeBgColor });
         StatusBar.setStyle({ style: isDarkMode ? Style.Dark : Style.Light });
@@ -355,7 +373,34 @@ export default function App() {
     
     if (isDarkMode) document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
-  }, [isDarkMode, themeIdx, useDefaultTheme]);
+  }, [isDarkMode, isAmoled, themeIdx, useDefaultTheme]);
+
+  // NEW: Theme Toggle with Circular Reveal Animation
+  const handleThemeToggle = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const nextDark = !isDarkMode;
+
+    let targetColor = '';
+    if (nextDark && isAmoled) {
+        targetColor = '#000000';
+    } else {
+        const themeToUse = useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[themeIdx];
+        targetColor = nextDark ? themeToUse.dark : themeToUse.light;
+    }
+
+    setThemeReveal({ x, y, color: targetColor });
+    hapticFeedback(40);
+    playEnhancedSound('pop', isSoundOn);
+
+    setTimeout(() => {
+        setIsDarkMode(nextDark);
+        setTimeout(() => {
+            setThemeReveal(null);
+        }, 50); 
+    }, 450);
+  };
 
   const toggleSound = () => {
     hapticFeedback(40);
@@ -370,8 +415,6 @@ export default function App() {
 
     myConfettiRef.current = confetti.create(canvasRef.current, { resize: true, useWorker: true });
     
-    // --- UPDATED CONFETTI LOGIC ---
-    // এখন শুধু যে জিতবে, তার রঙের কনফেটি উড়বে। সাদা রঙ রিমুভ করে দেওয়া হয়েছে।
     const colors = winner === 'X' ? [PLAYER_COLORS[xColorIdx]] : [PLAYER_COLORS[oColorIdx]]; 
     
     const duration = 6000;
@@ -629,19 +672,21 @@ export default function App() {
   }, [winnerInfo, isResetting]);
 
   const activeTheme = useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[themeIdx];
-  const activeLineColor = useDefaultTheme 
-    ? (isDarkMode ? ORIGINAL_THEME.linesDark[0] : ORIGINAL_THEME.linesLight[0]) 
-    : (isDarkMode ? activeTheme.linesDark[customLineIdx] : activeTheme.linesLight[customLineIdx]);
+  
+  // Combine 5 Theme Line Colors with 10 Global Line Colors
+  const availableLinesLight = [...activeTheme.linesLight, ...EXTRA_LINE_COLORS];
+  const availableLinesDark = [...activeTheme.linesDark, ...EXTRA_LINE_COLORS];
+  const activeLineColor = isDarkMode ? availableLinesDark[customLineIdx] : availableLinesLight[customLineIdx];
   
   const semantics = {
-    screenBackground: isDarkMode ? activeTheme.dark : activeTheme.light,
-    mainGridBackground: isDarkMode ? activeTheme.gridDark : activeTheme.gridLight,
-    squareBackground: isDarkMode ? activeTheme.cellDark : activeTheme.cellLight,
+    screenBackground: isDarkMode && isAmoled ? '#000000' : (isDarkMode ? activeTheme.dark : activeTheme.light),
+    mainGridBackground: isDarkMode && isAmoled ? '#0a0a0a' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    squareBackground: isDarkMode && isAmoled ? '#121212' : (isDarkMode ? activeTheme.cellDark : activeTheme.cellLight),
     text: isDarkMode ? '#ffffff' : '#111111',
-    modeSliderContainer: { bg: isDarkMode ? activeTheme.gridDark : activeTheme.gridLight },
-    bannerDefault: isDarkMode ? { bg: activeTheme.gridDark, text: '#ffffff' } : { bg: activeTheme.gridLight, text: '#111111' },
-    scoreBg: isDarkMode ? activeTheme.gridDark : activeTheme.gridLight,
-    topNavBtn: isDarkMode ? activeTheme.gridDark : activeTheme.gridLight,
+    modeSliderContainer: { bg: isDarkMode && isAmoled ? '#0a0a0a' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight) },
+    bannerDefault: isDarkMode ? { bg: isAmoled ? '#0a0a0a' : activeTheme.gridDark, text: '#ffffff' } : { bg: activeTheme.gridLight, text: '#111111' },
+    scoreBg: isDarkMode && isAmoled ? '#0a0a0a' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    topNavBtn: isDarkMode && isAmoled ? '#0a0a0a' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
   };
 
   const navBtnClass = "w-[48px] h-[48px] rounded-full transition-all active:scale-95 shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer";
@@ -678,6 +723,20 @@ export default function App() {
         }
       `}</style>
       
+      {/* Circular Reveal Overlay for Theme Changes */}
+      <AnimatePresence>
+        {themeReveal && (
+          <motion.div
+            initial={{ clipPath: `circle(0px at ${themeReveal.x}px ${themeReveal.y}px)` }}
+            animate={{ clipPath: `circle(150% at ${themeReveal.x}px ${themeReveal.y}px)` }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: "circIn" }}
+            style={{ backgroundColor: themeReveal.color }}
+            className="fixed inset-0 pointer-events-none z-[9999]"
+          />
+        )}
+      </AnimatePresence>
+      
       <div 
           style={{ 
             backgroundColor: semantics.screenBackground,
@@ -695,7 +754,7 @@ export default function App() {
           style={{ top: 'max(16px, env(safe-area-inset-top))' }}
           className="absolute left-0 right-0 h-20 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
           
-          <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { hapticFeedback(40); playEnhancedSound('pop', isSoundOn); setIsDarkMode(!isDarkMode); }} className={navBtnClass} style={getNavBtnStyle()}>
+          <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
             <AnimatePresence mode="wait" initial={false}>
               <motion.div key={isDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
                 {isDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
@@ -1017,6 +1076,23 @@ export default function App() {
                      </div>
                   </div>
                   
+                  {/* AMOLED Toggle for Dark Mode Only */}
+                  <AnimatePresence>
+                    {isDarkMode && (
+                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                          <div className="flex items-center justify-between rounded-2xl p-4" style={{ backgroundColor: semantics.scoreBg }}>
+                              <div className="flex items-center gap-2.5">
+                                 <Moon className="w-5 h-5 opacity-70" />
+                                 <h3 className="text-sm uppercase tracking-wider opacity-90 font-bold">Pure Black (AMOLED)</h3>
+                              </div>
+                              <motion.button onClick={() => { hapticFeedback(30); setIsAmoled(!isAmoled); }} className="w-12 h-6.5 rounded-full p-1.5 flex items-center shadow-inner relative overflow-hidden" style={{ backgroundColor: isAmoled ? '#0ea5e9' : '#3f4753' }}>
+                                  <motion.div animate={{ x: isAmoled ? 20 : 0 }} className="w-4.5 h-4.5 rounded-full bg-white shadow" transition={{ type: "spring", stiffness: 500, damping: 30 }} />
+                              </motion.button>
+                          </div>
+                       </motion.div>
+                    )}
+                  </AnimatePresence>
+                  
                   <div className="rounded-2xl p-4 space-y-3" style={{ backgroundColor: semantics.scoreBg }}>
                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
@@ -1052,17 +1128,20 @@ export default function App() {
                           </button>
                         ))}
                       </div>
-
-                      <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold mt-6">Winning Line Color</h3>
-                      <div className="flex flex-wrap gap-3">
-                        {(isDarkMode ? CUSTOM_THEMES[themeIdx].linesDark : CUSTOM_THEMES[themeIdx].linesLight).map((color, idx) => (
-                          <button key={`line-${idx}`} onClick={() => { hapticFeedback(20); setCustomLineIdx(idx); }} style={{ backgroundColor: color, borderColor: customLineIdx === idx ? (isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center">
-                            {customLineIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
-                          </button>
-                        ))}
-                      </div>
                     </motion.div>
                   )}
+                  
+                  {/* Winning Line Color - Now available in both Default and Custom themes */}
+                  <div>
+                    <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold mt-4">Winning Line Color</h3>
+                    <div className="flex flex-wrap gap-3">
+                      {(isDarkMode ? availableLinesDark : availableLinesLight).map((color, idx) => (
+                        <button key={`line-${idx}`} onClick={() => { hapticFeedback(20); setCustomLineIdx(idx); }} style={{ backgroundColor: color, borderColor: customLineIdx === idx ? (isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center">
+                          {customLineIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
                   <div>
                     <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Player X Color</h3>
@@ -1114,7 +1193,7 @@ export default function App() {
                     <p>🤖 <span className="font-bold">1 Player (AI):</span> Play against an intelligent AI.</p>
                     <p>👥 <span className="font-bold">2 Players:</span> Switch modes with one tap and play with a friend on the same device.</p>
                     <p>🎯 <span className="font-bold">Target Score Win:</span> Set a custom point target (1-20) to win the full match. Note: You cannot set the target below the current highest score.</p>
-                    <p>🎨 <span className="font-bold">Material You Themes:</span> Choose from 10 beautiful color schemes, and customize the Player colors and Winning Line colors.</p>
+                    <p>🎨 <span className="font-bold">Material You Themes:</span> Choose from 11 beautiful color schemes, and customize the Player colors and Winning Line colors.</p>
                     
                     <h4 className="text-lg font-extrabold tracking-tight opacity-90 pt-3">Controls</h4>
                     <p>🔄 <span className="font-bold text-sky-500">Soft Reset:</span> Tap the Restart button to clear the board and start a new round.</p>
