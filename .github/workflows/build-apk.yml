@@ -19,7 +19,8 @@ jobs:
 
       - name: Install Project Dependencies
         run: |
-          rm -f package-lock.json
+          rm -rf node_modules package-lock.json
+          npm cashe clean --force
           npm install
 
       - name: Install Capacitor Packages
