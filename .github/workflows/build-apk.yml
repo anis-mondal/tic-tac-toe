@@ -63,8 +63,11 @@ jobs:
       - name: Organize and Rename APKs
         run: |
           mkdir -p final-apks
-          # ডিবাগ এপিকে ফাইল রিনেম করা
-          cp android/app/build/outputs/apk/debug/app-debug.apk final-apks/TicTacToe-Debug.apk
+          
+          # স্বয়ংক্রিয়ভাবে ডিবাগ এপিকে খুঁজে বের করে রিনেম করা
+          DEBUG_APK=$(find android/app/build/outputs/apk/debug -name "*.apk" | head -n 1)
+          cp "$DEBUG_APK" final-apks/TicTacToe-Debug.apk
+          
           # রিলিজ এপিকে ফাইল রিনেম করা
           cp android/app/build/outputs/apk/release/app-release-signed.apk final-apks/TicTacToe-Release.apk
 
