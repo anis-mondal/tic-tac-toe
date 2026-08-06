@@ -205,6 +205,15 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player, humanScore: numb
   return bestMove;
 };
 
+// --- Hex Color Blender (For AMOLED Custom Themes) ---
+const blendDarker = (hex: string, factor: number) => {
+    if (!hex || hex.length !== 7 || hex[0] !== '#') return hex;
+    let r = Math.floor(parseInt(hex.slice(1, 3), 16) * factor);
+    let g = Math.floor(parseInt(hex.slice(3, 5), 16) * factor);
+    let b = Math.floor(parseInt(hex.slice(5, 7), 16) * factor);
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+};
+
 const ORIGINAL_THEME = {
   name: 'Classic',
   light: '#f8f9fa', dark: '#000000',
@@ -355,7 +364,7 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [isDarkMode, isAmoled, themeIdx, useDefaultTheme]);
 
-  // NEW: True Native Circular View Transition for Theme Toggle
+  // --- UPDATED: Ultra Smooth Native View Transition ---
   const handleThemeToggle = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
@@ -365,7 +374,7 @@ export default function App() {
     hapticFeedback(40);
     playEnhancedSound('pop', isSoundOn);
 
-    // @ts-ignore - Using native View Transitions API for true element masking
+    // @ts-ignore
     if (!document.startViewTransition) {
         setIsDarkMode(nextDark);
         return;
@@ -389,8 +398,8 @@ export default function App() {
                 ]
             },
             {
-                duration: 600,
-                easing: 'ease-in-out',
+                duration: 750, // Slightly longer duration for smoothness
+                easing: 'cubic-bezier(0.25, 1, 0.2, 1)', // Buttery smooth easing curve
                 pseudoElement: '::view-transition-new(root)'
             }
         );
@@ -671,16 +680,18 @@ export default function App() {
   const availableLinesDark = [...activeTheme.linesDark, ...EXTRA_LINE_COLORS];
   const activeLineColor = isDarkMode ? availableLinesDark[customLineIdx] : availableLinesLight[customLineIdx];
   
-  // NEW: Updated AMOLED Semantics (Only pure black for screen, components are Dark Grey for visibility)
+  // --- UPDATED: AMOLED Semantics with Custom Theme Blending ---
+  // Default AMOLED uses dark grey (#0c0c0c & #171717)
+  // Custom Theme AMOLED blends 60% with original color (making it 40% darker, mixing with pitch black)
   const semantics = {
     screenBackground: isDarkMode && isAmoled ? '#000000' : (isDarkMode ? activeTheme.dark : activeTheme.light),
-    mainGridBackground: isDarkMode && isAmoled ? '#121212' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
-    squareBackground: isDarkMode && isAmoled ? '#1e1e1e' : (isDarkMode ? activeTheme.cellDark : activeTheme.cellLight),
+    mainGridBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#0c0c0c' : blendDarker(activeTheme.gridDark, 0.6)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    squareBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#171717' : blendDarker(activeTheme.cellDark, 0.6)) : (isDarkMode ? activeTheme.cellDark : activeTheme.cellLight),
     text: isDarkMode ? '#ffffff' : '#111111',
-    modeSliderContainer: { bg: isDarkMode && isAmoled ? '#121212' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight) },
-    bannerDefault: isDarkMode ? { bg: isAmoled ? '#121212' : activeTheme.gridDark, text: '#ffffff' } : { bg: activeTheme.gridLight, text: '#111111' },
-    scoreBg: isDarkMode && isAmoled ? '#121212' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
-    topNavBtn: isDarkMode && isAmoled ? '#121212' : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    modeSliderContainer: { bg: isDarkMode && isAmoled ? (useDefaultTheme ? '#0c0c0c' : blendDarker(activeTheme.gridDark, 0.6)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight) },
+    bannerDefault: isDarkMode ? { bg: isAmoled ? (useDefaultTheme ? '#0c0c0c' : blendDarker(activeTheme.gridDark, 0.6)) : activeTheme.gridDark, text: '#ffffff' } : { bg: activeTheme.gridLight, text: '#111111' },
+    scoreBg: isDarkMode && isAmoled ? (useDefaultTheme ? '#0c0c0c' : blendDarker(activeTheme.gridDark, 0.6)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    topNavBtn: isDarkMode && isAmoled ? (useDefaultTheme ? '#0c0c0c' : blendDarker(activeTheme.gridDark, 0.6)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
   };
 
   const navBtnClass = "w-[48px] h-[48px] rounded-full transition-all active:scale-95 shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer";
@@ -716,7 +727,7 @@ export default function App() {
           border-radius: 10px; 
         }
 
-        /* NEW: Global CSS for Native View Transitions */
+        /* Native View Transitions Logic */
         ::view-transition-old(root),
         ::view-transition-new(root) {
           animation: none;
@@ -787,7 +798,7 @@ export default function App() {
               Tic Tac Toe
             </motion.h1>
 
-            <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm">
+            <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm transition-colors duration-200">
               <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none flex items-center justify-center gap-1.5 ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
                 {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
                 <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
@@ -803,7 +814,7 @@ export default function App() {
               onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} 
               animate={{ scale: winnerInfo ? 1.05 : 1 }} 
               style={{ backgroundColor: semantics.bannerDefault.bg, color: semantics.bannerDefault.text }} 
-              className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm transition-colors duration-300 select-none relative overflow-hidden ${isGameCompletelyFresh || (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) ? 'cursor-pointer' : ''}`}
+              className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm transition-colors duration-200 select-none relative overflow-hidden ${isGameCompletelyFresh || (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) ? 'cursor-pointer' : ''}`}
             >
               <div className="flex items-center gap-2 relative z-10">
                 {winnerInfo ? (
@@ -886,7 +897,7 @@ export default function App() {
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ backgroundColor: semantics.mainGridBackground }} className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden transition-colors duration-200">
               <div ref={boardRef} className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] aspect-square">
                 {board.map((value, i) => (
-                  <button key={i} id={`cell-${i}`} onClick={() => handleClick(i)} style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value && !isAmoled ? 'inset 0 2px 4px rgba(255,255,255,0.015)' : 'none' }} className={`w-full h-full rounded-[20px] flex items-center justify-center transition-all duration-200 relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer active:scale-[0.92]' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}>
+                  <button key={i} id={`cell-${i}`} onClick={() => handleClick(i)} style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value && (!isAmoled || !useDefaultTheme) ? 'inset 0 2px 4px rgba(255,255,255,0.015)' : 'none' }} className={`w-full h-full rounded-[20px] flex items-center justify-center transition-all duration-200 relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer active:scale-[0.92]' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}>
                     <AnimatePresence mode="wait">
                       {value === 'X' && !isResetting && (
                         <motion.div initial={{ scale: 0, rotate: -180, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0, rotate: 180, opacity: 0 }} transition={{ type: 'spring', stiffness: 350, damping: 25 }} className="w-full h-full flex items-center justify-center">
