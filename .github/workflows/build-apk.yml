@@ -19,8 +19,8 @@ jobs:
 
       - name: Install Project Dependencies
         run: |
+          rm -f package-lock.json
           npm install
-          npm rebuild
 
       - name: Install Capacitor Packages
         run: |
