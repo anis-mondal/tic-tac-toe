@@ -35,7 +35,7 @@ jobs:
           echo '{"appId": "com.tictactoe.game", "appName": "Tic Tac Toe", "webDir": "dist", "bundledWebRuntime": false}' > capacitor.config.json
 
       - name: Add Android Platform
-        run: npx cap add android
+        run: npx cap add android || true
 
       - name: Capacitor Sync
         run: npx cap sync
