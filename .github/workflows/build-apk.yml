@@ -19,9 +19,10 @@ jobs:
 
       - name: Install Project Dependencies
         run: |
+          npm install -g npm@letest
           rm -rf node_modules package-lock.json
           npm cache clean --force
-          npm install
+          npm install --include=optional
 
       - name: Install Capacitor Packages
         run: |
