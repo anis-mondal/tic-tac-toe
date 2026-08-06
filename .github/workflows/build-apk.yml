@@ -61,13 +61,16 @@ jobs:
           # Android-এর apksigner টুল খুঁজে বের করা
           BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
           
-          # রিলিজ এপিকে সাইন করা হচ্ছে
-          $BUILD_TOOLS_DIR/apksigner sign --ks release.keystore --ks-pass pass:game1234 --key-pass pass:game1234 --out app/build/outputs/apk/release/app-release-signed.apk app/build/outputs/apk/release/app-release-unsigned.apk
+          # ফোল্ডারে থাকা রিলিজ APK ফাইলটি স্বয়ংক্রিয়ভাবে খুঁজে বের করা
+          APK_FILE=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
+          
+          # খুঁজে পাওয়া APK-টিকে সাইন করা হচ্ছে
+          $BUILD_TOOLS_DIR/apksigner sign --ks release.keystore --ks-pass pass:game1234 --key-pass pass:game1234 --out app/build/outputs/apk/release/app-release-signed.apk "$APK_FILE"
 
       - name: Upload Finished APKs
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Final-APKs
           path: |
-            android/app/build/outputs/apk/debug/app-debug.apk
-            android/app/build/outputs/apk/release/app-release-signed.apk
+            android/app/build/outputs/apk/debug/**/*.apk
+            android/app/build/outputs/apk/release/*signed.apk
