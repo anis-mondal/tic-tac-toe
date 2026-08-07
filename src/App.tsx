@@ -1109,32 +1109,37 @@ export default function App() {
 
               </div>
 
-                            <AnimatePresence>
-                {showWinnerModal && overallWinner && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-                    
-                    <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text }} className="w-full max-w-[320px] flex flex-col items-center justify-center gap-6 text-center">
-                       
-                       <div className="flex flex-col items-center gap-2 z-10 w-full">
-                         <h2 className="text-4xl font-black tracking-tight leading-tight drop-shadow-lg text-white">Winner!</h2>
-                         <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-2xl flex justify-center mt-4 mb-2">
-                           <DynamicIcon player={overallWinner} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-24 h-24" />
-                         </motion.span>
-                       </div>
-                       
-                       <div className="flex flex-col w-full gap-4 pt-4 z-10">
-                          <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-14 rounded-full flex items-center justify-center gap-2 text-base font-bold transition-all shadow-lg select-none bg-black/20 backdrop-blur-sm" style={{ border: `2px solid ${activeLineColor}`, color: "#ffffff" }}>
-                             Start a New Game
-                          </motion.button>
-                          <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer, false); setOverallWinner(null); setShowWinnerModal(false); }} className="w-full h-14 rounded-full flex items-center justify-center gap-2 text-base font-bold transition-all shadow-lg select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
-                             Continue This Game
-                          </motion.button>
-                       </div>
+                      {/* উইনার পপআপ - এখন এটি বোর্ডের বাইরে থাকায় আর কাটবে না */}
+        <AnimatePresence>
+          {showWinnerModal && overallWinner && (
+            {/* bg-black/30 এবং backdrop-blur-sm ব্যবহার করে স্বচ্ছতা আরও বাড়ানো হলো */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
+              
+              <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text }} className="w-full max-w-[320px] flex flex-col items-center justify-center gap-6 text-center">
+                 
+                 <div className="flex flex-col items-center gap-2 z-10 w-full">
+                   <h2 className="text-4xl font-black tracking-tight leading-tight drop-shadow-lg text-white">Winner!</h2>
+                   <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-2xl flex justify-center mt-4 mb-2">
+                     <DynamicIcon player={overallWinner} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-24 h-24" />
+                   </motion.span>
+                 </div>
+                 
+                 <div className="flex flex-col w-full gap-4 pt-4 z-10">
+                    <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-14 rounded-full flex items-center justify-center gap-2 text-base font-bold transition-all shadow-lg select-none bg-black/20 backdrop-blur-sm" style={{ border: `2px solid ${activeLineColor}`, color: "#ffffff" }}>
+                       Start a New Game
+                    </motion.button>
+                    <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer, false); setOverallWinner(null); setShowWinnerModal(false); }} className="w-full h-14 rounded-full flex items-center justify-center gap-2 text-base font-bold transition-all shadow-lg select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
+                       Continue This Game
+                    </motion.button>
+                 </div>
 
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+
+                            
 
             </motion.div>
           </div>
