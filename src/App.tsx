@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X, Target, Info } from 'lucide-react';
+import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X as CloseIcon, Target, Info, Star, Heart, Triangle, Square } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // --- Import Local Font Perfectly ---
@@ -48,6 +48,33 @@ const AILogo = () => (
     <text x="50" y="68" fontFamily="NunitoCustom, sans-serif" fontWeight="900" fontSize="48" fill="url(#ai-grad)" textAnchor="middle">Ai</text>
   </svg>
 );
+
+// --- Dynamic Icon Component ---
+const DynamicIcon = ({ player, packIdx, color, className }: { player: Player | null, packIdx: number, color: string, className?: string }) => {
+  if (!player) return null;
+  
+  if (packIdx === 1) { // Modern (Star & Heart)
+     if (player === 'X') return <Star color={color} fill={color} className={className} strokeWidth={1} />;
+     return <Heart color={color} fill={color} className={className} strokeWidth={1} />;
+  } else if (packIdx === 2) { // Geometric (Triangle & Square)
+     if (player === 'X') return <Triangle color={color} fill={color} className={className} strokeWidth={1} />;
+     return <Square color={color} fill={color} className={className} strokeWidth={1} />;
+  }
+  
+  // Default Classic (X & O)
+  if (player === 'X') {
+     return (
+       <svg viewBox="0 0 24 24" className={className} fill="none">
+         <path d="M18 6L6 18M6 6L18 18" stroke={color} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+       </svg>
+     );
+  }
+  return (
+     <svg viewBox="0 0 24 24" className={className} fill="none">
+       <circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="4.5" />
+     </svg>
+  );
+};
 
 const audioState = { ctx: null as AudioContext | null };
 const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point' | 'unmute' | 'mode', enabled: boolean) => {
@@ -274,6 +301,9 @@ export default function App() {
   const [oColorIdx, setOColorIdx] = useState(() => getSaved('oColorIdx', 9));
   const [customLineIdx, setCustomLineIdx] = useState(() => getSaved('customLineIdx', 0));
   
+  // NEW: Icon Pack State
+  const [iconPack, setIconPack] = useState(() => getSaved('iconPack', 0));
+  
   const [targetScore, setTargetScore] = useState(() => getSaved('targetScore', 5));
   const [userWantsTargetScore, setUserWantsTargetScore] = useState(() => getSaved('userWantsTargetScore', true));
   const [isTargetScoreEnabled, setIsTargetScoreEnabled] = useState(() => getSaved('isTargetScoreEnabled', true));
@@ -285,6 +315,7 @@ export default function App() {
     return true; 
   });
   
+  const [uiDarkMode, setUiDarkMode] = useState(() => isDarkMode); // UI State for immediate Icon change
   const [isAmoled, setIsAmoled] = useState(() => getSaved('isAmoled', false));
 
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(() => getSaved('winnerInfo', null));
@@ -310,7 +341,7 @@ export default function App() {
   const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartPointerDown = useRef(false);
   
-  // NEW: Transition Lock
+  // Transition Lock
   const isTransitioning = useRef(false);
 
   useEffect(() => {
@@ -326,6 +357,7 @@ export default function App() {
     localStorage.setItem('xColorIdx', JSON.stringify(xColorIdx));
     localStorage.setItem('oColorIdx', JSON.stringify(oColorIdx));
     localStorage.setItem('customLineIdx', JSON.stringify(customLineIdx));
+    localStorage.setItem('iconPack', JSON.stringify(iconPack));
     localStorage.setItem('targetScore', JSON.stringify(targetScore));
     localStorage.setItem('userWantsTargetScore', JSON.stringify(userWantsTargetScore));
     localStorage.setItem('isTargetScoreEnabled', JSON.stringify(isTargetScoreEnabled));
@@ -335,7 +367,7 @@ export default function App() {
     localStorage.setItem('isDraw', JSON.stringify(isDraw));
     localStorage.setItem('overallWinner', JSON.stringify(overallWinner));
     localStorage.setItem('lastMoveIdx', JSON.stringify(lastMoveIdxRef.current));
-  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner]);
+  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, iconPack, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner]);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -367,54 +399,61 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [isDarkMode, isAmoled, themeIdx, useDefaultTheme]);
 
-  // --- UPDATED: Ultra Smooth Native View Transition with Lock ---
+  // --- UPDATED: Sequenced View Transition (Lag Fix) ---
   const handleThemeToggle = (e: React.MouseEvent) => {
     if (isTransitioning.current) return;
     isTransitioning.current = true;
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
     const nextDark = !isDarkMode;
-
+    
+    // ১. বাটনের ভেতরের আইকনটি সাথে সাথেই বদলে যাবে যাতে কোনো ল্যাগ মনে না হয়
+    setUiDarkMode(nextDark); 
+    
     hapticFeedback(40);
     playEnhancedSound('pop', isSoundOn);
 
-    // @ts-ignore
-    if (!document.startViewTransition) {
-        setIsDarkMode(nextDark);
-        isTransitioning.current = false;
-        return;
-    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
 
-    // @ts-ignore
-    const transition = document.startViewTransition(() => {
-        setIsDarkMode(nextDark);
-    });
-
-    transition.ready.then(() => {
-        const radius = Math.hypot(
-            Math.max(x, window.innerWidth - x),
-            Math.max(y, window.innerHeight - y)
-        );
-        const animation = document.documentElement.animate(
-            {
-                clipPath: [
-                    `circle(0px at ${x}px ${y}px)`,
-                    `circle(${radius}px at ${x}px ${y}px)`
-                ]
-            },
-            {
-                duration: 1200, 
-                easing: 'cubic-bezier(0.45, 0.05, 0.55, 0.95)',
-                pseudoElement: '::view-transition-new(root)'
-            }
-        );
-
-        animation.onfinish = () => {
+    // ২. ২৫০ মিলিসেকেন্ড ডিলে, যাতে বাটনের বাউন্সটি শেষ হতে পারে
+    setTimeout(() => {
+        // @ts-ignore
+        if (!document.startViewTransition) {
+            setIsDarkMode(nextDark);
             isTransitioning.current = false;
-        };
-    });
+            return;
+        }
+
+        // @ts-ignore
+        const transition = document.startViewTransition(() => {
+            setIsDarkMode(nextDark);
+        });
+
+        transition.ready.then(() => {
+            const radius = Math.hypot(
+                Math.max(x, window.innerWidth - x),
+                Math.max(y, window.innerHeight - y)
+            );
+            const animation = document.documentElement.animate(
+                {
+                    clipPath: [
+                        `circle(0px at ${x}px ${y}px)`,
+                        `circle(${radius}px at ${x}px ${y}px)`
+                    ]
+                },
+                {
+                    duration: 800, // পারফেক্ট স্মুথ ডিউরেশন
+                    easing: 'cubic-bezier(0.45, 0.05, 0.55, 0.95)',
+                    pseudoElement: '::view-transition-new(root)'
+                }
+            );
+
+            animation.onfinish = () => {
+                isTransitioning.current = false; // ৩. স্ক্রিন বদলানো শেষ, এবার লক খুলবে
+            };
+        });
+    }, 250); // এই ডিলের কারণেই আর ল্যাগ করবে না
   };
 
   const toggleSound = () => {
@@ -764,8 +803,8 @@ export default function App() {
           
           <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
             <AnimatePresence mode="wait" initial={false}>
-              <motion.div key={isDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
-                {isDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
+              <motion.div key={uiDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
+                {uiDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
               </motion.div>
             </AnimatePresence>
           </motion.button>
@@ -808,11 +847,12 @@ export default function App() {
 
             <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm transition-colors duration-200">
               <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none flex items-center justify-center gap-1.5 ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
-                {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
+                {/* --- UPDATED: Mode Slider Bouncy Physics --- */}
+                {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 14, mass: 1 }} />}
                 <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
               </button>
               <button onClick={() => switchModeClick(false)} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none flex items-center justify-center gap-1.5 ${!isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
-                {!isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
+                {!isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 14, mass: 1 }} />}
                 <span className="relative z-10">👥 2 Players</span>
               </button>
             </div>
@@ -839,11 +879,11 @@ export default function App() {
                     ) : (
                       <div className="flex items-center h-8 font-bold">
                         Player&nbsp;
-                        <div className="relative h-8 w-5 overflow-hidden flex items-center justify-center">
+                        <div className="relative h-8 w-6 overflow-hidden flex items-center justify-center">
                           <AnimatePresence mode="popLayout">
-                            <motion.span key={isXNext ? 'X' : 'O'} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute font-black text-xl" style={{ color: isXNext ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx] }}>
-                              {isXNext ? 'X' : 'O'}
-                            </motion.span>
+                            <motion.div key={isXNext ? 'X' : 'O'} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute flex items-center justify-center">
+                              <DynamicIcon player={isXNext ? 'X' : 'O'} packIdx={iconPack} color={isXNext ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-5 h-5 drop-shadow-sm" />
+                            </motion.div>
                           </AnimatePresence>
                         </div>
                         &nbsp;'s turn
@@ -868,7 +908,9 @@ export default function App() {
 
           <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible select-none">
              <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
-                <span className="text-[10px] sm:text-xs font-black uppercase opacity-90" style={{ color: PLAYER_COLORS[xColorIdx] }}>Player X</span>
+                <div className="flex items-center justify-center mb-0.5 opacity-90">
+                   <DynamicIcon player="X" packIdx={iconPack} color={PLAYER_COLORS[xColorIdx]} className="w-3.5 h-3.5" />
+                </div>
                 <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
                   <AnimatePresence mode="popLayout">
                     <motion.span key={displayScore(scores.X)} initial={{ y: 25, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -25, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute text-lg sm:text-xl font-black" style={{ color: PLAYER_COLORS[xColorIdx] }}>
@@ -890,7 +932,9 @@ export default function App() {
              </div>
 
              <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
-                <span className="text-[10px] sm:text-xs font-black uppercase opacity-90" style={{ color: PLAYER_COLORS[oColorIdx] }}>Player O</span>
+                <div className="flex items-center justify-center mb-0.5 opacity-90">
+                   <DynamicIcon player="O" packIdx={iconPack} color={PLAYER_COLORS[oColorIdx]} className="w-3.5 h-3.5" />
+                </div>
                 <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
                   <AnimatePresence mode="popLayout">
                     <motion.span key={displayScore(scores.O)} initial={{ y: 25, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -25, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute text-lg sm:text-xl font-black" style={{ color: PLAYER_COLORS[oColorIdx] }}>
@@ -904,26 +948,34 @@ export default function App() {
           <div className="relative group z-10 mt-2">
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ backgroundColor: semantics.mainGridBackground }} className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden transition-colors duration-200">
               <div ref={boardRef} className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] aspect-square">
-                {board.map((value, i) => (
-                  <button key={i} id={`cell-${i}`} onClick={() => handleClick(i)} style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value && (!isAmoled || !useDefaultTheme) ? 'inset 0 2px 4px rgba(255,255,255,0.015)' : 'none' }} className={`w-full h-full rounded-[20px] flex items-center justify-center transition-all duration-200 relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer active:scale-[0.92]' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}>
+                {board.map((value, i) => {
+                  const isWinningCell = winnerInfo && winnerInfo.line.includes(i);
+                  return (
+                  <button key={i} id={`cell-${i}`} onClick={() => handleClick(i)} style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value && (!isAmoled || !useDefaultTheme) ? 'inset 0 2px 4px rgba(255,255,255,0.015)' : 'none' }} className={`w-full h-full rounded-[20px] flex items-center justify-center transition-colors duration-200 relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer active:scale-[0.92]' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}>
                     <AnimatePresence mode="wait">
-                      {value === 'X' && !isResetting && (
-                        <motion.div initial={{ scale: 0, rotate: -180, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0, rotate: 180, opacity: 0 }} transition={{ type: 'spring', stiffness: 350, damping: 25 }} className="w-full h-full flex items-center justify-center">
-                          <svg viewBox="0 0 24 24" className="w-3/5 h-3/5" fill="none">
-                            <path d="M18 6L6 18M6 6L18 18" stroke={PLAYER_COLORS[xColorIdx]} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm" />
-                          </svg>
-                        </motion.div>
-                      )}
-                      {value === 'O' && !isResetting && (
-                        <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ type: 'spring', stiffness: 350, damping: 25 }} className="w-full h-full flex items-center justify-center">
-                          <svg viewBox="0 0 24 24" className="w-3/5 h-3/5" fill="none">
-                            <circle cx="12" cy="12" r="8.5" stroke={PLAYER_COLORS[oColorIdx]} strokeWidth="4.5" className="drop-shadow-sm" />
-                          </svg>
+                      {value && !isResetting && (
+                        <motion.div 
+                           initial={{ scale: 0, rotate: -180, opacity: 0 }} 
+                           // --- UPDATED: Celebration Spring Bounce ---
+                           animate={
+                               isWinningCell 
+                               ? { scale: [1, 1.4, 0.85, 1.15, 1], rotate: [0, 15, -10, 5, 0], opacity: 1 } 
+                               : { scale: 1, rotate: 0, opacity: 1 }
+                           } 
+                           exit={{ scale: 0, rotate: 180, opacity: 0 }} 
+                           transition={
+                               isWinningCell
+                               ? { duration: 0.65, ease: "easeInOut", times: [0, 0.2, 0.5, 0.8, 1] }
+                               : { type: 'spring', stiffness: 450, damping: 12, mass: 0.8 } // Normal Spring
+                           } 
+                           className="w-full h-full flex items-center justify-center"
+                        >
+                           <DynamicIcon player={value} packIdx={iconPack} color={value === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-3/5 h-3/5 drop-shadow-sm" />
                         </motion.div>
                       )}
                     </AnimatePresence>
                   </button>
-                ))}
+                )})}
 
                 <AnimatePresence>
                   {linePoints && winnerInfo && (
@@ -1027,10 +1079,10 @@ export default function App() {
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-3 rounded-[36px] sm:rounded-[40px] border border-white/5" style={{ backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
                     <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text }} className="w-full h-full p-4 rounded-[28px] relative flex flex-col items-center justify-center gap-3 text-center overflow-hidden">
                        
-                       <div className="flex flex-col items-center gap-1.5 z-10">
+                       <div className="flex flex-col items-center gap-1.5 z-10 w-full">
                          <h2 className="text-xl font-black tracking-tight leading-tight pt-1 drop-shadow-sm">Winner!</h2>
-                         <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="text-5xl font-black drop-shadow-md" style={{ color: overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx] }}>
-                          {overallWinner}
+                         <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-md flex justify-center mt-2 mb-4">
+                           <DynamicIcon player={overallWinner} packIdx={iconPack} color={overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-20 h-20" />
                          </motion.span>
                        </div>
                        
@@ -1059,7 +1111,7 @@ export default function App() {
               <motion.div onClick={(e) => e.stopPropagation()} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-sm p-6 rounded-[36px] shadow-2xl relative border border-white/5 transition-colors duration-200">
                 
                 <button onClick={() => setIsSettingsOpen(false)} className="absolute top-5 right-5 p-2 transition-opacity hover:opacity-70 z-[160]">
-                  <X className="w-6 h-6" />
+                  <CloseIcon className="w-6 h-6" />
                 </button>
                 
                 <div className="flex gap-3 items-center mb-6">
@@ -1070,6 +1122,35 @@ export default function App() {
                 </div>
                 
                 <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 m3-scrollbar">
+                  
+                  {/* NEW: Icon Style Selector */}
+                  <div>
+                     <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Icon Style</h3>
+                     <div className="flex gap-2 p-1.5 rounded-2xl transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
+                        <button onClick={() => { hapticFeedback(20); setIconPack(0); }} className={`flex flex-col items-center gap-1 flex-1 py-2.5 rounded-xl transition-all ${iconPack === 0 ? 'bg-white text-black shadow-sm' : 'opacity-70 text-current'}`}>
+                           <div className="flex gap-1">
+                              <DynamicIcon player="X" packIdx={0} color="currentColor" className="w-4 h-4" />
+                              <DynamicIcon player="O" packIdx={0} color="currentColor" className="w-4 h-4" />
+                           </div>
+                           <span className="text-xs font-bold mt-1">Classic</span>
+                        </button>
+                        <button onClick={() => { hapticFeedback(20); setIconPack(1); }} className={`flex flex-col items-center gap-1 flex-1 py-2.5 rounded-xl transition-all ${iconPack === 1 ? 'bg-white text-black shadow-sm' : 'opacity-70 text-current'}`}>
+                           <div className="flex gap-1">
+                              <DynamicIcon player="X" packIdx={1} color="currentColor" className="w-4 h-4" />
+                              <DynamicIcon player="O" packIdx={1} color="currentColor" className="w-4 h-4" />
+                           </div>
+                           <span className="text-xs font-bold mt-1">Modern</span>
+                        </button>
+                        <button onClick={() => { hapticFeedback(20); setIconPack(2); }} className={`flex flex-col items-center gap-1 flex-1 py-2.5 rounded-xl transition-all ${iconPack === 2 ? 'bg-white text-black shadow-sm' : 'opacity-70 text-current'}`}>
+                           <div className="flex gap-1">
+                              <DynamicIcon player="X" packIdx={2} color="currentColor" className="w-4 h-4" />
+                              <DynamicIcon player="O" packIdx={2} color="currentColor" className="w-4 h-4" />
+                           </div>
+                           <span className="text-xs font-bold mt-1">Geometric</span>
+                        </button>
+                     </div>
+                  </div>
+
                   <div>
                      <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Theme Style</h3>
                      <div className="flex gap-2 p-1.5 rounded-2xl transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
@@ -1132,7 +1213,7 @@ export default function App() {
                             {themeIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
                           </button>
                         ))}
-                      </div>
+                      </div >
                     </motion.div>
                   )}
                   
@@ -1181,7 +1262,7 @@ export default function App() {
               <motion.div onClick={(e) => e.stopPropagation()} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-[420px] p-7 rounded-[36px] shadow-2xl relative border border-white/5 transition-colors duration-200">
                 
                 <button onClick={() => setIsAboutOpen(false)} className="absolute top-5 right-5 p-2 transition-opacity hover:opacity-70 z-[170]">
-                  <X className="w-6 h-6" />
+                  <CloseIcon className="w-6 h-6" />
                 </button>
                 
                 <div className="flex items-center gap-2.5 mb-6 opacity-80">
@@ -1198,11 +1279,12 @@ export default function App() {
                     <p>👥 <span className="font-bold">2 Players:</span> Switch modes with one tap and play with a friend on the same device.</p>
                     <p>🎯 <span className="font-bold">Target Score Win:</span> Set a custom point target (1-20) to win the full match. Note: You cannot set the target below the current highest score.</p>
                     <p>🎨 <span className="font-bold">Material You Themes:</span> Choose from 11 beautiful color schemes, and customize the Player colors and Winning Line colors.</p>
+                    <p>✨ <span className="font-bold">Icon Styles:</span> Choose between Classic, Modern (Material), and Geometric icon sets.</p>
                     
                     <h4 className="text-lg font-extrabold tracking-tight opacity-90 pt-3">Controls</h4>
                     <p>🔄 <span className="font-bold text-sky-500">Soft Reset:</span> Tap the Restart button to clear the board and start a new round.</p>
                     <p>⚠️ <span className="font-bold text-sky-500">Hard Reset:</span> <strong>Press and hold</strong> the Restart button to wipe all scores and start completely fresh. This will also re-enable the Target Score logic if it was previously disabled.</p>
-                    <p>✨ <span className="font-bold text-sky-500">Change Player Symbol:</span> <strong>Press and hold</strong> the turn banner when the game is hard reset to switch your symbol (X/O).</p>
+                    <p>✨ <span className="font-bold text-sky-500">Change Player Symbol:</span> <strong>Press and hold</strong> the turn banner when the game is hard reset to switch your symbol.</p>
                     <p>✨ <span className="font-bold text-sky-500">Change Turn:</span> <strong>Tap</strong> the turn banner before starting a new round to swap who goes first. In 1-Player mode, holding the "1 Player" button lets AI play first.</p>
                   </div>
                   
