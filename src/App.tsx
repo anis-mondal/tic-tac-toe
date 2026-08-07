@@ -1108,8 +1108,7 @@ export default function App() {
                 </AnimatePresence>
 
               </div>
-
-                      {/* উইনার পপআপ - এখন এটি বোর্ডের বাইরে থাকায় আর কাটবে না */}
+              
         <AnimatePresence>
           {showWinnerModal && overallWinner && (
             {/* bg-black/30 এবং backdrop-blur-sm ব্যবহার করে স্বচ্ছতা আরও বাড়ানো হলো */}
@@ -1138,9 +1137,7 @@ export default function App() {
           )}
         </AnimatePresence>
 
-
                             
-
             </motion.div>
           </div>
           
