@@ -22,8 +22,9 @@ import {
   Sunrise, Sunset, CloudRain, CloudSnow, CloudLightning, Tornado, Waves, Trees, Palmtree, Droplets,
   ShoppingCart, ShoppingBag, ShoppingBasket, Tag, Wallet, CreditCard, Banknote, Coins, PiggyBank, Receipt,
   Stethoscope, Syringe, TestTube, FlaskConical, Pill, Microscope, Telescope, Webcam, Film, Clapperboard,
-  Megaphone, Speaker, Book, Bookmark, Briefcase, GraduationCap, Medal, Award, TicketStar, PartyPopper
+  Megaphone, Speaker, Book, Bookmark, Briefcase, GraduationCap, Medal, Award, Gift, PartyPopper
 } from 'lucide-react';
+
 
 import confetti from 'canvas-confetti';
 
@@ -61,8 +62,9 @@ const ICONS_LIST = [
   Sunrise, Sunset, CloudRain, CloudSnow, CloudLightning, Tornado, Waves, Trees, Palmtree, Droplets,
   ShoppingCart, ShoppingBag, ShoppingBasket, Tag, Wallet, CreditCard, Banknote, Coins, PiggyBank, Receipt,
   Stethoscope, Syringe, TestTube, FlaskConical, Pill, Microscope, Telescope, Webcam, Film, Clapperboard,
-  Megaphone, Speaker, Book, Bookmark, Briefcase, GraduationCap, Medal, Award, TicketStar, PartyPopper
+  Megaphone, Speaker, Book, Bookmark, Briefcase, GraduationCap, Medal, Award, Gift, PartyPopper
 ];
+
 
 
 const hapticFeedback = (pattern: number | number[]) => {
