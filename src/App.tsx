@@ -52,16 +52,15 @@ const hapticFeedback = (pattern: number | number[]) => {
   }
 };
 
-// --- UPDATED: Perfectly Balanced RGB Rainbow for AI Logo ---
 const AILogo = () => (
   <svg width="20" height="20" viewBox="0 0 100 100" className="drop-shadow-sm shrink-0">
     <defs>
       <linearGradient id="ai-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#FF3B30" />    {/* Red */}
-        <stop offset="25%" stopColor="#FF9500" />   {/* Orange/Yellow */}
-        <stop offset="50%" stopColor="#4CD964" />   {/* Green */}
-        <stop offset="75%" stopColor="#5AC8FA" />   {/* Cyan */}
-        <stop offset="100%" stopColor="#007AFF" />  {/* Blue */}
+        <stop offset="0%" stopColor="#FF3B30" />    
+        <stop offset="25%" stopColor="#FF9500" />   
+        <stop offset="50%" stopColor="#4CD964" />   
+        <stop offset="75%" stopColor="#5AC8FA" />   
+        <stop offset="100%" stopColor="#007AFF" />  
       </linearGradient>
     </defs>
     <circle cx="50" cy="50" r="42" fill="none" stroke="url(#ai-grad)" strokeWidth="12" />
@@ -351,7 +350,6 @@ export default function App() {
   const [isDraw, setIsDraw] = useState(() => getSaved('isDraw', false));
   
   const [overallWinner, setOverallWinner] = useState<Player | null>(() => getSaved('overallWinner', null));
-  // --- UPDATED: Permanent Winner Modal State ---
   const [showWinnerModal, setShowWinnerModal] = useState(() => {
       const ow = getSaved('overallWinner', null);
       return ow !== null;
@@ -438,7 +436,6 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [isDarkMode, isAmoled, themeIdx, useDefaultTheme]);
 
-  // --- UPDATED: 100% Native CSS Transition for Zero Lag (NO Overlay) ---
   const handleThemeToggle = () => {
     if (isTransitioning.current) return;
     isTransitioning.current = true;
@@ -448,11 +445,9 @@ export default function App() {
     hapticFeedback([80]); 
     playEnhancedSound('pop', isSoundOn);
 
-    // 400ms delay gives the sun/moon icon time to bounce and finish rotating
     setTimeout(() => {
         setIsDarkMode(nextDark);
         
-        // Lock remains active while the 1000ms CSS transition-colors is running
         setTimeout(() => {
             isTransitioning.current = false; 
         }, 1000);
@@ -491,7 +486,6 @@ export default function App() {
     }, 250);
   };
 
-  // --- UPDATED: Perfect Sequence Delay for Winning Animation ---
   useEffect(() => {
     if (isResetting) {
         isGameEnding.current = false;
@@ -515,7 +509,6 @@ export default function App() {
 
     if (hasWinner && winner) {
         isGameEnding.current = true;
-        // Wait 450ms for the LAST placed icon to finish its entrance animation
         setTimeout(() => {
             setWinnerInfo({ winner: winner as Player, line: winningLine });
             
@@ -542,7 +535,6 @@ export default function App() {
             setIsDraw(true);
             setScores(prev => ({ ...prev, Draws: prev.Draws + 1 })); 
             playEnhancedSound('point', isSoundOn);
-            // Heavy draw shake haptics
             hapticFeedback([200, 50, 200, 50, 300]); 
         }, 450);
     }
@@ -761,7 +753,6 @@ export default function App() {
   const activeLineColor = isDarkMode ? availableLinesDark[customLineIdx] : availableLinesLight[customLineIdx];
   const themeIndicatorColor = isDarkMode ? activeTheme.indicatorDark : activeTheme.indicatorLight;
   
-  // --- UPDATED: Stronger 40% Glassy/Tinted Effect on Text ---
   const baseTextColor = isDarkMode ? '#ffffff' : '#111111';
   const tintedTextColor = !useDefaultTheme ? `color-mix(in srgb, ${baseTextColor} 60%, ${themeIndicatorColor})` : baseTextColor;
 
@@ -809,7 +800,7 @@ export default function App() {
           border-radius: 10px; 
         }
       `}</style>
-
+      
       <div 
           style={{ 
             backgroundColor: semantics.screenBackground,
@@ -871,7 +862,6 @@ export default function App() {
               Tic Tac Toe
             </motion.h1>
 
-            {/* --- UPDATED: Zero clipping exact pill bounds --- */}
             <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex p-1.5 rounded-[28px] relative w-[272px] mx-auto shadow-sm transition-colors duration-1000">
               <motion.div 
                 className="absolute top-1.5 bottom-1.5 w-[130px] rounded-[24px] shadow-sm transition-colors duration-1000"
@@ -993,7 +983,7 @@ export default function App() {
                     style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value && (!isAmoled || !useDefaultTheme) ? 'inset 0 2px 4px rgba(255,255,255,0.015)' : 'none', borderRadius: '24px' }} 
                     whileTap={!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? { borderRadius: '50%', scale: 0.85 } : {}}
                     animate={isSquished ? { borderRadius: '50%', scale: 0.85 } : { borderRadius: '24px', scale: 1 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 15 }}
                     className={`w-full h-full flex items-center justify-center relative overflow-hidden shadow-sm transition-colors duration-1000 ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}
                   >
                     <AnimatePresence mode="wait">
@@ -1006,12 +996,12 @@ export default function App() {
                                ? { scale: [1, 1.4, 0.85, 1.15, 1], opacity: 1 } 
                                : { scale: 1, rotate: 0, opacity: 1 }
                            } 
-                           // --- UPDATED: Disappear Reverse Spring ---
-                           exit={{ scale: 0.2, opacity: 0, y: 10 }} 
+                           // --- EXACT REVERSE DISAPPEAR ANIMATION (Spring Physics) ---
+                           exit={{ scale: 0, rotate: 180, opacity: 0 }} 
                            transition={
                                isWinningCell
                                ? { duration: 0.65, ease: "easeInOut", times: [0, 0.2, 0.5, 0.8, 1] }
-                               : { type: 'spring', stiffness: 350, damping: 25, mass: 0.8 } 
+                               : { type: 'spring', stiffness: 500, damping: 14, mass: 1 } 
                            } 
                            className="w-full h-full flex items-center justify-center"
                         >
@@ -1119,7 +1109,6 @@ export default function App() {
 
               </div>
 
-              {/* --- UPDATED: Background Blur and Modal Sizing --- */}
               <AnimatePresence>
                 {showWinnerModal && overallWinner && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md rounded-[36px] sm:rounded-[40px]">
