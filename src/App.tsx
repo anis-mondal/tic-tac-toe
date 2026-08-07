@@ -7,9 +7,9 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X as CloseIcon, Target, Info,
-  // 20 Custom Icons
-  Hexagon, Octagon, Pentagon, Triangle, Square, Circle, Cloud, Asterisk, Target as TargetIcon, Shield,
-  Leaf, Flame, Droplet, Flower2, Star, Heart, Snowflake, Feather, Anchor, Zap
+  // 20 Custom Shapes (10 Material/Funky + 10 Nature/Real-Life)
+  Diamond, Asterisk, Hexagon, Octagon, Pentagon, Cloud, Target as TargetIcon, Shield, Zap, Crosshair,
+  Leaf, Flame, Droplet, Flower2, Star, Heart, Snowflake, Feather, Sun as SunIcon, Moon as MoonIcon
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -32,15 +32,18 @@ const WINNING_COMBINATIONS = [
   [0, 4, 8], [2, 4, 6]
 ];
 
-// 20 Unique Shapes (10 Material/Funky + 10 Real-life/Nature)
+// 20 Unique Shapes (Removed duplicate circle)
 const ICONS_LIST = [
-  Hexagon, Octagon, Pentagon, Triangle, Square, Circle, Cloud, Asterisk, TargetIcon, Shield,
-  Leaf, Flame, Droplet, Flower2, Star, Heart, Snowflake, Feather, Anchor, Zap
+  // 10 Material/Geometric/Funky Shapes
+  Diamond, Asterisk, Hexagon, Octagon, Pentagon, Cloud, TargetIcon, Shield, Zap, Crosshair,
+  // 10 Nature/Real-Life Shapes
+  Leaf, Flame, Droplet, Flower2, Star, Heart, Snowflake, Feather, SunIcon, MoonIcon
 ];
 
+// Increased Vibration to Heavy
 const hapticFeedback = (pattern: number | number[]) => {
   if (Capacitor.isNativePlatform()) {
-     try { Haptics.impact({ style: ImpactStyle.Light }); } catch (e) {}
+     try { Haptics.impact({ style: ImpactStyle.Heavy }); } catch (e) {}
   } else if (typeof window !== 'undefined' && navigator.vibrate) {
      try { navigator.vibrate(pattern); } catch (e) {}
   }
@@ -60,7 +63,6 @@ const AILogo = () => (
   </svg>
 );
 
-// --- Updated Dynamic Icon Component ---
 const DynamicIcon = ({ 
   player, p1Custom, p1Idx, p2Custom, p2Idx, color, className 
 }: { 
@@ -74,10 +76,9 @@ const DynamicIcon = ({
 
   if (isCustomEnabled) {
      const SelectedIcon = ICONS_LIST[iconIndex % ICONS_LIST.length];
-     return <SelectedIcon color={color} fill={color} className={className} strokeWidth={1.5} />;
+     return <SelectedIcon color={color} fill={color} className={className} strokeWidth={2.5} />;
   }
   
-  // Default Classic Icons (X & O)
   if (isP1) {
      return (
        <svg viewBox="0 0 24 24" className={className} fill="none">
@@ -92,6 +93,7 @@ const DynamicIcon = ({
   );
 };
 
+// --- UPDATED: Addictive Modern "Tick/Pop" Sound ---
 const audioState = { ctx: null as AudioContext | null };
 const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point' | 'unmute' | 'mode', enabled: boolean) => {
   if (!enabled || typeof window === 'undefined') return;
@@ -106,13 +108,14 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point'
     if (type === 'tap') {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'sine'; osc.frequency.setValueAtTime(600, t);
-      osc.frequency.exponentialRampToValueAtTime(200, t + 0.15);
+      osc.type = 'sine'; 
+      osc.frequency.setValueAtTime(800, t); // Higher pitch for tick
+      osc.frequency.exponentialRampToValueAtTime(100, t + 0.05); // Very fast drop
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.3, t + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+      gain.gain.linearRampToValueAtTime(0.6, t + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.05); // Short snappy envelope
       osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.15);
+      osc.start(t); osc.stop(t + 0.05);
     } else if (type === 'pop') {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -248,7 +251,6 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player, humanScore: numb
   return bestMove;
 };
 
-// --- Hex Color Blender (For AMOLED Custom Themes) ---
 const blendDarker = (hex: string, factor: number) => {
     if (!hex || hex.length !== 7 || hex[0] !== '#') return hex;
     let r = Math.floor(parseInt(hex.slice(1, 3), 16) * factor);
@@ -317,7 +319,6 @@ export default function App() {
   const [oColorIdx, setOColorIdx] = useState(() => getSaved('oColorIdx', 9));
   const [customLineIdx, setCustomLineIdx] = useState(() => getSaved('customLineIdx', 0));
   
-  // NEW: Individual Player Custom Icon States
   const [p1Custom, setP1Custom] = useState(() => getSaved('p1Custom', false));
   const [p1Idx, setP1Idx] = useState(() => getSaved('p1Idx', 0));
   const [p2Custom, setP2Custom] = useState(() => getSaved('p2Custom', false));
@@ -351,6 +352,9 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   
+  // --- NEW: Theme Reveal Overlay State ---
+  const [themeReveal, setThemeReveal] = useState<{ x: number, y: number, color: string } | null>(null);
+  
   const boardRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const confettiIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -375,13 +379,10 @@ export default function App() {
     localStorage.setItem('xColorIdx', JSON.stringify(xColorIdx));
     localStorage.setItem('oColorIdx', JSON.stringify(oColorIdx));
     localStorage.setItem('customLineIdx', JSON.stringify(customLineIdx));
-    
-    // Save new icon states
     localStorage.setItem('p1Custom', JSON.stringify(p1Custom));
     localStorage.setItem('p1Idx', JSON.stringify(p1Idx));
     localStorage.setItem('p2Custom', JSON.stringify(p2Custom));
     localStorage.setItem('p2Idx', JSON.stringify(p2Idx));
-
     localStorage.setItem('targetScore', JSON.stringify(targetScore));
     localStorage.setItem('userWantsTargetScore', JSON.stringify(userWantsTargetScore));
     localStorage.setItem('isTargetScoreEnabled', JSON.stringify(isTargetScoreEnabled));
@@ -423,65 +424,47 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [isDarkMode, isAmoled, themeIdx, useDefaultTheme]);
 
-  // --- UPDATED: Zero Lag Theme Transition (Longer Delay) ---
+  // --- UPDATED: Zero Lag Custom Overlay Transition ---
   const handleThemeToggle = (e: React.MouseEvent) => {
     if (isTransitioning.current) return;
     isTransitioning.current = true;
 
     const nextDark = !isDarkMode;
     
-    // ১. বাটনের স্প্রিং বাউন্স এবং আইকন সাথে সাথেই হবে
+    // ১. বাটনের স্প্রিং বাউন্স এবং আইকন সাথে সাথেই পরিবর্তন হবে
     setUiDarkMode(nextDark); 
-    
-    hapticFeedback(40);
+    hapticFeedback([80]); // Stronger tap
     playEnhancedSound('pop', isSoundOn);
 
     const rect = e.currentTarget.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
 
-    // ২. এবার ডিলে বাড়িয়ে ৪০০ মিলিসেকেন্ড করা হলো। ফলে বাটনের অ্যানিমেশন পুরোপুরি শেষ হবে, তারপর স্ক্রিনের রং বদলাবে।
+    // নতুন থিমের ব্যাকগ্রাউন্ড কালার বের করা
+    let targetColor = nextDark 
+        ? (isAmoled ? '#000000' : (useDefaultTheme ? ORIGINAL_THEME.dark : CUSTOM_THEMES[themeIdx].dark)) 
+        : (useDefaultTheme ? ORIGINAL_THEME.light : CUSTOM_THEMES[themeIdx].light);
+
+    // ২. ৩৫০ মিলিসেকেন্ড ডিলে (Delay) করা হলো, যাতে বাটনের বাউন্সটি সুন্দরভাবে শেষ হয়
     setTimeout(() => {
-        // @ts-ignore
-        if (!document.startViewTransition) {
+        // ৩. স্ক্রিন জুড়ে কালার সার্কেল ছড়ানো শুরু
+        setThemeReveal({ x, y, color: targetColor });
+        
+        // ৪. সার্কেলটি পুরো স্ক্রিন কভার করার পর (৬০০মি.সে) আসল থিম পাল্টে ফেলা হবে
+        setTimeout(() => {
             setIsDarkMode(nextDark);
-            isTransitioning.current = false;
-            return;
-        }
-
-        // @ts-ignore
-        const transition = document.startViewTransition(() => {
-            setIsDarkMode(nextDark);
-        });
-
-        transition.ready.then(() => {
-            const radius = Math.hypot(
-                Math.max(x, window.innerWidth - x),
-                Math.max(y, window.innerHeight - y)
-            );
-            const animation = document.documentElement.animate(
-                {
-                    clipPath: [
-                        `circle(0px at ${x}px ${y}px)`,
-                        `circle(${radius}px at ${x}px ${y}px)`
-                    ]
-                },
-                {
-                    duration: 800, 
-                    easing: 'cubic-bezier(0.45, 0.05, 0.55, 0.95)',
-                    pseudoElement: '::view-transition-new(root)'
-                }
-            );
-
-            animation.onfinish = () => {
+            
+            // ৫. এরপর সার্কেলটি মুছে ফেলা হবে (লক খুলে যাবে)
+            setTimeout(() => {
+                setThemeReveal(null);
                 isTransitioning.current = false; 
-            };
-        });
-    }, 400); // Increased delay for zero lag
+            }, 300);
+        }, 600);
+    }, 350); 
   };
 
   const toggleSound = () => {
-    hapticFeedback(40);
+    hapticFeedback(80);
     if (!isSoundOn) playEnhancedSound('unmute', true);
     setIsSoundOn(!isSoundOn);
   };
@@ -568,7 +551,7 @@ export default function App() {
         if (bestMove !== -1) {
           const newBoard = [...board];
           newBoard[bestMove] = aiPlayerSymbol;
-          hapticFeedback(50); 
+          hapticFeedback(80); 
           playEnhancedSound('tap', isSoundOn);
           lastMoveIdxRef.current = bestMove;
           setBoard(newBoard);
@@ -581,7 +564,7 @@ export default function App() {
 
   const handleClick = (index: number) => {
     if (board[index] || winnerInfo || isAITurn || isResetting || overallWinner) return;
-    hapticFeedback(50); 
+    hapticFeedback(80); 
     playEnhancedSound('tap', isSoundOn);
     const newBoard = [...board];
     newBoard[index] = isXNext ? 'X' : 'O';
@@ -610,7 +593,7 @@ export default function App() {
   };
 
   const resetGameForMode = (currentStartingPlayer: Player) => {
-    hapticFeedback(40); 
+    hapticFeedback(60); 
     playEnhancedSound('pop', isSoundOn);
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
     if (myConfettiRef.current) myConfettiRef.current.reset();
@@ -652,7 +635,7 @@ export default function App() {
 
   const handleTurnBannerClick = () => {
     if (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) {
-       hapticFeedback(40);
+       hapticFeedback(60);
        playEnhancedSound('mode', isSoundOn); 
        setStartingPlayer(prev => {
           const next = prev === 'X' ? 'O' : 'X';
@@ -683,7 +666,7 @@ export default function App() {
   
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
-    hapticFeedback(40);
+    hapticFeedback(60);
     playEnhancedSound('mode', isSoundOn);
     setIsSinglePlayer(single);
     performHardReset(humanSymbol); 
@@ -797,17 +780,22 @@ export default function App() {
           background-color: ${isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'}; 
           border-radius: 10px; 
         }
-
-        /* Native View Transitions Logic */
-        ::view-transition-old(root),
-        ::view-transition-new(root) {
-          animation: none;
-          mix-blend-mode: normal;
-        }
-        ::view-transition-old(root) { z-index: 1; }
-        ::view-transition-new(root) { z-index: 2; }
       `}</style>
       
+      {/* --- NEW: Framer Motion Pure Overlay (100% Lag Free) --- */}
+      <AnimatePresence>
+        {themeReveal && (
+          <motion.div
+            initial={{ clipPath: `circle(0px at ${themeReveal.x}px ${themeReveal.y}px)`, opacity: 1 }}
+            animate={{ clipPath: `circle(150% at ${themeReveal.x}px ${themeReveal.y}px)`, opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: [0.45, 0.05, 0.55, 0.95] }}
+            style={{ backgroundColor: themeReveal.color }}
+            className="fixed inset-0 z-[9999] pointer-events-none"
+          />
+        )}
+      </AnimatePresence>
+
       <div 
           style={{ 
             backgroundColor: semantics.screenBackground,
@@ -853,7 +841,7 @@ export default function App() {
             </AnimatePresence>
           </motion.button>
           
-          <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { hapticFeedback(40); playEnhancedSound('pop', isSoundOn); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
+          <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { hapticFeedback(60); playEnhancedSound('pop', isSoundOn); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
             <MoreVertical className="w-[20px] h-[20px]" />
           </motion.button>
         </motion.nav>
@@ -869,14 +857,14 @@ export default function App() {
               Tic Tac Toe
             </motion.h1>
 
-            {/* --- UPDATED: Added overflow-hidden to fix bouncy slider spill --- */}
-            <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm transition-colors duration-200 overflow-hidden">
+            {/* --- UPDATED: Bouncy Slider Fix (damping: 20) --- */}
+            <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm transition-colors duration-200">
               <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none flex items-center justify-center gap-1.5 ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
-                {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 14, mass: 1 }} />}
+                {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 20, mass: 0.8 }} />}
                 <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
               </button>
               <button onClick={() => switchModeClick(false)} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none flex items-center justify-center gap-1.5 ${!isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
-                {!isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 14, mass: 1 }} />}
+                {!isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 20, mass: 0.8 }} />}
                 <span className="relative z-10">👥 2 Players</span>
               </button>
             </div>
@@ -975,20 +963,29 @@ export default function App() {
                 {board.map((value, i) => {
                   const isWinningCell = winnerInfo && winnerInfo.line.includes(i);
                   return (
-                  <button key={i} id={`cell-${i}`} onClick={() => handleClick(i)} style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value && (!isAmoled || !useDefaultTheme) ? 'inset 0 2px 4px rgba(255,255,255,0.015)' : 'none' }} className={`w-full h-full rounded-[20px] flex items-center justify-center transition-colors duration-200 relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer active:scale-[0.92]' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}>
+                  // --- UPDATED: Material You Touch Ripple (Square to Circle) ---
+                  <motion.button 
+                    key={i} id={`cell-${i}`} onClick={() => handleClick(i)} 
+                    style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value && (!isAmoled || !useDefaultTheme) ? 'inset 0 2px 4px rgba(255,255,255,0.015)' : 'none', borderRadius: '24px' }} 
+                    whileTap={!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? { borderRadius: '50%', scale: 0.85 } : {}}
+                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                    className={`w-full h-full flex items-center justify-center transition-colors duration-200 relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}
+                  >
                     <AnimatePresence mode="wait">
                       {value && !isResetting && (
                         <motion.div 
                            initial={{ scale: 0, rotate: -180, opacity: 0 }} 
+                           // --- UPDATED: Highly Springy Winning Animation ---
                            animate={
                                isWinningCell 
-                               ? { scale: [1, 1.4, 0.85, 1.15, 1], rotate: [0, 15, -10, 5, 0], opacity: 1 } 
+                               ? { scale: [1, 1.5, 0.8, 1.2, 1], rotate: [0, -10, 10, -5, 0], opacity: 1 } 
                                : { scale: 1, rotate: 0, opacity: 1 }
                            } 
-                           exit={{ scale: 0, rotate: 180, opacity: 0 }} 
+                           // --- UPDATED: Premium Disappear Animation ---
+                           exit={{ scale: [1, 1.2, 0], opacity: [1, 1, 0] }} 
                            transition={
                                isWinningCell
-                               ? { duration: 0.65, ease: "easeInOut", times: [0, 0.2, 0.5, 0.8, 1] }
+                               ? { type: 'spring', stiffness: 500, damping: 10, mass: 1 }
                                : { type: 'spring', stiffness: 450, damping: 12, mass: 0.8 } 
                            } 
                            className="w-full h-full flex items-center justify-center"
@@ -997,7 +994,7 @@ export default function App() {
                         </motion.div>
                       )}
                     </AnimatePresence>
-                  </button>
+                  </motion.button>
                 )})}
 
                 <AnimatePresence>
@@ -1098,19 +1095,20 @@ export default function App() {
               </div>
 
               <AnimatePresence>
+                {/* --- UPDATED: Fixed Winning Modal Cutoff (h-auto instead of h-full) --- */}
                 {isOverallWinModalOpen && overallWinner && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-3 rounded-[36px] sm:rounded-[40px] border border-white/5" style={{ backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
-                    <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text }} className="w-full h-full p-4 rounded-[28px] relative flex flex-col items-center justify-center gap-3 text-center overflow-hidden">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-3 sm:p-4 rounded-[36px] sm:rounded-[40px] border border-white/5" style={{ backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+                    <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text }} className="w-full max-w-[280px] h-auto p-5 rounded-[28px] relative flex flex-col items-center justify-center gap-4 text-center overflow-visible shadow-2xl" style={{ backgroundColor: isDarkMode ? activeTheme.gridDark : activeTheme.gridLight }}>
                        
                        <div className="flex flex-col items-center gap-1.5 z-10 w-full">
                          <h2 className="text-xl font-black tracking-tight leading-tight pt-1 drop-shadow-sm">Winner!</h2>
-                         <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-md flex justify-center mt-2 mb-4">
+                         <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-md flex justify-center mt-2 mb-2">
                            <DynamicIcon player={overallWinner} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-20 h-20" />
                          </motion.span>
                        </div>
                        
                        <div className="flex flex-col w-full gap-3 pt-2 z-10">
-                          <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none bg-transparent" style={{ border: `2px solid ${activeLineColor}`, color: isDarkMode ? '#ffffff' : '#000000' }}>
+                          <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none bg-transparent" style={{ border: `2px solid ${activeLineColor}`, color: semantics.text }}>
                              Start a New Game
                           </motion.button>
                           <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer, false); setIsOverallWinModalOpen(false); setOverallWinner(null); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
@@ -1146,7 +1144,7 @@ export default function App() {
                 
                 <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 m3-scrollbar">
                   
-                  {/* --- NEW: Individual Player Icon Selectors (20 Icons) --- */}
+                  {/* --- NEW: Updated Player X Custom Icon Toggle (20 Icons) --- */}
                   <div className="rounded-2xl p-4 space-y-3 transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
@@ -1165,7 +1163,7 @@ export default function App() {
                            <div className="grid grid-cols-5 gap-2">
                               {ICONS_LIST.map((IconComponent, idx) => (
                                  <button key={idx} onClick={() => { hapticFeedback(20); setP1Idx(idx); }} className={`p-2 rounded-xl flex items-center justify-center border-2 transition-colors ${p1Idx === idx ? 'border-sky-500 bg-sky-500/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`}>
-                                    <IconComponent className="w-6 h-6" color={PLAYER_COLORS[xColorIdx]} fill={PLAYER_COLORS[xColorIdx]} strokeWidth={1.5} />
+                                    <IconComponent className="w-6 h-6" color={PLAYER_COLORS[xColorIdx]} fill={PLAYER_COLORS[xColorIdx]} strokeWidth={2.5} />
                                  </button>
                               ))}
                            </div>
@@ -1174,6 +1172,7 @@ export default function App() {
                      </AnimatePresence>
                   </div>
 
+                  {/* --- NEW: Updated Player O Custom Icon Toggle (20 Icons) --- */}
                   <div className="rounded-2xl p-4 space-y-3 transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
@@ -1192,7 +1191,7 @@ export default function App() {
                            <div className="grid grid-cols-5 gap-2">
                               {ICONS_LIST.map((IconComponent, idx) => (
                                  <button key={idx} onClick={() => { hapticFeedback(20); setP2Idx(idx); }} className={`p-2 rounded-xl flex items-center justify-center border-2 transition-colors ${p2Idx === idx ? 'border-sky-500 bg-sky-500/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`}>
-                                    <IconComponent className="w-6 h-6" color={PLAYER_COLORS[oColorIdx]} fill={PLAYER_COLORS[oColorIdx]} strokeWidth={1.5} />
+                                    <IconComponent className="w-6 h-6" color={PLAYER_COLORS[oColorIdx]} fill={PLAYER_COLORS[oColorIdx]} strokeWidth={2.5} />
                                  </button>
                               ))}
                            </div>
