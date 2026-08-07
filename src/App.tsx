@@ -5,7 +5,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X as CloseIcon, Target, Info, Star, Heart, Triangle, Square } from 'lucide-react';
+import { 
+  RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X as CloseIcon, Target, Info,
+  // 20 Custom Icons
+  Hexagon, Octagon, Pentagon, Triangle, Square, Circle, Cloud, Asterisk, Target as TargetIcon, Shield,
+  Leaf, Flame, Droplet, Flower2, Star, Heart, Snowflake, Feather, Anchor, Zap
+} from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // --- Import Local Font Perfectly ---
@@ -25,6 +30,12 @@ const WINNING_COMBINATIONS = [
   [0, 1, 2], [3, 4, 5], [6, 7, 8],
   [0, 3, 6], [1, 4, 7], [2, 5, 8],
   [0, 4, 8], [2, 4, 6]
+];
+
+// 20 Unique Shapes (10 Material/Funky + 10 Real-life/Nature)
+const ICONS_LIST = [
+  Hexagon, Octagon, Pentagon, Triangle, Square, Circle, Cloud, Asterisk, TargetIcon, Shield,
+  Leaf, Flame, Droplet, Flower2, Star, Heart, Snowflake, Feather, Anchor, Zap
 ];
 
 const hapticFeedback = (pattern: number | number[]) => {
@@ -49,20 +60,25 @@ const AILogo = () => (
   </svg>
 );
 
-// --- Dynamic Icon Component ---
-const DynamicIcon = ({ player, packIdx, color, className }: { player: Player | null, packIdx: number, color: string, className?: string }) => {
+// --- Updated Dynamic Icon Component ---
+const DynamicIcon = ({ 
+  player, p1Custom, p1Idx, p2Custom, p2Idx, color, className 
+}: { 
+  player: Player | null, p1Custom: boolean, p1Idx: number, p2Custom: boolean, p2Idx: number, color: string, className?: string 
+}) => {
   if (!player) return null;
   
-  if (packIdx === 1) { // Modern (Star & Heart)
-     if (player === 'X') return <Star color={color} fill={color} className={className} strokeWidth={1} />;
-     return <Heart color={color} fill={color} className={className} strokeWidth={1} />;
-  } else if (packIdx === 2) { // Geometric (Triangle & Square)
-     if (player === 'X') return <Triangle color={color} fill={color} className={className} strokeWidth={1} />;
-     return <Square color={color} fill={color} className={className} strokeWidth={1} />;
+  const isP1 = player === 'X';
+  const isCustomEnabled = isP1 ? p1Custom : p2Custom;
+  const iconIndex = isP1 ? p1Idx : p2Idx;
+
+  if (isCustomEnabled) {
+     const SelectedIcon = ICONS_LIST[iconIndex % ICONS_LIST.length];
+     return <SelectedIcon color={color} fill={color} className={className} strokeWidth={1.5} />;
   }
   
-  // Default Classic (X & O)
-  if (player === 'X') {
+  // Default Classic Icons (X & O)
+  if (isP1) {
      return (
        <svg viewBox="0 0 24 24" className={className} fill="none">
          <path d="M18 6L6 18M6 6L18 18" stroke={color} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -301,8 +317,11 @@ export default function App() {
   const [oColorIdx, setOColorIdx] = useState(() => getSaved('oColorIdx', 9));
   const [customLineIdx, setCustomLineIdx] = useState(() => getSaved('customLineIdx', 0));
   
-  // NEW: Icon Pack State
-  const [iconPack, setIconPack] = useState(() => getSaved('iconPack', 0));
+  // NEW: Individual Player Custom Icon States
+  const [p1Custom, setP1Custom] = useState(() => getSaved('p1Custom', false));
+  const [p1Idx, setP1Idx] = useState(() => getSaved('p1Idx', 0));
+  const [p2Custom, setP2Custom] = useState(() => getSaved('p2Custom', false));
+  const [p2Idx, setP2Idx] = useState(() => getSaved('p2Idx', 1));
   
   const [targetScore, setTargetScore] = useState(() => getSaved('targetScore', 5));
   const [userWantsTargetScore, setUserWantsTargetScore] = useState(() => getSaved('userWantsTargetScore', true));
@@ -315,7 +334,7 @@ export default function App() {
     return true; 
   });
   
-  const [uiDarkMode, setUiDarkMode] = useState(() => isDarkMode); // UI State for immediate Icon change
+  const [uiDarkMode, setUiDarkMode] = useState(() => isDarkMode); 
   const [isAmoled, setIsAmoled] = useState(() => getSaved('isAmoled', false));
 
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(() => getSaved('winnerInfo', null));
@@ -341,7 +360,6 @@ export default function App() {
   const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartPointerDown = useRef(false);
   
-  // Transition Lock
   const isTransitioning = useRef(false);
 
   useEffect(() => {
@@ -357,7 +375,13 @@ export default function App() {
     localStorage.setItem('xColorIdx', JSON.stringify(xColorIdx));
     localStorage.setItem('oColorIdx', JSON.stringify(oColorIdx));
     localStorage.setItem('customLineIdx', JSON.stringify(customLineIdx));
-    localStorage.setItem('iconPack', JSON.stringify(iconPack));
+    
+    // Save new icon states
+    localStorage.setItem('p1Custom', JSON.stringify(p1Custom));
+    localStorage.setItem('p1Idx', JSON.stringify(p1Idx));
+    localStorage.setItem('p2Custom', JSON.stringify(p2Custom));
+    localStorage.setItem('p2Idx', JSON.stringify(p2Idx));
+
     localStorage.setItem('targetScore', JSON.stringify(targetScore));
     localStorage.setItem('userWantsTargetScore', JSON.stringify(userWantsTargetScore));
     localStorage.setItem('isTargetScoreEnabled', JSON.stringify(isTargetScoreEnabled));
@@ -367,7 +391,7 @@ export default function App() {
     localStorage.setItem('isDraw', JSON.stringify(isDraw));
     localStorage.setItem('overallWinner', JSON.stringify(overallWinner));
     localStorage.setItem('lastMoveIdx', JSON.stringify(lastMoveIdxRef.current));
-  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, iconPack, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner]);
+  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner]);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -399,14 +423,14 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [isDarkMode, isAmoled, themeIdx, useDefaultTheme]);
 
-  // --- UPDATED: Sequenced View Transition (Lag Fix) ---
+  // --- UPDATED: Zero Lag Theme Transition (Longer Delay) ---
   const handleThemeToggle = (e: React.MouseEvent) => {
     if (isTransitioning.current) return;
     isTransitioning.current = true;
 
     const nextDark = !isDarkMode;
     
-    // ১. বাটনের ভেতরের আইকনটি সাথে সাথেই বদলে যাবে যাতে কোনো ল্যাগ মনে না হয়
+    // ১. বাটনের স্প্রিং বাউন্স এবং আইকন সাথে সাথেই হবে
     setUiDarkMode(nextDark); 
     
     hapticFeedback(40);
@@ -416,7 +440,7 @@ export default function App() {
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
 
-    // ২. ২৫০ মিলিসেকেন্ড ডিলে, যাতে বাটনের বাউন্সটি শেষ হতে পারে
+    // ২. এবার ডিলে বাড়িয়ে ৪০০ মিলিসেকেন্ড করা হলো। ফলে বাটনের অ্যানিমেশন পুরোপুরি শেষ হবে, তারপর স্ক্রিনের রং বদলাবে।
     setTimeout(() => {
         // @ts-ignore
         if (!document.startViewTransition) {
@@ -443,17 +467,17 @@ export default function App() {
                     ]
                 },
                 {
-                    duration: 800, // পারফেক্ট স্মুথ ডিউরেশন
+                    duration: 800, 
                     easing: 'cubic-bezier(0.45, 0.05, 0.55, 0.95)',
                     pseudoElement: '::view-transition-new(root)'
                 }
             );
 
             animation.onfinish = () => {
-                isTransitioning.current = false; // ৩. স্ক্রিন বদলানো শেষ, এবার লক খুলবে
+                isTransitioning.current = false; 
             };
         });
-    }, 250); // এই ডিলের কারণেই আর ল্যাগ করবে না
+    }, 400); // Increased delay for zero lag
   };
 
   const toggleSound = () => {
@@ -845,9 +869,9 @@ export default function App() {
               Tic Tac Toe
             </motion.h1>
 
-            <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm transition-colors duration-200">
+            {/* --- UPDATED: Added overflow-hidden to fix bouncy slider spill --- */}
+            <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex justify-center p-1.5 rounded-[28px] relative w-fit mx-auto shadow-sm transition-colors duration-200 overflow-hidden">
               <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 transition-colors duration-300 select-none flex items-center justify-center gap-1.5 ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
-                {/* --- UPDATED: Mode Slider Bouncy Physics --- */}
                 {isSinglePlayer && <motion.div layoutId="modeSwitch" className="absolute inset-0 rounded-[24px] -z-10 shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} transition={{ type: "spring", stiffness: 400, damping: 14, mass: 1 }} />}
                 <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
               </button>
@@ -882,7 +906,7 @@ export default function App() {
                         <div className="relative h-8 w-6 overflow-hidden flex items-center justify-center">
                           <AnimatePresence mode="popLayout">
                             <motion.div key={isXNext ? 'X' : 'O'} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute flex items-center justify-center">
-                              <DynamicIcon player={isXNext ? 'X' : 'O'} packIdx={iconPack} color={isXNext ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-5 h-5 drop-shadow-sm" />
+                              <DynamicIcon player={isXNext ? 'X' : 'O'} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={isXNext ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-5 h-5 drop-shadow-sm" />
                             </motion.div>
                           </AnimatePresence>
                         </div>
@@ -909,7 +933,7 @@ export default function App() {
           <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible select-none">
              <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
                 <div className="flex items-center justify-center mb-0.5 opacity-90">
-                   <DynamicIcon player="X" packIdx={iconPack} color={PLAYER_COLORS[xColorIdx]} className="w-3.5 h-3.5" />
+                   <DynamicIcon player="X" p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={PLAYER_COLORS[xColorIdx]} className="w-3.5 h-3.5" />
                 </div>
                 <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
                   <AnimatePresence mode="popLayout">
@@ -933,7 +957,7 @@ export default function App() {
 
              <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
                 <div className="flex items-center justify-center mb-0.5 opacity-90">
-                   <DynamicIcon player="O" packIdx={iconPack} color={PLAYER_COLORS[oColorIdx]} className="w-3.5 h-3.5" />
+                   <DynamicIcon player="O" p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={PLAYER_COLORS[oColorIdx]} className="w-3.5 h-3.5" />
                 </div>
                 <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
                   <AnimatePresence mode="popLayout">
@@ -956,7 +980,6 @@ export default function App() {
                       {value && !isResetting && (
                         <motion.div 
                            initial={{ scale: 0, rotate: -180, opacity: 0 }} 
-                           // --- UPDATED: Celebration Spring Bounce ---
                            animate={
                                isWinningCell 
                                ? { scale: [1, 1.4, 0.85, 1.15, 1], rotate: [0, 15, -10, 5, 0], opacity: 1 } 
@@ -966,11 +989,11 @@ export default function App() {
                            transition={
                                isWinningCell
                                ? { duration: 0.65, ease: "easeInOut", times: [0, 0.2, 0.5, 0.8, 1] }
-                               : { type: 'spring', stiffness: 450, damping: 12, mass: 0.8 } // Normal Spring
+                               : { type: 'spring', stiffness: 450, damping: 12, mass: 0.8 } 
                            } 
                            className="w-full h-full flex items-center justify-center"
                         >
-                           <DynamicIcon player={value} packIdx={iconPack} color={value === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-3/5 h-3/5 drop-shadow-sm" />
+                           <DynamicIcon player={value} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={value === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-3/5 h-3/5 drop-shadow-sm" />
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -1082,7 +1105,7 @@ export default function App() {
                        <div className="flex flex-col items-center gap-1.5 z-10 w-full">
                          <h2 className="text-xl font-black tracking-tight leading-tight pt-1 drop-shadow-sm">Winner!</h2>
                          <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-md flex justify-center mt-2 mb-4">
-                           <DynamicIcon player={overallWinner} packIdx={iconPack} color={overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-20 h-20" />
+                           <DynamicIcon player={overallWinner} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-20 h-20" />
                          </motion.span>
                        </div>
                        
@@ -1123,32 +1146,59 @@ export default function App() {
                 
                 <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 m3-scrollbar">
                   
-                  {/* NEW: Icon Style Selector */}
-                  <div>
-                     <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Icon Style</h3>
-                     <div className="flex gap-2 p-1.5 rounded-2xl transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
-                        <button onClick={() => { hapticFeedback(20); setIconPack(0); }} className={`flex flex-col items-center gap-1 flex-1 py-2.5 rounded-xl transition-all ${iconPack === 0 ? 'bg-white text-black shadow-sm' : 'opacity-70 text-current'}`}>
-                           <div className="flex gap-1">
-                              <DynamicIcon player="X" packIdx={0} color="currentColor" className="w-4 h-4" />
-                              <DynamicIcon player="O" packIdx={0} color="currentColor" className="w-4 h-4" />
+                  {/* --- NEW: Individual Player Icon Selectors (20 Icons) --- */}
+                  <div className="rounded-2xl p-4 space-y-3 transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
+                     <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                           <div className="w-5 h-5 flex items-center justify-center opacity-70">
+                              <DynamicIcon player="X" p1Custom={false} p1Idx={0} p2Custom={false} p2Idx={0} color="currentColor" className="w-4 h-4"/>
                            </div>
-                           <span className="text-xs font-bold mt-1">Classic</span>
-                        </button>
-                        <button onClick={() => { hapticFeedback(20); setIconPack(1); }} className={`flex flex-col items-center gap-1 flex-1 py-2.5 rounded-xl transition-all ${iconPack === 1 ? 'bg-white text-black shadow-sm' : 'opacity-70 text-current'}`}>
-                           <div className="flex gap-1">
-                              <DynamicIcon player="X" packIdx={1} color="currentColor" className="w-4 h-4" />
-                              <DynamicIcon player="O" packIdx={1} color="currentColor" className="w-4 h-4" />
-                           </div>
-                           <span className="text-xs font-bold mt-1">Modern</span>
-                        </button>
-                        <button onClick={() => { hapticFeedback(20); setIconPack(2); }} className={`flex flex-col items-center gap-1 flex-1 py-2.5 rounded-xl transition-all ${iconPack === 2 ? 'bg-white text-black shadow-sm' : 'opacity-70 text-current'}`}>
-                           <div className="flex gap-1">
-                              <DynamicIcon player="X" packIdx={2} color="currentColor" className="w-4 h-4" />
-                              <DynamicIcon player="O" packIdx={2} color="currentColor" className="w-4 h-4" />
-                           </div>
-                           <span className="text-xs font-bold mt-1">Geometric</span>
-                        </button>
+                           <h3 className="text-sm uppercase tracking-wider opacity-90 font-bold">Custom Player X</h3>
+                        </div>
+                        <motion.button onClick={() => { hapticFeedback(30); setP1Custom(!p1Custom); }} className="w-12 h-6.5 rounded-full p-1.5 flex items-center shadow-inner relative overflow-hidden" style={{ backgroundColor: p1Custom ? '#0ea5e9' : (isDarkMode ? '#3f4753' : '#e0e2ec') }}>
+                            <motion.div animate={{ x: p1Custom ? 20 : 0 }} className="w-4.5 h-4.5 rounded-full bg-white shadow" transition={{ type: "spring", stiffness: 500, damping: 30 }} />
+                        </motion.button>
                      </div>
+                     <AnimatePresence>
+                     {p1Custom && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="pt-2">
+                           <div className="grid grid-cols-5 gap-2">
+                              {ICONS_LIST.map((IconComponent, idx) => (
+                                 <button key={idx} onClick={() => { hapticFeedback(20); setP1Idx(idx); }} className={`p-2 rounded-xl flex items-center justify-center border-2 transition-colors ${p1Idx === idx ? 'border-sky-500 bg-sky-500/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`}>
+                                    <IconComponent className="w-6 h-6" color={PLAYER_COLORS[xColorIdx]} fill={PLAYER_COLORS[xColorIdx]} strokeWidth={1.5} />
+                                 </button>
+                              ))}
+                           </div>
+                        </motion.div>
+                     )}
+                     </AnimatePresence>
+                  </div>
+
+                  <div className="rounded-2xl p-4 space-y-3 transition-colors duration-200" style={{ backgroundColor: semantics.scoreBg }}>
+                     <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                           <div className="w-5 h-5 flex items-center justify-center opacity-70">
+                              <DynamicIcon player="O" p1Custom={false} p1Idx={0} p2Custom={false} p2Idx={0} color="currentColor" className="w-4 h-4"/>
+                           </div>
+                           <h3 className="text-sm uppercase tracking-wider opacity-90 font-bold">Custom Player O</h3>
+                        </div>
+                        <motion.button onClick={() => { hapticFeedback(30); setP2Custom(!p2Custom); }} className="w-12 h-6.5 rounded-full p-1.5 flex items-center shadow-inner relative overflow-hidden" style={{ backgroundColor: p2Custom ? '#0ea5e9' : (isDarkMode ? '#3f4753' : '#e0e2ec') }}>
+                            <motion.div animate={{ x: p2Custom ? 20 : 0 }} className="w-4.5 h-4.5 rounded-full bg-white shadow" transition={{ type: "spring", stiffness: 500, damping: 30 }} />
+                        </motion.button>
+                     </div>
+                     <AnimatePresence>
+                     {p2Custom && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="pt-2">
+                           <div className="grid grid-cols-5 gap-2">
+                              {ICONS_LIST.map((IconComponent, idx) => (
+                                 <button key={idx} onClick={() => { hapticFeedback(20); setP2Idx(idx); }} className={`p-2 rounded-xl flex items-center justify-center border-2 transition-colors ${p2Idx === idx ? 'border-sky-500 bg-sky-500/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`}>
+                                    <IconComponent className="w-6 h-6" color={PLAYER_COLORS[oColorIdx]} fill={PLAYER_COLORS[oColorIdx]} strokeWidth={1.5} />
+                                 </button>
+                              ))}
+                           </div>
+                        </motion.div>
+                     )}
+                     </AnimatePresence>
                   </div>
 
                   <div>
@@ -1213,7 +1263,7 @@ export default function App() {
                             {themeIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
                           </button>
                         ))}
-                      </div >
+                      </div>
                     </motion.div>
                   )}
                   
@@ -1279,7 +1329,7 @@ export default function App() {
                     <p>👥 <span className="font-bold">2 Players:</span> Switch modes with one tap and play with a friend on the same device.</p>
                     <p>🎯 <span className="font-bold">Target Score Win:</span> Set a custom point target (1-20) to win the full match. Note: You cannot set the target below the current highest score.</p>
                     <p>🎨 <span className="font-bold">Material You Themes:</span> Choose from 11 beautiful color schemes, and customize the Player colors and Winning Line colors.</p>
-                    <p>✨ <span className="font-bold">Icon Styles:</span> Choose between Classic, Modern (Material), and Geometric icon sets.</p>
+                    <p>✨ <span className="font-bold">Custom Shapes:</span> Choose up to 20 unique geometric and nature-inspired shapes for each player.</p>
                     
                     <h4 className="text-lg font-extrabold tracking-tight opacity-90 pt-3">Controls</h4>
                     <p>🔄 <span className="font-bold text-sky-500">Soft Reset:</span> Tap the Restart button to clear the board and start a new round.</p>
