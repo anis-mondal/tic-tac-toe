@@ -309,6 +309,9 @@ export default function App() {
   const restartHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartPointerDown = useRef(false);
+  
+  // NEW: Transition Lock
+  const isTransitioning = useRef(false);
 
   useEffect(() => {
     localStorage.setItem('board', JSON.stringify(board));
@@ -364,8 +367,11 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [isDarkMode, isAmoled, themeIdx, useDefaultTheme]);
 
-  // --- UPDATED: Ultra Smooth Native View Transition (Perfect Ease-In-Out) ---
+  // --- UPDATED: Ultra Smooth Native View Transition with Lock ---
   const handleThemeToggle = (e: React.MouseEvent) => {
+    if (isTransitioning.current) return;
+    isTransitioning.current = true;
+
     const rect = e.currentTarget.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
@@ -377,6 +383,7 @@ export default function App() {
     // @ts-ignore
     if (!document.startViewTransition) {
         setIsDarkMode(nextDark);
+        isTransitioning.current = false;
         return;
     }
 
@@ -390,7 +397,7 @@ export default function App() {
             Math.max(x, window.innerWidth - x),
             Math.max(y, window.innerHeight - y)
         );
-        document.documentElement.animate(
+        const animation = document.documentElement.animate(
             {
                 clipPath: [
                     `circle(0px at ${x}px ${y}px)`,
@@ -398,12 +405,15 @@ export default function App() {
                 ]
             },
             {
-                // একদম পারফেক্ট ব্যালেন্সড সময় (800ms) এবং স্মুথ ease-in-out কার্ভ
-                duration: 800,
+                duration: 1200, 
                 easing: 'cubic-bezier(0.45, 0.05, 0.55, 0.95)',
                 pseudoElement: '::view-transition-new(root)'
             }
         );
+
+        animation.onfinish = () => {
+            isTransitioning.current = false;
+        };
     });
   };
 
