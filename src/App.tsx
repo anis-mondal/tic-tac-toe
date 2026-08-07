@@ -263,15 +263,6 @@ const blendDarker = (hex: string, factor: number) => {
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 };
 
-// --- NEW HELPER: For Semi-Transparent Modal Background ---
-const hexToRgba = (hex: string, alpha: number) => {
-    if (!hex || hex.length !== 7 || hex[0] !== '#') return `rgba(0,0,0,${alpha})`;
-    let r = parseInt(hex.slice(1, 3), 16);
-    let g = parseInt(hex.slice(3, 5), 16);
-    let b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
-
 const ORIGINAL_THEME = {
   name: 'Classic',
   light: '#f8f9fa', dark: '#000000',
@@ -495,7 +486,6 @@ export default function App() {
     }, 250);
   };
 
-  // --- UPDATED: Perfect 250ms Delay for Win Sequence ---
   useEffect(() => {
     if (isResetting) {
         isGameEnding.current = false;
@@ -519,7 +509,6 @@ export default function App() {
 
     if (hasWinner && winner) {
         isGameEnding.current = true;
-        // 250ms makes sure the final piece has settled, and feels naturally quick and fluid
         setTimeout(() => {
             setWinnerInfo({ winner: winner as Player, line: winningLine });
             
@@ -539,7 +528,7 @@ export default function App() {
             
             hapticFeedback([100, 50, 100, 50, 300]); 
             fireConfetti(winner);
-        }, 250); 
+        }, 450); 
     } else if (!board.includes(null)) {
         isGameEnding.current = true;
         setTimeout(() => {
@@ -547,7 +536,7 @@ export default function App() {
             setScores(prev => ({ ...prev, Draws: prev.Draws + 1 })); 
             playEnhancedSound('point', isSoundOn);
             hapticFeedback([200, 50, 200, 50, 300]); 
-        }, 250);
+        }, 450);
     }
   }, [board, isSoundOn, isResetting, xColorIdx, oColorIdx, targetScore, isTargetScoreEnabled, winnerInfo, isDraw, overallWinner]);
 
@@ -764,25 +753,7 @@ export default function App() {
   const activeLineColor = isDarkMode ? availableLinesDark[customLineIdx] : availableLinesLight[customLineIdx];
   const themeIndicatorColor = isDarkMode ? activeTheme.indicatorDark : activeTheme.indicatorLight;
   
-  const blendDarker = (hex: string, factor: number) => {
-      if (!hex || hex.length !== 7 || hex[0] !== '#') return hex;
-      let r = Math.floor(parseInt(hex.slice(1, 3), 16) * factor);
-      let g = Math.floor(parseInt(hex.slice(3, 5), 16) * factor);
-      let b = Math.floor(parseInt(hex.slice(5, 7), 16) * factor);
-      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-  };
-
-  // --- NEW: Hex to RGBA Function for 50% Transparency Modal ---
-  const hexToRgba = (hex: string, alpha: number) => {
-      if (!hex || hex.length !== 7 || hex[0] !== '#') return `rgba(0,0,0,${alpha})`;
-      let r = parseInt(hex.slice(1, 3), 16);
-      let g = parseInt(hex.slice(3, 5), 16);
-      let b = parseInt(hex.slice(5, 7), 16);
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  };
-
   const baseTextColor = isDarkMode ? '#ffffff' : '#111111';
-  // --- UPDATED: Stronger 40% Glassy/Tinted Effect on Text ---
   const tintedTextColor = !useDefaultTheme ? `color-mix(in srgb, ${baseTextColor} 60%, ${themeIndicatorColor})` : baseTextColor;
 
   const semantics = {
@@ -829,7 +800,7 @@ export default function App() {
           border-radius: 10px; 
         }
       `}</style>
-
+      
       <div 
           style={{ 
             backgroundColor: semantics.screenBackground,
@@ -1012,7 +983,7 @@ export default function App() {
                     style={{ backgroundColor: semantics.squareBackground, boxShadow: isDarkMode && !value && (!isAmoled || !useDefaultTheme) ? 'inset 0 2px 4px rgba(255,255,255,0.015)' : 'none', borderRadius: '24px' }} 
                     whileTap={!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? { borderRadius: '50%', scale: 0.85 } : {}}
                     animate={isSquished ? { borderRadius: '50%', scale: 0.85 } : { borderRadius: '24px', scale: 1 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 15 }}
                     className={`w-full h-full flex items-center justify-center relative overflow-hidden shadow-sm transition-colors duration-1000 ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}
                   >
                     <AnimatePresence mode="wait">
@@ -1025,12 +996,12 @@ export default function App() {
                                ? { scale: [1, 1.4, 0.85, 1.15, 1], opacity: 1 } 
                                : { scale: 1, rotate: 0, opacity: 1 }
                            } 
-                           // --- UPDATED: Slower and graceful disappear (Reverse Spring) ---
-                           exit={{ scale: 0, rotate: -180, opacity: 0 }} 
+                           // --- EXACT REVERSE DISAPPEAR ANIMATION (Spring Physics) ---
+                           exit={{ scale: 0, rotate: 180, opacity: 0 }} 
                            transition={
                                isWinningCell
                                ? { duration: 0.65, ease: "easeInOut", times: [0, 0.2, 0.5, 0.8, 1] }
-                               : { type: 'spring', stiffness: 80, damping: 12, mass: 1 } 
+                               : { type: 'spring', stiffness: 500, damping: 14, mass: 1 } 
                            } 
                            className="w-full h-full flex items-center justify-center"
                         >
@@ -1138,16 +1109,14 @@ export default function App() {
 
               </div>
 
-              {/* --- UPDATED: Beautiful 50% Glassy Modal --- */}
               <AnimatePresence>
                 {showWinnerModal && overallWinner && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-                    <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text, backgroundColor: hexToRgba(isDarkMode ? activeTheme.gridDark : activeTheme.gridLight, 0.6) }} className="w-[90%] max-w-[340px] h-auto p-6 rounded-[32px] relative flex flex-col items-center justify-center gap-5 text-center shadow-2xl backdrop-blur-xl transition-colors duration-1000 border border-white/5">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md rounded-[36px] sm:rounded-[40px]">
+                    <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text, backgroundColor: isDarkMode ? activeTheme.gridDark : activeTheme.gridLight }} className="w-[300px] h-auto p-5 rounded-[28px] relative flex flex-col items-center justify-center gap-5 text-center shadow-2xl transition-colors duration-1000">
                        
                        <div className="flex flex-col items-center gap-1.5 z-10 w-full">
                          <h2 className="text-2xl font-black tracking-tight leading-tight pt-1 drop-shadow-sm">Winner!</h2>
                          <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-md flex justify-center mt-3 mb-2">
-                           {/* --- UPDATED: Smaller Icon Size inside Winner Modal --- */}
                            <DynamicIcon player={overallWinner} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-14 h-14" />
                          </motion.span>
                        </div>
