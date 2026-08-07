@@ -1111,8 +1111,8 @@ export default function App() {
 
               <AnimatePresence>
                 {showWinnerModal && overallWinner && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md rounded-[36px] sm:rounded-[40px]">
-                    <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text, backgroundColor: isDarkMode ? activeTheme.gridDark : activeTheme.gridLight }} className="w-[300px] h-auto p-5 rounded-[28px] relative flex flex-col items-center justify-center gap-5 text-center shadow-2xl transition-colors duration-1000">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md">
+                    <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text, backgroundColor: isDarkMode ? activeTheme.gridDark : activeTheme.gridLight }} className="w-[90%] max-w-[360px] h-auto p-6 rounded-[32px] relative flex flex-col items-center justify-center gap-5 text-center shadow-2xl transition-colors duration-1000 border border-white/5">
                        
                        <div className="flex flex-col items-center gap-1.5 z-10 w-full">
                          <h2 className="text-2xl font-black tracking-tight leading-tight pt-1 drop-shadow-sm">Winner!</h2>
