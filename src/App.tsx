@@ -1111,16 +1111,13 @@ export default function App() {
 
                             <AnimatePresence>
                 {showWinnerModal && overallWinner && (
-                  {/* ১. পেছনের ব্যাকগ্রাউন্ড ব্লার করা হয়েছে */}
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
                     
-                    {/* ২. বক্সের ব্যাকগ্রাউন্ড কালার ও বর্ডার মুছে ফেলা হয়েছে। শুধু লেখা ও বাটনগুলো ভাসবে */}
                     <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text }} className="w-full max-w-[320px] flex flex-col items-center justify-center gap-6 text-center">
                        
                        <div className="flex flex-col items-center gap-2 z-10 w-full">
                          <h2 className="text-4xl font-black tracking-tight leading-tight drop-shadow-lg text-white">Winner!</h2>
                          <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-2xl flex justify-center mt-4 mb-2">
-                           {/* আইকনটি আগের চেয়ে বড় করা হয়েছে যাতে দেখতে সুন্দর লাগে */}
                            <DynamicIcon player={overallWinner} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-24 h-24" />
                          </motion.span>
                        </div>
@@ -1138,7 +1135,6 @@ export default function App() {
                   </motion.div>
                 )}
               </AnimatePresence>
-
 
             </motion.div>
           </div>
