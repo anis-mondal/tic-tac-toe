@@ -7,12 +7,17 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X as CloseIcon, Target, Info, UsersRound,
-  // 50 Unique Custom Shapes (Material, Geometric, Nature, Objects)
-  Hexagon, Octagon, Pentagon, Triangle, Square, Cloud, Target as TargetIcon, Shield, Zap, Crosshair,
-  Leaf, Flame, Droplet, Flower2, Star, Heart, Snowflake, Feather, Sun as SunIcon, Moon as MoonIcon,
-  Anchor, Ghost, Rocket, Trophy, Crown, Gem, Music, Gamepad2, Bell, Camera,
-  Umbrella, Coffee, Compass, MapPin, Radar, LifeBuoy, Magnet, Sprout, Tent, Wand2,
-  Atom, Orbit, Infinity as InfinityIcon, Puzzle, Plane, Car, Ship, Lightbulb, Dice5, Sparkles as SparkleIcon
+  // 100 Unique Custom Shapes (Geometric, Nature, Objects, Animals, Transport, Tech)
+  Hexagon, Octagon, Pentagon, Triangle, Square, Diamond, Asterisk, Target as TargetIcon, Shield, Zap,
+  Crosshair, Star, Heart, Infinity as InfinityIcon, Puzzle, Sparkles as SparkleIcon, Gem, Crown, Trophy, Ghost,
+  Leaf, Flame, Droplet, Flower2, Snowflake, Feather, Sun as SunIcon, Moon as MoonIcon, Cloud, Wind,
+  Sprout, TreePine, Mountain, Bug, Cat, Dog, Bird, Fish, Rabbit, Snail,
+  Anchor, Magnet, Umbrella, Coffee, Camera, Bell, Music, Gamepad2, Lightbulb, Dice5,
+  Tent, Wand2, Atom, Orbit, Bomb, Key, Glasses, Clock, Hourglass, Timer,
+  Rocket, Plane, Car, Ship, Bus, Train, Bike, Tractor, Sailboat, Truck,
+  Compass, MapPin, Radar, LifeBuoy, Map, Navigation, Flag, Globe, Ticket, Luggage,
+  Cpu, Database, Laptop, Smartphone, Watch, Headphones, Mic, Radio, Tv, Video,
+  Smile, Skull, Bot, Eye, Fingerprint, Activity, Box, Layers, Aperture, Grid
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -34,14 +39,18 @@ const WINNING_COMBINATIONS = [
   [0, 3, 6], [1, 4, 7], [2, 5, 8],
   [0, 4, 8], [2, 4, 6]
 ];
-
-// 50 Unique Custom Icons
+// 100 Unique Custom Icons
 const ICONS_LIST = [
-  Hexagon, Octagon, Pentagon, Triangle, Square, Cloud, TargetIcon, Shield, Zap, Crosshair,
-  Leaf, Flame, Droplet, Flower2, Star, Heart, Snowflake, Feather, SunIcon, MoonIcon,
-  Anchor, Ghost, Rocket, Trophy, Crown, Gem, Music, Gamepad2, Bell, Camera,
-  Umbrella, Coffee, Compass, MapPin, Radar, LifeBuoy, Magnet, Sprout, Tent, Wand2,
-  Atom, Orbit, InfinityIcon, Puzzle, Plane, Car, Ship, Lightbulb, Dice5, SparkleIcon
+  Hexagon, Octagon, Pentagon, Triangle, Square, Diamond, Asterisk, TargetIcon, Shield, Zap,
+  Crosshair, Star, Heart, InfinityIcon, Puzzle, SparkleIcon, Gem, Crown, Trophy, Ghost,
+  Leaf, Flame, Droplet, Flower2, Snowflake, Feather, SunIcon, MoonIcon, Cloud, Wind,
+  Sprout, TreePine, Mountain, Bug, Cat, Dog, Bird, Fish, Rabbit, Snail,
+  Anchor, Magnet, Umbrella, Coffee, Camera, Bell, Music, Gamepad2, Lightbulb, Dice5,
+  Tent, Wand2, Atom, Orbit, Bomb, Key, Glasses, Clock, Hourglass, Timer,
+  Rocket, Plane, Car, Ship, Bus, Train, Bike, Tractor, Sailboat, Truck,
+  Compass, MapPin, Radar, LifeBuoy, Map, Navigation, Flag, Globe, Ticket, Luggage,
+  Cpu, Database, Laptop, Smartphone, Watch, Headphones, Mic, Radio, Tv, Video,
+  Smile, Skull, Bot, Eye, Fingerprint, Activity, Box, Layers, Aperture, Grid
 ];
 
 const hapticFeedback = (pattern: number | number[]) => {
