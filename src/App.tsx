@@ -1108,10 +1108,10 @@ export default function App() {
                 </AnimatePresence>
 
               </div>
-              
+
+                      {/* উইনার পপআপ */}
         <AnimatePresence>
           {showWinnerModal && overallWinner && (
-            {/* bg-black/30 এবং backdrop-blur-sm ব্যবহার করে স্বচ্ছতা আরও বাড়ানো হলো */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
               
               <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text }} className="w-full max-w-[320px] flex flex-col items-center justify-center gap-6 text-center">
@@ -1135,8 +1135,7 @@ export default function App() {
               </motion.div>
             </motion.div>
           )}
-        </AnimatePresence>
-
+        </AnimatePresence>     
                             
             </motion.div>
           </div>
