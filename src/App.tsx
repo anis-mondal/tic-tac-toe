@@ -31,6 +31,9 @@ import confetti from 'canvas-confetti';
 // --- Import Local Font Perfectly ---
 // @ts-ignore
 import nunitoFont from './Nunito-ExtraBold.ttf';
+// @ts-ignore
+import nunitoBlackFont from './Nunito-Black.ttf';
+
 
 // --- Capacitor Plugins Added ---
 import { Capacitor } from '@capacitor/core';
@@ -805,7 +808,7 @@ export default function App() {
 
   return (
     <>
-      <style>{`
+            <style>{`
         @font-face {
           font-family: 'NunitoCustom';
           src: url('${nunitoFont}') format('truetype');
@@ -813,8 +816,16 @@ export default function App() {
           font-style: normal;
           font-display: swap;
         }
+        @font-face {
+          font-family: 'NunitoBlack';
+          src: url('${nunitoBlackFont}') format('truetype');
+          font-weight: 900;
+          font-style: normal;
+          font-display: swap;
+        }
 
         .font-nunito { font-family: 'NunitoCustom', sans-serif; font-weight: 700; }
+        .font-nunito-black { font-family: 'NunitoBlack', sans-serif; font-weight: 900; }
         
         .m3-scrollbar::-webkit-scrollbar { width: 6px; }
         .m3-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -823,6 +834,7 @@ export default function App() {
           border-radius: 10px; 
         }
       `}</style>
+
       
       <div 
           style={{ 
@@ -880,8 +892,8 @@ export default function App() {
            transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
            className="w-full max-w-md mx-auto flex flex-col items-center gap-4 relative"
         >
-          <header className="text-center space-y-5 pt-24 z-10 relative w-full overflow-visible">
-            <motion.h1 style={{ color: semantics.text }} className="text-[40px] sm:text-[44px] font-black tracking-tight drop-shadow-sm transition-colors duration-1000">
+                    <header className="text-center space-y-5 pt-24 z-10 relative w-full overflow-visible">
+            <motion.h1 style={{ color: semantics.text }} className="font-nunito-black text-[40px] sm:text-[44px] tracking-tight drop-shadow-sm transition-colors duration-1000">
               Tic Tac Toe
             </motion.h1>
 
@@ -892,13 +904,14 @@ export default function App() {
                 animate={{ x: isSinglePlayer ? 0 : 130 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
               />
-              <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-colors duration-1000 ${isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
+              <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} style={{ color: isSinglePlayer ? semantics.text : 'gray' }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-colors duration-1000">
                 <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
               </button>
-              <button onClick={() => switchModeClick(false)} className={`relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-colors duration-1000 ${!isSinglePlayer ? (isDarkMode ? 'text-white' : 'text-black') : 'text-gray-500'}`}>
-                <span className="relative z-10 flex items-center gap-1.5"><UsersRound color="#0ea5e9" className="w-[18px] h-[18px]" strokeWidth={2.5}/> 2 Players</span>
+              <button onClick={() => switchModeClick(false)} style={{ color: !isSinglePlayer ? semantics.text : 'gray' }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-colors duration-1000">
+                <span className="relative z-10 flex items-center gap-1.5"><UsersRound color={!isSinglePlayer ? semantics.text : "gray"} className="w-[18px] h-[18px]" strokeWidth={2.5}/> 2 Players</span>
               </button>
             </div>
+
 
             <motion.div 
               onClick={handleTurnBannerClick}
@@ -1138,10 +1151,11 @@ export default function App() {
               
               <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text }} className="w-full max-w-[280px] flex flex-col items-center justify-center gap-3 text-center">
                  
-                 <div className="flex flex-col items-center gap-1 z-10 w-full">
-                   <h2 className="text-2xl font-black tracking-tight leading-tight drop-shadow-md" style={{ color: semantics.text }}>
+                   <div className="flex flex-col items-center gap-1 z-10 w-full">
+                   <h2 className="font-nunito-black text-3xl tracking-tight leading-tight drop-shadow-md" style={{ color: semantics.text }}>
                      Winner!
                    </h2>
+
                    <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-xl flex justify-center mt-2 mb-1">
                      <DynamicIcon player={overallWinner} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={overallWinner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} className="w-16 h-16" />
                    </motion.span>
@@ -1177,12 +1191,13 @@ export default function App() {
                   <CloseIcon className="w-6 h-6" />
                 </button>
                 
-                <div className="flex gap-3 items-center mb-6">
+                   <div className="flex gap-3 items-center mb-6">
                     <button onClick={() => setIsAboutOpen(true)} className="p-2 transition-opacity hover:opacity-70">
                         <Info className="w-6 h-6" />
                     </button>
-                    <h2 className="text-2xl font-black">Appearance</h2>
+                    <h2 className="font-nunito-black text-2xl">Appearance</h2>
                 </div>
+
                 
                 <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 m3-scrollbar">
                   
@@ -1354,11 +1369,11 @@ export default function App() {
                   <CloseIcon className="w-6 h-6" />
                 </button>
                 
-                <div className="flex items-center gap-2.5 mb-6 opacity-80">
+                  <div className="flex items-center gap-2.5 mb-6 opacity-80">
                     <Info className="w-6 h-6 mr-1" />
-                    <h2 className="text-3xl font-black">About Game</h2>
+                    <h2 className="font-nunito-black text-3xl">About Game</h2>
                 </div>
-                
+
                 <div className="space-y-6 max-h-[65vh] overflow-y-auto pr-3 m3-scrollbar font-nunito font-normal text-[15px] opacity-80">
                   <p>This is a premium <span className="font-bold">Tic Tac Toe</span> game crafted with Google's <span className="font-bold text-sky-500">Material You (M3)</span> design system. Customize themes, colors, and target scores for a personalized experience.</p>
                   
