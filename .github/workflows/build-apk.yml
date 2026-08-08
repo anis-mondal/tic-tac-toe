@@ -100,11 +100,8 @@ jobs:
 
       - name: Configure APK Splits and Build
         run: |
-          # ক্যাপাসিটর অটোমেটিকভাবে নামের মাঝে স্পেস দিয়ে দেয়, সেটি মুছে স্পেস-মুক্ত করা হচ্ছে (যাতে ক্র্যাশ না করে)
-          sed -i 's/Tic Tac Toe/TicTacToe/g' android/app/build.gradle
-          
-          # গ্র্যাডল ফাইলে ৪টি আলাদা এপিকে তৈরির নির্দেশ যুক্ত করা হচ্ছে
-          cat <<EOF >> android/app/build.gradle
+          # পারমানেন্ট সমাধান: Gradle-কে বলে দেওয়া হচ্ছে প্রতিটি APK-এর নাম যেন তার আর্কিটেকচার (ABI) অনুযায়ী একদম আলাদা হয়
+          cat <<'EOF' >> android/app/build.gradle
           
           android {
               splits {
@@ -116,14 +113,25 @@ jobs:
                   }
               }
           }
+          
+          // ফাইল ক্র্যাশ এড়াতে প্রতিটি ফাইলের ইউনিক নাম তৈরি করা হচ্ছে
+          android.applicationVariants.all { variant ->
+              variant.outputs.all { output ->
+                  def abi = output.getFilter(com.android.build.OutputFile.ABI)
+                  if (abi == null) {
+                      abi = "universal"
+                  }
+                  output.outputFileName = "TicTacToe-Release-" + abi + ".apk"
+              }
+          }
           EOF
           
-          # এবার বিল্ড করা হচ্ছে
+          # পূর্বের ভুল ফাইল থাকলে তা ক্লিন করে বিল্ড করা হচ্ছে
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew clean assembleRelease
 
-      - name: Sign and Rename Multiple Release APKs
+      - name: Sign Release APKs
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
@@ -132,18 +140,14 @@ jobs:
           echo "$KEYSTORE_BASE64" | tr -d '\n\r ' | base64 --decode > release.keystore
           BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
           
+          # নতুন ইউনিক নামের ফাইলগুলোকে খুঁজে বের করে সাইন করা
           find app/build/outputs/apk/release -name "*.apk" | while read -r APK_FILE; do
             BASENAME=$(basename "$APK_FILE" .apk)
             
-            # আর্কিটেকচারের নাম (যেমন: arm64-v8a) বের করে আনা হচ্ছে
-            CLEAN_ABI=$(echo "$BASENAME" | sed -E 's/TicTacToe-//g; s/-release.*//g; s/-unsigned.*//g')
+            # যদি নামের শেষে "-unsigned" থাকে, তবে সেটি মুছে দেওয়া
+            CLEAN_NAME=$(echo "$BASENAME" | sed 's/-unsigned//g')
             
-            if [ -z "$CLEAN_ABI" ]; then
-              CLEAN_ABI="universal"
-            fi
-            
-            # নতুন সুন্দর নাম: TicTacToe-Release-arm64-v8a.apk
-            FINAL_APK_NAME="TicTacToe-Release-${CLEAN_ABI}.apk"
+            FINAL_APK_NAME="${CLEAN_NAME}-signed.apk"
             
             $BUILD_TOOLS_DIR/apksigner sign --ks release.keystore --ks-pass pass:game1234 --key-pass pass:game1234 --out "app/build/outputs/apk/release/$FINAL_APK_NAME" "$APK_FILE"
             
@@ -154,4 +158,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Release-APKs
-          path: android/app/build/outputs/apk/release/TicTacToe-Release-*.apk
+          path: android/app/build/outputs/apk/release/*-signed.apk
