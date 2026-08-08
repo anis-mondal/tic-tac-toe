@@ -98,8 +98,23 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
-      - name: Build Unsigned Release APKs
+      - name: Configure APK Splits and Build
         run: |
+          # বিল্ড করার ঠিক আগে গ্র্যাডল ফাইলে ৪টি আলাদা এপিকে তৈরির নির্দেশ ঢুকিয়ে দেওয়া হচ্ছে
+          cat <<EOF >> android/app/build.gradle
+          android {
+              splits {
+                  abi {
+                      enable true
+                      reset()
+                      include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+                      universalApk true
+                  }
+              }
+          }
+          EOF
+          
+          # এবার বিল্ড করা হচ্ছে
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease
@@ -110,7 +125,7 @@ jobs:
         run: |
           cd android
           
-          # স্পেস বা নতুন লাইন মুছে ফেলে নিখুঁতভাবে চাবি রিকভার করা
+          # চাবি রিকভার করা
           echo "$KEYSTORE_BASE64" | tr -d '\n\r ' | base64 --decode > release.keystore
           
           BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
@@ -119,21 +134,19 @@ jobs:
           find app/build/outputs/apk/release -name "*.apk" | while read -r APK_FILE; do
             BASENAME=$(basename "$APK_FILE" .apk)
             
-            # ফাইলের নাম থেকে "app-", "-release", "-unsigned" ইত্যাদি বাড়তি লেখা মুছে শুধু আর্কিটেকচারের নাম (যেমন: arm64-v8a) বের করা
+            # আর্কিটেকচারের নাম বের করা
             CLEAN_ABI=$(echo "$BASENAME" | sed -E 's/app-//g; s/-release.*//g; s/-unsigned.*//g; s/ /-/g')
             
-            # যদি কোনো কারণে CLEAN_ABI ফাঁকা হয়ে যায়, তবে ব্যাকআপ হিসেবে আগের নামটাই রাখা
             if [ -z "$CLEAN_ABI" ]; then
               CLEAN_ABI="${BASENAME// /-}"
             fi
             
-            # নতুন সুন্দর নাম তৈরি করা: TicTacToe-Release-[আর্কিটেকচার].apk
             FINAL_APK_NAME="TicTacToe-Release-${CLEAN_ABI}.apk"
             
-            # নতুন নামে এপিকে সাইন করা
+            # সাইন করা
             $BUILD_TOOLS_DIR/apksigner sign --ks release.keystore --ks-pass pass:game1234 --key-pass pass:game1234 --out "app/build/outputs/apk/release/$FINAL_APK_NAME" "$APK_FILE"
             
-            # আন-সাইনড ফাইলটি ডিলিট করে দেওয়া
+            # আন-সাইনড ফাইলটি ডিলিট করা
             rm "$APK_FILE"
           done
 
