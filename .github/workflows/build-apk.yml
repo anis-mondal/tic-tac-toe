@@ -6,9 +6,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  # ==========================================
-  # জব ১: ডিবাগ এপিকে তৈরি (প্যারালাল চলবে)
-  # ==========================================
   build_debug:
     runs-on: ubuntu-latest
     steps:
@@ -61,9 +58,6 @@ jobs:
           name: TicTacToe-Debug-APK
           path: android/app/build/outputs/apk/debug/*.apk
 
-  # ==========================================
-  # জব ২: রিলিজ এপিকে তৈরি (একই সাথে চলবে)
-  # ==========================================
   build_release:
     runs-on: ubuntu-latest
     steps:
@@ -116,13 +110,12 @@ jobs:
         run: |
           cd android
           
-          # গিটহাব সিক্রেট থেকে কিস্টোর রিকভার করা হচ্ছে (অতিরিক্ত স্পেস বা লাইন ইগনোর করার জন্য -d -i দেওয়া হলো)
-          echo -n "$KEYSTORE_BASE64" | base64 -d -i > release.keystore
+          # স্পেস বা নতুন লাইন মুছে ফেলে নিখুঁতভাবে চাবি রিকভার করা
+          echo "$KEYSTORE_BASE64" | tr -d '\n\r ' | base64 --decode > release.keystore
           
           BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
           APK_FILE=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
           
-          # একই চাবি দিয়ে এপিকে সাইন করা হচ্ছে
           $BUILD_TOOLS_DIR/apksigner sign --ks release.keystore --ks-pass pass:game1234 --key-pass pass:game1234 --out app/build/outputs/apk/release/TicTacToe-Release.apk "$APK_FILE"
 
       - name: Upload Release APK
