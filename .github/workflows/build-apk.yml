@@ -98,13 +98,13 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
-      - name: Build Unsigned Release APK
+      - name: Build Unsigned Release APKs
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease
 
-      - name: Sign Release APK with Persistent Key
+      - name: Sign Multiple Release APKs with Persistent Key
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
@@ -114,12 +114,18 @@ jobs:
           echo "$KEYSTORE_BASE64" | tr -d '\n\r ' | base64 --decode > release.keystore
           
           BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
-          APK_FILE=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
           
-          $BUILD_TOOLS_DIR/apksigner sign --ks release.keystore --ks-pass pass:game1234 --key-pass pass:game1234 --out app/build/outputs/apk/release/TicTacToe-Release.apk "$APK_FILE"
+          # তৈরি হওয়া সবগুলো এপিকে (arm64, v7a, x86, universal) খুঁজে বের করে লুপের মাধ্যমে সাইন করা
+          for APK_FILE in $(find app/build/outputs/apk/release -name "*.apk"); do
+            BASENAME=$(basename "$APK_FILE" .apk)
+            $BUILD_TOOLS_DIR/apksigner sign --ks release.keystore --ks-pass pass:game1234 --key-pass pass:game1234 --out "app/build/outputs/apk/release/TicTacToe-${BASENAME}-signed.apk" "$APK_FILE"
+            
+            # সাইন করার পর আন-সাইনড ফাইলটি ডিলিট করে দেওয়া যাতে শুধু সাইনড ফাইল আপলোড হয়
+            rm "$APK_FILE"
+          done
 
-      - name: Upload Release APK
+      - name: Upload Release APKs
         uses: actions/upload-artifact@v4
         with:
-          name: TicTacToe-Release-APK
-          path: android/app/build/outputs/apk/release/TicTacToe-Release.apk
+          name: TicTacToe-Release-APKs
+          path: android/app/build/outputs/apk/release/*-signed.apk
