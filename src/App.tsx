@@ -1011,7 +1011,7 @@ export default function App() {
               className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden transition-colors duration-1000"
             >
               <div ref={boardRef} className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] aspect-square">
-                {board.map((value, i) => {
+                                {board.map((value, i) => {
                   const isWinningCell = winnerInfo && winnerInfo.line.includes(i);
                   const isSquished = activeCell === i;
                   return (
@@ -1023,17 +1023,16 @@ export default function App() {
                     transition={{ type: "spring", stiffness: 500, damping: 15 }}
                     className={`w-full h-full flex items-center justify-center relative overflow-hidden shadow-sm transition-colors duration-1000 ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}
                   >
-                    <AnimatePresence mode="wait">
+                    <AnimatePresence>
                       {value && !isResetting && (
                         <motion.div 
-                           key={`${value}-${isWinningCell ? 'win' : 'normal'}`}
-                           initial={isWinningCell ? { scale: 1 } : { scale: 0, rotate: -180, opacity: 0 }} 
+                           key={value}
+                           initial={{ scale: 0, rotate: -180, opacity: 0 }} 
                            animate={
                                isWinningCell 
-                               ? { scale: [1, 1.4, 0.85, 1.15, 1], opacity: 1 } 
+                               ? { scale: [1, 1.4, 0.85, 1.15, 1], rotate: 0, opacity: 1 } 
                                : { scale: 1, rotate: 0, opacity: 1 }
                            } 
-                           // --- EXACT REVERSE DISAPPEAR ANIMATION (Spring Physics) ---
                            exit={{ scale: 0, rotate: 180, opacity: 0 }} 
                            transition={
                                isWinningCell
@@ -1048,6 +1047,7 @@ export default function App() {
                     </AnimatePresence>
                   </motion.button>
                 )})}
+
 
                 <AnimatePresence>
                   {linePoints && winnerInfo && (
