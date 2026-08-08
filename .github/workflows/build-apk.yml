@@ -116,8 +116,8 @@ jobs:
         run: |
           cd android
           
-          # গিটহাব সিক্রেট থেকে কিস্টোর রিকভার করা হচ্ছে
-          echo "$KEYSTORE_BASE64" | base64 --decode > release.keystore
+          # গিটহাব সিক্রেট থেকে কিস্টোর রিকভার করা হচ্ছে (অতিরিক্ত স্পেস বা লাইন ইগনোর করার জন্য -d -i দেওয়া হলো)
+          echo -n "$KEYSTORE_BASE64" | base64 -d -i > release.keystore
           
           BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
           APK_FILE=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
