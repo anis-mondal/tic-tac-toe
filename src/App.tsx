@@ -904,13 +904,14 @@ export default function App() {
                 animate={{ x: isSinglePlayer ? 0 : 130 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
               />
-              <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} style={{ color: isSinglePlayer ? semantics.text : 'gray' }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-colors duration-1000">
+              <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} style={{ color: semantics.text, opacity: isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-1000">
                 <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
               </button>
-              <button onClick={() => switchModeClick(false)} style={{ color: !isSinglePlayer ? semantics.text : 'gray' }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-colors duration-1000">
-                <span className="relative z-10 flex items-center gap-1.5"><UsersRound color={!isSinglePlayer ? semantics.text : "gray"} className="w-[18px] h-[18px]" strokeWidth={2.5}/> 2 Players</span>
+              <button onClick={() => switchModeClick(false)} style={{ color: semantics.text, opacity: !isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-1000">
+                <span className="relative z-10 flex items-center gap-1.5"><UsersRound color="currentColor" className="w-[18px] h-[18px]" strokeWidth={2.5}/> 2 Players</span>
               </button>
             </div>
+
 
 
             <motion.div 
