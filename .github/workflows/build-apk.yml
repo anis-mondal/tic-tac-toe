@@ -100,8 +100,9 @@ jobs:
 
       - name: Configure APK Splits and Build
         run: |
-          # বিল্ড করার ঠিক আগে গ্র্যাডল ফাইলে ৪টি আলাদা এপিকে তৈরির নির্দেশ ঢুকিয়ে দেওয়া হচ্ছে
+          # গ্র্যাডল ফাইলে ৪টি আলাদা এপিকে তৈরির নির্দেশ এবং স্পেস-মুক্ত নামের নির্দেশ যুক্ত করা হচ্ছে
           cat <<EOF >> android/app/build.gradle
+          
           android {
               splits {
                   abi {
@@ -112,6 +113,9 @@ jobs:
                   }
               }
           }
+          
+          // ফাইলের নামের স্পেস সমস্যা দূর করতে বেস নাম সেট করা হলো
+          project.archivesBaseName = "TicTacToe"
           EOF
           
           # এবার বিল্ড করা হচ্ছে
@@ -125,28 +129,25 @@ jobs:
         run: |
           cd android
           
-          # চাবি রিকভার করা
           echo "$KEYSTORE_BASE64" | tr -d '\n\r ' | base64 --decode > release.keystore
           
           BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
           
-          # তৈরি হওয়া প্রতিটি এপিকে খুঁজে সুন্দর নাম দেওয়া এবং সাইন করা
           find app/build/outputs/apk/release -name "*.apk" | while read -r APK_FILE; do
             BASENAME=$(basename "$APK_FILE" .apk)
             
-            # আর্কিটেকচারের নাম বের করা
-            CLEAN_ABI=$(echo "$BASENAME" | sed -E 's/app-//g; s/-release.*//g; s/-unsigned.*//g; s/ /-/g')
+            # আর্কিটেকচারের নাম (যেমন: arm64-v8a) বের করে আনা হচ্ছে
+            CLEAN_ABI=$(echo "$BASENAME" | sed -E 's/TicTacToe-//g; s/app-//g; s/-release.*//g; s/-unsigned.*//g')
             
             if [ -z "$CLEAN_ABI" ]; then
-              CLEAN_ABI="${BASENAME// /-}"
+              CLEAN_ABI="universal"
             fi
             
+            # নতুন সুন্দর নাম: TicTacToe-Release-arm64-v8a.apk
             FINAL_APK_NAME="TicTacToe-Release-${CLEAN_ABI}.apk"
             
-            # সাইন করা
             $BUILD_TOOLS_DIR/apksigner sign --ks release.keystore --ks-pass pass:game1234 --key-pass pass:game1234 --out "app/build/outputs/apk/release/$FINAL_APK_NAME" "$APK_FILE"
             
-            # আন-সাইনড ফাইলটি ডিলিট করা
             rm "$APK_FILE"
           done
 
