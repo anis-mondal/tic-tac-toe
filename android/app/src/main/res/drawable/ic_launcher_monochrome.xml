@@ -2,51 +2,54 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24"
+    android:viewportWidth="108"
+    android:viewportHeight="108"
     android:tint="#000000">
 
-    <!-- বাইরের একটি মাত্র রাউন্ডেড বক্স -->
+    <!-- বাইরের মোটা রাউন্ডেড বক্স এবং ভেতরের ক্রস গ্রিড -->
     <path
         android:strokeColor="#000000"
-        android:strokeWidth="1.8"
+        android:strokeWidth="5"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M 8,4 L 16,4 A 4,4 0 0,1 20,8 L 20,16 A 4,4 0 0,1 16,20 L 8,20 A 4,4 0 0,1 4,16 L 4,8 A 4,4 0 0,1 8,4 Z" />
-
-    <!-- ভেতরের ক্রস লাইন (Grid) -->
-    <path
-        android:strokeColor="#000000"
-        android:strokeWidth="1.8"
-        android:strokeLineCap="round"
-        android:pathData="M 12,4 L 12,20 M 4,12 L 20,12" />
+        android:pathData="
+            M 42,30
+            L 66,30
+            A 12,12 0 0,1 78,42
+            L 78,66
+            A 12,12 0 0,1 66,78
+            L 42,78
+            A 12,12 0 0,1 30,66
+            L 30,42
+            A 12,12 0 0,1 42,30
+            Z
+            M 54,30 L 54,78
+            M 30,54 L 78,54" />
 
     <!-- Top-Left বক্সে X -->
     <path
         android:strokeColor="#000000"
-        android:strokeWidth="1.8"
+        android:strokeWidth="5"
         android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M 6.5,6.5 L 9.5,9.5 M 9.5,6.5 L 6.5,9.5" />
+        android:pathData="M 37,37 L 47,47 M 47,37 L 37,47" />
 
     <!-- Top-Right বক্সে O -->
     <path
         android:strokeColor="#000000"
-        android:strokeWidth="1.8"
-        android:pathData="M 16,6.5 A 1.5,1.5 0 1,1 16,9.5 A 1.5,1.5 0 1,1 16,6.5 Z" />
+        android:strokeWidth="5"
+        android:pathData="M 66,36.5 A 5.5,5.5 0 1,1 66,47.5 A 5.5,5.5 0 1,1 66,36.5 Z" />
 
     <!-- Bottom-Left বক্সে O -->
     <path
         android:strokeColor="#000000"
-        android:strokeWidth="1.8"
-        android:pathData="M 8,14.5 A 1.5,1.5 0 1,1 8,17.5 A 1.5,1.5 0 1,1 8,14.5 Z" />
+        android:strokeWidth="5"
+        android:pathData="M 42,60.5 A 5.5,5.5 0 1,1 42,71.5 A 5.5,5.5 0 1,1 42,60.5 Z" />
 
     <!-- Bottom-Right বক্সে X -->
     <path
         android:strokeColor="#000000"
-        android:strokeWidth="1.8"
+        android:strokeWidth="5"
         android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M 14.5,14.5 L 17.5,17.5 M 17.5,14.5 L 14.5,17.5" />
+        android:pathData="M 61,61 L 71,71 M 71,61 L 61,71" />
 
 </vector>
