@@ -7,6 +7,6 @@
         <inset android:drawable="@mipmap/ic_launcher_foreground" android:inset="16.7%" />
     </foreground>
     
-    <!-- ডাইনামিক আইকনে inset দেওয়া হয়নি, কারণ সাইজ ভেক্টরেই ফিক্স করা আছে -->
+    <!-- ডাইনামিক আইকনে আর inset লাগবে না, কারণ সাইজ ভেক্টরেই ফিক্স করা আছে -->
     <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
 </adaptive-icon>
