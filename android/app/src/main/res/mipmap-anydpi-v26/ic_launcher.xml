@@ -6,7 +6,7 @@
     <foreground>
         <inset android:drawable="@mipmap/ic_launcher_foreground" android:inset="16.7%" />
     </foreground>
-    <monochrome>
-        <inset android:drawable="@drawable/ic_launcher_monochrome" android:inset="16.7%" />
-    </monochrome>
+    
+    <!-- ডাইনামিক আইকনে আর inset লাগবে না, কারণ এটি আমি পারফেক্ট সাইজেই বানিয়েছি -->
+    <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
 </adaptive-icon>
