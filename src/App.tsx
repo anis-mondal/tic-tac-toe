@@ -318,6 +318,7 @@ const ORIGINAL_THEME = {
 };
 
 const CUSTOM_THEMES = [
+  // আগের ১৫টি M3 থিম
   { name: 'Dynamic M3', light: '#fdf8fd', dark: '#141218', gridLight: '#e8def8', gridDark: '#2b2930', cellLight: '#ffffff', cellDark: '#36343b', indicatorLight: '#6750a4', indicatorDark: '#d0bcff', linesLight: ['#6750a4', '#b3261e', '#9c4146', '#316934', '#006a6a'], linesDark: ['#d0bcff', '#f2b8b5', '#ffb4ab', '#82c986', '#4cdada'] },
   { name: 'M3 Blue', light: '#eff6ff', dark: '#040b17', gridLight: '#bfdbfe', gridDark: '#0a1229', cellLight: '#ffffff', cellDark: '#121e38', indicatorLight: '#2563eb', indicatorDark: '#3b82f6', linesLight: ['#1e3a8a', '#1d4ed8', '#0891b2', '#4f46e5', '#3b82f6'], linesDark: ['#60a5fa', '#93c5fd', '#3b82f6', '#818cf8', '#7dd3fc'] },
   { name: 'M3 Emerald', light: '#ecfdf5', dark: '#020f0a', gridLight: '#a7f3d0', gridDark: '#052115', cellLight: '#ffffff', cellDark: '#0a3321', indicatorLight: '#16a34a', indicatorDark: '#22c55e', linesLight: ['#166534', '#059669', '#15803d', '#10b981', '#16a34a'], linesDark: ['#4ade80', '#22c55e', '#34d399', '#86efac', '#8dd999'] },
@@ -333,18 +334,40 @@ const CUSTOM_THEMES = [
   { name: 'M3 Yellow', light: '#fefce8', dark: '#141000', gridLight: '#fef08a', gridDark: '#332800', cellLight: '#ffffff', cellDark: '#4a3a00', indicatorLight: '#eab308', indicatorDark: '#facc15', linesLight: ['#ca8a04', '#eab308', '#facc15', '#a16207', '#854d0e'], linesDark: ['#facc15', '#fef08a', '#eab308', '#fef9c3', '#ca8a04'] },
   { name: 'M3 Lime', light: '#f7fee7', dark: '#0f1402', gridLight: '#d9f99d', gridDark: '#1d2905', cellLight: '#ffffff', cellDark: '#2a3b07', indicatorLight: '#84cc16', indicatorDark: '#a3e635', linesLight: ['#65a30d', '#84cc16', '#a3e635', '#4d7c0f', '#3f6212'], linesDark: ['#a3e635', '#d9f99d', '#84cc16', '#ecfccb', '#65a30d'] },
   { name: 'M3 Teal', light: '#f0fdfa', dark: '#041414', gridLight: '#ccfbf1', gridDark: '#0f3333', cellLight: '#ffffff', cellDark: '#144040', indicatorLight: '#14b8a6', indicatorDark: '#2dd4bf', linesLight: ['#0d9488', '#14b8a6', '#2dd4bf', '#0f766e', '#115e59'], linesDark: ['#2dd4bf', '#99f6e4', '#14b8a6', '#ccfbf1', '#0d9488'] },
+  
+  // আপনার দেওয়া নতুন ১০টি কালার দিয়ে বানানো থিম অবজেক্ট
+  { name: 'Custom Pastel Green', light: '#f8fbf8', dark: '#081208', gridLight: '#e4f5e4', gridDark: '#162e16', cellLight: '#ffffff', cellDark: '#1e401e', indicatorLight: '#78dd77', indicatorDark: '#78dd77', linesLight: ['#78dd77', '#5ec85d', '#45b445', '#2a9b2a', '#148214'], linesDark: ['#78dd77', '#93f592', '#b2ffb2', '#ccffcc', '#e5ffe5'] },
+  { name: 'Custom Light Green', light: '#f8fdf2', dark: '#0d1405', gridLight: '#eef8dc', gridDark: '#223812', cellLight: '#ffffff', cellDark: '#2e4d1a', indicatorLight: '#9fd75c', indicatorDark: '#9fd75c', linesLight: ['#9fd75c', '#85c242', '#6ba829', '#529111', '#3b7800'], linesDark: ['#9fd75c', '#bbf276', '#d6ff94', '#eaffb2', '#f6ffcf'] },
+  { name: 'Custom Lime Yellow', light: '#fcfee6', dark: '#161a02', gridLight: '#f4facb', gridDark: '#36400a', cellLight: '#ffffff', cellDark: '#495711', indicatorLight: '#c1d02d', indicatorDark: '#c1d02d', linesLight: ['#c1d02d', '#a8b515', '#8f9c00', '#778200', '#5e6b00'], linesDark: ['#c1d02d', '#dbe84a', '#f5ff6b', '#ffff8c', '#ffffa8'] },
+  { name: 'Custom Bright Amber', light: '#fffaf0', dark: '#1f1600', gridLight: '#ffefc2', gridDark: '#4d3700', cellLight: '#ffffff', cellDark: '#664900', indicatorLight: '#fabd00', indicatorDark: '#fabd00', linesLight: ['#fabd00', '#e0a300', '#c78a00', '#ad7200', '#945c00'], linesDark: ['#fabd00', '#ffdb33', '#fff466', '#ffff99', '#ffffcc'] },
+  { name: 'Custom Peach', light: '#fff8f2', dark: '#1f150a', gridLight: '#ffe6cd', gridDark: '#4d3319', cellLight: '#ffffff', cellDark: '#664522', indicatorLight: '#ffb86e', indicatorDark: '#ffb86e', linesLight: ['#ffb86e', '#e69e55', '#cc853d', '#b36d26', '#995611'], linesDark: ['#ffb86e', '#ffd28a', '#ffecab', '#ffffcc', '#ffffe5'] },
+  { name: 'Custom Salmon', light: '#fff7f5', dark: '#1f1311', gridLight: '#ffdfd9', gridDark: '#4d2d27', cellLight: '#ffffff', cellDark: '#663b33', indicatorLight: '#feb4a7', indicatorDark: '#feb4a7', linesLight: ['#feb4a7', '#e3998d', '#c97f74', '#b0675c', '#965045'], linesDark: ['#feb4a7', '#ffcec2', '#ffe9df', '#fffffc', '#ffffff'] },
+  { name: 'Custom Pastel Pink', light: '#fff7f9', dark: '#1f1215', gridLight: '#ffe0e7', gridDark: '#4d2c33', cellLight: '#ffffff', cellDark: '#663b44', indicatorLight: '#ffb3c0', indicatorDark: '#ffb3c0', linesLight: ['#ffb3c0', '#e699a6', '#cc808d', '#b36875', '#99505e'], linesDark: ['#ffb3c0', '#ffd0db', '#ffecf2', '#ffffff', '#ffffff'] },
+  { name: 'Custom Light Magenta', light: '#fff6ff', dark: '#1e0e1f', gridLight: '#feddfa', gridDark: '#4d234d', cellLight: '#ffffff', cellDark: '#662e66', indicatorLight: '#fcaaff', indicatorDark: '#fcaaff', linesLight: ['#fcaaff', '#e18fe6', '#c676cd', '#ad5eb5', '#95469d'], linesDark: ['#fcaaff', '#ffc7ff', '#ffe4ff', '#ffffff', '#ffffff'] },
+  { name: 'Custom Periwinkle', light: '#f7f8ff', dark: '#11131f', gridLight: '#e4e7ff', gridDark: '#2c334d', cellLight: '#ffffff', cellDark: '#3b4366', indicatorLight: '#b9c3ff', indicatorDark: '#b9c3ff', linesLight: ['#b9c3ff', '#9ca7e6', '#808ccd', '#6571b5', '#4a589d'], linesDark: ['#b9c3ff', '#d6deff', '#f0f5ff', '#ffffff', '#ffffff'] },
+  { name: 'Custom Sky Blue', light: '#f2fbff', dark: '#06171f', gridLight: '#d1f1ff', gridDark: '#12415c', cellLight: '#ffffff', cellDark: '#18587a', indicatorLight: '#62d3ff', indicatorDark: '#62d3ff', linesLight: ['#62d3ff', '#45b8e6', '#2b9dcd', '#1084b5', '#006c9d'], linesDark: ['#62d3ff', '#82e8ff', '#a3fcff', '#c7ffff', '#e5ffff'] }
 ];
 
+
 const PLAYER_COLORS = [
+  // আগের ১৫টি কালার
   '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', 
   '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', 
-  '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'
+  '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
+  // আপনার দেওয়া নতুন ১০টি কালার
+  '#78dd77', '#9fd75c', '#c1d02d', '#fabd00', '#ffb86e', 
+  '#feb4a7', '#ffb3c0', '#fcaaff', '#b9c3ff', '#62d3ff'
 ];
 
 const EXTRA_LINE_COLORS = [
+  // আগের ১০টি কালার
   '#ef4444', '#f97316', '#f59e0b', '#eab308', '#06b6d4', 
-  '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#64748b'
+  '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#64748b',
+  // আপনার দেওয়া নতুন ১০টি কালার
+  '#78dd77', '#9fd75c', '#c1d02d', '#fabd00', '#ffb86e', 
+  '#feb4a7', '#ffb3c0', '#fcaaff', '#b9c3ff', '#62d3ff'
 ];
+
 
 const getSaved = (key: string, defaultVal: any) => {
   if (typeof window === 'undefined') return defaultVal;
