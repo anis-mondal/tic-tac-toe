@@ -930,9 +930,7 @@ export default function App() {
               </button>
             </div>
 
-
-
-            <motion.div 
+             <motion.div 
               onClick={handleTurnBannerClick}
               onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} 
               animate={{ scale: winnerInfo ? 1.05 : 1 }} 
@@ -941,8 +939,22 @@ export default function App() {
             >
               <div className="flex items-center gap-2 relative z-10">
                 {winnerInfo ? (
-                  <><Sparkles className="w-4 h-4" style={{ color: activeLineColor }} /><span className="font-bold">Winner: Player {winnerInfo.winner}!</span></>
+                  <>
+                    <Sparkles className="w-4 h-4" style={{ color: activeLineColor }} />
+                    <span className="font-bold flex items-center">
+                      Winner: 
+                      <DynamicIcon 
+                        player={winnerInfo.winner} 
+                        p1Custom={p1Custom} p1Idx={p1Idx} 
+                        p2Custom={p2Custom} p2Idx={p2Idx} 
+                        color={winnerInfo.winner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} 
+                        className="w-5 h-5 mx-1.5 drop-shadow-sm" 
+                      />
+                      !
+                    </span>
+                  </>
                 ) : isDraw ? (<span className="font-bold">It's a Stalemate!</span>) : (
+         
                   <>
                     {isAITurn ? (
                       <div className="flex items-center gap-1.5 h-8">
