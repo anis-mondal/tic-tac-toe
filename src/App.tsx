@@ -30,7 +30,7 @@ import {
   Apple, Backpack, BaggageClaim, Battery, Bed, Beer, Binoculars, Bone, Brain, Calculator, Calendar, 
   CarFront, Carrot, Castle, ChefHat, Cherry, Church, Citrus, Clover, Club, Cookie, Croissant, Crosshair, 
   CupSoda, Drum, Dumbbell, Ear, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, Swords, Grape, 
-  Guitar, Lock, IceCream, Joystick, Keyboard, MountainSnow, Mushroom, Nut, PaintBucket, Pizza, 
+  Guitar, Lock, IceCream, Joystick, Keyboard, MountainSnow, Wine, Nut, PaintBucket, Pizza, 
   Satellite, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich
 } from 'lucide-react';
 
@@ -82,7 +82,7 @@ const ICONS_LIST = [
   Apple, Backpack, BaggageClaim, Battery, Bed, Beer, Binoculars, Bone, Brain, Calculator, Calendar, 
   CarFront, Carrot, Castle, ChefHat, Cherry, Church, Citrus, Clover, Club, Cookie, Croissant, 
   Crosshair, CupSoda, Drum, Dumbbell, Ear, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, 
-  Swords, Grape, Guitar, Lock, IceCream, Joystick, Keyboard, MountainSnow, Mushroom, Nut, 
+  Swords, Grape, Guitar, Lock, IceCream, Joystick, Keyboard, MountainSnow, Wine, Nut, 
   PaintBucket, Pizza, Satellite, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich
 ];
 
