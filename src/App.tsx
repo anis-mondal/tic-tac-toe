@@ -942,7 +942,7 @@ export default function App() {
                   <>
                     <Sparkles className="w-4 h-4" style={{ color: activeLineColor }} />
                     <span className="font-bold flex items-center">
-                      Winner: 
+                      Winner: Player
                       <DynamicIcon 
                         player={winnerInfo.winner} 
                         p1Custom={p1Custom} p1Idx={p1Idx} 
@@ -950,7 +950,6 @@ export default function App() {
                         color={winnerInfo.winner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} 
                         className="w-5 h-5 mx-1.5 drop-shadow-sm" 
                       />
-                      !
                     </span>
                   </>
                 ) : isDraw ? (<span className="font-bold">It's a Stalemate!</span>) : (
