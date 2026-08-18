@@ -5,30 +5,124 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-// খেয়াল করুন: এখানে আমরা শুধু UI-তে ব্যবহার করা ১১টি আইকন ইমপোর্ট করেছি! বাকি ১৫০টি আইকন themeData.ts-এ আছে।
 import { 
-  RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X as CloseIcon, Target, Info, UsersRound 
+  RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X as CloseIcon, Target, Info, UsersRound,
+  // 150 Unique Custom Shapes (No duplicates, no simple circles)
+  Hexagon, Octagon, Pentagon, Triangle, Square, Diamond, Asterisk, Target as TargetIcon, Shield, Zap,
+  Dna, Star, Heart, Infinity as InfinityIcon, Puzzle, Sparkles as SparkleIcon, Gem, Crown, Trophy, Ghost,
+  Leaf, Flame, Droplet, Flower2, Snowflake, Feather, Sun as SunIcon, Moon as MoonIcon, Cloud, Wind,
+  Sprout, TreePine, Mountain, Bug, Cat, Dog, Bird, Fish, Rabbit, Snail,
+  Anchor, Magnet, Umbrella, Coffee, Camera, Bell, Music, Gamepad2, Lightbulb, Dice5,
+  Tent, Wand2, Atom, Orbit, Bomb, Key, Glasses, Clock, Hourglass, Timer,
+  Rocket, Plane, Car, Ship, Bus, Train, Bike, Tractor, Sailboat, Truck,
+  Compass, MapPin, Radar, LifeBuoy, Map, Navigation, Flag, Globe, Ticket, Luggage,
+  Cpu, Database, Laptop, Smartphone, Watch, Headphones, Mic, Radio, Tv, Monitor,
+  Smile, Skull, Bot, Eye, Fingerprint, Activity, Box, Layers, Aperture, Grid,
+  Palette, PenTool, Brush, Scissors, Hammer, Wrench, Ruler, Drill, HardHat, Thermometer,
+  Sunrise, Sunset, CloudRain, CloudSnow, CloudLightning, Tornado, Waves, Trees, Palmtree, Droplets,
+  ShoppingCart, ShoppingBag, ShoppingBasket, Tag, Wallet, CreditCard, Banknote, Coins, PiggyBank, Receipt,
+  Stethoscope, Syringe, TestTube, FlaskConical, Pill, Microscope, Telescope, Webcam, Film, Clapperboard,
+  Megaphone, Speaker, Book, Bookmark, Briefcase, GraduationCap, Medal, Award, Gift, PartyPopper
 } from 'lucide-react';
+
+
 import confetti from 'canvas-confetti';
 
-// --- Local Fonts ---
+// --- Import Local Font Perfectly ---
 // @ts-ignore
 import nunitoFont from './Nunito-ExtraBold.ttf';
 // @ts-ignore
 import nunitoBlackFont from './Nunito-Black.ttf';
 
-// --- Capacitor Plugins ---
+
+// --- Capacitor Plugins Added ---
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { App as CapApp } from '@capacitor/app';
 
-// --- আমাদের নতুন তৈরি করা মডিউলগুলো (Importing from split files) ---
-import { Player, SquareValue } from './types';
-import { ICONS_LIST, ORIGINAL_THEME, CUSTOM_THEMES, PLAYER_COLORS, EXTRA_LINE_COLORS } from './constants/themeData';
-import { hapticFeedback, getSaved, blendDarker } from './utils/helpers';
-import { WINNING_COMBINATIONS, findBestMove } from './utils/gameLogic';
-import DynamicIcon from './components/DynamicIcon';
-import AILogo from './components/AILogo';
+type Player = 'X' | 'O';
+type SquareValue = Player | null;
+
+const WINNING_COMBINATIONS = [
+  [0, 1, 2], [3, 4, 5], [6, 7, 8],
+  [0, 3, 6], [1, 4, 7], [2, 5, 8],
+  [0, 4, 8], [2, 4, 6]
+];
+// 150 Unique Custom Icons (No duplicates, no circles)
+const ICONS_LIST = [
+  Hexagon, Octagon, Pentagon, Triangle, Square, Diamond, Asterisk, TargetIcon, Shield, Zap,
+  Dna, Star, Heart, InfinityIcon, Puzzle, SparkleIcon, Gem, Crown, Trophy, Ghost,
+  Leaf, Flame, Droplet, Flower2, Snowflake, Feather, SunIcon, MoonIcon, Cloud, Wind,
+  Sprout, TreePine, Mountain, Bug, Cat, Dog, Bird, Fish, Rabbit, Snail,
+  Anchor, Magnet, Umbrella, Coffee, Camera, Bell, Music, Gamepad2, Lightbulb, Dice5,
+  Tent, Wand2, Atom, Orbit, Bomb, Key, Glasses, Clock, Hourglass, Timer,
+  Rocket, Plane, Car, Ship, Bus, Train, Bike, Tractor, Sailboat, Truck,
+  Compass, MapPin, Radar, LifeBuoy, Map, Navigation, Flag, Globe, Ticket, Luggage,
+  Cpu, Database, Laptop, Smartphone, Watch, Headphones, Mic, Radio, Tv, Monitor,
+  Smile, Skull, Bot, Eye, Fingerprint, Activity, Box, Layers, Aperture, Grid,
+  Palette, PenTool, Brush, Scissors, Hammer, Wrench, Ruler, Drill, HardHat, Thermometer,
+  Sunrise, Sunset, CloudRain, CloudSnow, CloudLightning, Tornado, Waves, Trees, Palmtree, Droplets,
+  ShoppingCart, ShoppingBag, ShoppingBasket, Tag, Wallet, CreditCard, Banknote, Coins, PiggyBank, Receipt,
+  Stethoscope, Syringe, TestTube, FlaskConical, Pill, Microscope, Telescope, Webcam, Film, Clapperboard,
+  Megaphone, Speaker, Book, Bookmark, Briefcase, GraduationCap, Medal, Award, Gift, PartyPopper
+];
+
+
+
+const hapticFeedback = (pattern: number | number[]) => {
+  if (Capacitor.isNativePlatform()) {
+     try { Haptics.impact({ style: ImpactStyle.Heavy }); } catch (e) {}
+  } else if (typeof window !== 'undefined' && navigator.vibrate) {
+     try { navigator.vibrate(pattern); } catch (e) {}
+  }
+};
+
+const AILogo = () => (
+  <svg width="20" height="20" viewBox="0 0 100 100" className="drop-shadow-sm shrink-0">
+    <defs>
+      <linearGradient id="ai-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#FF3B30" />    
+        <stop offset="25%" stopColor="#FF9500" />   
+        <stop offset="50%" stopColor="#4CD964" />   
+        <stop offset="75%" stopColor="#5AC8FA" />   
+        <stop offset="100%" stopColor="#007AFF" />  
+      </linearGradient>
+    </defs>
+    <circle cx="50" cy="50" r="42" fill="none" stroke="url(#ai-grad)" strokeWidth="12" />
+    <text x="50" y="68" fontFamily="NunitoCustom, sans-serif" fontWeight="900" fontSize="48" fill="url(#ai-grad)" textAnchor="middle">Ai</text>
+  </svg>
+);
+
+const DynamicIcon = ({ 
+  player, p1Custom, p1Idx, p2Custom, p2Idx, color, className 
+}: { 
+  player: Player | null, p1Custom: boolean, p1Idx: number, p2Custom: boolean, p2Idx: number, color: string, className?: string 
+}) => {
+  if (!player) return null;
+  
+  const isP1 = player === 'X';
+  const isCustomEnabled = isP1 ? p1Custom : p2Custom;
+  const iconIndex = isP1 ? p1Idx : p2Idx;
+
+  if (isCustomEnabled) {
+     const SelectedIcon = ICONS_LIST[iconIndex % ICONS_LIST.length];
+     return <SelectedIcon color={color} fill={color} className={className} strokeWidth={2.5} />;
+  }
+  
+  if (isP1) {
+     return (
+       <svg viewBox="0 0 24 24" className={className} fill="none">
+         <path d="M18 6L6 18M6 6L18 18" stroke={color} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+       </svg>
+     );
+  }
+  return (
+     <svg viewBox="0 0 24 24" className={className} fill="none">
+       <circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="4.5" />
+     </svg>
+  );
+};
 
 const audioState = { ctx: null as AudioContext | null };
 const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point' | 'unmute' | 'mode', enabled: boolean) => {
@@ -107,6 +201,141 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point'
        osc.start(t); osc.stop(t + 0.1);
     }
   } catch(e) {}
+};
+
+const evaluateBoard = (squares: SquareValue[], aiPlayer: Player) => {
+  for (const combination of WINNING_COMBINATIONS) {
+    const [a, b, c] = combination;
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) return squares[a] === aiPlayer ? 10 : -10;
+  }
+  return 0;
+};
+
+const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean, aiPlayer: Player): number => {
+  const score = evaluateBoard(squares, aiPlayer);
+  if (score === 10) return score - depth;
+  if (score === -10) return score + depth;
+  if (!squares.includes(null)) return 0;
+  const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
+  if (isMaximizing) {
+    let best = -Infinity;
+    for (let i = 0; i < 9; i++) {
+      if (!squares[i]) {
+        squares[i] = aiPlayer;
+        best = Math.max(best, minimax(squares, depth + 1, false, aiPlayer));
+        squares[i] = null;
+      }
+    }
+    return best;
+  } else {
+    let best = Infinity;
+    for (let i = 0; i < 9; i++) {
+      if (!squares[i]) {
+        squares[i] = humanPlayer;
+        best = Math.min(best, minimax(squares, depth + 1, true, aiPlayer));
+        squares[i] = null;
+      }
+    }
+    return best;
+  }
+};
+
+const findBestMove = (squares: SquareValue[], aiPlayer: Player, humanScore: number, targetScore: number, isTargetScoreEnabled: boolean) => {
+  const availableMoves: number[] = [];
+  for (let i = 0; i < 9; i++) if (!squares[i]) availableMoves.push(i);
+  
+  if (availableMoves.length === 9) return [0, 2, 4, 6, 8][Math.floor(Math.random() * 5)];
+  
+  const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
+  const accuracy = 0.75; 
+
+  if (Math.random() > accuracy) {
+    return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+  }
+
+  for (const [a, b, c] of WINNING_COMBINATIONS) {
+    if (!squares[a] && squares[b] === aiPlayer && squares[c] === aiPlayer) return a;
+    if (squares[a] === aiPlayer && !squares[b] && squares[c] === aiPlayer) return b;
+    if (squares[a] === aiPlayer && squares[b] === aiPlayer && !squares[c]) return c;
+  }
+  
+  for (const [a, b, c] of WINNING_COMBINATIONS) {
+    if (!squares[a] && squares[b] === humanPlayer && squares[c] === humanPlayer) return a;
+    if (squares[a] === humanPlayer && !squares[b] && squares[c] === humanPlayer) return b;
+    if (squares[a] === humanPlayer && squares[b] === humanPlayer && !squares[c]) return c;
+  }
+  
+  let bestVal = -Infinity;
+  let bestMove = availableMoves[0];
+  const trickWeights = [0.2, 0.0, 0.2, 0.0, 0.3, 0.0, 0.2, 0.0, 0.2];
+  
+  for (let i = 0; i < 9; i++) {
+    if (!squares[i]) {
+      squares[i] = aiPlayer;
+      let moveVal = minimax(squares, 0, false, aiPlayer);
+      squares[i] = null;
+      moveVal += trickWeights[i];
+      if (moveVal > bestVal) { bestMove = i; bestVal = moveVal; }
+    }
+  }
+  return bestMove;
+};
+
+const blendDarker = (hex: string, factor: number) => {
+    if (!hex || hex.length !== 7 || hex[0] !== '#') return hex;
+    let r = Math.floor(parseInt(hex.slice(1, 3), 16) * factor);
+    let g = Math.floor(parseInt(hex.slice(3, 5), 16) * factor);
+    let b = Math.floor(parseInt(hex.slice(5, 7), 16) * factor);
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+};
+
+const ORIGINAL_THEME = {
+  name: 'Classic',
+  light: '#f8f9fa', dark: '#000000',
+  gridLight: '#e2e8f0', gridDark: '#1a1c1e',
+  cellLight: '#ffffff', cellDark: '#2a2d31',
+  indicatorLight: '#64748b', indicatorDark: '#94a3b8',
+  linesLight: ['#22c55e', '#16a34a', '#15803d', '#10b981', '#059669'], 
+  linesDark: ['#22c55e', '#4ade80', '#86efac', '#34d399', '#6ee7b7']
+};
+
+const CUSTOM_THEMES = [
+  { name: 'Dynamic M3', light: '#fdf8fd', dark: '#141218', gridLight: '#e8def8', gridDark: '#2b2930', cellLight: '#ffffff', cellDark: '#36343b', indicatorLight: '#6750a4', indicatorDark: '#d0bcff', linesLight: ['#6750a4', '#b3261e', '#9c4146', '#316934', '#006a6a'], linesDark: ['#d0bcff', '#f2b8b5', '#ffb4ab', '#82c986', '#4cdada'] },
+  { name: 'M3 Blue', light: '#eff6ff', dark: '#040b17', gridLight: '#bfdbfe', gridDark: '#0a1229', cellLight: '#ffffff', cellDark: '#121e38', indicatorLight: '#2563eb', indicatorDark: '#3b82f6', linesLight: ['#1e3a8a', '#1d4ed8', '#0891b2', '#4f46e5', '#3b82f6'], linesDark: ['#60a5fa', '#93c5fd', '#3b82f6', '#818cf8', '#7dd3fc'] },
+  { name: 'M3 Emerald', light: '#ecfdf5', dark: '#020f0a', gridLight: '#a7f3d0', gridDark: '#052115', cellLight: '#ffffff', cellDark: '#0a3321', indicatorLight: '#16a34a', indicatorDark: '#22c55e', linesLight: ['#166534', '#059669', '#15803d', '#10b981', '#16a34a'], linesDark: ['#4ade80', '#22c55e', '#34d399', '#86efac', '#8dd999'] },
+  { name: 'M3 Purple', light: '#f5f3ff', dark: '#0b0412', gridLight: '#d8b4fe', gridDark: '#160826', cellLight: '#ffffff', cellDark: '#200e33', indicatorLight: '#9333ea', indicatorDark: '#a855f7', linesLight: ['#7e22ce', '#9333ea', '#a855f7', '#c026d3', '#db2777'], linesDark: ['#c084fc', '#d8b4fe', '#e879f9', '#f472b6', '#fb7185'] },
+  { name: 'M3 Orange', light: '#fff7ed', dark: '#120701', gridLight: '#fdba74', gridDark: '#240d02', cellLight: '#ffffff', cellDark: '#331304', indicatorLight: '#ea580c', indicatorDark: '#f97316', linesLight: ['#c2410c', '#ea580c', '#d97706', '#dc2626', '#b45309'], linesDark: ['#fb923c', '#fcd34d', '#fca5a5', '#f87171', '#fdba74'] },
+  { name: 'M3 Rose', light: '#fff1f2', dark: '#140306', gridLight: '#fecdd3', gridDark: '#2e0a13', cellLight: '#ffffff', cellDark: '#400e1c', indicatorLight: '#e11d48', indicatorDark: '#f43f5e', linesLight: ['#be123c', '#e11d48', '#9f1239', '#db2777', '#f43f5e'], linesDark: ['#fb7185', '#fda4af', '#fecdd3', '#fbcfe8', '#f9a8d4'] },
+  { name: 'M3 Cyan', light: '#ecfeff', dark: '#020d12', gridLight: '#67e8f9', gridDark: '#051f2b', cellLight: '#ffffff', cellDark: '#093142', indicatorLight: '#0891b2', indicatorDark: '#06b6d4', linesLight: ['#0e7490', '#0891b2', '#0369a1', '#0f766e', '#115e59'], linesDark: ['#4cdada', '#67e8f9', '#7dd3fc', '#5eead4', '#99f6e4'] },
+  { name: 'M3 Amber', light: '#fffbeb', dark: '#140b01', gridLight: '#fde047', gridDark: '#291702', cellLight: '#ffffff', cellDark: '#3d2304', indicatorLight: '#d97706', indicatorDark: '#f59e0b', linesLight: ['#ca8a04', '#d97706', '#b45309', '#a16207', '#ea580c'], linesDark: ['#f59e0b', '#fbbf24', '#fcd34d', '#fdba74', '#fde047'] },
+  { name: 'M3 Crimson', light: '#fef2f2', dark: '#140303', gridLight: '#fca5a5', gridDark: '#290707', cellLight: '#ffffff', cellDark: '#400c0c', indicatorLight: '#dc2626', indicatorDark: '#ef4444', linesLight: ['#b91c1c', '#dc2626', '#991b1b', '#7f1d1d', '#e11d48'], linesDark: ['#ef4444', '#f87171', '#fca5a5', '#fb7185', '#f87171'] },
+  { name: 'M3 Indigo', light: '#eef2ff', dark: '#050512', gridLight: '#c7d2fe', gridDark: '#0e0c29', cellLight: '#ffffff', cellDark: '#161340', indicatorLight: '#4f46e5', indicatorDark: '#6366f1', linesLight: ['#4338ca', '#4f46e5', '#3730a3', '#312e81', '#1e3a8a'], linesDark: ['#6366f1', '#818cf8', '#a5b4fc', '#93c5fd', '#bfdbfe'] },
+  { name: 'M3 Mint', light: '#f0fdfa', dark: '#01120f', gridLight: '#99f6e4', gridDark: '#03241d', cellLight: '#ffffff', cellDark: '#06362c', indicatorLight: '#0d9488', indicatorDark: '#14b8a6', linesLight: ['#0f766e', '#0d9488', '#0b1d1d', '#14532d', '#065f46'], linesDark: ['#6ab5ab', '#84c9bf', '#a0c7bb', '#8cc4a8', '#7bb89d'] },
+  { name: 'M3 Pink', light: '#fdf2f8', dark: '#170312', gridLight: '#fbcfe8', gridDark: '#330a28', cellLight: '#ffffff', cellDark: '#4a0f3a', indicatorLight: '#ec4899', indicatorDark: '#f472b6', linesLight: ['#db2777', '#ec4899', '#f472b6', '#be185d', '#9d174d'], linesDark: ['#f472b6', '#f9a8d4', '#ec4899', '#fbcfe8', '#db2777'] },
+  { name: 'M3 Yellow', light: '#fefce8', dark: '#141000', gridLight: '#fef08a', gridDark: '#332800', cellLight: '#ffffff', cellDark: '#4a3a00', indicatorLight: '#eab308', indicatorDark: '#facc15', linesLight: ['#ca8a04', '#eab308', '#facc15', '#a16207', '#854d0e'], linesDark: ['#facc15', '#fef08a', '#eab308', '#fef9c3', '#ca8a04'] },
+  { name: 'M3 Lime', light: '#f7fee7', dark: '#0f1402', gridLight: '#d9f99d', gridDark: '#1d2905', cellLight: '#ffffff', cellDark: '#2a3b07', indicatorLight: '#84cc16', indicatorDark: '#a3e635', linesLight: ['#65a30d', '#84cc16', '#a3e635', '#4d7c0f', '#3f6212'], linesDark: ['#a3e635', '#d9f99d', '#84cc16', '#ecfccb', '#65a30d'] },
+  { name: 'M3 Teal', light: '#f0fdfa', dark: '#041414', gridLight: '#ccfbf1', gridDark: '#0f3333', cellLight: '#ffffff', cellDark: '#144040', indicatorLight: '#14b8a6', indicatorDark: '#2dd4bf', linesLight: ['#0d9488', '#14b8a6', '#2dd4bf', '#0f766e', '#115e59'], linesDark: ['#2dd4bf', '#99f6e4', '#14b8a6', '#ccfbf1', '#0d9488'] },
+];
+
+const PLAYER_COLORS = [
+  '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', 
+  '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', 
+  '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'
+];
+
+const EXTRA_LINE_COLORS = [
+  '#ef4444', '#f97316', '#f59e0b', '#eab308', '#06b6d4', 
+  '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#64748b'
+];
+
+const getSaved = (key: string, defaultVal: any) => {
+  if (typeof window === 'undefined') return defaultVal;
+  try {
+    const val = localStorage.getItem(key);
+    return val !== null ? JSON.parse(val) : defaultVal;
+  } catch (e) {
+    return defaultVal;
+  }
 };
 
 export default function App() {
@@ -579,7 +808,7 @@ export default function App() {
 
   return (
     <>
-      <style>{`
+            <style>{`
         @font-face {
           font-family: 'NunitoCustom';
           src: url('${nunitoFont}') format('truetype');
@@ -605,6 +834,7 @@ export default function App() {
           border-radius: 10px; 
         }
       `}</style>
+
       
       <div 
           style={{ 
@@ -681,6 +911,8 @@ export default function App() {
                 <span className="relative z-10 flex items-center gap-1.5"><UsersRound color="currentColor" className="w-[18px] h-[18px]" strokeWidth={2.5}/> 2 Players</span>
               </button>
             </div>
+
+
 
             <motion.div 
               onClick={handleTurnBannerClick}
