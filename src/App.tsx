@@ -1411,6 +1411,7 @@ export default function App() {
               </motion.div>
             </motion.div>
           )}
+          </AnimatePresence>
 
           <AnimatePresence>
           {isAboutOpen && (
