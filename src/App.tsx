@@ -26,7 +26,12 @@ import {
   Apple, Axe, Backpack, Banana, Battery, Bed, Binoculars, Bone, Brain, Cake, Calculator, Calendar, Candy, 
   Carrot, Castle, Cherry, Church, Clover, Club, Cookie, Croissant, Crosshair, CupSoda, Drama, Drum, Dumbbell, 
   Ear, Eclipse, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, Guitar, IceCream, Keyboard, 
-  Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle
+  Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle, AlarmClock, Ambulance, 
+  Apple, Backpack, BaggageClaim, Battery, Bed, Beer, Binoculars, Bone, Brain, Calculator, Calendar, 
+  CarFront, Carrot, Castle, ChefHat, Cherry, Church, Citrus, Clover, Club, Cookie, Croissant, Crosshair, 
+  CupSoda, Drum, Dumbbell, Ear, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, Swords, Grape, 
+  Guitar, Helicopter, IceCream, Joystick, Keyboard, MountainSnow, Mushroom, Nut, PaintBucket, Pizza, 
+  Satellite, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich
 } from 'lucide-react';
 
 
@@ -73,7 +78,12 @@ const ICONS_LIST = [
   Apple, Axe, Backpack, Banana, Battery, Bed, Binoculars, Bone, Brain, Cake, Calculator, Calendar, Candy, 
   Carrot, Castle, Cherry, Church, Clover, Club, Cookie, Croissant, Crosshair, CupSoda, Drama, 
   Drum, Dumbbell, Ear, Eclipse, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, Guitar, 
-  IceCream, Keyboard, Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle
+  IceCream, Keyboard, Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle, AlarmClock, Ambulance, 
+  Apple, Backpack, BaggageClaim, Battery, Bed, Beer, Binoculars, Bone, Brain, Calculator, Calendar, 
+  CarFront, Carrot, Castle, ChefHat, Cherry, Church, Citrus, Clover, Club, Cookie, Croissant, 
+  Crosshair, CupSoda, Drum, Dumbbell, Ear, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, 
+  Swords, Grape, Guitar, Helicopter, IceCream, Joystick, Keyboard, MountainSnow, Mushroom, Nut, 
+  PaintBucket, Pizza, Satellite, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich
 ];
 
 
