@@ -960,7 +960,7 @@ export default function App() {
               </button>
             </div>
 
-           <motion.div 
+             <motion.div 
               onClick={handleTurnBannerClick}
               onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} 
               animate={{ scale: winnerInfo ? 1.05 : 1 }} 
@@ -1020,7 +1020,7 @@ export default function App() {
                 </div>
               )}
             </motion.div>
-
+          </header>
 
           <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible select-none">
              <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm transition-colors duration-1000" style={{ backgroundColor: semantics.scoreBg }}>
