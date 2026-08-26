@@ -960,12 +960,12 @@ export default function App() {
               </button>
             </div>
 
-             <motion.div 
+           <motion.div 
               onClick={handleTurnBannerClick}
               onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} 
               animate={{ scale: winnerInfo ? 1.05 : 1 }} 
               style={{ backgroundColor: semantics.bannerDefault.bg, color: semantics.bannerDefault.text }} 
-              className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm select-none relative overflow-hidden transition-colors duration-1000 ${isGameCompletelyFresh || (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) ? 'cursor-pointer' : ''}`}
+              className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm select-none relative overflow-hidden transition-colors duration-1000 ${board.every(c => c === null) && !winnerInfo && !overallWinner ? 'cursor-pointer' : ''}`}
             >
               <div className="flex items-center gap-2 relative z-10">
                 {winnerInfo ? (
@@ -978,12 +978,11 @@ export default function App() {
                         p1Custom={p1Custom} p1Idx={p1Idx} 
                         p2Custom={p2Custom} p2Idx={p2Idx} 
                         color={winnerInfo.winner === 'X' ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[oColorIdx]} 
-                        className="w-5 h-5 mx-1.5 drop-shadow-sm" 
+                        className="w-5 h-5 ml-1.5 drop-shadow-sm" 
                       />
                     </span>
                   </>
                 ) : isDraw ? (<span className="font-bold">It's a Stalemate!</span>) : (
-         
                   <>
                     {isAITurn ? (
                       <div className="flex items-center gap-1.5 h-8">
@@ -1008,7 +1007,8 @@ export default function App() {
                   </>
                 )}
               </div>
-              {isGameCompletelyFresh && (
+              
+              {board.every(c => c === null) && !winnerInfo && !overallWinner && (
                 <div className={`absolute bottom-1.5 w-full flex flex-col items-center z-10 transition-opacity duration-300 pointer-events-none opacity-100`}>
                   <div className="h-[2px] w-12 bg-transparent rounded-full overflow-hidden relative">
                      <motion.div
@@ -1020,7 +1020,7 @@ export default function App() {
                 </div>
               )}
             </motion.div>
-          </header>
+
 
           <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible select-none">
              <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm transition-colors duration-1000" style={{ backgroundColor: semantics.scoreBg }}>
