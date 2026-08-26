@@ -693,10 +693,12 @@ export default function App() {
     }, 450); 
   };
 
-  const handleTurnHoldStart = () => {
-    if (isGameCompletelyFresh && !winnerInfo) {
+ const handleTurnHoldStart = () => {
+    if (board.every(c => c === null) && !winnerInfo && !overallWinner) {
       setIsHoldingBanner(true);
+      turnWasHeld.current = false; 
       turnHoldTimer.current = setTimeout(() => {
+        turnWasHeld.current = true; 
         hapticFeedback([80, 40, 80]); 
         playEnhancedSound('mode', isSoundOn); 
         setHumanSymbol(prev => {
@@ -716,7 +718,11 @@ export default function App() {
   };
 
   const handleTurnBannerClick = () => {
-    if (!isGameCompletelyFresh && board.every(c => c === null) && !winnerInfo && !overallWinner) {
+    if (turnWasHeld.current) {
+      turnWasHeld.current = false;
+      return; 
+    }
+    if (board.every(c => c === null) && !winnerInfo && !overallWinner) {
        hapticFeedback(60);
        playEnhancedSound('mode', isSoundOn); 
        setStartingPlayer(prev => {
@@ -726,6 +732,7 @@ export default function App() {
        });
     }
   };
+
 
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
