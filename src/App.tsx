@@ -439,6 +439,8 @@ export default function App() {
   const restartHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartPointerDown = useRef(false);
+  const turnWasHeld = useRef(false);
+
   
   const isTransitioning = useRef(false);
   const isGameEnding = useRef(false);
