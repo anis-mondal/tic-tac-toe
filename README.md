@@ -8,12 +8,12 @@
   
   <br>
 
-  <img src="assets/default-light-theme.jpg" width="100" alt="Light Theme" />
-  <img src="assets/default-dark-theme.jpg" width="100" alt="Dark Theme" />
-  <img src="assets/custom-colour.jpg" width="100" alt="Custom Colors" />
-  <img src="assets/custom-icon.jpg" width="100" alt="Custom Icons" />
-  <img src="assets/custom-theme1.jpg" width="100" alt="Custom Theme 1" />
-  <img src="assets/custom-theme2.jpg" width="100" alt="Custom Theme 2" />
+  <img src="assets/default-light-theme.jpg" width="90" alt="Light Theme" />
+  <img src="assets/default-dark-theme.jpg" width="90" alt="Dark Theme" />
+  <img src="assets/custom-colour.jpg" width="90" alt="Custom Colors" />
+  <img src="assets/custom-icon.jpg" width="90" alt="Custom Icons" />
+  <img src="assets/custom-theme1.jpg" width="90" alt="Custom Theme 1" />
+  <img src="assets/custom-theme2.jpg" width="90" alt="Custom Theme 2" />
 </div>
 
 <br>
