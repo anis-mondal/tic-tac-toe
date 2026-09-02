@@ -1,4 +1,5 @@
 <div align="center">
+  <img src="assets/logo.png" alt="Tic Tac Toe Logo" width="80" />
   <h1>🎮 Tic Tac Toe</h1>
   <p>A beautiful, fully responsive Tic Tac Toe game crafted with React and Google's Material You (M3) design system.</p>
 
