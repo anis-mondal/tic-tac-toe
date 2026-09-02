@@ -1,0 +1,10 @@
+version: 2
+updates:
+  # npm (package.json) এর লাইব্রেরিগুলো চেক করার জন্য
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      # প্রতিদিন একবার করে চেক করবে
+      interval: "daily"
+    # একসাথে সর্বোচ্চ কয়টি Pull Request খোলা থাকবে
+    open-pull-requests-limit: 5
