@@ -3,8 +3,8 @@
   <h1>🎮 Tic Tac Toe</h1>
   <p>A beautiful, fully responsive Tic Tac Toe game crafted with React and Google's Material You (M3) design system.</p>
 
-  [![Play Online](https://img.shields.io/badge/Play_Online-blue?style=for-the-badge&logo=google-chrome)](https://anis-mondal.github.io/tic-tac-toe/)
-  [![Download APK](https://img.shields.io/badge/Download_APK-green?style=for-the-badge&logo=android)](https://github.com/anis-mondal/tic-tac-toe/releases)
+  [![Play Online](https://img.shields.io/badge/Play_Online-blue?style=flat&logo=safari)](https://anis-mondal.github.io/tic-tac-toe/)
+  [![Download APK](https://img.shields.io/badge/Download_APK-green?style=flat&logo=android)](https://github.com/anis-mondal/tic-tac-toe/releases/latest)
 </div>
 
 ---
