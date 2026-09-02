@@ -15,8 +15,9 @@
 * **🤖 Smart 1 Player Mode (AI):** Play against a highly intelligent AI powered by the Minimax algorithm.
 * **👥 2 Players Mode:** Play with a friend on the same device with a simple one-tap mode switch.
 * **🎯 Custom Target Score:** Set your own custom point target (1-20) to win the full match.
-* **🎨 Material You (M3) Themes:** Choose from 10 dynamic color schemes and completely customize the player and winning line colors to match your style.
-* **🌙 Auto Dark/Light Mode:** Seamlessly adapts to your system theme with pure black (Pitch Black) and pure white backgrounds without any annoying screen flashes.
+* **🧩 200+ Custom Icons:** Personalize your gameplay by choosing from over 200 unique custom icons for your player avatars.
+* **🎨 Massive Customization:** Enjoy 25 dynamic Material You (M3) themes! Deeply customize your experience with 25 distinct color options for both 'X' & 'O', plus 25 different colors for the winning lines.
+* **🌙 Auto Dark/Light & Pitch Black Mode:** Seamlessly adapts to your system theme. Features a dedicated pure 'Pitch Black' mode for AMOLED screens alongside pure white backgrounds, ensuring an immersive experience without annoying screen flashes.
 * **🎉 Dynamic Confetti:** Beautiful victory animations that specifically match the winning player's chosen color.
 * **📴 Fully Offline (Android):** The Android app runs 100% locally on your device and requires zero internet connection.
 * **📱 Native Mobile Experience:** Enjoy smooth haptic feedback (vibrations), immersive audio, and proper native back-button support on the Android app.
