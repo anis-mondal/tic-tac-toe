@@ -5,9 +5,21 @@
 
   [![Play Online](https://img.shields.io/badge/Play_Online-blue?style=for-the-badge&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PGxpbmUgeDE9IjIiIHkxPSIxMiIgeDI9IjIyIiB5Mj0iMTIiLz48cGF0aCBkPSJNMTIgMmExNS4zIDE1LjMgMCAwIDEgNCAxMCAxNS4zIDE1LjMgMCAwIDEtNCAxMCAxNS4zIDE1LjMgMCAwIDEtNC0xMCAxNS4zIDE1LjMgMCAwIDEgNC0xMHoiLz48L3N2Zz4=)](https://anis-mondal.github.io/tic-tac-toe/)
   [![Download APK](https://img.shields.io/badge/Download_APK-green?style=for-the-badge&logo=android)](https://github.com/anis-mondal/tic-tac-toe/releases/latest)
-</div>
+  
+  <br><br>
 
----
+  <img src="assets/default-light-theme.jpg" width="30%" alt="Light Theme" style="border-radius: 15px;" />&nbsp;&nbsp;
+  <img src="assets/default-dark-theme.jpg" width="30%" alt="Dark Theme" style="border-radius: 15px;" />&nbsp;&nbsp;
+  <img src="assets/custom-colour.jpg" width="30%" alt="Custom Colors" style="border-radius: 15px;" />
+  
+  <br><br>
+
+  <img src="assets/custom-icon.jpg" width="30%" alt="Custom Icons" style="border-radius: 15px;" />&nbsp;&nbsp;
+  <img src="assets/custom-theme1.jpg" width="30%" alt="Custom Theme 1" style="border-radius: 15px;" />&nbsp;&nbsp;
+  <img src="assets/custom-theme2.jpg" width="30%" alt="Custom Theme 2" style="border-radius: 15px;" />
+  
+  <br><br>
+</div>
 
 ## ✨ Key Features
 
