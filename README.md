@@ -8,15 +8,13 @@
   
   <br><br>
 
-  <img src="assets/default-light-theme.jpg" width="30%" alt="Light Theme" style="border-radius: 15px;" />&nbsp;&nbsp;
-  <img src="assets/default-dark-theme.jpg" width="30%" alt="Dark Theme" style="border-radius: 15px;" />&nbsp;&nbsp;
-  <img src="assets/custom-colour.jpg" width="30%" alt="Custom Colors" style="border-radius: 15px;" />
-  
-  <br><br>
-
-  <img src="assets/custom-icon.jpg" width="30%" alt="Custom Icons" style="border-radius: 15px;" />&nbsp;&nbsp;
-  <img src="assets/custom-theme1.jpg" width="30%" alt="Custom Theme 1" style="border-radius: 15px;" />&nbsp;&nbsp;
-  <img src="assets/custom-theme2.jpg" width="30%" alt="Custom Theme 2" style="border-radius: 15px;" />
+  <img src="assets/default-light-theme.jpg" width="31%" alt="Light Theme" />&nbsp;
+  <img src="assets/default-dark-theme.jpg" width="31%" alt="Dark Theme" />&nbsp;
+  <img src="assets/custom-colour.jpg" width="31%" alt="Custom Colors" />
+  <br>
+  <img src="assets/custom-icon.jpg" width="31%" alt="Custom Icons" />&nbsp;
+  <img src="assets/custom-theme1.jpg" width="31%" alt="Custom Theme 1" />&nbsp;
+  <img src="assets/custom-theme2.jpg" width="31%" alt="Custom Theme 2" />
   
   <br><br>
 </div>
