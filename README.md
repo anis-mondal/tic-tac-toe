@@ -8,15 +8,15 @@
   
   <br>
 
-  <img src="assets/default-light-theme.jpg" width="31%" alt="Light Theme" />&nbsp;
-  <img src="assets/default-dark-theme.jpg" width="31%" alt="Dark Theme" />&nbsp;
-  <img src="assets/custom-colour.jpg" width="31%" alt="Custom Colors" />
-  <br>
-  <img src="assets/custom-icon.jpg" width="31%" alt="Custom Icons" />&nbsp;
-  <img src="assets/custom-theme1.jpg" width="31%" alt="Custom Theme 1" />&nbsp;
-  <img src="assets/custom-theme2.jpg" width="31%" alt="Custom Theme 2" />
-  
-  <br>
+  <img src="assets/default-light-theme.jpg" width="115" alt="Light Theme" />
+  <img src="assets/default-dark-theme.jpg" width="115" alt="Dark Theme" />
+  <img src="assets/custom-colour.jpg" width="115" alt="Custom Colors" />
+  <img src="assets/custom-icon.jpg" width="115" alt="Custom Icons" />
+  <img src="assets/custom-theme1.jpg" width="115" alt="Custom Theme 1" />
+  <img src="assets/custom-theme2.jpg" width="115" alt="Custom Theme 2" />
+</div>
+
+<br>
 
 ## ✨ Key Features
 
