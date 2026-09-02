@@ -1,0 +1,37 @@
+name: Test and Build
+
+# কখন এই অ্যাকশনটি রান করবে তা বলে দেওয়া হচ্ছে
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # ১. আপনার রিপোজিটরির কোড কপি করবে
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # ২. Node.js সেটআপ করবে
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20' # আপনি চাইলে আপনার লোকাল ভার্সন দিতে পারেন (যেমন: 18)
+        cache: 'npm'
+
+    # ৩. আপনার ব্যবহার করা সমস্ত লাইব্রেরি ইন্সটল করবে
+    - name: Install dependencies
+      run: npm ci
+
+    # ৪. (ঐচ্ছিক) যদি ESLint থাকে, তবে কোডের ভুল ধরবে
+    - name: Run Linter
+      run: npm run lint
+      continue-on-error: true
+
+    # ৫. আসল কাজ: প্রোজেক্টটি বিল্ড করবে। কোনো লাইব্রেরির কারণে এরর এলে এটি ফেইল করবে।
+    - name: Build project
+      run: npm run build
