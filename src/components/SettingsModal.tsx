@@ -23,27 +23,11 @@ import {
   BaggageClaim, Beer, CarFront, ChefHat, Citrus, Grape, Lock, Joystick, MountainSnow, Wine, Nut, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich
 } from 'lucide-react';
 
+// ==========================================
+// গেমের সমস্ত ডেটা (কালার, থিম, আইকন)
+// ==========================================
 export const ICONS_LIST = [
-  Hexagon, Octagon, Pentagon, Triangle, Square, Diamond, Asterisk, TargetIcon, Shield, Zap,
-  Dna, Star, Heart, InfinityIcon, Puzzle, SparkleIcon, Gem, Crown, Trophy, Ghost,
-  Leaf, Flame, Droplet, Flower2, Snowflake, Feather, SunIcon, MoonIcon, Cloud, Wind,
-  Sprout, TreePine, Mountain, Bug, Cat, Dog, Bird, Fish, Rabbit, Snail,
-  Anchor, Magnet, Umbrella, Coffee, Camera, Bell, Music, Gamepad2, Lightbulb, Dice5,
-  Tent, Wand2, Atom, Orbit, Bomb, Key, Glasses, Clock, Hourglass, Timer,
-  Rocket, Plane, Car, Ship, Bus, Train, Bike, Tractor, Sailboat, Truck,
-  Compass, MapPin, Radar, LifeBuoy, Map, Navigation, Flag, Globe, Ticket, Luggage,
-  Cpu, Database, Laptop, Smartphone, Watch, Headphones, Mic, Radio, Tv, Monitor,
-  Smile, Skull, Bot, Eye, Fingerprint, Activity, Box, Layers, Aperture, Grid,
-  Palette, PenTool, Brush, Scissors, Hammer, Wrench, Ruler, Drill, HardHat, Thermometer,
-  Sunrise, Sunset, CloudRain, CloudSnow, CloudLightning, Tornado, Waves, Trees, Palmtree, Droplets,
-  ShoppingCart, ShoppingBag, ShoppingBasket, Tag, Wallet, CreditCard, Banknote, Coins, PiggyBank, Receipt,
-  Stethoscope, Syringe, TestTube, FlaskConical, Pill, Microscope, Telescope, Webcam, Film, Clapperboard,
-  Megaphone, Speaker, Book, Bookmark, Briefcase, GraduationCap, Medal, Award, Gift, PartyPopper,
-  Apple, Axe, Backpack, Banana, Battery, Bed, Binoculars, Bone, Brain, Cake, Calculator, Calendar, Candy, 
-  Carrot, Castle, Cherry, Church, Clover, Club, Cookie, Croissant, Crosshair, CupSoda, Drama, 
-  Drum, Dumbbell, Ear, Eclipse, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, Guitar, 
-  IceCream, Keyboard, Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle, AlarmClock, Ambulance, 
-  BaggageClaim, Beer, CarFront, ChefHat, Citrus, Grape, Lock, Joystick, MountainSnow, Wine, Nut, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich
+  Hexagon, Octagon, Pentagon, Triangle, Square, Diamond, Asterisk, TargetIcon, Shield, Zap, Dna, Star, Heart, InfinityIcon, Puzzle, SparkleIcon, Gem, Crown, Trophy, Ghost, Leaf, Flame, Droplet, Flower2, Snowflake, Feather, SunIcon, MoonIcon, Cloud, Wind, Sprout, TreePine, Mountain, Bug, Cat, Dog, Bird, Fish, Rabbit, Snail, Anchor, Magnet, Umbrella, Coffee, Camera, Bell, Music, Gamepad2, Lightbulb, Dice5, Tent, Wand2, Atom, Orbit, Bomb, Key, Glasses, Clock, Hourglass, Timer, Rocket, Plane, Car, Ship, Bus, Train, Bike, Tractor, Sailboat, Truck, Compass, MapPin, Radar, LifeBuoy, Map, Navigation, Flag, Globe, Ticket, Luggage, Cpu, Database, Laptop, Smartphone, Watch, Headphones, Mic, Radio, Tv, Monitor, Smile, Skull, Bot, Eye, Fingerprint, Activity, Box, Layers, Aperture, Grid, Palette, PenTool, Brush, Scissors, Hammer, Wrench, Ruler, Drill, HardHat, Thermometer, Sunrise, Sunset, CloudRain, CloudSnow, CloudLightning, Tornado, Waves, Trees, Palmtree, Droplets, ShoppingCart, ShoppingBag, ShoppingBasket, Tag, Wallet, CreditCard, Banknote, Coins, PiggyBank, Receipt, Stethoscope, Syringe, TestTube, FlaskConical, Pill, Microscope, Telescope, Webcam, Film, Clapperboard, Megaphone, Speaker, Book, Bookmark, Briefcase, GraduationCap, Medal, Award, Gift, PartyPopper, Apple, Axe, Backpack, Banana, Battery, Bed, Binoculars, Bone, Brain, Cake, Calculator, Calendar, Candy, Carrot, Castle, Cherry, Church, Clover, Club, Cookie, Croissant, Crosshair, CupSoda, Drama, Drum, Dumbbell, Ear, Eclipse, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, Guitar, IceCream, Keyboard, Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle, AlarmClock, Ambulance, BaggageClaim, Beer, CarFront, ChefHat, Citrus, Grape, Lock, Joystick, MountainSnow, Wine, Nut, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich
 ];
 
 export const PLAYER_COLORS = [
@@ -57,9 +41,7 @@ export const EXTRA_LINE_COLORS = [
   '#78dd77', '#9fd75c', '#c1d02d', '#fabd00', '#ffb86e', '#feb4a7', '#ffb3c0', '#fcaaff', '#b9c3ff', '#62d3ff'
 ];
 
-export const ORIGINAL_THEME = {
-  name: 'Classic', light: '#f8f9fa', dark: '#000000', gridLight: '#e2e8f0', gridDark: '#1a1c1e', cellLight: '#ffffff', cellDark: '#2a2d31', indicatorLight: '#64748b', indicatorDark: '#94a3b8', linesLight: ['#22c55e', '#16a34a', '#15803d', '#10b981', '#059669'], linesDark: ['#22c55e', '#4ade80', '#86efac', '#34d399', '#6ee7b7']
-};
+export const ORIGINAL_THEME = { name: 'Classic', light: '#f8f9fa', dark: '#000000', gridLight: '#e2e8f0', gridDark: '#1a1c1e', cellLight: '#ffffff', cellDark: '#2a2d31', indicatorLight: '#64748b', indicatorDark: '#94a3b8', linesLight: ['#22c55e', '#16a34a', '#15803d', '#10b981', '#059669'], linesDark: ['#22c55e', '#4ade80', '#86efac', '#34d399', '#6ee7b7'] };
 
 export const CUSTOM_THEMES = [
   { name: 'Dynamic M3', light: '#fdf8fd', dark: '#141218', gridLight: '#e8def8', gridDark: '#2b2930', cellLight: '#ffffff', cellDark: '#36343b', indicatorLight: '#6750a4', indicatorDark: '#d0bcff', linesLight: ['#6750a4', '#b3261e', '#9c4146', '#316934', '#006a6a'], linesDark: ['#d0bcff', '#f2b8b5', '#ffb4ab', '#82c986', '#4cdada'] },
@@ -89,24 +71,27 @@ export const CUSTOM_THEMES = [
   { name: 'Custom Sky Blue', light: '#f2fbff', dark: '#06171f', gridLight: '#d1f1ff', gridDark: '#12415c', cellLight: '#ffffff', cellDark: '#154c6b', indicatorLight: '#62d3ff', indicatorDark: '#62d3ff', linesLight: ['#62d3ff', '#45b8e6', '#2b9dcd', '#1084b5', '#006c9d'], linesDark: ['#62d3ff', '#82e8ff', '#a3fcff', '#c7ffff', '#e5ffff'] }
 ];
 
-const AnimatedToggle = ({ enabled, onToggle, activeColor, isDarkMode }: { enabled: boolean, onToggle: () => void, activeColor: string, isDarkMode: boolean }) => {
-  const offBgColor = isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+// ==========================================
+// উন্নত অ্যানিমেটেড টগল (Theme ভিত্তিক কালার)
+// ==========================================
+const AnimatedToggle = ({ enabled, onToggle, activeColor }: { enabled: boolean, onToggle: () => void, activeColor: string }) => {
+  const offBgColor = activeColor + '40'; // অফ থাকলে কালারটি ট্রান্সপারেন্ট হয়ে যাবে
   return (
     <motion.button 
       onClick={onToggle}
-      className="w-[52px] h-[30px] rounded-full p-1 flex items-center shrink-0 relative transition-colors duration-300 cursor-pointer"
+      className="w-[50px] h-[28px] rounded-full p-1 flex items-center shrink-0 relative transition-colors duration-300 cursor-pointer"
       style={{ backgroundColor: enabled ? activeColor : offBgColor }}
     >
       <motion.div 
         layout
         animate={{ x: enabled ? 22 : 0 }} 
-        className="w-5 h-5 rounded-full bg-white shadow-md flex items-center justify-center z-10"
-        transition={{ type: "spring", stiffness: 700, damping: 30 }}
+        className="w-[20px] h-[20px] rounded-full bg-white shadow-sm flex items-center justify-center z-10"
+        transition={{ type: "spring", stiffness: 600, damping: 30 }}
       >
         <AnimatePresence mode="wait">
           {enabled 
-            ? <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Check className="w-3.5 h-3.5" style={{ color: activeColor }} strokeWidth={4} /></motion.div>
-            : <motion.div key="close" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><CloseIcon className="w-3.5 h-3.5 text-gray-400" strokeWidth={4} /></motion.div>
+            ? <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Check className="w-3 h-3" style={{ color: activeColor }} strokeWidth={4} /></motion.div>
+            : <motion.div key="close" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><CloseIcon className="w-3 h-3 text-gray-600" strokeWidth={4} /></motion.div>
           }
         </AnimatePresence>
       </motion.div>
@@ -114,6 +99,9 @@ const AnimatedToggle = ({ enabled, onToggle, activeColor, isDarkMode }: { enable
   );
 };
 
+// ==========================================
+// মূল সেটিংস মোডাল (Settings Tab)
+// ==========================================
 interface SettingsModalProps {
   isOpen: boolean; onClose: () => void; setIsAboutOpen: (val: boolean) => void;
   semantics: any; isDarkMode: boolean; isAmoled: boolean; setIsAmoled: (val: boolean) => void;
@@ -136,63 +124,67 @@ export default function SettingsModal(props: SettingsModalProps) {
     availableLinesLight: [...(props.useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[props.themeIdx]).linesLight, ...EXTRA_LINE_COLORS]
   };
 
+  // লাইট মোডে বর্ডার থিমের কালার হবে, ডার্ক মোডে হালকা সাদা হবে
+  const cardBorderColor = props.isDarkMode ? 'rgba(255,255,255,0.08)' : props.activeLineColor;
+
   return (
     <AnimatePresence>
       {props.isOpen && (
         <motion.div 
            onClick={props.onClose} 
-           initial={{ opacity: 0 }} 
-           animate={{ opacity: 1 }} 
-           exit={{ opacity: 0 }} 
-           className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
+           className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
         >
           <motion.div 
              onClick={(e) => e.stopPropagation()} 
-             initial={{ scale: 0.8, y: 30, opacity: 0 }} 
+             initial={{ scale: 0.85, y: 40, opacity: 0 }} 
              animate={{ scale: 1, y: 0, opacity: 1 }} 
-             exit={{ scale: 0.8, y: 30, opacity: 0 }} 
-             transition={{ type: "spring", damping: 25, stiffness: 300 }}
+             exit={{ scale: 0.85, y: 40, opacity: 0 }} 
+             transition={{ type: "spring", damping: 25, stiffness: 350 }}
              style={{ backgroundColor: props.semantics.screenBackground, color: props.semantics.text }} 
-             className="w-full max-w-[420px] pt-7 pb-5 rounded-[36px] shadow-2xl relative border-[3px] border-black/10 dark:border-white/10 transition-colors duration-1000"
+             className="w-full max-w-[420px] pt-7 pb-3 rounded-[36px] shadow-2xl relative border-[3px] border-gray-200 dark:border-white/10 transition-colors duration-1000"
           >
             
-            <button onClick={props.onClose} className="absolute top-6 right-6 p-2 transition-opacity hover:opacity-70 z-[160] bg-black/5 dark:bg-white/5 rounded-full active:scale-90 border border-black/10 dark:border-white/10">
+            <button onClick={props.onClose} className="absolute top-6 right-6 p-2 transition-opacity hover:opacity-70 z-[160] bg-black/5 dark:bg-white/5 rounded-full active:scale-90">
               <CloseIcon className="w-5 h-5" />
             </button>
             
-            <div className="flex items-center gap-3 mb-6 px-7">
-              <Settings className="w-8 h-8 opacity-90" />
+            <div className="flex items-center gap-3 mb-5 px-7">
+              <Settings className="w-7 h-7 opacity-90" />
               <h2 className="font-nunito-black text-3xl tracking-tight">Settings</h2>
             </div>
 
-            {/* স্ক্রল বক্স (স্ক্রলবার বাইরে এবং বক্সের ভেতর অদৃশ্য রাউন্ডেড ফিল) */}
-            <div className="relative w-full overflow-hidden">
-              <div className="max-h-[65vh] overflow-y-auto m3-scrollbar pl-6 pr-4 space-y-4 pb-6">
+            {/* স্ক্রল বক্স (স্ক্রলবার বাইরে রাখা হয়েছে) */}
+            <div className="relative w-full max-h-[68vh] overflow-y-auto m3-scrollbar pl-6 pr-2">
+              <div className="pr-4 space-y-4 pb-6">
                 
-                <div className="rounded-[24px] p-5 border-2 border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                {/* 1. Theme Style Box */}
+                <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Theme Style</h3>
-                   <div className="relative flex p-1.5 rounded-full w-full bg-black/10 dark:bg-white/10 shadow-inner overflow-hidden">
+                   <div className="relative flex p-1.5 rounded-full w-[240px] mx-auto shadow-inner overflow-hidden" style={{ backgroundColor: props.activeLineColor + '20' }}>
                       <motion.div 
                           className="absolute top-1.5 bottom-1.5 rounded-full shadow-md z-0"
                           style={{ width: 'calc(50% - 6px)', backgroundColor: props.activeLineColor }}
                           animate={{ x: props.useDefaultTheme ? 0 : '100%' }}
-                          transition={{ type: "tween", ease: "easeInOut", duration: 0.2 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
                       />
-                      <button onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(true); }} className="flex-1 py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors" style={{ color: props.useDefaultTheme ? '#fff' : props.semantics.text }}>Classic</button>
-                      <button onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(false); }} className="flex-1 py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors" style={{ color: !props.useDefaultTheme ? '#fff' : props.semantics.text }}>Custom (M3)</button>
+                      <button onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(true); }} className="flex-1 py-2 z-10 text-[12px] font-black uppercase tracking-wider transition-colors" style={{ color: props.useDefaultTheme ? '#fff' : props.activeLineColor }}>Classic</button>
+                      <button onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(false); }} className="flex-1 py-2 z-10 text-[12px] font-black uppercase tracking-wider transition-colors" style={{ color: !props.useDefaultTheme ? '#fff' : props.activeLineColor }}>Custom (M3)</button>
                    </div>
                 </div>
 
+                {/* 2. Surface Colors Box */}
                 <AnimatePresence>
                   {!props.useDefaultTheme && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="rounded-[24px] p-5 border-2 border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
-                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-3">Surface Colors</h3>
-                      <div className="relative w-full overflow-hidden rounded-[16px]">
-                         <div className="max-h-[110px] overflow-y-auto m3-scrollbar pr-2">
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
+                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Surface Colors</h3>
+                      {/* Invisible Rounded Box for internal scrolling */}
+                      <div className="relative w-full rounded-[16px] overflow-hidden">
+                         <div className="max-h-[140px] overflow-y-auto m3-scrollbar pr-3">
                             <div className="grid grid-cols-5 place-items-center gap-y-3 pb-2 pt-1">
                               {CUSTOM_THEMES.map((theme, idx) => (
-                                <button key={theme.name} onClick={() => { props.hapticFeedback(20); props.setThemeIdx(idx); props.setCustomLineIdx(0); }} style={{ backgroundColor: props.isDarkMode ? theme.indicatorDark : theme.indicatorLight, borderColor: props.themeIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-11 h-11 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110">
-                                  {props.themeIdx === idx && <div className="w-4 h-4 rounded-full bg-white shadow-sm" />}
+                                <button key={theme.name} onClick={() => { props.hapticFeedback(20); props.setThemeIdx(idx); props.setCustomLineIdx(0); }} style={{ backgroundColor: props.isDarkMode ? theme.indicatorDark : theme.indicatorLight, borderColor: props.themeIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110">
+                                  {props.themeIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
                                 </button>
                               ))}
                             </div>
@@ -202,10 +194,11 @@ export default function SettingsModal(props: SettingsModalProps) {
                   )}
                 </AnimatePresence>
 
+                {/* 3. Pure Black AMOLED Box */}
                 <AnimatePresence>
                   {props.isDarkMode && (
                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                        <div className="flex items-center justify-between rounded-[24px] p-5 border-2 border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                        <div className="flex items-center justify-between rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                             <div className="flex items-center gap-3">
                                <Moon className="w-5 h-5 opacity-70" />
                                <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1">Pure Black (AMOLED)</h3>
@@ -216,7 +209,8 @@ export default function SettingsModal(props: SettingsModalProps) {
                   )}
                 </AnimatePresence>
                 
-                <div className="rounded-[24px] p-5 space-y-4 border-2 border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                {/* 4. Target Point Win Box */}
+                <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                          <Target className="w-5 h-5 opacity-70" />
@@ -229,29 +223,30 @@ export default function SettingsModal(props: SettingsModalProps) {
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex items-center gap-4 overflow-hidden pt-1">
                          <span className="text-[13px] opacity-80 font-black uppercase tracking-wider">Points to Win:</span>
                          <div className="flex gap-2.5 items-center bg-transparent/10 p-1 rounded-xl">
-                            <button onClick={() => { props.hapticFeedback(20); props.setTargetScore((s: number) => Math.max(Math.max(1, props.maxScore), s-1)); }} disabled={props.targetScore <= Math.max(1, props.maxScore)} className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10 flex items-center justify-center text-lg font-black disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/10 dark:hover:bg-white/20 transition-colors">-</button>
+                            <button onClick={() => { props.hapticFeedback(20); props.setTargetScore((s: number) => Math.max(Math.max(1, props.maxScore), s-1)); }} disabled={props.targetScore <= Math.max(1, props.maxScore)} className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-lg font-black disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/10 dark:hover:bg-white/20 transition-colors">-</button>
                             <span className="text-xl font-black w-8 text-center">{props.targetScore}</span>
-                            <button onClick={() => { props.hapticFeedback(20); props.setTargetScore((s: number) => Math.min(20, s+1)); }} className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10 flex items-center justify-center text-lg font-black hover:bg-black/10 dark:hover:bg-white/20 transition-colors">+</button>
+                            <button onClick={() => { props.hapticFeedback(20); props.setTargetScore((s: number) => Math.min(20, s+1)); }} className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-lg font-black hover:bg-black/10 dark:hover:bg-white/20 transition-colors">+</button>
                          </div>
                       </motion.div>
                    )}
                    </AnimatePresence>
                 </div>
                 
-                <div className="rounded-[24px] p-5 space-y-4 border-2 border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                {/* 5. Custom Winning Line Box */}
+                <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <div className="flex items-start justify-between">
-                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1.5 leading-snug w-3/5">Custom Winning Line Color</h3>
+                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Winning Line Color</h3>
                       <AnimatedToggle enabled={props.enableCustomLine} onToggle={() => { props.hapticFeedback(30); props.setEnableCustomLine(!props.enableCustomLine); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} />
                    </div>
                    <AnimatePresence>
                    {props.enableCustomLine && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                         <div className="relative w-full overflow-hidden rounded-[16px] pt-1">
-                            <div className="max-h-[110px] overflow-y-auto m3-scrollbar pr-2">
+                         <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
+                            <div className="max-h-[140px] overflow-y-auto m3-scrollbar pr-3">
                                <div className="grid grid-cols-5 place-items-center gap-y-3 pb-2 pt-1">
                                   {(props.isDarkMode ? availableLinesDark : availableLinesLight).map((color, idx) => (
-                                    <button key={`line-${idx}`} onClick={() => { props.hapticFeedback(20); props.setCustomLineIdx(idx); }} style={{ backgroundColor: color, borderColor: props.customLineIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-11 h-11 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110">
-                                      {props.customLineIdx === idx && <div className="w-4 h-4 rounded-full bg-white shadow-sm" />}
+                                    <button key={`line-${idx}`} onClick={() => { props.hapticFeedback(20); props.setCustomLineIdx(idx); }} style={{ backgroundColor: color, borderColor: props.customLineIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110">
+                                      {props.customLineIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
                                     </button>
                                   ))}
                                </div>
@@ -262,20 +257,21 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </AnimatePresence>
                 </div>
 
-                <div className="rounded-[24px] p-5 space-y-4 border-2 border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                {/* 6. Custom Player X Box (Color + Shape) */}
+                <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <div className="flex items-start justify-between">
-                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1.5 leading-snug w-3/5">Custom Player X Color</h3>
+                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Player X Color</h3>
                       <AnimatedToggle enabled={props.enableCustomX} onToggle={() => { props.hapticFeedback(30); props.setEnableCustomX(!props.enableCustomX); }} activeColor={props.currentXColor} isDarkMode={props.isDarkMode} />
                    </div>
                    <AnimatePresence>
                    {props.enableCustomX && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                         <div className="relative w-full overflow-hidden rounded-[16px] pt-1">
-                            <div className="max-h-[110px] overflow-y-auto m3-scrollbar pr-2">
+                         <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
+                            <div className="max-h-[140px] overflow-y-auto m3-scrollbar pr-3">
                                <div className="grid grid-cols-5 place-items-center gap-y-3 pb-2 pt-1">
                                   {PLAYER_COLORS.map((color, idx) => (
-                                    <button key={`x-col-${idx}`} onClick={() => { props.hapticFeedback(20); props.setXColorIdx(idx); }} style={{ backgroundColor: color, borderColor: props.xColorIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-11 h-11 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110">
-                                       {props.xColorIdx === idx && <div className="w-4 h-4 rounded-full bg-white shadow-sm" />}
+                                    <button key={`x-col-${idx}`} onClick={() => { props.hapticFeedback(20); props.setXColorIdx(idx); }} style={{ backgroundColor: color, borderColor: props.xColorIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110">
+                                       {props.xColorIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
                                     </button>
                                   ))}
                                </div>
@@ -286,17 +282,17 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </AnimatePresence>
 
                    <div className="flex items-start justify-between pt-3 border-t border-black/10 dark:border-white/10">
-                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-2 leading-snug w-3/5">Custom Player X Shape</h3>
+                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1.5 leading-snug w-3/5">Custom Player X Shape</h3>
                       <div className="mt-0.5"><AnimatedToggle enabled={props.p1Custom} onToggle={() => { props.hapticFeedback(30); props.setP1Custom(!props.p1Custom); }} activeColor={props.currentXColor} isDarkMode={props.isDarkMode} /></div>
                    </div>
                    <AnimatePresence>
                    {props.p1Custom && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                         <div className="relative w-full overflow-hidden rounded-[16px] pt-1">
-                            <div className="max-h-[225px] overflow-y-auto m3-scrollbar pr-2">
+                         <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
+                            <div className="max-h-[190px] overflow-y-auto m3-scrollbar pr-3">
                                <div className="grid grid-cols-5 place-items-center gap-y-3 pb-2 pt-1">
                                   {ICONS_LIST.map((IconComponent, idx) => (
-                                     <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP1Idx(idx); }} className={`w-11 h-11 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p1Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p1Idx === idx ? props.currentXColor : 'transparent' }}>
+                                     <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP1Idx(idx); }} className={`w-10 h-10 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p1Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p1Idx === idx ? props.currentXColor : 'transparent' }}>
                                         <IconComponent className="w-6 h-6" color={props.currentXColor} fill={props.currentXColor} strokeWidth={2.5} />
                                      </button>
                                   ))}
@@ -308,20 +304,21 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </AnimatePresence>
                 </div>
 
-                <div className="rounded-[24px] p-5 space-y-4 border-2 border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                {/* 7. Custom Player O Box (Color + Shape) */}
+                <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <div className="flex items-start justify-between">
-                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1.5 leading-snug w-3/5">Custom Player O Color</h3>
+                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Player O Color</h3>
                       <AnimatedToggle enabled={props.enableCustomO} onToggle={() => { props.hapticFeedback(30); props.setEnableCustomO(!props.enableCustomO); }} activeColor={props.currentOColor} isDarkMode={props.isDarkMode} />
                    </div>
                    <AnimatePresence>
                    {props.enableCustomO && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                         <div className="relative w-full overflow-hidden rounded-[16px] pt-1">
-                            <div className="max-h-[110px] overflow-y-auto m3-scrollbar pr-2">
+                         <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
+                            <div className="max-h-[140px] overflow-y-auto m3-scrollbar pr-3">
                                <div className="grid grid-cols-5 place-items-center gap-y-3 pb-2 pt-1">
                                   {PLAYER_COLORS.map((color, idx) => (
-                                    <button key={`o-col-${idx}`} onClick={() => { props.hapticFeedback(20); props.setOColorIdx(idx); }} style={{ backgroundColor: color, borderColor: props.oColorIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-11 h-11 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110">
-                                      {props.oColorIdx === idx && <div className="w-4 h-4 rounded-full bg-white shadow-sm" />}
+                                    <button key={`o-col-${idx}`} onClick={() => { props.hapticFeedback(20); props.setOColorIdx(idx); }} style={{ backgroundColor: color, borderColor: props.oColorIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110">
+                                      {props.oColorIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
                                     </button>
                                   ))}
                                </div>
@@ -332,17 +329,17 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </AnimatePresence>
 
                    <div className="flex items-start justify-between pt-3 border-t border-black/10 dark:border-white/10">
-                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-2 leading-snug w-3/5">Custom Player O Shape</h3>
+                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1.5 leading-snug w-3/5">Custom Player O Shape</h3>
                       <div className="mt-0.5"><AnimatedToggle enabled={props.p2Custom} onToggle={() => { props.hapticFeedback(30); props.setP2Custom(!props.p2Custom); }} activeColor={props.currentOColor} isDarkMode={props.isDarkMode} /></div>
                    </div>
                    <AnimatePresence>
                    {props.p2Custom && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                         <div className="relative w-full overflow-hidden rounded-[16px] pt-1">
-                            <div className="max-h-[225px] overflow-y-auto m3-scrollbar pr-2">
+                         <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
+                            <div className="max-h-[190px] overflow-y-auto m3-scrollbar pr-3">
                                <div className="grid grid-cols-5 place-items-center gap-y-3 pb-2 pt-1">
                                   {ICONS_LIST.map((IconComponent, idx) => (
-                                     <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP2Idx(idx); }} className={`w-11 h-11 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p2Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p2Idx === idx ? props.currentOColor : 'transparent' }}>
+                                     <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP2Idx(idx); }} className={`w-10 h-10 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p2Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p2Idx === idx ? props.currentOColor : 'transparent' }}>
                                         <IconComponent className="w-6 h-6" color={props.currentOColor} fill={props.currentOColor} strokeWidth={2.5} />
                                      </button>
                                   ))}
@@ -354,10 +351,11 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </AnimatePresence>
                 </div>
                 
-                <div className="pt-2">
-                   <button onClick={() => { props.hapticFeedback(30); props.setIsAboutOpen(true); }} className="w-full py-4 rounded-full bg-black/5 dark:bg-white/5 border-2 border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm">
-                     <Info className="w-7 h-7" style={{ color: props.activeLineColor }} /> 
-                     <span className="font-black uppercase tracking-widest text-[17px] mt-1" style={{ color: props.activeLineColor }}>About Game</span>
+                {/* 8. About Game Button at Bottom */}
+                <div className="pt-3 pb-4 flex justify-center w-full">
+                   <button onClick={() => { props.hapticFeedback(30); props.setIsAboutOpen(true); }} className="w-[75%] py-3.5 rounded-full bg-black/5 dark:bg-white/5 border-2 hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-2.5 active:scale-95 shadow-sm" style={{ borderColor: cardBorderColor }}>
+                     <Info className="w-5 h-5" style={{ color: props.activeLineColor }} /> 
+                     <span className="font-black uppercase tracking-widest text-[15px] mt-0.5" style={{ color: props.activeLineColor }}>About Game</span>
                    </button>
                 </div>
 
