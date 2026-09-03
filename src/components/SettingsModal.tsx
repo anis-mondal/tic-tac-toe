@@ -153,23 +153,38 @@ export default function SettingsModal(props: SettingsModalProps) {
             <div className="relative w-full overflow-hidden px-4">
               <div className="max-h-[66vh] overflow-y-auto m3-scrollbar pr-3 space-y-4 pb-6">
                 
-                {/* 1. Theme Style Box */}
+                 {/* 1. Theme Style Box */}
                 <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Theme Style</h3>
-                   <div className="relative flex p-1 rounded-full w-[240px] mx-auto shadow-inner bg-black/10 dark:bg-white/10">
+                   
+                   {/* নিখুঁত ও স্মুথ টগল লজিক */}
+                   <div className="relative flex p-1.5 rounded-full w-full bg-black/10 dark:bg-white/10 shadow-inner overflow-hidden">
                       <motion.div 
-                          className="absolute top-1 bottom-1 rounded-full shadow-md z-0"
-                          animate={{ 
-                             left: props.useDefaultTheme ? '4px' : 'calc(50% + 2px)', 
-                             width: 'calc(50% - 6px)' 
+                          className="absolute top-1.5 bottom-1.5 rounded-full shadow-md z-0"
+                          style={{ 
+                             width: 'calc(50% - 6px)', 
+                             backgroundColor: props.activeLineColor 
                           }}
-                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                          style={{ backgroundColor: props.activeLineColor }}
+                          animate={{ x: props.useDefaultTheme ? 0 : '100%' }}
+                          transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
                       />
-                      <button onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(true); }} className="flex-1 py-2.5 z-10 text-[12px] font-black uppercase tracking-wider transition-colors" style={{ color: props.useDefaultTheme ? '#fff' : props.semantics.text }}>Classic</button>
-                      <button onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(false); }} className="flex-1 py-2.5 z-10 text-[12px] font-black uppercase tracking-wider transition-colors" style={{ color: !props.useDefaultTheme ? '#fff' : props.semantics.text }}>Custom (M3)</button>
+                      <button 
+                          onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(true); }} 
+                          className="flex-1 py-2 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
+                          style={{ color: props.useDefaultTheme ? '#ffffff' : props.semantics.text }}
+                      >
+                          Classic
+                      </button>
+                      <button 
+                          onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(false); }} 
+                          className="flex-1 py-2 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
+                          style={{ color: !props.useDefaultTheme ? '#ffffff' : props.semantics.text }}
+                      >
+                          Custom (M3)
+                      </button>
                    </div>
                 </div>
+
 
                 {/* 2. Surface Colors Box */}
                 <AnimatePresence>
