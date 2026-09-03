@@ -724,16 +724,17 @@ export default function App() {
   const baseTextColor = isDarkMode ? '#ffffff' : '#111111';
   const tintedTextColor = !useDefaultTheme ? `color-mix(in srgb, ${baseTextColor} 60%, ${themeIndicatorColor})` : baseTextColor;
 
-  const semantics = {
+   const semantics = {
     screenBackground: isDarkMode && isAmoled ? '#000000' : (isDarkMode ? activeTheme.dark : activeTheme.light),
-    mainGridBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.25)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
-    squareBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#101010' : blendDarker(activeTheme.cellDark, 0.25)) : (isDarkMode ? activeTheme.cellDark : activeTheme.cellLight),
+    mainGridBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.2)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    squareBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#121212' : blendDarker(activeTheme.cellDark, 0.25)) : (isDarkMode ? activeTheme.cellDark : activeTheme.cellLight),
     text: tintedTextColor,
-    modeSliderContainer: { bg: isDarkMode && isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.25)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight) },
-    bannerDefault: isDarkMode ? { bg: isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.25)) : activeTheme.gridDark, text: tintedTextColor } : { bg: activeTheme.gridLight, text: tintedTextColor },
-    scoreBg: isDarkMode && isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.25)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
-    topNavBtn: isDarkMode && isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.25)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    modeSliderContainer: { bg: isDarkMode && isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.2)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight) },
+    bannerDefault: isDarkMode ? { bg: isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.2)) : activeTheme.gridDark, text: tintedTextColor } : { bg: activeTheme.gridLight, text: tintedTextColor },
+    scoreBg: isDarkMode && isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.2)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    topNavBtn: isDarkMode && isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.2)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
   };
+
 
   const navBtnClass = "w-[48px] h-[48px] rounded-full active:scale-95 shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer transition-colors duration-1000";
   const getNavBtnStyle = () => ({
