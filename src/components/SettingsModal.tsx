@@ -152,36 +152,47 @@ export default function SettingsModal(props: SettingsModalProps) {
             {/* স্ক্রল বক্স (অদৃশ্য বক্সের ভেতরে থাকবে এবং স্ক্রলবারটি গায়ের থেকে ফাঁকা থাকবে) */}
             <div className="relative w-full overflow-hidden px-4">
               <div className="max-h-[66vh] overflow-y-auto m3-scrollbar pr-3 space-y-4 pb-6">
-                
-                 {/* 1. Theme Style Box */}
+                                {/* 1. Theme Style Box */}
                 <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Theme Style</h3>
                    
-                   {/* নিখুঁত ও স্মুথ টগল লজিক */}
-                   <div className="relative flex p-1.5 rounded-full w-full bg-black/10 dark:bg-white/10 shadow-inner overflow-hidden">
-                      <motion.div 
-                          className="absolute top-1.5 bottom-1.5 rounded-full shadow-md z-0"
-                          style={{ 
-                             width: 'calc(50% - 6px)', 
-                             backgroundColor: props.activeLineColor 
-                          }}
-                          animate={{ x: props.useDefaultTheme ? 0 : '100%' }}
-                          transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
-                      />
+                   {/* LayoutId ব্যবহার করে ভেরিয়েবল উইথ (Variable Width) এবং জিরো-ল্যাগ স্প্রিং অ্যানিমেশন */}
+                   <div className="relative flex p-1.5 rounded-full w-full bg-black/10 dark:bg-white/10 shadow-inner">
+                      
+                      {/* Classic Button (একটু ছোট) */}
                       <button 
                           onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(true); }} 
-                          className="flex-1 py-2 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
+                          className="relative flex-[0.8] py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
                           style={{ color: props.useDefaultTheme ? '#ffffff' : props.semantics.text }}
                       >
-                          Classic
+                          {props.useDefaultTheme && (
+                              <motion.div 
+                                  layoutId="theme-toggle-pill"
+                                  className="absolute inset-0 rounded-full shadow-md z-[-1]"
+                                  style={{ backgroundColor: props.activeLineColor }}
+                                  transition={{ type: "spring", stiffness: 500, damping: 32, mass: 0.9 }}
+                              />
+                          )}
+                          <span className="relative z-10">Classic</span>
                       </button>
+                      
+                      {/* Custom (M3) Button (লেখার কারণে একটু বড়) */}
                       <button 
                           onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(false); }} 
-                          className="flex-1 py-2 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
+                          className="relative flex-[1.2] py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
                           style={{ color: !props.useDefaultTheme ? '#ffffff' : props.semantics.text }}
                       >
-                          Custom (M3)
+                          {!props.useDefaultTheme && (
+                              <motion.div 
+                                  layoutId="theme-toggle-pill"
+                                  className="absolute inset-0 rounded-full shadow-md z-[-1]"
+                                  style={{ backgroundColor: props.activeLineColor }}
+                                  transition={{ type: "spring", stiffness: 500, damping: 32, mass: 0.9 }}
+                              />
+                          )}
+                          <span className="relative z-10">Custom (M3)</span>
                       </button>
+
                    </div>
                 </div>
 
