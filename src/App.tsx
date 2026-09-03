@@ -5,30 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, MoreVertical, X as CloseIcon, Target, Info, UsersRound,
-  Hexagon, Octagon, Pentagon, Triangle, Square, Diamond, Asterisk, Target as TargetIcon, Shield, Zap,
-  Dna, Star, Heart, Infinity as InfinityIcon, Puzzle, Sparkles as SparkleIcon, Gem, Crown, Trophy, Ghost,
-  Leaf, Flame, Droplet, Flower2, Snowflake, Feather, Sun as SunIcon, Moon as MoonIcon, Cloud, Wind,
-  Sprout, TreePine, Mountain, Bug, Cat, Dog, Bird, Fish, Rabbit, Snail,
-  Anchor, Magnet, Umbrella, Coffee, Camera, Bell, Music, Gamepad2, Lightbulb, Dice5,
-  Tent, Wand2, Atom, Orbit, Bomb, Key, Glasses, Clock, Hourglass, Timer,
-  Rocket, Plane, Car, Ship, Bus, Train, Bike, Tractor, Sailboat, Truck,
-  Compass, MapPin, Radar, LifeBuoy, Map, Navigation, Flag, Globe, Ticket, Luggage,
-  Cpu, Database, Laptop, Smartphone, Watch, Headphones, Mic, Radio, Tv, Monitor,
-  Smile, Skull, Bot, Eye, Fingerprint, Activity, Box, Layers, Aperture, Grid,
-  Palette, PenTool, Brush, Scissors, Hammer, Wrench, Ruler, Drill, HardHat, Thermometer,
-  Sunrise, Sunset, CloudRain, CloudSnow, CloudLightning, Tornado, Waves, Trees, Palmtree, Droplets,
-  ShoppingCart, ShoppingBag, ShoppingBasket, Tag, Wallet, CreditCard, Banknote, Coins, PiggyBank, Receipt,
-  Stethoscope, Syringe, TestTube, FlaskConical, Pill, Microscope, Telescope, Webcam, Film, Clapperboard,
-  Megaphone, Speaker, Book, Bookmark, Briefcase, GraduationCap, Medal, Award, Gift, PartyPopper,
-  Apple, Axe, Backpack, Banana, Battery, Bed, Binoculars, Bone, Brain, Cake, Calculator, Calendar, Candy, 
-  Carrot, Castle, Cherry, Church, Clover, Club, Cookie, Croissant, Crosshair, CupSoda, Drama, Drum, Dumbbell, 
-  Ear, Eclipse, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, Guitar, IceCream, Keyboard, 
-  Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle, AlarmClock, Ambulance, 
-  BaggageClaim, Beer, CarFront, ChefHat, Citrus, Grape, Lock, Joystick, MountainSnow, Wine, Nut, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich
-} from 'lucide-react';
-
+import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // @ts-ignore
@@ -41,7 +18,10 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { App as CapApp } from '@capacitor/app';
 
-// আপনার তৈরি করা AboutModal ইমপোর্ট করা হলো
+// ==========================================
+// SettingsModal এবং অন্যান্য ডেটা ইমপোর্ট করা হলো
+// ==========================================
+import SettingsModal, { PLAYER_COLORS, CUSTOM_THEMES, ORIGINAL_THEME, EXTRA_LINE_COLORS, ICONS_LIST } from './components/SettingsModal';
 import AboutModal from './components/AboutModal';
 
 type Player = 'X' | 'O';
@@ -51,29 +31,6 @@ const WINNING_COMBINATIONS = [
   [0, 1, 2], [3, 4, 5], [6, 7, 8],
   [0, 3, 6], [1, 4, 7], [2, 5, 8],
   [0, 4, 8], [2, 4, 6]
-];
-
-const ICONS_LIST = [
-  Hexagon, Octagon, Pentagon, Triangle, Square, Diamond, Asterisk, TargetIcon, Shield, Zap,
-  Dna, Star, Heart, InfinityIcon, Puzzle, SparkleIcon, Gem, Crown, Trophy, Ghost,
-  Leaf, Flame, Droplet, Flower2, Snowflake, Feather, SunIcon, MoonIcon, Cloud, Wind,
-  Sprout, TreePine, Mountain, Bug, Cat, Dog, Bird, Fish, Rabbit, Snail,
-  Anchor, Magnet, Umbrella, Coffee, Camera, Bell, Music, Gamepad2, Lightbulb, Dice5,
-  Tent, Wand2, Atom, Orbit, Bomb, Key, Glasses, Clock, Hourglass, Timer,
-  Rocket, Plane, Car, Ship, Bus, Train, Bike, Tractor, Sailboat, Truck,
-  Compass, MapPin, Radar, LifeBuoy, Map, Navigation, Flag, Globe, Ticket, Luggage,
-  Cpu, Database, Laptop, Smartphone, Watch, Headphones, Mic, Radio, Tv, Monitor,
-  Smile, Skull, Bot, Eye, Fingerprint, Activity, Box, Layers, Aperture, Grid,
-  Palette, PenTool, Brush, Scissors, Hammer, Wrench, Ruler, Drill, HardHat, Thermometer,
-  Sunrise, Sunset, CloudRain, CloudSnow, CloudLightning, Tornado, Waves, Trees, Palmtree, Droplets,
-  ShoppingCart, ShoppingBag, ShoppingBasket, Tag, Wallet, CreditCard, Banknote, Coins, PiggyBank, Receipt,
-  Stethoscope, Syringe, TestTube, FlaskConical, Pill, Microscope, Telescope, Webcam, Film, Clapperboard,
-  Megaphone, Speaker, Book, Bookmark, Briefcase, GraduationCap, Medal, Award, Gift, PartyPopper,
-  Apple, Axe, Backpack, Banana, Battery, Bed, Binoculars, Bone, Brain, Cake, Calculator, Calendar, Candy, 
-  Carrot, Castle, Cherry, Church, Clover, Club, Cookie, Croissant, Crosshair, CupSoda, Drama, 
-  Drum, Dumbbell, Ear, Eclipse, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, Guitar, 
-  IceCream, Keyboard, Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle, AlarmClock, Ambulance, 
-  BaggageClaim, Beer, CarFront, ChefHat, Citrus, Grape, Lock, Joystick, MountainSnow, Wine, Nut, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich
 ];
 
 const hapticFeedback = (pattern: number | number[]) => {
@@ -295,59 +252,6 @@ const blendDarker = (hex: string, factor: number) => {
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 };
 
-const ORIGINAL_THEME = {
-  name: 'Classic',
-  light: '#f8f9fa', dark: '#000000',
-  gridLight: '#e2e8f0', gridDark: '#1a1c1e',
-  cellLight: '#ffffff', cellDark: '#2a2d31',
-  indicatorLight: '#64748b', indicatorDark: '#94a3b8',
-  linesLight: ['#22c55e', '#16a34a', '#15803d', '#10b981', '#059669'], 
-  linesDark: ['#22c55e', '#4ade80', '#86efac', '#34d399', '#6ee7b7']
-};
-
-const CUSTOM_THEMES = [
-  { name: 'Dynamic M3', light: '#fdf8fd', dark: '#141218', gridLight: '#e8def8', gridDark: '#2b2930', cellLight: '#ffffff', cellDark: '#36343b', indicatorLight: '#6750a4', indicatorDark: '#d0bcff', linesLight: ['#6750a4', '#b3261e', '#9c4146', '#316934', '#006a6a'], linesDark: ['#d0bcff', '#f2b8b5', '#ffb4ab', '#82c986', '#4cdada'] },
-  { name: 'M3 Blue', light: '#eff6ff', dark: '#040b17', gridLight: '#bfdbfe', gridDark: '#0a1229', cellLight: '#ffffff', cellDark: '#121e38', indicatorLight: '#2563eb', indicatorDark: '#3b82f6', linesLight: ['#1e3a8a', '#1d4ed8', '#0891b2', '#4f46e5', '#3b82f6'], linesDark: ['#60a5fa', '#93c5fd', '#3b82f6', '#818cf8', '#7dd3fc'] },
-  { name: 'M3 Emerald', light: '#ecfdf5', dark: '#020f0a', gridLight: '#a7f3d0', gridDark: '#052115', cellLight: '#ffffff', cellDark: '#0a3321', indicatorLight: '#16a34a', indicatorDark: '#22c55e', linesLight: ['#166534', '#059669', '#15803d', '#10b981', '#16a34a'], linesDark: ['#4ade80', '#22c55e', '#34d399', '#86efac', '#8dd999'] },
-  { name: 'M3 Purple', light: '#f5f3ff', dark: '#0b0412', gridLight: '#d8b4fe', gridDark: '#160826', cellLight: '#ffffff', cellDark: '#200e33', indicatorLight: '#9333ea', indicatorDark: '#a855f7', linesLight: ['#7e22ce', '#9333ea', '#a855f7', '#c026d3', '#db2777'], linesDark: ['#c084fc', '#d8b4fe', '#e879f9', '#f472b6', '#fb7185'] },
-  { name: 'M3 Orange', light: '#fff7ed', dark: '#120701', gridLight: '#fdba74', gridDark: '#240d02', cellLight: '#ffffff', cellDark: '#331304', indicatorLight: '#ea580c', indicatorDark: '#f97316', linesLight: ['#c2410c', '#ea580c', '#d97706', '#dc2626', '#b45309'], linesDark: ['#fb923c', '#fcd34d', '#fca5a5', '#f87171', '#fdba74'] },
-  { name: 'M3 Rose', light: '#fff1f2', dark: '#140306', gridLight: '#fecdd3', gridDark: '#2e0a13', cellLight: '#ffffff', cellDark: '#400e1c', indicatorLight: '#e11d48', indicatorDark: '#f43f5e', linesLight: ['#be123c', '#e11d48', '#9f1239', '#db2777', '#f43f5e'], linesDark: ['#fb7185', '#fda4af', '#fecdd3', '#fbcfe8', '#f9a8d4'] },
-  { name: 'M3 Cyan', light: '#ecfeff', dark: '#020d12', gridLight: '#67e8f9', gridDark: '#051f2b', cellLight: '#ffffff', cellDark: '#093142', indicatorLight: '#0891b2', indicatorDark: '#06b6d4', linesLight: ['#0e7490', '#0891b2', '#0369a1', '#0f766e', '#115e59'], linesDark: ['#4cdada', '#67e8f9', '#7dd3fc', '#5eead4', '#99f6e4'] },
-  { name: 'M3 Amber', light: '#fffbeb', dark: '#140b01', gridLight: '#fde047', gridDark: '#291702', cellLight: '#ffffff', cellDark: '#3d2304', indicatorLight: '#d97706', indicatorDark: '#f59e0b', linesLight: ['#ca8a04', '#d97706', '#b45309', '#a16207', '#ea580c'], linesDark: ['#f59e0b', '#fbbf24', '#fcd34d', '#fdba74', '#fde047'] },
-  { name: 'M3 Crimson', light: '#fef2f2', dark: '#140303', gridLight: '#fca5a5', gridDark: '#290707', cellLight: '#ffffff', cellDark: '#400c0c', indicatorLight: '#dc2626', indicatorDark: '#ef4444', linesLight: ['#b91c1c', '#dc2626', '#991b1b', '#7f1d1d', '#e11d48'], linesDark: ['#ef4444', '#f87171', '#fca5a5', '#fb7185', '#f87171'] },
-  { name: 'M3 Indigo', light: '#eef2ff', dark: '#050512', gridLight: '#c7d2fe', gridDark: '#0e0c29', cellLight: '#ffffff', cellDark: '#161340', indicatorLight: '#4f46e5', indicatorDark: '#6366f1', linesLight: ['#4338ca', '#4f46e5', '#3730a3', '#312e81', '#1e3a8a'], linesDark: ['#6366f1', '#818cf8', '#a5b4fc', '#93c5fd', '#bfdbfe'] },
-  { name: 'M3 Mint', light: '#f0fdfa', dark: '#01120f', gridLight: '#99f6e4', gridDark: '#03241d', cellLight: '#ffffff', cellDark: '#06362c', indicatorLight: '#0d9488', indicatorDark: '#14b8a6', linesLight: ['#0f766e', '#0d9488', '#0b1d1d', '#14532d', '#065f46'], linesDark: ['#6ab5ab', '#84c9bf', '#a0c7bb', '#8cc4a8', '#7bb89d'] },
-  { name: 'M3 Pink', light: '#fdf2f8', dark: '#170312', gridLight: '#fbcfe8', gridDark: '#330a28', cellLight: '#ffffff', cellDark: '#4a0f3a', indicatorLight: '#ec4899', indicatorDark: '#f472b6', linesLight: ['#db2777', '#ec4899', '#f472b6', '#be185d', '#9d174d'], linesDark: ['#f472b6', '#f9a8d4', '#ec4899', '#fbcfe8', '#db2777'] },
-  { name: 'M3 Yellow', light: '#fefce8', dark: '#141000', gridLight: '#fef08a', gridDark: '#332800', cellLight: '#ffffff', cellDark: '#4a3a00', indicatorLight: '#eab308', indicatorDark: '#facc15', linesLight: ['#ca8a04', '#eab308', '#facc15', '#a16207', '#854d0e'], linesDark: ['#facc15', '#fef08a', '#eab308', '#fef9c3', '#ca8a04'] },
-  { name: 'M3 Lime', light: '#f7fee7', dark: '#0f1402', gridLight: '#d9f99d', gridDark: '#1d2905', cellLight: '#ffffff', cellDark: '#2a3b07', indicatorLight: '#84cc16', indicatorDark: '#a3e635', linesLight: ['#65a30d', '#84cc16', '#a3e635', '#4d7c0f', '#3f6212'], linesDark: ['#a3e635', '#d9f99d', '#84cc16', '#ecfccb', '#65a30d'] },
-  { name: 'M3 Teal', light: '#f0fdfa', dark: '#041414', gridLight: '#ccfbf1', gridDark: '#0f3333', cellLight: '#ffffff', cellDark: '#144040', indicatorLight: '#14b8a6', indicatorDark: '#2dd4bf', linesLight: ['#0d9488', '#14b8a6', '#2dd4bf', '#0f766e', '#115e59'], linesDark: ['#2dd4bf', '#99f6e4', '#14b8a6', '#ccfbf1', '#0d9488'] },
-  { name: 'Custom Pastel Green', light: '#f8fbf8', dark: '#081208', gridLight: '#e4f5e4', gridDark: '#162e16', cellLight: '#ffffff', cellDark: '#1a381a', indicatorLight: '#78dd77', indicatorDark: '#78dd77', linesLight: ['#78dd77', '#5ec85d', '#45b445', '#2a9b2a', '#148214'], linesDark: ['#78dd77', '#93f592', '#b2ffb2', '#ccffcc', '#e5ffe5'] },
-  { name: 'Custom Light Green', light: '#f8fdf2', dark: '#0d1405', gridLight: '#eef8dc', gridDark: '#223812', cellLight: '#ffffff', cellDark: '#284215', indicatorLight: '#9fd75c', indicatorDark: '#9fd75c', linesLight: ['#9fd75c', '#85c242', '#6ba829', '#529111', '#3b7800'], linesDark: ['#9fd75c', '#bbf276', '#d6ff94', '#eaffb2', '#f6ffcf'] },
-  { name: 'Custom Lime Yellow', light: '#fcfee6', dark: '#161a02', gridLight: '#f4facb', gridDark: '#36400a', cellLight: '#ffffff', cellDark: '#404d0c', indicatorLight: '#c1d02d', indicatorDark: '#c1d02d', linesLight: ['#c1d02d', '#a8b515', '#8f9c00', '#778200', '#5e6b00'], linesDark: ['#c1d02d', '#dbe84a', '#f5ff6b', '#ffff8c', '#ffffa8'] },
-  { name: 'Custom Bright Amber', light: '#fffaf0', dark: '#1f1600', gridLight: '#ffefc2', gridDark: '#4d3700', cellLight: '#ffffff', cellDark: '#594000', indicatorLight: '#fabd00', indicatorDark: '#fabd00', linesLight: ['#fabd00', '#e0a300', '#c78a00', '#ad7200', '#945c00'], linesDark: ['#fabd00', '#ffdb33', '#fff466', '#ffff99', '#ffffcc'] },
-  { name: 'Custom Peach', light: '#fff8f2', dark: '#1f150a', gridLight: '#ffe6cd', gridDark: '#4d3319', cellLight: '#ffffff', cellDark: '#593c1d', indicatorLight: '#ffb86e', indicatorDark: '#ffb86e', linesLight: ['#ffb86e', '#e69e55', '#cc853d', '#b36d26', '#995611'], linesDark: ['#ffb86e', '#ffd28a', '#ffecab', '#ffffcc', '#ffffe5'] },
-  { name: 'Custom Salmon', light: '#fff7f5', dark: '#1f1311', gridLight: '#ffdfd9', gridDark: '#4d2d27', cellLight: '#ffffff', cellDark: '#59352e', indicatorLight: '#feb4a7', indicatorDark: '#feb4a7', linesLight: ['#feb4a7', '#e3998d', '#c97f74', '#b0675c', '#965045'], linesDark: ['#feb4a7', '#ffcec2', '#ffe9df', '#fffffc', '#ffffff'] },
-  { name: 'Custom Pastel Pink', light: '#fff7f9', dark: '#1f1215', gridLight: '#ffe0e7', gridDark: '#4d2c33', cellLight: '#ffffff', cellDark: '#59333b', indicatorLight: '#ffb3c0', indicatorDark: '#ffb3c0', linesLight: ['#ffb3c0', '#e699a6', '#cc808d', '#b36875', '#99505e'], linesDark: ['#ffb3c0', '#ffd0db', '#ffecf2', '#ffffff', '#ffffff'] },
-  { name: 'Custom Light Magenta', light: '#fff6ff', dark: '#1e0e1f', gridLight: '#feddfa', gridDark: '#4d234d', cellLight: '#ffffff', cellDark: '#592959', indicatorLight: '#fcaaff', indicatorDark: '#fcaaff', linesLight: ['#fcaaff', '#e18fe6', '#c676cd', '#ad5eb5', '#95469d'], linesDark: ['#fcaaff', '#ffc7ff', '#ffe4ff', '#ffffff', '#ffffff'] },
-  { name: 'Custom Periwinkle', light: '#f7f8ff', dark: '#11131f', gridLight: '#e4e7ff', gridDark: '#2c334d', cellLight: '#ffffff', cellDark: '#343c59', indicatorLight: '#b9c3ff', indicatorDark: '#b9c3ff', linesLight: ['#b9c3ff', '#9ca7e6', '#808ccd', '#6571b5', '#4a589d'], linesDark: ['#b9c3ff', '#d6deff', '#f0f5ff', '#ffffff', '#ffffff'] },
-  { name: 'Custom Sky Blue', light: '#f2fbff', dark: '#06171f', gridLight: '#d1f1ff', gridDark: '#12415c', cellLight: '#ffffff', cellDark: '#154c6b', indicatorLight: '#62d3ff', indicatorDark: '#62d3ff', linesLight: ['#62d3ff', '#45b8e6', '#2b9dcd', '#1084b5', '#006c9d'], linesDark: ['#62d3ff', '#82e8ff', '#a3fcff', '#c7ffff', '#e5ffff'] }
-];
-  
-const PLAYER_COLORS = [
-  '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', 
-  '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', 
-  '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
-  '#78dd77', '#9fd75c', '#c1d02d', '#fabd00', '#ffb86e', 
-  '#feb4a7', '#ffb3c0', '#fcaaff', '#b9c3ff', '#62d3ff'
-];
-
-const EXTRA_LINE_COLORS = [
-  '#ef4444', '#f97316', '#f59e0b', '#eab308', '#06b6d4', 
-  '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#64748b',
-  '#78dd77', '#9fd75c', '#c1d02d', '#fabd00', '#ffb86e', 
-  '#feb4a7', '#ffb3c0', '#fcaaff', '#b9c3ff', '#62d3ff'
-];
-
 const getSaved = (key: string, defaultVal: any) => {
   if (typeof window === 'undefined') return defaultVal;
   try {
@@ -378,7 +282,6 @@ export default function App() {
   const [p2Custom, setP2Custom] = useState(() => getSaved('p2Custom', false));
   const [p2Idx, setP2Idx] = useState(() => getSaved('p2Idx', 1));
   
-  // নতুন টগলগুলোর স্টেট (রঙের জন্য)
   const [enableCustomLine, setEnableCustomLine] = useState(() => getSaved('enableCustomLine', false));
   const [enableCustomX, setEnableCustomX] = useState(() => getSaved('enableCustomX', false));
   const [enableCustomO, setEnableCustomO] = useState(() => getSaved('enableCustomO', false));
@@ -491,10 +394,9 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [isDarkMode, isAmoled, themeIdx, useDefaultTheme]);
 
-  // ডাইনামিক কালার ক্যালকুলেশন (টগলের ওপর ভিত্তি করে)
   const activeTheme = useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[themeIdx];
-  const availableLinesLight = [...activeTheme.linesLight, ...EXTRA_LINE_COLORS];
   const availableLinesDark = [...activeTheme.linesDark, ...EXTRA_LINE_COLORS];
+  const availableLinesLight = [...activeTheme.linesLight, ...EXTRA_LINE_COLORS];
   
   const activeLineColor = isDarkMode 
     ? (enableCustomLine ? availableLinesDark[customLineIdx] : availableLinesDark[0]) 
@@ -921,7 +823,7 @@ export default function App() {
           </motion.button>
           
           <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { hapticFeedback(60); playEnhancedSound('pop', isSoundOn); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
-            <MoreVertical className="w-[20px] h-[20px]" />
+             <SettingsIcon className="w-[20px] h-[20px]" />
           </motion.button>
         </motion.nav>
 
@@ -1211,7 +1113,7 @@ export default function App() {
                           <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md select-none bg-black/10 backdrop-blur-md" style={{ border: `2px solid ${activeLineColor}`, color: semantics.text }}>
                              Start a New Game
                           </motion.button>
-                          <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer); setOverallWinner(null); setShowWinnerModal(false); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && activeTheme.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
+                          <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer); setOverallWinner(null); setShowWinnerModal(false); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && ORIGINAL_THEME.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
                              Continue This Game
                           </motion.button>
                        </div>
@@ -1223,227 +1125,26 @@ export default function App() {
           </div>
         </motion.div>
 
-        <AnimatePresence>
-          {isSettingsOpen && (
-            <motion.div onClick={() => setIsSettingsOpen(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-              <motion.div onClick={(e) => e.stopPropagation()} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: semantics.screenBackground, color: semantics.text }} className="w-full max-w-sm p-6 rounded-[36px] shadow-2xl relative border border-white/5 transition-colors duration-1000">
-                
-                <button onClick={() => setIsSettingsOpen(false)} className="absolute top-5 right-5 p-2 transition-opacity hover:opacity-70 z-[160]">
-                  <CloseIcon className="w-6 h-6" />
-                </button>
-                
-                {/* আপডেট করা হেডার (Info আইকন সরানো এবং About বাটন যুক্ত করা হয়েছে) */}
-                <div className="flex flex-col mb-6 mt-2 relative">
-                    <h2 className="font-nunito-black text-2xl mb-3">Appearance</h2>
-                    <button onClick={() => setIsAboutOpen(true)} className="w-max px-5 py-2 rounded-full border border-black/10 dark:border-white/10 flex items-center gap-2 text-[13px] font-black uppercase tracking-wider opacity-80 hover:opacity-100 transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 shadow-sm bg-black/5 dark:bg-white/5">
-                        <Info className="w-4 h-4" /> About Game <span className="text-lg leading-none ml-1">&rarr;</span>
-                    </button>
-                </div>
-                
-                <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 m3-scrollbar">
-                  
-                  <div className="rounded-2xl p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: semantics.scoreBg }}>
-                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                           <div className="w-5 h-5 flex items-center justify-center opacity-70">
-                              <DynamicIcon player="X" p1Custom={false} p1Idx={0} p2Custom={false} p2Idx={0} color="currentColor" className="w-4 h-4"/>
-                           </div>
-                           <h3 className="text-sm uppercase tracking-wider opacity-90 font-bold">Custom Player X Shape</h3>
-                        </div>
-                        <motion.button onClick={() => { hapticFeedback(30); setP1Custom(!p1Custom); }} className="w-12 h-6.5 rounded-full p-1.5 flex items-center shadow-inner relative overflow-hidden" style={{ backgroundColor: p1Custom ? currentXColor : (isDarkMode ? '#3f4753' : '#e0e2ec') }}>
-                            <motion.div animate={{ x: p1Custom ? 22 : 0 }} className="w-4.5 h-4.5 rounded-full bg-white shadow" transition={{ type: "spring", stiffness: 500, damping: 30 }} />
-                        </motion.button>
-                     </div>
-                     <AnimatePresence>
-                     {p1Custom && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="pt-2">
-                           <div className="grid grid-cols-5 gap-2 max-h-[220px] overflow-y-auto m3-scrollbar p-1">
-                              {ICONS_LIST.map((IconComponent, idx) => (
-                                 <button key={idx} onClick={() => { hapticFeedback(20); setP1Idx(idx); }} className={`p-2 rounded-xl flex items-center justify-center border-2 transition-colors ${p1Idx === idx ? 'border-sky-500 bg-sky-500/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`}>
-                                    <IconComponent className="w-6 h-6" color={currentXColor} fill={currentXColor} strokeWidth={2.5} />
-                                 </button>
-                              ))}
-                           </div>
-                        </motion.div>
-                     )}
-                     </AnimatePresence>
-                  </div>
-
-                  <div className="rounded-2xl p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: semantics.scoreBg }}>
-                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                           <div className="w-5 h-5 flex items-center justify-center opacity-70">
-                              <DynamicIcon player="O" p1Custom={false} p1Idx={0} p2Custom={false} p2Idx={0} color="currentColor" className="w-4 h-4"/>
-                           </div>
-                           <h3 className="text-sm uppercase tracking-wider opacity-90 font-bold">Custom Player O Shape</h3>
-                        </div>
-                        <motion.button onClick={() => { hapticFeedback(30); setP2Custom(!p2Custom); }} className="w-12 h-6.5 rounded-full p-1.5 flex items-center shadow-inner relative overflow-hidden" style={{ backgroundColor: p2Custom ? currentOColor : (isDarkMode ? '#3f4753' : '#e0e2ec') }}>
-                            <motion.div animate={{ x: p2Custom ? 22 : 0 }} className="w-4.5 h-4.5 rounded-full bg-white shadow" transition={{ type: "spring", stiffness: 500, damping: 30 }} />
-                        </motion.button>
-                     </div>
-                     <AnimatePresence>
-                     {p2Custom && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="pt-2">
-                           <div className="grid grid-cols-5 gap-2 max-h-[220px] overflow-y-auto m3-scrollbar p-1">
-                              {ICONS_LIST.map((IconComponent, idx) => (
-                                 <button key={idx} onClick={() => { hapticFeedback(20); setP2Idx(idx); }} className={`p-2 rounded-xl flex items-center justify-center border-2 transition-colors ${p2Idx === idx ? 'border-sky-500 bg-sky-500/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`}>
-                                    <IconComponent className="w-6 h-6" color={currentOColor} fill={currentOColor} strokeWidth={2.5} />
-                                 </button>
-                              ))}
-                           </div>
-                        </motion.div>
-                     )}
-                     </AnimatePresence>
-                  </div>
-
-                  <div className="rounded-2xl p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: semantics.scoreBg }}>
-                     <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Theme Style</h3>
-                     <div className="flex gap-2 p-1.5 rounded-2xl transition-colors duration-1000 bg-black/5 dark:bg-white/5">
-                        <button onClick={() => { hapticFeedback(20); setUseDefaultTheme(true); }} className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${useDefaultTheme ? 'bg-white text-black shadow-sm' : 'opacity-70 text-current'}`}>
-                           {ORIGINAL_THEME.name}
-                        </button>
-                        <button onClick={() => { hapticFeedback(20); setUseDefaultTheme(false); }} className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${!useDefaultTheme ? 'bg-white text-black shadow-sm' : 'opacity-70 text-current'}`}>
-                           Custom (M3)
-                        </button>
-                     </div>
-                  </div>
-                  
-                  <AnimatePresence>
-                    {isDarkMode && (
-                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                          <div className="flex items-center justify-between rounded-2xl p-4 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: semantics.scoreBg }}>
-                              <div className="flex items-center gap-2.5">
-                                 <Moon className="w-5 h-5 opacity-70" />
-                                 <h3 className="text-sm uppercase tracking-wider opacity-90 font-bold">Pure Black (AMOLED)</h3>
-                              </div>
-                              <motion.button onClick={() => { hapticFeedback(30); setIsAmoled(!isAmoled); }} className="w-12 h-6.5 rounded-full p-1.5 flex items-center shadow-inner relative overflow-hidden" style={{ backgroundColor: isAmoled ? activeLineColor : (isDarkMode ? '#3f4753' : '#e0e2ec') }}>
-                                  <motion.div animate={{ x: isAmoled ? 22 : 0 }} className="w-4.5 h-4.5 rounded-full bg-white shadow" transition={{ type: "spring", stiffness: 500, damping: 30 }} />
-                              </motion.button>
-                          </div>
-                       </motion.div>
-                    )}
-                  </AnimatePresence>
-                  
-                  <div className="rounded-2xl p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: semantics.scoreBg }}>
-                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                           <Target className="w-5 h-5 opacity-70" />
-                           <h3 className="text-sm uppercase tracking-wider opacity-90 font-bold">Target Point Win</h3>
-                        </div>
-                        <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(!isTargetScoreEnabled); setUserWantsTargetScore(!isTargetScoreEnabled); }} className="w-12 h-6.5 rounded-full p-1.5 flex items-center shadow-inner relative overflow-hidden" style={{ backgroundColor: isTargetScoreEnabled ? activeLineColor : (isDarkMode ? '#3f4753' : '#e0e2ec') }}>
-                            <motion.div animate={{ x: isTargetScoreEnabled ? 22 : 0 }} className="w-4.5 h-4.5 rounded-full bg-white shadow" transition={{ type: "spring", stiffness: 500, damping: 30 }} />
-                        </motion.button>
-                     </div>
-                     
-                     <AnimatePresence>
-                     {isTargetScoreEnabled && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex items-center gap-4 overflow-hidden pt-1">
-                           <span className="text-sm opacity-80 font-medium">Points to Win:</span>
-                           <div className="flex gap-2.5 items-center bg-transparent/10 p-1 rounded-xl">
-                              <button onClick={() => { hapticFeedback(20); setTargetScore(s => Math.max(Math.max(1, maxScore), s-1)); }} disabled={targetScore <= Math.max(1, maxScore)} className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-black disabled:opacity-30 disabled:cursor-not-allowed">-</button>
-                              <span className="text-lg font-black w-8 text-center">{targetScore}</span>
-                              <button onClick={() => { hapticFeedback(20); setTargetScore(s => Math.min(20, s+1)); }} className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-black">+</button>
-                           </div>
-                        </motion.div>
-                     )}
-                     </AnimatePresence>
-                  </div>
-
-                  {!useDefaultTheme && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="rounded-2xl p-4 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: semantics.scoreBg }}>
-                      <h3 className="text-sm uppercase tracking-wider opacity-70 mb-3 font-bold">Surface Colors</h3>
-                      <div className="flex flex-wrap gap-3">
-                        {CUSTOM_THEMES.map((theme, idx) => (
-                          <button key={theme.name} onClick={() => { hapticFeedback(20); setThemeIdx(idx); setCustomLineIdx(0); }} style={{ backgroundColor: isDarkMode ? theme.indicatorDark : theme.indicatorLight, borderColor: themeIdx === idx ? (isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center" aria-label={`Theme ${theme.name}`}>
-                            {themeIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
-                          </button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                  
-                  {/* নতুন কাস্টম উইনিং লাইন বক্স */}
-                  <div className="rounded-2xl p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: semantics.scoreBg }}>
-                     <div className="flex items-center justify-between">
-                        <h3 className="text-sm uppercase tracking-wider opacity-90 font-bold">Custom Winning Line Color</h3>
-                        <motion.button onClick={() => { hapticFeedback(30); setEnableCustomLine(!enableCustomLine); }} className="w-12 h-6.5 rounded-full p-1.5 flex items-center shadow-inner relative overflow-hidden" style={{ backgroundColor: enableCustomLine ? activeLineColor : (isDarkMode ? '#3f4753' : '#e0e2ec') }}>
-                            <motion.div animate={{ x: enableCustomLine ? 22 : 0 }} className="w-4.5 h-4.5 rounded-full bg-white shadow" transition={{ type: "spring", stiffness: 500, damping: 30 }} />
-                        </motion.button>
-                     </div>
-                     <AnimatePresence>
-                     {enableCustomLine && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="pt-2">
-                           <div className="flex flex-wrap gap-3 max-h-[180px] overflow-y-auto m3-scrollbar p-1">
-                              {(isDarkMode ? availableLinesDark : availableLinesLight).map((color, idx) => (
-                                <button key={`line-${idx}`} onClick={() => { hapticFeedback(20); setCustomLineIdx(idx); }} style={{ backgroundColor: color, borderColor: customLineIdx === idx ? (isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center">
-                                  {customLineIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
-                                </button>
-                              ))}
-                           </div>
-                        </motion.div>
-                     )}
-                     </AnimatePresence>
-                  </div>
-
-                  {/* নতুন কাস্টম Player X Color বক্স */}
-                  <div className="rounded-2xl p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: semantics.scoreBg }}>
-                     <div className="flex items-center justify-between">
-                        <h3 className="text-sm uppercase tracking-wider opacity-90 font-bold">Custom Player X Color</h3>
-                        <motion.button onClick={() => { hapticFeedback(30); setEnableCustomX(!enableCustomX); }} className="w-12 h-6.5 rounded-full p-1.5 flex items-center shadow-inner relative overflow-hidden" style={{ backgroundColor: enableCustomX ? currentXColor : (isDarkMode ? '#3f4753' : '#e0e2ec') }}>
-                            <motion.div animate={{ x: enableCustomX ? 22 : 0 }} className="w-4.5 h-4.5 rounded-full bg-white shadow" transition={{ type: "spring", stiffness: 500, damping: 30 }} />
-                        </motion.button>
-                     </div>
-                     <AnimatePresence>
-                     {enableCustomX && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="pt-2">
-                           <div className="flex flex-wrap gap-3 max-h-[180px] overflow-y-auto m3-scrollbar p-1">
-                              {PLAYER_COLORS.map((color, idx) => (
-                                <button key={`x-${idx}`} onClick={() => { hapticFeedback(20); setXColorIdx(idx); }} style={{ backgroundColor: color, borderColor: xColorIdx === idx ? (isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center">
-                                   {xColorIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
-                                </button>
-                              ))}
-                           </div>
-                        </motion.div>
-                     )}
-                     </AnimatePresence>
-                  </div>
-
-                  {/* নতুন কাস্টম Player O Color বক্স */}
-                  <div className="rounded-2xl p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: semantics.scoreBg }}>
-                     <div className="flex items-center justify-between">
-                        <h3 className="text-sm uppercase tracking-wider opacity-90 font-bold">Custom Player O Color</h3>
-                        <motion.button onClick={() => { hapticFeedback(30); setEnableCustomO(!enableCustomO); }} className="w-12 h-6.5 rounded-full p-1.5 flex items-center shadow-inner relative overflow-hidden" style={{ backgroundColor: enableCustomO ? currentOColor : (isDarkMode ? '#3f4753' : '#e0e2ec') }}>
-                            <motion.div animate={{ x: enableCustomO ? 22 : 0 }} className="w-4.5 h-4.5 rounded-full bg-white shadow" transition={{ type: "spring", stiffness: 500, damping: 30 }} />
-                        </motion.button>
-                     </div>
-                     <AnimatePresence>
-                     {enableCustomO && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="pt-2">
-                           <div className="flex flex-wrap gap-3 max-h-[180px] overflow-y-auto m3-scrollbar p-1">
-                              {PLAYER_COLORS.map((color, idx) => (
-                                <button key={`o-${idx}`} onClick={() => { hapticFeedback(20); setOColorIdx(idx); }} style={{ backgroundColor: color, borderColor: oColorIdx === idx ? (isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center">
-                                  {oColorIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
-                                </button>
-                              ))}
-                           </div>
-                        </motion.div>
-                     )}
-                     </AnimatePresence>
-                  </div>
-                </div>
-
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* নতুন Settings Modal রেন্ডার করা হচ্ছে */}
+        <SettingsModal 
+          isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} setIsAboutOpen={setIsAboutOpen}
+          semantics={semantics} isDarkMode={isDarkMode} isAmoled={isAmoled} setIsAmoled={setIsAmoled}
+          useDefaultTheme={useDefaultTheme} setUseDefaultTheme={setUseDefaultTheme}
+          themeIdx={themeIdx} setThemeIdx={setThemeIdx}
+          p1Custom={p1Custom} setP1Custom={setP1Custom} p1Idx={p1Idx} setP1Idx={setP1Idx}
+          p2Custom={p2Custom} setP2Custom={setP2Custom} p2Idx={p2Idx} setP2Idx={setP2Idx}
+          enableCustomLine={enableCustomLine} setEnableCustomLine={setEnableCustomLine} customLineIdx={customLineIdx} setCustomLineIdx={setCustomLineIdx}
+          enableCustomX={enableCustomX} setEnableCustomX={setEnableCustomX} xColorIdx={xColorIdx} setXColorIdx={setXColorIdx}
+          enableCustomO={enableCustomO} setEnableCustomO={setEnableCustomO} oColorIdx={oColorIdx} setOColorIdx={setOColorIdx}
+          isTargetScoreEnabled={isTargetScoreEnabled} setIsTargetScoreEnabled={setIsTargetScoreEnabled} setUserWantsTargetScore={setUserWantsTargetScore}
+          targetScore={targetScore} setTargetScore={setTargetScore} maxScore={maxScore}
+          activeLineColor={activeLineColor} currentXColor={currentXColor} currentOColor={currentOColor} hapticFeedback={hapticFeedback}
+        />
 
         {/* AboutModal কম্পোনেন্ট রেন্ডার করা হচ্ছে */}
         <AboutModal 
-          isOpen={isAboutOpen} 
-          onClose={() => setIsAboutOpen(false)} 
-          semantics={semantics} 
-          useDefaultTheme={useDefaultTheme} 
-          activeLineColor={activeLineColor} 
+          isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} 
+          semantics={semantics} useDefaultTheme={useDefaultTheme} activeLineColor={activeLineColor} 
         />
 
       </div>
