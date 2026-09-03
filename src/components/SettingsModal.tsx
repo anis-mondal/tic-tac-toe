@@ -129,72 +129,44 @@ export default function SettingsModal(props: SettingsModalProps) {
            transition={{ duration: 0.2 }}
            className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
         >
-          {/* বাউন্সি পপআপ অ্যানিমেশন উন্নত করা হলো */}
-          <motion.div 
-             onClick={(e) => e.stopPropagation()} 
-             initial={{ scale: 0.85, y: 50, opacity: 0 }} 
-             animate={{ scale: 1, y: 0, opacity: 1 }} 
-             exit={{ scale: 0.85, y: 50, opacity: 0 }} 
-             transition={{ type: "spring", damping: 20, stiffness: 350, mass: 0.8 }}
-             style={{ backgroundColor: props.semantics.screenBackground, color: props.semantics.text }} 
-             className="w-full max-w-[420px] pt-7 pb-4 px-1 rounded-[36px] shadow-2xl relative border-[3px] border-gray-200 dark:border-white/10 transition-colors duration-1000"
-          >
-            
-            <button onClick={props.onClose} className="absolute top-6 right-7 p-2 transition-opacity hover:opacity-70 z-[160] bg-black/5 dark:bg-white/5 rounded-full active:scale-90 border border-black/10 dark:border-white/10">
-              <CloseIcon className="w-5 h-5" />
-            </button>
-            
-            <div className="flex items-center gap-3 mb-6 px-7">
-              <Settings className="w-7 h-7 opacity-90" />
-              <h2 className="font-nunito-black text-3xl tracking-tight">Settings</h2>
-            </div>
-
-            {/* স্ক্রল বক্স (অদৃশ্য বক্সের ভেতরে থাকবে এবং স্ক্রলবারটি গায়ের থেকে ফাঁকা থাকবে) */}
-            <div className="relative w-full overflow-hidden px-4">
-              <div className="max-h-[66vh] overflow-y-auto m3-scrollbar pr-3 space-y-4 pb-6">
-                                {/* 1. Theme Style Box */}
+               {/* 1. Theme Style Box */}
                 <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Theme Style</h3>
                    
-                   {/* LayoutId ব্যবহার করে ভেরিয়েবল উইথ (Variable Width) এবং জিরো-ল্যাগ স্প্রিং অ্যানিমেশন */}
-                   <div className="relative flex p-1.5 rounded-full w-full bg-black/10 dark:bg-white/10 shadow-inner">
+                   {/* 100% Smooth GPU Accelerated Toggle (Zero Lag) */}
+                   <div 
+                      className="relative flex p-1.5 rounded-full w-full shadow-inner overflow-hidden transition-colors duration-500"
+                      style={{ backgroundColor: props.isDarkMode ? 'rgba(255,255,255,0.08)' : `${props.activeLineColor}25` }}
+                   >
+                      <motion.div 
+                          className="absolute top-1.5 bottom-1.5 rounded-full shadow-md z-0"
+                          initial={false}
+                          animate={{ 
+                             left: props.useDefaultTheme ? '6px' : '40%',
+                             right: props.useDefaultTheme ? '60%' : '6px'
+                          }}
+                          transition={{ type: "spring", stiffness: 450, damping: 30, mass: 0.8 }}
+                          style={{ backgroundColor: props.activeLineColor }}
+                      />
                       
-                      {/* Classic Button (একটু ছোট) */}
                       <button 
                           onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(true); }} 
-                          className="relative flex-[0.8] py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
-                          style={{ color: props.useDefaultTheme ? '#ffffff' : props.semantics.text }}
+                          className="flex-[0.8] py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
+                          style={{ color: props.useDefaultTheme ? '#ffffff' : (props.isDarkMode ? 'rgba(255,255,255,0.7)' : props.activeLineColor) }}
                       >
-                          {props.useDefaultTheme && (
-                              <motion.div 
-                                  layoutId="theme-toggle-pill"
-                                  className="absolute inset-0 rounded-full shadow-md z-[-1]"
-                                  style={{ backgroundColor: props.activeLineColor }}
-                                  transition={{ type: "spring", stiffness: 500, damping: 32, mass: 0.9 }}
-                              />
-                          )}
-                          <span className="relative z-10">Classic</span>
+                          Classic
                       </button>
                       
-                      {/* Custom (M3) Button (লেখার কারণে একটু বড়) */}
                       <button 
                           onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(false); }} 
-                          className="relative flex-[1.2] py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
-                          style={{ color: !props.useDefaultTheme ? '#ffffff' : props.semantics.text }}
+                          className="flex-[1.2] py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
+                          style={{ color: !props.useDefaultTheme ? '#ffffff' : (props.isDarkMode ? 'rgba(255,255,255,0.7)' : props.activeLineColor) }}
                       >
-                          {!props.useDefaultTheme && (
-                              <motion.div 
-                                  layoutId="theme-toggle-pill"
-                                  className="absolute inset-0 rounded-full shadow-md z-[-1]"
-                                  style={{ backgroundColor: props.activeLineColor }}
-                                  transition={{ type: "spring", stiffness: 500, damping: 32, mass: 0.9 }}
-                              />
-                          )}
-                          <span className="relative z-10">Custom (M3)</span>
+                          Custom (M3)
                       </button>
-
                    </div>
                 </div>
+
 
 
                 {/* 2. Surface Colors Box */}
