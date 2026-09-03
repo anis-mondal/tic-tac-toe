@@ -244,7 +244,7 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player, humanScore: numb
   return bestMove;
 };
 
-// কালার ব্লেন্ড করার ফাংশন
+// কালার ব্লেন্ড করার ফাংশন (AMOLED এর জন্য পারফেক্ট করা হলো)
 const blendDarker = (hex: string, factor: number) => {
     if (!hex || hex.length !== 7 || hex[0] !== '#') return hex;
     let r = Math.floor(parseInt(hex.slice(1, 3), 16) * factor);
@@ -725,16 +725,18 @@ export default function App() {
   const baseTextColor = isDarkMode ? '#ffffff' : '#111111';
   const tintedTextColor = !useDefaultTheme ? `color-mix(in srgb, ${baseTextColor} 60%, ${themeIndicatorColor})` : baseTextColor;
 
-  // AMOLED মোডে ব্যাকগ্রাউন্ড পুরোপুরি কালো এবং অন্যান্য জিনিসের ওপর হালকা কালো আস্তরণ
+
+  // AMOLED মোডে ব্যাকগ্রাউন্ড পুরোপুরি কালো এবং অন্যান্য জিনিসের ওপর হালকা কালো ট্রান্সপারেন্ট লেয়ার
+  const amoFactor = 0.85; // রঙের উজ্জ্বলতা ৮৫% বজায় থাকবে, মাত্র ১৫% কালো লেয়ার পড়বে
   const semantics = {
     screenBackground: isDarkMode && isAmoled ? '#000000' : (isDarkMode ? activeTheme.dark : activeTheme.light),
-    mainGridBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#111111' : blendDarker(activeTheme.gridDark, 0.45)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
-    squareBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#1a1a1a' : blendDarker(activeTheme.cellDark, 0.45)) : (isDarkMode ? activeTheme.cellDark : activeTheme.cellLight),
+    mainGridBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#0f0f0f' : blendDarker(activeTheme.gridDark, amoFactor)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    squareBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#1a1a1a' : blendDarker(activeTheme.cellDark, amoFactor)) : (isDarkMode ? activeTheme.cellDark : activeTheme.cellLight),
     text: tintedTextColor,
-    modeSliderContainer: { bg: isDarkMode && isAmoled ? (useDefaultTheme ? '#111111' : blendDarker(activeTheme.gridDark, 0.45)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight) },
-    bannerDefault: isDarkMode ? { bg: isAmoled ? (useDefaultTheme ? '#111111' : blendDarker(activeTheme.gridDark, 0.45)) : activeTheme.gridDark, text: tintedTextColor } : { bg: activeTheme.gridLight, text: tintedTextColor },
-    scoreBg: isDarkMode && isAmoled ? (useDefaultTheme ? '#111111' : blendDarker(activeTheme.gridDark, 0.45)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
-    topNavBtn: isDarkMode && isAmoled ? (useDefaultTheme ? '#111111' : blendDarker(activeTheme.gridDark, 0.45)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    modeSliderContainer: { bg: isDarkMode && isAmoled ? (useDefaultTheme ? '#0f0f0f' : blendDarker(activeTheme.gridDark, amoFactor)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight) },
+    bannerDefault: isDarkMode ? { bg: isAmoled ? (useDefaultTheme ? '#0f0f0f' : blendDarker(activeTheme.gridDark, amoFactor)) : activeTheme.gridDark, text: tintedTextColor } : { bg: activeTheme.gridLight, text: tintedTextColor },
+    scoreBg: isDarkMode && isAmoled ? (useDefaultTheme ? '#0f0f0f' : blendDarker(activeTheme.gridDark, amoFactor)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    topNavBtn: isDarkMode && isAmoled ? (useDefaultTheme ? '#0f0f0f' : blendDarker(activeTheme.gridDark, amoFactor)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
   };
 
   const navBtnClass = "w-[48px] h-[48px] rounded-full active:scale-95 shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer transition-colors duration-1000";
