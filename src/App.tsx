@@ -244,6 +244,7 @@ const findBestMove = (squares: SquareValue[], aiPlayer: Player, humanScore: numb
   return bestMove;
 };
 
+// কালার ব্লেন্ড করার ফাংশন
 const blendDarker = (hex: string, factor: number) => {
     if (!hex || hex.length !== 7 || hex[0] !== '#') return hex;
     let r = Math.floor(parseInt(hex.slice(1, 3), 16) * factor);
@@ -724,17 +725,17 @@ export default function App() {
   const baseTextColor = isDarkMode ? '#ffffff' : '#111111';
   const tintedTextColor = !useDefaultTheme ? `color-mix(in srgb, ${baseTextColor} 60%, ${themeIndicatorColor})` : baseTextColor;
 
-   const semantics = {
+  // AMOLED মোডে ব্যাকগ্রাউন্ড পুরোপুরি কালো এবং অন্যান্য জিনিসের ওপর হালকা কালো আস্তরণ
+  const semantics = {
     screenBackground: isDarkMode && isAmoled ? '#000000' : (isDarkMode ? activeTheme.dark : activeTheme.light),
-    mainGridBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.2)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
-    squareBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#121212' : blendDarker(activeTheme.cellDark, 0.25)) : (isDarkMode ? activeTheme.cellDark : activeTheme.cellLight),
+    mainGridBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#111111' : blendDarker(activeTheme.gridDark, 0.45)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    squareBackground: isDarkMode && isAmoled ? (useDefaultTheme ? '#1a1a1a' : blendDarker(activeTheme.cellDark, 0.45)) : (isDarkMode ? activeTheme.cellDark : activeTheme.cellLight),
     text: tintedTextColor,
-    modeSliderContainer: { bg: isDarkMode && isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.2)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight) },
-    bannerDefault: isDarkMode ? { bg: isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.2)) : activeTheme.gridDark, text: tintedTextColor } : { bg: activeTheme.gridLight, text: tintedTextColor },
-    scoreBg: isDarkMode && isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.2)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
-    topNavBtn: isDarkMode && isAmoled ? (useDefaultTheme ? '#080808' : blendDarker(activeTheme.gridDark, 0.2)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    modeSliderContainer: { bg: isDarkMode && isAmoled ? (useDefaultTheme ? '#111111' : blendDarker(activeTheme.gridDark, 0.45)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight) },
+    bannerDefault: isDarkMode ? { bg: isAmoled ? (useDefaultTheme ? '#111111' : blendDarker(activeTheme.gridDark, 0.45)) : activeTheme.gridDark, text: tintedTextColor } : { bg: activeTheme.gridLight, text: tintedTextColor },
+    scoreBg: isDarkMode && isAmoled ? (useDefaultTheme ? '#111111' : blendDarker(activeTheme.gridDark, 0.45)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
+    topNavBtn: isDarkMode && isAmoled ? (useDefaultTheme ? '#111111' : blendDarker(activeTheme.gridDark, 0.45)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
   };
-
 
   const navBtnClass = "w-[48px] h-[48px] rounded-full active:scale-95 shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer transition-colors duration-1000";
   const getNavBtnStyle = () => ({
@@ -1126,7 +1127,7 @@ export default function App() {
           </div>
         </motion.div>
 
-        {/* নতুন Settings Modal রেন্ডার করা হচ্ছে */}
+        {/* Settings Modal রেন্ডার করা হচ্ছে */}
         <SettingsModal 
           isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} setIsAboutOpen={setIsAboutOpen}
           semantics={semantics} isDarkMode={isDarkMode} isAmoled={isAmoled} setIsAmoled={setIsAmoled}
@@ -1142,7 +1143,7 @@ export default function App() {
           activeLineColor={activeLineColor} currentXColor={currentXColor} currentOColor={currentOColor} hapticFeedback={hapticFeedback}
         />
 
-        {/* AboutModal কম্পোনেন্ট রেন্ডার করা হচ্ছে */}
+        {/* AboutModal রেন্ডার করা হচ্ছে */}
         <AboutModal 
           isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} 
           semantics={semantics} useDefaultTheme={useDefaultTheme} activeLineColor={activeLineColor} 
