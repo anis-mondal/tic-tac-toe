@@ -148,40 +148,18 @@ export default function SettingsModal(props: SettingsModalProps) {
             <div className="relative w-full overflow-hidden px-4">
               <div className="max-h-[66vh] overflow-y-auto m3-scrollbar pr-3 space-y-4 pb-6">
                 
-                {/* 1. Theme Style Box (100% Zero-lag Toggle) */}
-                <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
-                   <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Theme Style</h3>
-                   <div 
-                      className="relative flex p-1.5 rounded-full w-full shadow-inner overflow-hidden transition-colors duration-500"
-                      style={{ backgroundColor: props.isDarkMode ? 'rgba(255,255,255,0.08)' : `${props.activeLineColor}25` }}
-                   >
-                      <motion.div 
-                          className="absolute top-1.5 bottom-1.5 rounded-full shadow-md z-0"
-                          initial={false}
-                          animate={{ 
-                             left: props.useDefaultTheme ? '6px' : '40%',
-                             right: props.useDefaultTheme ? '60%' : '6px'
-                          }}
-                          transition={{ type: "spring", stiffness: 450, damping: 30, mass: 0.8 }}
-                          style={{ backgroundColor: props.activeLineColor }}
-                      />
-                      
-                      <button 
-                          onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(true); }} 
-                          className="relative flex-[0.8] py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
-                          style={{ color: props.useDefaultTheme ? '#ffffff' : (props.isDarkMode ? 'rgba(255,255,255,0.7)' : props.activeLineColor) }}
-                      >
-                          Classic
-                      </button>
-                      
-                      <button 
-                          onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(false); }} 
-                          className="relative flex-[1.2] py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
-                          style={{ color: !props.useDefaultTheme ? '#ffffff' : (props.isDarkMode ? 'rgba(255,255,255,0.7)' : props.activeLineColor) }}
-                      >
-                          Custom (M3)
-                      </button>
-                   </div>
+                {/* 1. Theme Style Toggle Box (সাসটেইনেবল ও নির্ভরযোগ্য টগল সুইচ) */}
+                <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5 flex items-center justify-between" style={{ borderColor: cardBorderColor }}>
+                   <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black">Custom Theme (M3)</h3>
+                   <AnimatedToggle 
+                      enabled={!props.useDefaultTheme} 
+                      onToggle={() => { 
+                         props.hapticFeedback(30); 
+                         props.setUseDefaultTheme(!props.useDefaultTheme); 
+                      }} 
+                      activeColor={props.activeLineColor} 
+                      isDarkMode={props.isDarkMode} 
+                   />
                 </div>
 
                 {/* 2. Surface Colors Box */}
