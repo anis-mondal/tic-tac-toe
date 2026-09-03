@@ -30,7 +30,6 @@ export const ICONS_LIST = [
 export const PLAYER_COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', 
   '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', 
-  // ফ্যাকাসে রংগুলোকে উজ্জ্বল ও প্রিমিয়াম করা হলো
   '#22c55e', '#65a30d', '#a16207', '#d97706', '#ea580c', '#e11d48', '#db2777', '#c026d3', '#6366f1', '#0284c7'
 ];
 
@@ -57,7 +56,6 @@ export const CUSTOM_THEMES = [
   { name: 'M3 Yellow', light: '#fefce8', dark: '#141000', gridLight: '#fef08a', gridDark: '#332800', cellLight: '#ffffff', cellDark: '#4a3a00', indicatorLight: '#eab308', indicatorDark: '#facc15', linesLight: ['#ca8a04', '#eab308', '#facc15', '#a16207', '#854d0e'], linesDark: ['#facc15', '#fef08a', '#eab308', '#fef9c3', '#ca8a04'] },
   { name: 'M3 Lime', light: '#f7fee7', dark: '#0f1402', gridLight: '#d9f99d', gridDark: '#1d2905', cellLight: '#ffffff', cellDark: '#2a3b07', indicatorLight: '#84cc16', indicatorDark: '#a3e635', linesLight: ['#65a30d', '#84cc16', '#a3e635', '#4d7c0f', '#3f6212'], linesDark: ['#a3e635', '#d9f99d', '#84cc16', '#ecfccb', '#65a30d'] },
   { name: 'M3 Teal', light: '#f0fdfa', dark: '#041414', gridLight: '#ccfbf1', gridDark: '#0f3333', cellLight: '#ffffff', cellDark: '#144040', indicatorLight: '#14b8a6', indicatorDark: '#2dd4bf', linesLight: ['#0d9488', '#14b8a6', '#2dd4bf', '#0f766e', '#115e59'], linesDark: ['#2dd4bf', '#99f6e4', '#14b8a6', '#ccfbf1', '#0d9488'] },
-  // ফ্যাকাসে কালারগুলোকে ডার্ক ও লাইট মোডের জন্য উন্নত ও ব্রাইট করা হলো
   { name: 'Vibrant Green', light: '#f0fdf4', dark: '#022c22', gridLight: '#bbf7d0', gridDark: '#064e3b', cellLight: '#ffffff', cellDark: '#065f46', indicatorLight: '#22c55e', indicatorDark: '#4ade80', linesLight: ['#16a34a', '#22c55e', '#4ade80', '#86efac', '#bbf7d0'], linesDark: ['#4ade80', '#22c55e', '#16a34a', '#15803d', '#166534'] },
   { name: 'Vibrant Lime', light: '#fefce8', dark: '#422006', gridLight: '#fef08a', gridDark: '#713f12', cellLight: '#ffffff', cellDark: '#854d0e', indicatorLight: '#eab308', indicatorDark: '#fde047', linesLight: ['#ca8a04', '#eab308', '#facc15', '#fef08a', '#fef9c3'], linesDark: ['#fde047', '#facc15', '#eab308', '#ca8a04', '#a16207'] },
   { name: 'Vibrant Amber', light: '#fffbeb', dark: '#451a03', gridLight: '#fde68a', gridDark: '#78350f', cellLight: '#ffffff', cellDark: '#92400e', indicatorLight: '#f59e0b', indicatorDark: '#fbbf24', linesLight: ['#d97706', '#f59e0b', '#fbbf24', '#fcd34d', '#fde68a'], linesDark: ['#fbbf24', '#f59e0b', '#d97706', '#b45309', '#92400e'] },
@@ -117,7 +115,6 @@ export default function SettingsModal(props: SettingsModalProps) {
     availableLinesLight: [...(props.useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[props.themeIdx]).linesLight, ...EXTRA_LINE_COLORS]
   };
 
-  // লাইট মোডে বর্ডার থিমের কালার হবে, ডার্ক মোডে হালকা সাদা হবে
   const cardBorderColor = props.isDarkMode ? 'rgba(255,255,255,0.08)' : props.activeLineColor;
 
   return (
@@ -129,11 +126,31 @@ export default function SettingsModal(props: SettingsModalProps) {
            transition={{ duration: 0.2 }}
            className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
         >
-               {/* 1. Theme Style Box */}
+          <motion.div 
+             onClick={(e) => e.stopPropagation()} 
+             initial={{ scale: 0.85, y: 50, opacity: 0 }} 
+             animate={{ scale: 1, y: 0, opacity: 1 }} 
+             exit={{ scale: 0.85, y: 50, opacity: 0 }} 
+             transition={{ type: "spring", damping: 20, stiffness: 350, mass: 0.8 }}
+             style={{ backgroundColor: props.semantics.screenBackground, color: props.semantics.text }} 
+             className="w-full max-w-[420px] pt-7 pb-4 px-1 rounded-[36px] shadow-2xl relative border-[3px] border-gray-200 dark:border-white/10 transition-colors duration-1000"
+          >
+            
+            <button onClick={props.onClose} className="absolute top-6 right-7 p-2 transition-opacity hover:opacity-70 z-[160] bg-black/5 dark:bg-white/5 rounded-full active:scale-90 border border-black/10 dark:border-white/10">
+              <CloseIcon className="w-5 h-5" />
+            </button>
+            
+            <div className="flex items-center gap-3 mb-6 px-7">
+              <Settings className="w-7 h-7 opacity-90" />
+              <h2 className="font-nunito-black text-3xl tracking-tight">Settings</h2>
+            </div>
+
+            <div className="relative w-full overflow-hidden px-4">
+              <div className="max-h-[66vh] overflow-y-auto m3-scrollbar pr-3 space-y-4 pb-6">
+                
+                {/* 1. Theme Style Box (100% Zero-lag Toggle) */}
                 <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Theme Style</h3>
-                   
-                   {/* 100% Smooth GPU Accelerated Toggle (Zero Lag) */}
                    <div 
                       className="relative flex p-1.5 rounded-full w-full shadow-inner overflow-hidden transition-colors duration-500"
                       style={{ backgroundColor: props.isDarkMode ? 'rgba(255,255,255,0.08)' : `${props.activeLineColor}25` }}
@@ -151,7 +168,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                       
                       <button 
                           onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(true); }} 
-                          className="flex-[0.8] py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
+                          className="relative flex-[0.8] py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
                           style={{ color: props.useDefaultTheme ? '#ffffff' : (props.isDarkMode ? 'rgba(255,255,255,0.7)' : props.activeLineColor) }}
                       >
                           Classic
@@ -159,7 +176,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                       
                       <button 
                           onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(false); }} 
-                          className="flex-[1.2] py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
+                          className="relative flex-[1.2] py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors duration-300 flex justify-center items-center" 
                           style={{ color: !props.useDefaultTheme ? '#ffffff' : (props.isDarkMode ? 'rgba(255,255,255,0.7)' : props.activeLineColor) }}
                       >
                           Custom (M3)
@@ -167,15 +184,12 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </div>
                 </div>
 
-
-
                 {/* 2. Surface Colors Box */}
                 <AnimatePresence>
                   {!props.useDefaultTheme && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5 overflow-hidden" style={{ borderColor: cardBorderColor }}>
                       <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Surface Colors</h3>
-                      <div className="relative w-full rounded-[16px]">
-                         {/* 3 Rows at a time */}
+                      <div className="relative w-full rounded-[16px] overflow-hidden">
                          <div className="max-h-[135px] overflow-y-auto m3-scrollbar pr-3">
                             <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                               {CUSTOM_THEMES.map((theme, idx) => (
@@ -238,7 +252,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                    {props.enableCustomLine && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
                          <div className="relative w-full rounded-[16px] overflow-hidden pt-2">
-                            {/* 3 Rows at a time for Colors */}
                             <div className="max-h-[135px] overflow-y-auto m3-scrollbar pr-3">
                                <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                   {(props.isDarkMode ? availableLinesDark : availableLinesLight).map((color, idx) => (
@@ -254,7 +267,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </AnimatePresence>
                 </div>
 
-                {/* 6. Custom Player X Box (Color + Shape) */}
+                {/* 6. Custom Player X Box */}
                 <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <div className="flex items-start justify-between">
                       <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Player X Color</h3>
@@ -286,7 +299,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                    {props.p1Custom && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
                          <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
-                            {/* 4 Rows at a time for icons */}
                             <div className="max-h-[185px] overflow-y-auto m3-scrollbar pr-3">
                                <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                   {ICONS_LIST.map((IconComponent, idx) => (
@@ -302,7 +314,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </AnimatePresence>
                 </div>
 
-                {/* 7. Custom Player O Box (Color + Shape) */}
+                {/* 7. Custom Player O Box */}
                 <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <div className="flex items-start justify-between">
                       <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Player O Color</h3>
@@ -349,11 +361,11 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </AnimatePresence>
                 </div>
                 
-                {/* 8. About Game Button (Centered & Styled) */}
-                <div className="pt-3 pb-2 flex justify-center w-full">
-                   <button onClick={() => { props.hapticFeedback(30); props.setIsAboutOpen(true); }} className="w-[85%] py-4 rounded-full bg-black/5 dark:bg-white/5 border-[2.5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm" style={{ borderColor: cardBorderColor }}>
-                     <Info className="w-6 h-6" style={{ color: props.activeLineColor }} /> 
-                     <span className="font-black uppercase tracking-widest text-[16px] mt-0.5" style={{ color: props.activeLineColor }}>About Game</span>
+                {/* 8. About Game Button */}
+                <div className="pt-4 pb-2 flex justify-center w-full">
+                   <button onClick={() => { props.hapticFeedback(30); props.setIsAboutOpen(true); }} className="w-[85%] py-[15px] rounded-full bg-black/5 dark:bg-white/5 border-[2.5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm" style={{ borderColor: cardBorderColor }}>
+                     <Info className="w-[22px] h-[22px]" style={{ color: props.activeLineColor }} /> 
+                     <span className="font-black uppercase tracking-widest text-[14px] mt-0.5" style={{ color: props.activeLineColor }}>About Game</span>
                    </button>
                 </div>
 
