@@ -24,9 +24,8 @@ import {
 } from 'lucide-react';
 
 // ==========================================
-// গেমের সমস্ত কাস্টমাইজেশন (এখানেই সব এডিট করবেন)
+// গেমের সমস্ত ডেটা (কালার, থিম, আইকন)
 // ==========================================
-
 export const ICONS_LIST = [
   Hexagon, Octagon, Pentagon, Triangle, Square, Diamond, Asterisk, TargetIcon, Shield, Zap,
   Dna, Star, Heart, InfinityIcon, Puzzle, SparkleIcon, Gem, Crown, Trophy, Ghost,
@@ -98,29 +97,34 @@ export const CUSTOM_THEMES = [
 ];
 
 // ==========================================
-// নতুন সুন্দর অ্যানিমেটেড টগল কম্পোনেন্ট
+// নতুন চমৎকার অ্যানিমেটেড টগল (Theme ভিত্তিক কালার)
 // ==========================================
-const AnimatedToggle = ({ enabled, onToggle, activeColor, isDarkMode }: { enabled: boolean, onToggle: () => void, activeColor: string, isDarkMode: boolean }) => (
-  <motion.button 
-    onClick={onToggle}
-    className="w-14 h-8 rounded-full p-1 flex items-center shrink-0 shadow-inner relative transition-colors duration-500"
-    style={{ backgroundColor: enabled ? activeColor : (isDarkMode ? '#3f4753' : '#e0e2ec') }}
-  >
-    <motion.div 
-      animate={{ x: enabled ? 24 : 0 }} 
-      className="w-6 h-6 rounded-full bg-white shadow flex items-center justify-center z-10"
-      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+const AnimatedToggle = ({ enabled, onToggle, activeColor }: { enabled: boolean, onToggle: () => void, activeColor: string }) => {
+  // টগল অফ থাকলে কালারটি হালকা/ঝাপসা হয়ে যাবে
+  const offBgColor = `${activeColor}40`; // Hex কোডের শেষে 40 যোগ করলে এটি ট্রান্সপারেন্ট (ঝাপসা) হয়ে যায়
+  
+  return (
+    <motion.button 
+      onClick={onToggle}
+      className="w-[52px] h-[30px] rounded-full p-1 flex items-center shrink-0 relative transition-colors duration-500"
+      style={{ backgroundColor: enabled ? activeColor : offBgColor }}
     >
-      {enabled 
-        ? <Check className="w-4 h-4" style={{ color: activeColor }} strokeWidth={4} /> 
-        : <CloseIcon className="w-4 h-4 text-gray-400" strokeWidth={4} />
-      }
-    </motion.div>
-  </motion.button>
-);
+      <motion.div 
+        animate={{ x: enabled ? 22 : 0 }} 
+        className="w-5 h-5 rounded-full bg-white shadow-md flex items-center justify-center z-10"
+        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      >
+        {enabled 
+          ? <Check className="w-3.5 h-3.5" style={{ color: activeColor }} strokeWidth={4} /> 
+          : <CloseIcon className="w-3.5 h-3.5" style={{ color: activeColor }} strokeWidth={4} />
+        }
+      </motion.div>
+    </motion.button>
+  );
+};
 
 // ==========================================
-// সেটিংস মোডাল (Settings/Appearance Tab)
+// মূল সেটিংস মোডাল (এখানেই সব এডিট করা যাবে)
 // ==========================================
 interface SettingsModalProps {
   isOpen: boolean; onClose: () => void; setIsAboutOpen: (val: boolean) => void;
@@ -147,104 +151,74 @@ export default function SettingsModal(props: SettingsModalProps) {
   return (
     <AnimatePresence>
       {props.isOpen && (
-        <motion.div onClick={props.onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <motion.div onClick={(e) => e.stopPropagation()} initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={{ backgroundColor: props.semantics.screenBackground, color: props.semantics.text }} className="w-full max-w-[420px] pt-7 pb-4 px-6 rounded-[36px] shadow-2xl relative border-[3px] border-black/10 dark:border-white/10 transition-colors duration-1000">
+        <motion.div onClick={props.onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <motion.div onClick={(e) => e.stopPropagation()} initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }} style={{ backgroundColor: props.semantics.screenBackground, color: props.semantics.text }} className="w-full max-w-[420px] pt-6 pb-4 rounded-[36px] shadow-2xl relative border-[4px] border-black/10 dark:border-white/10 transition-colors duration-1000">
             
-            <button onClick={props.onClose} className="absolute top-6 right-6 p-2 transition-opacity hover:opacity-70 z-[160] bg-black/5 dark:bg-white/5 rounded-full">
-              <CloseIcon className="w-6 h-6" />
+            <button onClick={props.onClose} className="absolute top-5 right-5 p-2 transition-opacity hover:opacity-70 z-[160] bg-black/5 dark:bg-white/5 rounded-full">
+              <CloseIcon className="w-5 h-5" />
             </button>
             
-            <div className="flex items-center gap-3 mb-6">
-              <Settings className="w-7 h-7 opacity-80" />
-              <h2 className="font-nunito-black text-3xl">Settings</h2>
+            <div className="flex items-center gap-2.5 mb-5 px-6">
+              <Settings className="w-6 h-6 opacity-80" />
+              <h2 className="font-nunito-black text-3xl tracking-tight">Settings</h2>
             </div>
 
-            {/* রাউন্ডেড অদৃশ্য স্ক্রল বক্স */}
-            <div className="relative w-full rounded-[24px] overflow-hidden -mx-2 px-2">
-              <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 pb-4 m3-scrollbar">
+            {/* রাউন্ডেড অদৃশ্য স্ক্রল বক্স (স্ক্রলবার বাইরে থাকবে) */}
+            <div className="relative w-full overflow-hidden">
+              <div className="space-y-4 max-h-[65vh] overflow-y-auto px-6 pr-4 m3-scrollbar pb-6">
                 
-                {/* Custom Player X Shape */}
-                <div className="rounded-[20px] p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: props.semantics.scoreBg }}>
-                   <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                         <h3 className="text-[13px] uppercase tracking-wider opacity-90 font-black">Custom Player X Shape</h3>
-                      </div>
-                      <AnimatedToggle enabled={props.p1Custom} onToggle={() => { props.hapticFeedback(30); props.setP1Custom(!props.p1Custom); }} activeColor={props.currentXColor} isDarkMode={props.isDarkMode} />
-                   </div>
-                   <AnimatePresence>
-                   {props.p1Custom && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="pt-2">
-                         <div className="grid grid-cols-5 gap-2 max-h-[220px] overflow-y-auto m3-scrollbar p-1">
-                            {ICONS_LIST.map((IconComponent, idx) => (
-                               <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP1Idx(idx); }} className={`p-2 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p1Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p1Idx === idx ? props.currentXColor : 'transparent' }}>
-                                  <IconComponent className="w-6 h-6" color={props.currentXColor} fill={props.currentXColor} strokeWidth={2.5} />
-                               </button>
-                            ))}
-                         </div>
-                      </motion.div>
-                   )}
-                   </AnimatePresence>
-                </div>
-
-                {/* Custom Player O Shape */}
-                <div className="rounded-[20px] p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: props.semantics.scoreBg }}>
-                   <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                         <h3 className="text-[13px] uppercase tracking-wider opacity-90 font-black">Custom Player O Shape</h3>
-                      </div>
-                      <AnimatedToggle enabled={props.p2Custom} onToggle={() => { props.hapticFeedback(30); props.setP2Custom(!props.p2Custom); }} activeColor={props.currentOColor} isDarkMode={props.isDarkMode} />
-                   </div>
-                   <AnimatePresence>
-                   {props.p2Custom && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="pt-2">
-                         <div className="grid grid-cols-5 gap-2 max-h-[220px] overflow-y-auto m3-scrollbar p-1">
-                            {ICONS_LIST.map((IconComponent, idx) => (
-                               <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP2Idx(idx); }} className={`p-2 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p2Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p2Idx === idx ? props.currentOColor : 'transparent' }}>
-                                  <IconComponent className="w-6 h-6" color={props.currentOColor} fill={props.currentOColor} strokeWidth={2.5} />
-                               </button>
-                            ))}
-                         </div>
-                      </motion.div>
-                   )}
-                   </AnimatePresence>
-                </div>
-
                 {/* Theme Style */}
-                <div className="rounded-[20px] p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: props.semantics.scoreBg }}>
-                   <h3 className="text-[13px] uppercase tracking-wider opacity-70 mb-3 font-black">Theme Style</h3>
-                   <div className="flex gap-2 p-1.5 rounded-2xl transition-colors duration-1000 bg-black/5 dark:bg-white/5">
-                      <button onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(true); }} className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${props.useDefaultTheme ? 'bg-white dark:bg-[#2a2d31] text-black dark:text-white shadow-md' : 'opacity-70 text-current hover:opacity-100'}`}>
-                         {ORIGINAL_THEME.name}
-                      </button>
-                      <button onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(false); }} className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${!props.useDefaultTheme ? 'bg-white dark:bg-[#2a2d31] text-black dark:text-white shadow-md' : 'opacity-70 text-current hover:opacity-100'}`}>
-                         Custom (M3)
-                      </button>
+                <div className="rounded-[24px] p-5 border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 space-y-4">
+                   <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black">Theme Style</h3>
+                   <div className="relative flex p-1.5 rounded-full w-full bg-black/10 dark:bg-white/10 shadow-inner">
+                      <motion.div 
+                          className="absolute top-1.5 bottom-1.5 rounded-full shadow-sm"
+                          style={{ width: 'calc(50% - 6px)', backgroundColor: props.activeLineColor }}
+                          animate={{ x: props.useDefaultTheme ? 0 : '100%' }}
+                          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                      />
+                      <button onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(true); }} className="flex-1 py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors" style={{ color: props.useDefaultTheme ? '#fff' : props.semantics.text }}>Classic</button>
+                      <button onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(false); }} className="flex-1 py-2.5 z-10 text-[13px] font-black uppercase tracking-wider transition-colors" style={{ color: !props.useDefaultTheme ? '#fff' : props.semantics.text }}>Custom (M3)</button>
                    </div>
                 </div>
-                
+
+                {/* M3 Custom Themes List */}
+                {!props.useDefaultTheme && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="rounded-[24px] p-5 border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                    <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Surface Colors</h3>
+                    <div className="grid grid-cols-5 gap-3">
+                      {CUSTOM_THEMES.map((theme, idx) => (
+                        <button key={theme.name} onClick={() => { props.hapticFeedback(20); props.setThemeIdx(idx); props.setCustomLineIdx(0); }} style={{ backgroundColor: props.isDarkMode ? theme.indicatorDark : theme.indicatorLight, borderColor: props.themeIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 mx-auto rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-105" aria-label={`Theme ${theme.name}`}>
+                          {props.themeIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* Pure Black AMOLED */}
                 <AnimatePresence>
                   {props.isDarkMode && (
                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                        <div className="flex items-center justify-between rounded-[20px] p-4 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: props.semantics.scoreBg }}>
-                            <div className="flex items-center gap-2.5">
+                        <div className="flex items-center justify-between rounded-[24px] p-5 border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                            <div className="flex items-center gap-3">
                                <Moon className="w-5 h-5 opacity-70" />
-                               <h3 className="text-[13px] uppercase tracking-wider opacity-90 font-black">Pure Black (AMOLED)</h3>
+                               <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1">Pure Black (AMOLED)</h3>
                             </div>
-                            <AnimatedToggle enabled={props.isAmoled} onToggle={() => { props.hapticFeedback(30); props.setIsAmoled(!props.isAmoled); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} />
+                            <AnimatedToggle enabled={props.isAmoled} onToggle={() => { props.hapticFeedback(30); props.setIsAmoled(!props.isAmoled); }} activeColor={props.activeLineColor} />
                         </div>
                      </motion.div>
                   )}
                 </AnimatePresence>
                 
                 {/* Target Point Win */}
-                <div className="rounded-[20px] p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: props.semantics.scoreBg }}>
+                <div className="rounded-[24px] p-5 space-y-4 border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-3">
                          <Target className="w-5 h-5 opacity-70" />
-                         <h3 className="text-[13px] uppercase tracking-wider opacity-90 font-black">Target Point Win</h3>
+                         <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1">Target Point Win</h3>
                       </div>
-                      <AnimatedToggle enabled={props.isTargetScoreEnabled} onToggle={() => { props.hapticFeedback(30); props.setIsTargetScoreEnabled(!props.isTargetScoreEnabled); props.setUserWantsTargetScore(!props.isTargetScoreEnabled); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} />
+                      <AnimatedToggle enabled={props.isTargetScoreEnabled} onToggle={() => { props.hapticFeedback(30); props.setIsTargetScoreEnabled(!props.isTargetScoreEnabled); props.setUserWantsTargetScore(!props.isTargetScoreEnabled); }} activeColor={props.activeLineColor} />
                    </div>
                    <AnimatePresence>
                    {props.isTargetScoreEnabled && (
@@ -259,33 +233,19 @@ export default function SettingsModal(props: SettingsModalProps) {
                    )}
                    </AnimatePresence>
                 </div>
-
-                {/* M3 Custom Themes List */}
-                {!props.useDefaultTheme && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="rounded-[20px] p-4 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: props.semantics.scoreBg }}>
-                    <h3 className="text-[13px] uppercase tracking-wider opacity-70 mb-3 font-black">Surface Colors</h3>
-                    <div className="flex flex-wrap gap-3">
-                      {CUSTOM_THEMES.map((theme, idx) => (
-                        <button key={theme.name} onClick={() => { props.hapticFeedback(20); props.setThemeIdx(idx); props.setCustomLineIdx(0); }} style={{ backgroundColor: props.isDarkMode ? theme.indicatorDark : theme.indicatorLight, borderColor: props.themeIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-105" aria-label={`Theme ${theme.name}`}>
-                          {props.themeIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
                 
                 {/* Custom Winning Line Color */}
-                <div className="rounded-[20px] p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: props.semantics.scoreBg }}>
-                   <div className="flex items-center justify-between">
-                      <h3 className="text-[13px] uppercase tracking-wider opacity-90 font-black">Custom Winning Line Color</h3>
-                      <AnimatedToggle enabled={props.enableCustomLine} onToggle={() => { props.hapticFeedback(30); props.setEnableCustomLine(!props.enableCustomLine); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} />
+                <div className="rounded-[24px] p-5 space-y-4 border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                   <div className="flex items-start justify-between">
+                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Winning Line Color</h3>
+                      <AnimatedToggle enabled={props.enableCustomLine} onToggle={() => { props.hapticFeedback(30); props.setEnableCustomLine(!props.enableCustomLine); }} activeColor={props.activeLineColor} />
                    </div>
                    <AnimatePresence>
                    {props.enableCustomLine && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="pt-2">
-                         <div className="flex flex-wrap gap-3 max-h-[180px] overflow-y-auto m3-scrollbar p-1">
+                         <div className="grid grid-cols-5 gap-3 max-h-[220px] overflow-y-auto m3-scrollbar pr-1 pb-1">
                             {(props.isDarkMode ? availableLinesDark : availableLinesLight).map((color, idx) => (
-                              <button key={`line-${idx}`} onClick={() => { props.hapticFeedback(20); props.setCustomLineIdx(idx); }} style={{ backgroundColor: color, borderColor: props.customLineIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-105">
+                              <button key={`line-${idx}`} onClick={() => { props.hapticFeedback(20); props.setCustomLineIdx(idx); }} style={{ backgroundColor: color, borderColor: props.customLineIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 mx-auto rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-105">
                                 {props.customLineIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
                               </button>
                             ))}
@@ -295,18 +255,18 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </AnimatePresence>
                 </div>
 
-                {/* Custom Player X Color */}
-                <div className="rounded-[20px] p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: props.semantics.scoreBg }}>
-                   <div className="flex items-center justify-between">
-                      <h3 className="text-[13px] uppercase tracking-wider opacity-90 font-black">Custom Player X Color</h3>
-                      <AnimatedToggle enabled={props.enableCustomX} onToggle={() => { props.hapticFeedback(30); props.setEnableCustomX(!props.enableCustomX); }} activeColor={props.currentXColor} isDarkMode={props.isDarkMode} />
+                {/* Custom Player X Box */}
+                <div className="rounded-[24px] p-5 space-y-4 border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                   <div className="flex items-start justify-between">
+                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Player X Color</h3>
+                      <AnimatedToggle enabled={props.enableCustomX} onToggle={() => { props.hapticFeedback(30); props.setEnableCustomX(!props.enableCustomX); }} activeColor={props.currentXColor} />
                    </div>
                    <AnimatePresence>
                    {props.enableCustomX && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="pt-2">
-                         <div className="flex flex-wrap gap-3 max-h-[180px] overflow-y-auto m3-scrollbar p-1">
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                         <div className="grid grid-cols-5 gap-3 max-h-[220px] overflow-y-auto m3-scrollbar pr-1 pb-1">
                             {PLAYER_COLORS.map((color, idx) => (
-                              <button key={`x-${idx}`} onClick={() => { props.hapticFeedback(20); props.setXColorIdx(idx); }} style={{ backgroundColor: color, borderColor: props.xColorIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-105">
+                              <button key={`x-col-${idx}`} onClick={() => { props.hapticFeedback(20); props.setXColorIdx(idx); }} style={{ backgroundColor: color, borderColor: props.xColorIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 mx-auto rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-105">
                                  {props.xColorIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
                               </button>
                             ))}
@@ -314,22 +274,58 @@ export default function SettingsModal(props: SettingsModalProps) {
                       </motion.div>
                    )}
                    </AnimatePresence>
+
+                   <div className="flex items-start justify-between pt-2 border-t border-black/10 dark:border-white/10">
+                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-3 leading-snug w-3/5">Custom Player X Shape</h3>
+                      <div className="mt-2"><AnimatedToggle enabled={props.p1Custom} onToggle={() => { props.hapticFeedback(30); props.setP1Custom(!props.p1Custom); }} activeColor={props.currentXColor} /></div>
+                   </div>
+                   <AnimatePresence>
+                   {props.p1Custom && (
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                         <div className="grid grid-cols-5 gap-3 max-h-[220px] overflow-y-auto m3-scrollbar pr-1 pb-1">
+                            {ICONS_LIST.map((IconComponent, idx) => (
+                               <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP1Idx(idx); }} className={`w-10 h-10 mx-auto rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p1Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p1Idx === idx ? props.currentXColor : 'transparent' }}>
+                                  <IconComponent className="w-6 h-6" color={props.currentXColor} fill={props.currentXColor} strokeWidth={2.5} />
+                               </button>
+                            ))}
+                         </div>
+                      </motion.div>
+                   )}
+                   </AnimatePresence>
                 </div>
 
-                {/* Custom Player O Color */}
-                <div className="rounded-[20px] p-4 space-y-3 transition-colors duration-1000 border border-black/10 dark:border-white/10" style={{ backgroundColor: props.semantics.scoreBg }}>
-                   <div className="flex items-center justify-between">
-                      <h3 className="text-[13px] uppercase tracking-wider opacity-90 font-black">Custom Player O Color</h3>
-                      <AnimatedToggle enabled={props.enableCustomO} onToggle={() => { props.hapticFeedback(30); props.setEnableCustomO(!props.enableCustomO); }} activeColor={props.currentOColor} isDarkMode={props.isDarkMode} />
+                {/* Custom Player O Box */}
+                <div className="rounded-[24px] p-5 space-y-4 border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                   <div className="flex items-start justify-between">
+                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Player O Color</h3>
+                      <AnimatedToggle enabled={props.enableCustomO} onToggle={() => { props.hapticFeedback(30); props.setEnableCustomO(!props.enableCustomO); }} activeColor={props.currentOColor} />
                    </div>
                    <AnimatePresence>
                    {props.enableCustomO && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="pt-2">
-                         <div className="flex flex-wrap gap-3 max-h-[180px] overflow-y-auto m3-scrollbar p-1">
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                         <div className="grid grid-cols-5 gap-3 max-h-[220px] overflow-y-auto m3-scrollbar pr-1 pb-1">
                             {PLAYER_COLORS.map((color, idx) => (
-                              <button key={`o-${idx}`} onClick={() => { props.hapticFeedback(20); props.setOColorIdx(idx); }} style={{ backgroundColor: color, borderColor: props.oColorIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-105">
+                              <button key={`o-col-${idx}`} onClick={() => { props.hapticFeedback(20); props.setOColorIdx(idx); }} style={{ backgroundColor: color, borderColor: props.oColorIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} className="w-10 h-10 mx-auto rounded-full border-[3px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-105">
                                 {props.oColorIdx === idx && <div className="w-3.5 h-3.5 rounded-full bg-white shadow-sm" />}
                               </button>
+                            ))}
+                         </div>
+                      </motion.div>
+                   )}
+                   </AnimatePresence>
+
+                   <div className="flex items-start justify-between pt-2 border-t border-black/10 dark:border-white/10">
+                      <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-3 leading-snug w-3/5">Custom Player O Shape</h3>
+                      <div className="mt-2"><AnimatedToggle enabled={props.p2Custom} onToggle={() => { props.hapticFeedback(30); props.setP2Custom(!props.p2Custom); }} activeColor={props.currentOColor} /></div>
+                   </div>
+                   <AnimatePresence>
+                   {props.p2Custom && (
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                         <div className="grid grid-cols-5 gap-3 max-h-[220px] overflow-y-auto m3-scrollbar pr-1 pb-1">
+                            {ICONS_LIST.map((IconComponent, idx) => (
+                               <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP2Idx(idx); }} className={`w-10 h-10 mx-auto rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p2Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p2Idx === idx ? props.currentOColor : 'transparent' }}>
+                                  <IconComponent className="w-6 h-6" color={props.currentOColor} fill={props.currentOColor} strokeWidth={2.5} />
+                               </button>
                             ))}
                          </div>
                       </motion.div>
@@ -338,9 +334,10 @@ export default function SettingsModal(props: SettingsModalProps) {
                 </div>
                 
                 {/* About Game Button at Bottom */}
-                <div className="pt-6 pb-2 px-1">
-                   <button onClick={() => { props.hapticFeedback(30); props.setIsAboutOpen(true); }} className="w-full py-[14px] rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-sm active:scale-95">
-                     <Info className="w-5 h-5 opacity-80" /> <span className="opacity-90">About Game</span>
+                <div className="pt-4 w-full">
+                   <button onClick={() => { props.hapticFeedback(30); props.setIsAboutOpen(true); }} className="w-full py-4 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm">
+                     <Info className="w-6 h-6" style={{ color: props.activeLineColor }} /> 
+                     <span className="font-black uppercase tracking-wider text-lg mt-1" style={{ color: props.activeLineColor }}>About Game</span>
                    </button>
                 </div>
 
