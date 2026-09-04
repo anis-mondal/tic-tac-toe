@@ -1,4 +1,4 @@
-Name: Build Offline Android APK
+name: Build Offline Android APK
 
 on:
   push:
