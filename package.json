@@ -13,7 +13,7 @@
   "dependencies": {
     "@capacitor/android": "^8.5.1",
     "@capacitor/app": "^8.1.1",
-    "@capacitor/cli": "^8.3.4",
+    "@capacitor/cli": "^8.5.1",
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/status-bar": "^8.0.2",
     "@google/genai": "^2.19.0",
