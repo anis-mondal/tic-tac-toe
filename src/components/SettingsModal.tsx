@@ -147,21 +147,48 @@ export default function SettingsModal(props: SettingsModalProps) {
 
             <div className="relative w-full overflow-hidden px-4">
               <div className="max-h-[66vh] overflow-y-auto m3-scrollbar pr-3 space-y-4 pb-6">
-                
-                {/* 1. Theme Style Toggle Box (সাসটেইনেবল ও নির্ভরযোগ্য টগল সুইচ) */}
-                <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5 flex items-center justify-between" style={{ borderColor: cardBorderColor }}>
-                   <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black">Custom Theme (M3)</h3>
-                   <AnimatedToggle 
-                      enabled={!props.useDefaultTheme} 
-                      onToggle={() => { 
-                         props.hapticFeedback(30); 
-                         props.setUseDefaultTheme(!props.useDefaultTheme); 
-                      }} 
-                      activeColor={props.activeLineColor} 
-                      isDarkMode={props.isDarkMode} 
-                   />
+          {/* 1. Theme Style Box (মেইন গেমের মতো হুবহু লজিক ও অ্যানিমেশন) */}
+                <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
+                   <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Theme Style</h3>
+                   
+                   <div className="relative flex p-1.5 rounded-[24px] w-full bg-black/10 dark:bg-white/10 shadow-inner">
+                      {/* Classic Button */}
+                      <button 
+                          onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(true); }} 
+                          className="relative flex-1 h-[36px] rounded-[20px] text-[13px] font-black uppercase tracking-wider z-10 flex items-center justify-center transition-colors duration-300"
+                          style={{ color: props.useDefaultTheme ? '#ffffff' : props.semantics.text }}
+                      >
+                          {props.useDefaultTheme && (
+                              <motion.div 
+                                  layoutId="theme-toggle-pill"
+                                  className="absolute inset-0 rounded-[20px] shadow-md z-[-1]"
+                                  style={{ backgroundColor: props.activeLineColor }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
+                              />
+                          )}
+                          <span className="relative z-10">Classic</span>
+                      </button>
+                      
+                      {/* Custom Button */}
+                      <button 
+                          onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(false); }} 
+                          className="relative flex-1 h-[36px] rounded-[20px] text-[13px] font-black uppercase tracking-wider z-10 flex items-center justify-center transition-colors duration-300"
+                          style={{ color: !props.useDefaultTheme ? '#ffffff' : props.semantics.text }}
+                      >
+                          {!props.useDefaultTheme && (
+                              <motion.div 
+                                  layoutId="theme-toggle-pill"
+                                  className="absolute inset-0 rounded-[20px] shadow-md z-[-1]"
+                                  style={{ backgroundColor: props.activeLineColor }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
+                              />
+                          )}
+                          <span className="relative z-10">Custom</span>
+                      </button>
+                   </div>
                 </div>
-
+                
+                
                 {/* 2. Surface Colors Box */}
                 <AnimatePresence>
                   {!props.useDefaultTheme && (
