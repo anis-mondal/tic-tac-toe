@@ -6,7 +6,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_release: # (শুধুমাত্র রিলিজ বিল্ড রাখলাম, যাতে সময় বাঁচে)
+  # ==============================
+  # ১. ডিবাগ বিল্ড (Debug Build)
+  # ==============================
+  build_debug:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code
@@ -18,8 +21,56 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      # 🚀 এখানে ম্যাজিক! আলাদা করে কোনো Capacitor ইনস্টল করতে হবে না। 
-      # npm ci একাই চোখের পলকে আপনার সব প্যাকেজ ইনস্টল করে নেবে।
+      - name: Install All Dependencies
+        run: npm ci 
+
+      - name: Build Web Application
+        run: npm run build
+
+      - name: Initialize Capacitor Config
+        run: |
+          echo '{"appId": "com.tictactoe.game", "appName": "Tic Tac Toe", "webDir": "dist", "backgroundColor": "#00000000", "plugins": {"SplashScreen": {"launchShowDuration": 0, "launchFadeOutDuration": 0, "launchAutoHide": true}}}' > capacitor.config.json
+
+      - name: Add Android Platform
+        run: npx cap add android || true
+
+      - name: Capacitor Sync
+        run: npx cap sync
+
+      - name: Set up Java JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TicTacToe-Debug-APK
+          path: android/app/build/outputs/apk/debug/*.apk
+
+  # ==============================
+  # ২. রিলিজ বিল্ড (Release Build)
+  # ==============================
+  build_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
       - name: Install All Dependencies
         run: npm ci 
 
@@ -71,7 +122,7 @@ jobs:
           
           cd android
           chmod +x gradlew
-          ./gradlew clean assembleRelease
+          ./gradlew assembleRelease --build-cache --parallel
 
       - name: Sign Release APKs
         env:
