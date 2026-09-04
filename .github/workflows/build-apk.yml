@@ -16,14 +16,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'   # 🚀 এই লাইনটি আপনার ইনস্টলেশনের সময় ম্যাজিকের মতো কমিয়ে দেবে!
 
       - name: Install Project Dependencies
-        run: |
-          npm install --include=optional
+        run: npm install --include=optional
 
       - name: Install Capacitor Packages
-        run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/app @capacitor/haptics
+        run: npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/app @capacitor/haptics
 
       - name: Build Web Application
         run: npm run build
@@ -43,6 +42,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '21'
+          cache: 'gradle'  # 🚀 Android/Gradle বিল্ড ফাস্ট করার জন্য ক্যাশিং
 
       - name: Build Debug APK
         run: |
@@ -66,14 +66,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'  # 🚀 এখানেও ক্যাশিং যুক্ত করা হলো
 
       - name: Install Project Dependencies
-        run: |
-          npm install --include=optional
+        run: npm install --include=optional
 
       - name: Install Capacitor Packages
-        run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/app @capacitor/haptics
+        run: npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/app @capacitor/haptics
 
       - name: Build Web Application
         run: npm run build
@@ -93,6 +92,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '21'
+          cache: 'gradle'  # 🚀 Android/Gradle বিল্ড ফাস্ট করার জন্য ক্যাশিং
 
       - name: Configure APK Splits and Build
         run: |
@@ -143,14 +143,12 @@ jobs:
             rm "$APK_FILE"
           done
 
-      # ১. সবকটি APK একসাথে জিপ আকারে আপলোড
       - name: Upload All Release APKs (Bundle)
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Release-All-APKs
           path: android/app/build/outputs/apk/release/*-signed.apk
 
-      # ২. আলাদা আলাদা APK আপলোড (যাতে একটা একটা করে ডাউনলোড করা যায়)
       - name: Upload Universal APK
         uses: actions/upload-artifact@v4
         with:
