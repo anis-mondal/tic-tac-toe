@@ -1,4 +1,4 @@
-name: Build Offline Android APK
+Name: Build Offline Android APK
 
 on:
   push:
@@ -19,8 +19,6 @@ jobs:
 
       - name: Install Project Dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm cache clean --force
           npm install --include=optional
 
       - name: Install Capacitor Packages
@@ -71,8 +69,6 @@ jobs:
 
       - name: Install Project Dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm cache clean --force
           npm install --include=optional
 
       - name: Install Capacitor Packages
@@ -100,7 +96,6 @@ jobs:
 
       - name: Configure APK Splits and Build
         run: |
-          # পারমানেন্ট সমাধান: Gradle-কে বলে দেওয়া হচ্ছে প্রতিটি APK-এর নাম যেন তার আর্কিটেকচার (ABI) অনুযায়ী একদম আলাদা হয়
           cat <<'EOF' >> android/app/build.gradle
           
           android {
@@ -114,7 +109,6 @@ jobs:
               }
           }
           
-          // ফাইল ক্র্যাশ এড়াতে প্রতিটি ফাইলের ইউনিক নাম তৈরি করা হচ্ছে
           android.applicationVariants.all { variant ->
               variant.outputs.all { output ->
                   def abi = output.getFilter(com.android.build.OutputFile.ABI)
@@ -126,7 +120,6 @@ jobs:
           }
           EOF
           
-          # পূর্বের ভুল ফাইল থাকলে তা ক্লিন করে বিল্ড করা হচ্ছে
           cd android
           chmod +x gradlew
           ./gradlew clean assembleRelease
@@ -140,13 +133,9 @@ jobs:
           echo "$KEYSTORE_BASE64" | tr -d '\n\r ' | base64 --decode > release.keystore
           BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
           
-          # নতুন ইউনিক নামের ফাইলগুলোকে খুঁজে বের করে সাইন করা
           find app/build/outputs/apk/release -name "*.apk" | while read -r APK_FILE; do
             BASENAME=$(basename "$APK_FILE" .apk)
-            
-            # যদি নামের শেষে "-unsigned" থাকে, তবে সেটি মুছে দেওয়া
             CLEAN_NAME=$(echo "$BASENAME" | sed 's/-unsigned//g')
-            
             FINAL_APK_NAME="${CLEAN_NAME}-signed.apk"
             
             $BUILD_TOOLS_DIR/apksigner sign --ks release.keystore --ks-pass pass:game1234 --key-pass pass:game1234 --out "app/build/outputs/apk/release/$FINAL_APK_NAME" "$APK_FILE"
@@ -154,8 +143,45 @@ jobs:
             rm "$APK_FILE"
           done
 
-      - name: Upload Release APKs
+      # ১. সবকটি APK একসাথে জিপ আকারে আপলোড
+      - name: Upload All Release APKs (Bundle)
         uses: actions/upload-artifact@v4
         with:
-          name: TicTacToe-Release-APKs
+          name: TicTacToe-Release-All-APKs
           path: android/app/build/outputs/apk/release/*-signed.apk
+
+      # ২. আলাদা আলাদা APK আপলোড (যাতে একটা একটা করে ডাউনলোড করা যায়)
+      - name: Upload Universal APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TicTacToe-Release-Universal
+          path: android/app/build/outputs/apk/release/TicTacToe-Release-universal-signed.apk
+          if-no-files-found: ignore
+
+      - name: Upload arm64-v8a APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TicTacToe-Release-arm64-v8a
+          path: android/app/build/outputs/apk/release/TicTacToe-Release-arm64-v8a-signed.apk
+          if-no-files-found: ignore
+
+      - name: Upload armeabi-v7a APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TicTacToe-Release-armeabi-v7a
+          path: android/app/build/outputs/apk/release/TicTacToe-Release-armeabi-v7a-signed.apk
+          if-no-files-found: ignore
+
+      - name: Upload x86 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TicTacToe-Release-x86
+          path: android/app/build/outputs/apk/release/TicTacToe-Release-x86-signed.apk
+          if-no-files-found: ignore
+
+      - name: Upload x86_64 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TicTacToe-Release-x86_64
+          path: android/app/build/outputs/apk/release/TicTacToe-Release-x86_64-signed.apk
+          if-no-files-found: ignore
