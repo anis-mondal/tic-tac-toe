@@ -48,7 +48,8 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          # 🚀 স্পিড বুস্ট: ক্যাশ ব্যবহার করে এবং প্যারালাল বিল্ড করে
+          ./gradlew assembleDebug --build-cache --parallel
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
@@ -122,7 +123,8 @@ jobs:
           
           cd android
           chmod +x gradlew
-          ./gradlew clean assembleRelease
+          # 🚀 স্পিড বুস্ট: clean মুছে দেওয়া হয়েছে এবং build-cache ও parallel যুক্ত করা হয়েছে
+          ./gradlew assembleRelease --build-cache --parallel
 
       - name: Sign Release APKs
         env:
