@@ -147,7 +147,8 @@ export default function SettingsModal(props: SettingsModalProps) {
 
             <div className="relative w-full overflow-hidden px-4">
               <div className="max-h-[66vh] overflow-y-auto m3-scrollbar pr-3 space-y-4 pb-6">
-          {/* 1. Theme Style Box (মেইন গেমের মতো হুবহু লজিক ও অ্যানিমেশন) */}
+                
+          {/* 1. Theme Style Box */}
                 <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Theme Style</h3>
                    
