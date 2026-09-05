@@ -131,8 +131,43 @@ jobs:
             rm "$APK_FILE"
           done
 
-      - name: Upload All Release APKs (Bundle)
+          - name: Upload All Release APKs (Bundle)
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Release-All-APKs
           path: android/app/build/outputs/apk/release/*-signed.apk
+
+      - name: Upload Universal APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TicTacToe-Release-Universal
+          path: android/app/build/outputs/apk/release/TicTacToe-Release-universal-signed.apk
+          if-no-files-found: ignore
+
+      - name: Upload arm64-v8a APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TicTacToe-Release-arm64-v8a
+          path: android/app/build/outputs/apk/release/TicTacToe-Release-arm64-v8a-signed.apk
+          if-no-files-found: ignore
+
+      - name: Upload armeabi-v7a APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TicTacToe-Release-armeabi-v7a
+          path: android/app/build/outputs/apk/release/TicTacToe-Release-armeabi-v7a-signed.apk
+          if-no-files-found: ignore
+
+      - name: Upload x86 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TicTacToe-Release-Universal
+          path: android/app/build/outputs/apk/release/TicTacToe-Release-x86-signed.apk
+          if-no-files-found: ignore
+
+      - name: Upload x86_64 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TicTacToe-Release-x86_64
+          path: android/app/build/outputs/apk/release/TicTacToe-Release-x86_64-signed.apk
+          if-no-files-found: ignore
