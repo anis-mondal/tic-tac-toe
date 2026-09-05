@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm' # এটি স্বয়ংক্রিয়ভাবে node_modules ক্যাশ করবে
+          cache: 'npm'
 
       - name: Install All Dependencies
         run: npm ci 
@@ -27,7 +27,6 @@ jobs:
       - name: Build Web Application
         run: npm run build
 
-      # npx cap add android বাদ দেওয়া হয়েছে, কারণ android ফোল্ডার গিটহাবে থাকা উচিত
       - name: Capacitor Sync
         run: npx cap sync
 
@@ -36,13 +35,12 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '21'
-          cache: 'gradle' # এটি Gradle-এর সমস্ত ডিপেন্ডেন্সি ক্যাশ করবে
+          cache: 'gradle'
 
       - name: Build Debug APK
         run: |
           cd android
           chmod +x gradlew
-          # --build-cache এবং --parallel যোগ করা হয়েছে যাতে দ্রুত বিল্ড হয়
           ./gradlew assembleDebug --build-cache --parallel
 
       - name: Upload Debug APK
@@ -131,7 +129,7 @@ jobs:
             rm "$APK_FILE"
           done
 
-          - name: Upload All Release APKs (Bundle)
+      - name: Upload All Release APKs (Bundle)
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Release-All-APKs
