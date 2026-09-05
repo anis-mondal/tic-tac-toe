@@ -7,7 +7,7 @@ on:
 
 jobs:
   # ==============================
-  # ১. ডিবাগ বিল্ড
+  # ১. ডিবাগ বিল্ড (Debug Build)
   # ==============================
   build_debug:
     runs-on: ubuntu-latest
@@ -43,14 +43,16 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --build-cache --parallel
 
-      - name: Upload Debug APK
+      # অন্য Job-কে দেওয়ার জন্য টেম্পোরারি সেভ করা হলো
+      - name: Save Debug APK temporarily
         uses: actions/upload-artifact@v4
         with:
-          name: TicTacToe-Debug-APK
+          name: temp-debug-apk
           path: android/app/build/outputs/apk/debug/*.apk
+          retention-days: 1
 
   # ==============================
-  # ২. রিলিজ বিল্ড (শুধু তৈরি করবে)
+  # ২. রিলিজ বিল্ড (Release Build)
   # ==============================
   build_release:
     runs-on: ubuntu-latest
@@ -129,7 +131,6 @@ jobs:
             rm "$APK_FILE"
           done
 
-      # অন্য Job-গুলোকে দেওয়ার জন্য টেম্পোরারি সেভ করা হলো
       - name: Save APKs temporarily for upload jobs
         uses: actions/upload-artifact@v4
         with:
@@ -138,7 +139,24 @@ jobs:
           retention-days: 1
 
   # ==============================
-  # ৩. আপলোড টাস্ক (গ্রাফে শাখা তৈরি করবে)
+  # ৩. আপলোড টাস্ক (Debug এর শাখা)
+  # ==============================
+  upload_debug:
+    needs: build_debug
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: temp-debug-apk
+          path: debug-apk
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TicTacToe-Debug-APK
+          path: debug-apk/*.apk
+
+  # ==============================
+  # ৪. আপলোড টাস্ক (Release এর শাখাগুলো)
   # ==============================
   upload_bundle:
     needs: build_release
