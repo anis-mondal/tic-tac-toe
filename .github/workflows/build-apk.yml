@@ -159,7 +159,7 @@ jobs:
       - name: Upload x86 APK
         uses: actions/upload-artifact@v4
         with:
-          name: TicTacToe-Release-Universal
+          name: TicTacToe-Release-x86
           path: android/app/build/outputs/apk/release/TicTacToe-Release-x86-signed.apk
           if-no-files-found: ignore
 
