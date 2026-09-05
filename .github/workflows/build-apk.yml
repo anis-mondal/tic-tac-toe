@@ -7,7 +7,7 @@ on:
 
 jobs:
   # ==============================
-  # ১. ডিবাগ বিল্ড (Debug Build)
+  # ১. ডিবাগ বিল্ড
   # ==============================
   build_debug:
     runs-on: ubuntu-latest
@@ -50,7 +50,7 @@ jobs:
           path: android/app/build/outputs/apk/debug/*.apk
 
   # ==============================
-  # ২. রিলিজ বিল্ড (Release Build)
+  # ২. রিলিজ বিল্ড (শুধু তৈরি করবে)
   # ==============================
   build_release:
     runs-on: ubuntu-latest
@@ -129,43 +129,102 @@ jobs:
             rm "$APK_FILE"
           done
 
+      # অন্য Job-গুলোকে দেওয়ার জন্য টেম্পোরারি সেভ করা হলো
+      - name: Save APKs temporarily for upload jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: temp-signed-apks
+          path: android/app/build/outputs/apk/release/*-signed.apk
+          retention-days: 1
+
+  # ==============================
+  # ৩. আপলোড টাস্ক (গ্রাফে শাখা তৈরি করবে)
+  # ==============================
+  upload_bundle:
+    needs: build_release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: temp-signed-apks
+          path: release-apks
       - name: Upload All Release APKs (Bundle)
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Release-All-APKs
-          path: android/app/build/outputs/apk/release/*-signed.apk
+          path: release-apks/*-signed.apk
 
+  upload_universal:
+    needs: build_release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: temp-signed-apks
+          path: release-apks
       - name: Upload Universal APK
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Release-Universal
-          path: android/app/build/outputs/apk/release/TicTacToe-Release-universal-signed.apk
+          path: release-apks/TicTacToe-Release-universal-signed.apk
           if-no-files-found: ignore
 
+  upload_arm64_v8a:
+    needs: build_release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: temp-signed-apks
+          path: release-apks
       - name: Upload arm64-v8a APK
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Release-arm64-v8a
-          path: android/app/build/outputs/apk/release/TicTacToe-Release-arm64-v8a-signed.apk
+          path: release-apks/TicTacToe-Release-arm64-v8a-signed.apk
           if-no-files-found: ignore
 
+  upload_armeabi_v7a:
+    needs: build_release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: temp-signed-apks
+          path: release-apks
       - name: Upload armeabi-v7a APK
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Release-armeabi-v7a
-          path: android/app/build/outputs/apk/release/TicTacToe-Release-armeabi-v7a-signed.apk
+          path: release-apks/TicTacToe-Release-armeabi-v7a-signed.apk
           if-no-files-found: ignore
 
+  upload_x86:
+    needs: build_release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: temp-signed-apks
+          path: release-apks
       - name: Upload x86 APK
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Release-x86
-          path: android/app/build/outputs/apk/release/TicTacToe-Release-x86-signed.apk
+          path: release-apks/TicTacToe-Release-x86-signed.apk
           if-no-files-found: ignore
 
+  upload_x86_64:
+    needs: build_release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: temp-signed-apks
+          path: release-apks
       - name: Upload x86_64 APK
         uses: actions/upload-artifact@v4
         with:
           name: TicTacToe-Release-x86_64
-          path: android/app/build/outputs/apk/release/TicTacToe-Release-x86_64-signed.apk
+          path: release-apks/TicTacToe-Release-x86_64-signed.apk
           if-no-files-found: ignore
