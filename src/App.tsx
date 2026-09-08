@@ -5,8 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useAnimation } from 'motion/react';
-// 🚀 Material You শেপ মরফিংয়ের জন্য প্রয়োজনীয় আইকনগুলো ইমপোর্ট করা হলো
-import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound, Circle, Square, Triangle, Hexagon, Star, Diamond } from 'lucide-react';
+import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // @ts-ignore
@@ -31,15 +30,40 @@ const WINNING_COMBINATIONS = [
   [0, 4, 8], [2, 4, 6]
 ];
 
-// 🚀 মরফিং অ্যানিমেশনের জন্য শেপগুলোর লিস্ট
-const MORPH_ICONS = [Circle, Square, Triangle, Hexagon, Star, Diamond];
-
 const hapticFeedback = (pattern: number | number[]) => {
   if (Capacitor.isNativePlatform()) {
      try { Haptics.impact({ style: ImpactStyle.Heavy }); } catch (e) {}
   } else if (typeof window !== 'undefined' && navigator.vibrate) {
      try { navigator.vibrate(pattern); } catch (e) {}
   }
+};
+
+// 🚀 ম্যাটেরিয়াল ইউ এর মতো ফাঙ্কি শেপ মরফিং স্পিনার
+const FunkySpinner = ({ color }: { color: string }) => {
+  const [shape, setShape] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShape(s => (s + 1) % 4); // 4টি শেপের মধ্যে দ্রুত পরিবর্তন হবে
+    }, 220); 
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <motion.div
+      animate={{ rotate: 360 }}
+      transition={{ repeat: Infinity, duration: 2.5, ease: "linear" }}
+      className="relative w-6 h-6 flex items-center justify-center"
+      style={{ color }}
+    >
+      <AnimatePresence mode="popLayout">
+        {shape === 0 && <motion.div key="circle" initial={{ scale: 0.3, opacity: 0, rotate: -45 }} animate={{ scale: 1, opacity: 1, rotate: 0 }} exit={{ scale: 0.3, opacity: 0, rotate: 45 }} transition={{ duration: 0.15 }} className="absolute w-full h-full rounded-full bg-current" />}
+        {shape === 1 && <motion.div key="squircle" initial={{ scale: 0.3, opacity: 0, rotate: -45 }} animate={{ scale: 1, opacity: 1, rotate: 0 }} exit={{ scale: 0.3, opacity: 0, rotate: 45 }} transition={{ duration: 0.15 }} className="absolute w-[90%] h-[90%] rounded-[6px] bg-current" />}
+        {shape === 2 && <motion.div key="flower" initial={{ scale: 0.3, opacity: 0, rotate: -45 }} animate={{ scale: 1, opacity: 1, rotate: 0 }} exit={{ scale: 0.3, opacity: 0, rotate: 45 }} transition={{ duration: 0.15 }} className="absolute w-[110%] h-[110%] bg-current" style={{ clipPath: 'polygon(50% 0%, 65% 30%, 100% 30%, 75% 55%, 85% 100%, 50% 75%, 15% 100%, 25% 55%, 0% 30%, 35% 30%)' }} />}
+        {shape === 3 && <motion.div key="diamond" initial={{ scale: 0.3, opacity: 0, rotate: -45 }} animate={{ scale: 1, opacity: 1, rotate: 0 }} exit={{ scale: 0.3, opacity: 0, rotate: 45 }} transition={{ duration: 0.15 }} className="absolute w-[95%] h-[95%] bg-current" style={{ clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }} />}
+      </AnimatePresence>
+    </motion.div>
+  );
 };
 
 const AILogo = () => (
@@ -291,7 +315,7 @@ export default function App() {
   const [userWantsTargetScore, setUserWantsTargetScore] = useState(() => getSaved('userWantsTargetScore', true));
   const [isTargetScoreEnabled, setIsTargetScoreEnabled] = useState(() => getSaved('isTargetScoreEnabled', true));
   
-  // 🚀 ফিউচারের জন্য লজিক: ট্যাপ করলে হার্ড নাকি সফট রিফ্রেশ হবে তা কন্ট্রোল করবে
+  // 🚀 Settings Modal-এর জন্য টগল স্টেট
   const [enableHardRefreshTap, setEnableHardRefreshTap] = useState(() => getSaved('enableHardRefreshTap', false));
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -341,24 +365,10 @@ export default function App() {
   const mainBouncer = useAnimation();
   const [pullProgress, setPullProgress] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [morphIdx, setMorphIdx] = useState(0); // 🚀 মরফিংয়ের জন্য স্টেট
   const touchStartY = useRef(0);
   const isDragging = useRef(false);
 
-  // 🚀 রিফ্রেশের সময় দ্রুত শেপ পরিবর্তন হওয়ার লজিক (Morphing Animation)
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isRefreshing) {
-      interval = setInterval(() => {
-        setMorphIdx((prev) => (prev + 1) % MORPH_ICONS.length);
-      }, 200); // ২০০ মিলি-সেকেন্ড পরপর শেপ চেঞ্জ হবে
-    } else {
-      setMorphIdx(0);
-    }
-    return () => clearInterval(interval);
-  }, [isRefreshing]);
-
-  // 🚀 টাচ করে নিচে টানলে স্প্রিং হবে
+  // 🚀 টাচ করে নিচে টানলে বাউন্স হবে
   const handleTouchStart = (e: React.TouchEvent) => {
     if (window.scrollY <= 0 && !isRefreshing && !isSettingsOpen && !isAboutOpen) {
       touchStartY.current = e.touches[0].clientY;
@@ -374,12 +384,12 @@ export default function App() {
     if (deltaY > 0) {
        const resistance = deltaY * 0.45; // স্প্রিং টেনশন
        setPullProgress(resistance);
-       // নিচে নামার সময় হালকা ছোট হবে (স্ট্রেচ ফিল দেওয়ার জন্য)
-       mainBouncer.set({ y: resistance, scale: Math.max(1 - (resistance * 0.0004), 0.95) });
+       // নিচে নামার সময় কন্টেন্টগুলো ছোট হবে
+       mainBouncer.set({ y: resistance, scale: Math.max(1 - (resistance * 0.0004), 0.94) });
     }
   };
 
-  // 🚀 টাচ ছেড়ে দিলে ন্যাচারাল স্প্রিং ফিজিক্স (মাঝে কোনো ডিলে থাকবে না)
+  // 🚀 টাচ ছেড়ে দিলে অসাধারণ Overshoot স্প্রিং ফিজিক্স
   const handleTouchEnd = () => {
     if (!isDragging.current || isRefreshing) return;
     isDragging.current = false;
@@ -389,30 +399,30 @@ export default function App() {
        hapticFeedback([100, 50, 100]);
        playEnhancedSound('pop', isSoundOn);
        
-       // 🚀 ম্যাজিক: কোনো গ্যাপ বা ডিলে ছাড়াই সরাসরি 0 তে স্প্রিং করা হচ্ছে। 
+       // 🚀 ম্যাজিক স্প্রিং: stiffness এবং damping কমানো হয়েছে, যাতে এটি লাফিয়ে উপরে ওঠে (Overshoot)
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
-          transition: { type: 'spring', stiffness: 450, damping: 12, mass: 0.8 } 
+          transition: { type: 'spring', stiffness: 350, damping: 10, mass: 1 } 
        });
        
-       // 🚀 সফট রিফ্রেশ: গেম রিসেট হবে কিন্তু স্কোর একই থাকবে
+       // 🚀 সফট রিফ্রেশ: স্কোরবোর্ড ঠিক রেখে শুধু গেম রিসেট হবে
        setTimeout(() => {
           resetGameForMode(startingPlayer); 
-       }, 600);
+       }, 500);
 
-       // 🚀 স্পিনারটি ১.৮ সেকেন্ড স্ক্রিনে থাকবে, যাতে অ্যানিমেশন উপভোগ করা যায়
+       // 🚀 স্পিনারটি ১.৫ সেকেন্ড স্ক্রিনে থাকবে, যাতে ফাঙ্কি অ্যানিমেশন উপভোগ করা যায়
        setTimeout(() => {
           setIsRefreshing(false);
           setPullProgress(0);
-       }, 1800);
+       }, 1500);
 
     } else {
        // অল্প টানলে বাউন্স করে আগের জায়গায় ফিরে যাবে
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
-          transition: { type: 'spring', stiffness: 500, damping: 20 } 
+          transition: { type: 'spring', stiffness: 450, damping: 15 } 
        });
        setPullProgress(0);
     }
@@ -423,7 +433,7 @@ export default function App() {
      if (isRefreshing) return;
      mainBouncer.start({ y: 40, scale: 0.95, transition: { type: "tween", duration: 0.12, ease: "circOut" } }).then(() => {
         callback(); 
-        mainBouncer.start({ y: 0, scale: 1, transition: { type: "spring", stiffness: 450, damping: 12, mass: 0.8 } });
+        mainBouncer.start({ y: 0, scale: 1, transition: { type: "spring", stiffness: 350, damping: 10, mass: 1 } });
      });
   };
 
@@ -738,6 +748,7 @@ export default function App() {
          setStartingPlayer(prevStarter => {
             const aiSym = humanSymbol === 'X' ? 'O' : 'X';
             const newStarter = prevStarter === humanSymbol ? aiSym : humanSymbol;
+            // Mode hold-এ Hard Reset থাকে, কারণ নতুন করে প্লেয়ার সেট হয়
             setTimeout(() => performHardReset(newStarter), 0);
             return newStarter;
          });
@@ -780,7 +791,7 @@ export default function App() {
     }
     setRotation(prev => prev - 360);
     
-    // টগলের লজিক অনুযায়ী সফট বা হার্ড রিফ্রেশ হবে
+    // 🚀 টগলের লজিক অনুযায়ী সফট বা হার্ড রিফ্রেশ হবে
     if (enableHardRefreshTap) {
        performHardReset(startingPlayer);
     } else {
@@ -905,19 +916,20 @@ export default function App() {
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-        {/* 🚀 Material You স্টাইলের কাস্টম Pull-to-Refresh স্পিনার (Shape Morphing) */}
+        {/* 🚀 কাস্টম Pull-to-Refresh স্পিনার (Shape Morphing) */}
         <motion.div 
            className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-lg z-[200] overflow-hidden"
            style={{
               backgroundColor: semantics.mainGridBackground,
-              top: 'max(10px, env(safe-area-inset-top))', 
+              top: 'max(70px, env(safe-area-inset-top) + 40px)', // আরও নিচে নামানো হলো
               color: activeLineColor,
               transformOrigin: "top center"
            }}
            animate={{
-              y: isRefreshing ? 70 : (pullProgress > 0 ? Math.min(pullProgress, 140) - 40 : -100),
+              y: isRefreshing ? 60 : (pullProgress > 0 ? Math.min(pullProgress, 140) - 40 : -100),
               width: 48,
               height: 48,
+              // টানার সময় চ্যাপ্টা বা লম্বাটে হবে (স্ট্রেচিং এফেক্ট), ছাড়লে গোল হয়ে যাবে
               scaleY: isRefreshing ? 1 : (pullProgress > 0 && pullProgress < 70 ? 1.15 : 1),
               scaleX: isRefreshing ? 1 : (pullProgress > 0 && pullProgress < 70 ? 0.9 : 1),
               borderRadius: isRefreshing ? '24px' : (pullProgress > 50 ? '24px' : '12px'), 
@@ -929,9 +941,7 @@ export default function App() {
            }
         >
            {isRefreshing ? (
-             <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }} className="flex items-center justify-center w-full h-full">
-                {React.createElement(MORPH_ICONS[morphIdx], { className: "w-6 h-6", strokeWidth: 2.5 })}
-             </motion.div>
+             <FunkySpinner color={activeLineColor} />
            ) : (
              <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}>
                 <RotateCcw className="w-[22px] h-[22px]" strokeWidth={2.5} />
@@ -979,7 +989,6 @@ export default function App() {
           </motion.button>
         </motion.nav>
 
-        {/* 🚀 কন্টেন্ট হাইড হওয়ার ফিক্স: initial Animation শুধুমাত্র পেজ লোড হওয়ার সময় কাজ করবে */}
         <motion.div 
            initial={{ opacity: 0, scale: 0.9, y: 15 }} 
            animate={{ opacity: 1, scale: 1, y: 0 }} 
