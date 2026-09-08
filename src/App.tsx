@@ -38,7 +38,6 @@ const hapticFeedback = (pattern: number | number[]) => {
   }
 };
 
-// 🚀 সবচেয়ে সুন্দর এবং প্রশংসিত অরিজিনাল Material You Circular Spinner
 const MaterialSpinner = ({ color }: { color: string }) => (
   <motion.svg
     viewBox="0 0 50 50"
@@ -110,7 +109,8 @@ const DynamicIcon = ({
 };
 
 const audioState = { ctx: null as AudioContext | null };
-const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point' | 'unmute' | 'mode', enabled: boolean) => {
+// 🚀 'refresh' টাইপ সাউন্ড যোগ করা হলো
+const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', enabled: boolean) => {
   if (!enabled || typeof window === 'undefined') return;
   try {
     if (!audioState.ctx) {
@@ -151,6 +151,19 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point'
         gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.15 + 0.1);
         osc.connect(gain); gain.connect(ctx.destination);
         osc.start(t + i * 0.15); osc.stop(t + i * 0.15 + 0.1);
+      });
+    } else if (type === 'refresh') {
+      // 🚀 অত্যন্ত সুন্দর একটি সুইট/হার্প বেল টাইপের সাউন্ড
+      [523.25, 659.25, 783.99].forEach((freq, i) => { 
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t + i * 0.08);
+        gain.gain.setValueAtTime(0, t + i * 0.08);
+        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.08 + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.08 + 0.4);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t + i * 0.08); osc.stop(t + i * 0.08 + 0.4);
       });
     } else if (type === 'win') {
       [440, 554.37, 659.25].forEach((freq, i) => { 
@@ -364,7 +377,6 @@ export default function App() {
   const touchStartY = useRef(0);
   const isDragging = useRef(false);
 
-  // 🚀 টাচ করে নিচে টানলে বাউন্স হবে (রাবার ব্যান্ড ইফেক্ট)
   const handleTouchStart = (e: React.TouchEvent) => {
     if (window.scrollY <= 0 && !isRefreshing && !isSettingsOpen && !isAboutOpen) {
       touchStartY.current = e.touches[0].clientY;
@@ -378,14 +390,12 @@ export default function App() {
     const deltaY = currentY - touchStartY.current;
     
     if (deltaY > 0) {
-       const resistance = deltaY * 0.35; // 🚀 আরও সফট রাবার ব্যান্ড টেনশন
+       const resistance = deltaY * 0.35; // সফট টেনশন
        setPullProgress(resistance);
-       // টানলে কন্টেন্টগুলো খুব সামান্য ছোট হবে
        mainBouncer.set({ y: resistance, scale: Math.max(1 - (resistance * 0.0003), 0.96) });
     }
   };
 
-  // 🚀 টাচ ছেড়ে দিলে অসাধারণ জেলি-বাউন্স (Overshoot) স্প্রিং ফিজিক্স
   const handleTouchEnd = () => {
     if (!isDragging.current || isRefreshing) return;
     isDragging.current = false;
@@ -393,28 +403,28 @@ export default function App() {
     if (pullProgress > 80) {
        setIsRefreshing(true);
        hapticFeedback([100, 50, 100]);
-       playEnhancedSound('pop', isSoundOn);
        
-       // 🚀 ম্যাজিক জেলি বাউন্স: stiffness কমিয়ে mass বাড়ানো হয়েছে যাতে ধীর ও স্মুথ বাউন্স হয়
+       // 🚀 ডাবল সাউন্ড বন্ধ করে, রিফ্রেশের জন্য একটি নতুন সুন্দর সাউন্ড দেওয়া হলো
+       playEnhancedSound('refresh', isSoundOn);
+       
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
           transition: { type: 'spring', stiffness: 200, damping: 10, mass: 1.1 } 
        });
        
-       // সফট রিফ্রেশ: স্কোরবোর্ড ঠিক রেখে শুধু গেম রিসেট হবে
+       // 🚀 সাইলেন্ট মোডে (true) রিসেট কল করা হচ্ছে, যাতে ডাবল সাউন্ড না হয়
        setTimeout(() => {
-          resetGameForMode(startingPlayer); 
+          resetGameForMode(startingPlayer, true); 
        }, 400);
 
-       // 🚀 স্পিনারটি ঠিক ১.৪ সেকেন্ড স্ক্রিনে থাকবে
+       // স্পিনারটি ১.৫ সেকেন্ড স্ক্রিনে থাকবে
        setTimeout(() => {
           setIsRefreshing(false);
           setPullProgress(0);
-       }, 1400);
+       }, 1500);
 
     } else {
-       // অল্প টানলে বাউন্স করে আগের জায়গায় ফিরে যাবে
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
@@ -424,7 +434,6 @@ export default function App() {
     }
   };
 
-  // বাটনে ক্লিক করলে বাউন্স অ্যানিমেশন (জেলি ফিজিক্স)
   const playModeSwitchAnimation = (callback: () => void) => {
      if (isRefreshing) return;
      mainBouncer.start({ y: 40, scale: 0.96, transition: { type: "tween", duration: 0.15, ease: "circOut" } }).then(() => {
@@ -674,9 +683,13 @@ export default function App() {
       if (userWantsTargetScore) setIsTargetScoreEnabled(true);
   };
 
-  const resetGameForMode = (currentStartingPlayer: Player) => {
-    hapticFeedback(60); 
-    playEnhancedSound('pop', isSoundOn);
+  // 🚀 ডাবল সাউন্ড বন্ধ করার জন্য `silent` প্যারামিটার যোগ করা হলো
+  const resetGameForMode = (currentStartingPlayer: Player, silent: boolean = false) => {
+    if (!silent) {
+       hapticFeedback(60); 
+       playEnhancedSound('pop', isSoundOn);
+    }
+    
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
     if (myConfettiRef.current) myConfettiRef.current.reset();
 
@@ -878,7 +891,6 @@ export default function App() {
           font-display: swap;
         }
 
-        /* ব্রাউজারের নেটিভ Pull-to-Refresh সম্পূর্ণ বন্ধ করা হলো */
         html, body {
            overscroll-behavior-y: none;
            touch-action: pan-x pan-y;
@@ -895,7 +907,7 @@ export default function App() {
         }
       `}</style>
       
-      {/* 🚀 মেইন টাচ কনটেইনার */}
+      {/* মেইন টাচ কনটেইনার */}
       <div 
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -909,28 +921,23 @@ export default function App() {
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-        {/* 🚀 সবচেয়ে সুন্দর এবং প্রশংসিত Material You Circular Spinner */}
+        {/* 🚀 স্পিনারটিকে আরও নিচে নামানো হলো (y: 150) */}
         <motion.div 
            className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
            style={{
               backgroundColor: semantics.mainGridBackground,
-              top: -60, // 🚀 ওপরের বাটনগুলো থেকে দূরে একদম স্ক্রিনের বাইরে লুকানো আছে
+              top: -50, 
               color: activeLineColor,
               width: 44,
               height: 44,
-              borderRadius: "22px"
            }}
            animate={{
-              // 🚀 টানলে অনেক নিচে নেমে আসবে, বাটনগুলোর সাথে ওভারল্যাপ করবে না
-              y: isRefreshing ? 140 : (pullProgress > 0 ? Math.min(pullProgress * 1.2, 180) : 0),
-              // 🚀 ওভার-পুল করলে রাবার ব্যান্ডের মতো ওপর-নিচ বরাবর চ্যাপ্টা (Stretch) হবে
-              scaleY: isRefreshing ? 1 : (pullProgress > 80 ? Math.min(1 + (pullProgress - 80) * 0.008, 1.35) : 1),
-              scaleX: isRefreshing ? 1 : (pullProgress > 80 ? Math.max(1 - (pullProgress - 80) * 0.006, 0.8) : 1),
+              // 🚀 রিফ্রেশের সময় আরও নিচে নামবে
+              y: isRefreshing ? 150 : (pullProgress > 0 ? Math.min(pullProgress * 1.1, 160) : 0),
+              scale: isRefreshing ? 1 : Math.min(pullProgress / 80, 1),
            }}
            transition={{
-             y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 },
-             scaleY: { type: 'spring', stiffness: 400, damping: 25 },
-             scaleX: { type: 'spring', stiffness: 400, damping: 25 }
+             y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 }
            }}
         >
            {isRefreshing ? (
@@ -982,14 +989,13 @@ export default function App() {
           </motion.button>
         </motion.nav>
 
-        {/* initial Animation শুধুমাত্র পেজ লোড হওয়ার সময় কাজ করবে */}
         <motion.div 
            initial={{ opacity: 0, scale: 0.9, y: 15 }} 
            animate={{ opacity: 1, scale: 1, y: 0 }} 
            transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
            className="w-full max-w-md mx-auto relative"
         >
-            {/* 🚀 মেইন বাউন্সি র‍্যাপার: নিচে টানলে এই পুরোটাই জেলি স্প্রিংয়ের মতো কাজ করবে */}
+            {/* মেইন বাউন্সি র‍্যাপার */}
             <motion.div animate={mainBouncer} className="w-full flex flex-col items-center gap-4 relative z-10">
               
               <header className="text-center space-y-5 pt-24 z-10 relative w-full overflow-visible">
@@ -1282,9 +1288,9 @@ export default function App() {
                 </motion.div>
               </div>
             </motion.div>
-        </motion.div> {/* Initial Wrapper End */}
+        </motion.div>
 
-        {/* @ts-ignore - enableHardRefreshTap will be added to SettingsModal later */}
+        {/* @ts-ignore */}
         <SettingsModal 
           isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} setIsAboutOpen={setIsAboutOpen}
           semantics={semantics} isDarkMode={isDarkMode} isAmoled={isAmoled} setIsAmoled={setIsAmoled}
