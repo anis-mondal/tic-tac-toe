@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useAnimation } from 'motion/react';
-import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound, Loader2 } from 'lucide-react';
+import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound, Loader2, ArrowDownCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // @ts-ignore
@@ -330,14 +330,14 @@ export default function App() {
   const isTransitioning = useRef(false);
   const isGameEnding = useRef(false);
 
-  // 🚀 Pull to Refresh State & Spring Animation Controls
+  // 🚀 Pull to Refresh State & Animation Controls
   const mainBouncer = useAnimation();
   const [pullProgress, setPullProgress] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const touchStartY = useRef(0);
   const isDragging = useRef(false);
 
-  // 🚀 টাচ করে নিচে টানলে যা ঘটবে
+  // 🚀 Touch Handlers (নিচে টানলে স্প্রিং হবে)
   const handleTouchStart = (e: React.TouchEvent) => {
     if (window.scrollY <= 0 && !isRefreshing && !isSettingsOpen && !isAboutOpen) {
       touchStartY.current = e.touches[0].clientY;
@@ -353,39 +353,35 @@ export default function App() {
     if (deltaY > 0) {
        const resistance = deltaY * 0.45; // স্প্রিং টেনশন
        setPullProgress(resistance);
-       // 🚀 নামার সাথে সাথে সাইজ একটু ছোট হবে
-       mainBouncer.set({ y: resistance, scale: Math.max(1 - (resistance * 0.0005), 0.94) });
+       // নিচে নামার সময় হালকা ছোট হবে (স্ট্রেচ ফিল দেওয়ার জন্য)
+       mainBouncer.set({ y: resistance, scale: Math.max(1 - (resistance * 0.0004), 0.95) });
     }
   };
 
-  // 🚀 ছেড়ে দিলে স্প্রিং ফিজিক্স (উপরে উঠে আবার নিচে নামবে)
-  const handleTouchEnd = async () => {
+  // 🚀 টাচ ছেড়ে দিলে ন্যাচারাল স্প্রিং ফিজিক্স (মাঝে কোনো ডিলে থাকবে না)
+  const handleTouchEnd = () => {
     if (!isDragging.current || isRefreshing) return;
     isDragging.current = false;
     
-    // ৮০ পিক্সেল টানলে রিফ্রেশ ট্রিগার হবে
     if (pullProgress > 80) {
        setIsRefreshing(true);
        hapticFeedback([100, 50, 100]);
        playEnhancedSound('pop', isSoundOn);
        
-       // 🚀 ম্যাজিক স্প্রিং: প্রথমে একটু লাফিয়ে উপরে উঠবে (Overshoot), তারপর নরমাল পজিশনে আসবে
-       await mainBouncer.start({ 
-          y: -20, 
-          scale: 1.02, 
-          transition: { type: 'spring', stiffness: 400, damping: 12 } 
-       });
+       // 🚀 ম্যাজিক: কোনো গ্যাপ বা ডিলে ছাড়াই সরাসরি 0 তে স্প্রিং করা হচ্ছে। 
+       // স্প্রিং ফিজিক্স নিজে থেকেই এটিকে লাফিয়ে ওপরে তুলে (overshoot) আবার নিচে নামাবে।
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
-          transition: { type: 'spring', stiffness: 500, damping: 15 } 
+          transition: { type: 'spring', stiffness: 450, damping: 12, mass: 0.8 } 
        });
        
+       // সফট রিফ্রেশ: স্কোরবোর্ড ঠিক রেখে শুধু গেম রিসেট হবে
        setTimeout(() => {
-          performHardReset(startingPlayer); // গেম রিসেট হবে
+          resetGameForMode(startingPlayer); 
           setIsRefreshing(false);
           setPullProgress(0);
-       }, 700);
+       }, 600);
     } else {
        // অল্প টানলে বাউন্স করে আগের জায়গায় ফিরে যাবে
        mainBouncer.start({ 
@@ -395,6 +391,17 @@ export default function App() {
        });
        setPullProgress(0);
     }
+  };
+
+  // বাটনে ক্লিক করলে বাউন্স অ্যানিমেশন (No delay here too)
+  const playModeSwitchAnimation = (callback: () => void) => {
+     if (isRefreshing) return;
+     // টেনশন তৈরি
+     mainBouncer.start({ y: 40, scale: 0.95, transition: { type: "tween", duration: 0.12, ease: "circOut" } }).then(() => {
+        callback(); // মোড চেঞ্জ হবে
+        // স্প্রিং করে রিলিজ হবে
+        mainBouncer.start({ y: 0, scale: 1, transition: { type: "spring", stiffness: 450, damping: 12, mass: 0.8 } });
+     });
   };
 
   useEffect(() => {
@@ -702,12 +709,15 @@ export default function App() {
       hapticFeedback([80, 40, 80]); 
       playEnhancedSound('mode', isSoundOn);
       
-      setIsSinglePlayer(true);
-      setStartingPlayer(prevStarter => {
-         const aiSym = humanSymbol === 'X' ? 'O' : 'X';
-         const newStarter = prevStarter === humanSymbol ? aiSym : humanSymbol;
-         setTimeout(() => performHardReset(newStarter), 0);
-         return newStarter;
+      playModeSwitchAnimation(() => {
+         setIsSinglePlayer(true);
+         setStartingPlayer(prevStarter => {
+            const aiSym = humanSymbol === 'X' ? 'O' : 'X';
+            const newStarter = prevStarter === humanSymbol ? aiSym : humanSymbol;
+            // Mode hold-এ Hard Reset থাকে, কারণ নতুন করে প্লেয়ার সেট হয়
+            setTimeout(() => performHardReset(newStarter), 0);
+            return newStarter;
+         });
       });
     }, 600);
   };
@@ -721,8 +731,10 @@ export default function App() {
     hapticFeedback(60);
     playEnhancedSound('mode', isSoundOn);
     
-    setIsSinglePlayer(single);
-    performHardReset(humanSymbol); 
+    playModeSwitchAnimation(() => {
+       setIsSinglePlayer(single);
+       performHardReset(humanSymbol); 
+    });
   };
 
   const handleRestartPointerDown = () => {
@@ -868,19 +880,22 @@ export default function App() {
            className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-lg z-[200] overflow-hidden"
            style={{
               backgroundColor: semantics.mainGridBackground,
-              top: 'max(100px, env(safe-area-inset-top) + 80px)', // আরও নিচে নামানো হলো
-              color: activeLineColor
+              top: 'max(10px, env(safe-area-inset-top))', // আরো নিচে নামানো হলো
+              color: activeLineColor,
+              transformOrigin: "top center"
            }}
            animate={{
-              y: isRefreshing ? 20 : (pullProgress > 0 ? Math.min(pullProgress, 100) - 80 : -100),
-              width: isRefreshing ? 48 : Math.max(48, 48 + (pullProgress > 40 ? 0 : pullProgress/2.5)),
-              height: isRefreshing ? 48 : Math.max(48, pullProgress > 40 ? 48 + (pullProgress - 40)/2 : 48),
-              borderRadius: isRefreshing ? '24px' : (pullProgress > 60 ? '24px' : '16px'), // শেপ পরিবর্তন হবে
-              scale: isRefreshing ? 1 : Math.min(pullProgress / 80, 1),
+              y: isRefreshing ? 70 : (pullProgress > 0 ? Math.min(pullProgress, 140) - 40 : -100),
+              width: 48,
+              height: 48,
+              // টানার সময় চ্যাপ্টা বা লম্বাটে হবে (স্ট্রেচিং এফেক্ট), ছাড়লে গোল হয়ে যাবে
+              scaleY: isRefreshing ? 1 : (pullProgress > 0 && pullProgress < 70 ? 1.15 : 1),
+              scaleX: isRefreshing ? 1 : (pullProgress > 0 && pullProgress < 70 ? 0.9 : 1),
+              borderRadius: isRefreshing ? '24px' : (pullProgress > 50 ? '24px' : '12px'), 
            }}
            transition={
              isRefreshing 
-             ? { width: { type: 'spring', stiffness: 400, damping: 20 }, height: { type: 'spring', stiffness: 400, damping: 20 }, y: { type: 'spring', stiffness: 400, damping: 20 } } 
+             ? { y: { type: 'spring', stiffness: 400, damping: 20 }, borderRadius: { duration: 0.2 } } 
              : { type: 'spring', stiffness: 500, damping: 25 }
            }
         >
@@ -889,7 +904,10 @@ export default function App() {
                 <Loader2 className="w-6 h-6" strokeWidth={3} />
              </motion.div>
            ) : (
-             <RotateCcw className="w-6 h-6" strokeWidth={3} style={{ transform: `rotate(${pullProgress * 2.5}deg)` }} />
+             <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}>
+                {/* রিং এর মত অ্যারো যা টানার সাথে সাথে ঘুরবে */}
+                <RotateCcw className="w-[22px] h-[22px]" strokeWidth={2.5} />
+             </motion.div>
            )}
         </motion.div>
 
@@ -933,7 +951,7 @@ export default function App() {
           </motion.button>
         </motion.nav>
 
-        {/* 🚀 কন্টেন্ট হাইড হওয়ার ফিক্স: Initial লোড অ্যানিমেশন আলাদা র‍্যাপারে দেওয়া হলো */}
+        {/* 🚀 কন্টেন্ট হাইড হওয়ার ফিক্স: initial Animation শুধুমাত্র পেজ লোড হওয়ার সময় কাজ করবে */}
         <motion.div 
            initial={{ opacity: 0, scale: 0.9, y: 15 }} 
            animate={{ opacity: 1, scale: 1, y: 0 }} 
