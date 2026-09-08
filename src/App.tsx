@@ -38,7 +38,7 @@ const hapticFeedback = (pattern: number | number[]) => {
   }
 };
 
-// 🚀 এটি হলো সবচেয়ে সুন্দর এবং প্রশংসিত অরিজিনাল Material You Circular Spinner
+// 🚀 সবচেয়ে সুন্দর এবং প্রশংসিত অরিজিনাল Material You Circular Spinner
 const MaterialSpinner = ({ color }: { color: string }) => (
   <motion.svg
     viewBox="0 0 50 50"
@@ -364,7 +364,7 @@ export default function App() {
   const touchStartY = useRef(0);
   const isDragging = useRef(false);
 
-  // 🚀 টাচ করে নিচে টানলে স্প্রিং টেনশন হবে
+  // 🚀 টাচ করে নিচে টানলে বাউন্স হবে (রাবার ব্যান্ড ইফেক্ট)
   const handleTouchStart = (e: React.TouchEvent) => {
     if (window.scrollY <= 0 && !isRefreshing && !isSettingsOpen && !isAboutOpen) {
       touchStartY.current = e.touches[0].clientY;
@@ -378,13 +378,14 @@ export default function App() {
     const deltaY = currentY - touchStartY.current;
     
     if (deltaY > 0) {
-       const resistance = deltaY * 0.45;
+       const resistance = deltaY * 0.35; // 🚀 আরও সফট রাবার ব্যান্ড টেনশন
        setPullProgress(resistance);
-       mainBouncer.set({ y: resistance, scale: Math.max(1 - (resistance * 0.0004), 0.94) });
+       // টানলে কন্টেন্টগুলো খুব সামান্য ছোট হবে
+       mainBouncer.set({ y: resistance, scale: Math.max(1 - (resistance * 0.0003), 0.96) });
     }
   };
 
-  // 🚀 টাচ ছেড়ে দিলে অসাধারণ Overshoot স্প্রিং ফিজিক্স
+  // 🚀 টাচ ছেড়ে দিলে অসাধারণ জেলি-বাউন্স (Overshoot) স্প্রিং ফিজিক্স
   const handleTouchEnd = () => {
     if (!isDragging.current || isRefreshing) return;
     isDragging.current = false;
@@ -394,11 +395,11 @@ export default function App() {
        hapticFeedback([100, 50, 100]);
        playEnhancedSound('pop', isSoundOn);
        
-       // 🚀 ম্যাজিক স্প্রিং: কোনো ডিলে ছাড়া সরাসরি বাউন্স
+       // 🚀 ম্যাজিক জেলি বাউন্স: stiffness কমিয়ে mass বাড়ানো হয়েছে যাতে ধীর ও স্মুথ বাউন্স হয়
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
-          transition: { type: 'spring', stiffness: 350, damping: 15, mass: 0.8 } 
+          transition: { type: 'spring', stiffness: 200, damping: 10, mass: 1.1 } 
        });
        
        // সফট রিফ্রেশ: স্কোরবোর্ড ঠিক রেখে শুধু গেম রিসেট হবে
@@ -406,28 +407,29 @@ export default function App() {
           resetGameForMode(startingPlayer); 
        }, 400);
 
-       // 🚀 স্পিনারটি ১.৫ সেকেন্ড স্ক্রিনে থাকবে
+       // 🚀 স্পিনারটি ঠিক ১.৪ সেকেন্ড স্ক্রিনে থাকবে
        setTimeout(() => {
           setIsRefreshing(false);
           setPullProgress(0);
-       }, 1500);
+       }, 1400);
 
     } else {
        // অল্প টানলে বাউন্স করে আগের জায়গায় ফিরে যাবে
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
-          transition: { type: 'spring', stiffness: 450, damping: 20 } 
+          transition: { type: 'spring', stiffness: 300, damping: 15 } 
        });
        setPullProgress(0);
     }
   };
 
+  // বাটনে ক্লিক করলে বাউন্স অ্যানিমেশন (জেলি ফিজিক্স)
   const playModeSwitchAnimation = (callback: () => void) => {
      if (isRefreshing) return;
-     mainBouncer.start({ y: 40, scale: 0.95, transition: { type: "tween", duration: 0.12, ease: "circOut" } }).then(() => {
+     mainBouncer.start({ y: 40, scale: 0.96, transition: { type: "tween", duration: 0.15, ease: "circOut" } }).then(() => {
         callback(); 
-        mainBouncer.start({ y: 0, scale: 1, transition: { type: "spring", stiffness: 350, damping: 15, mass: 0.8 } });
+        mainBouncer.start({ y: 0, scale: 1, transition: { type: "spring", stiffness: 200, damping: 10, mass: 1.1 } });
      });
   };
 
@@ -912,18 +914,23 @@ export default function App() {
            className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
            style={{
               backgroundColor: semantics.mainGridBackground,
-              top: -60, // 🚀 স্ক্রিনের ওপরে লুকানো থাকবে
+              top: -60, // 🚀 ওপরের বাটনগুলো থেকে দূরে একদম স্ক্রিনের বাইরে লুকানো আছে
               color: activeLineColor,
               width: 44,
               height: 44,
+              borderRadius: "22px"
            }}
            animate={{
-              // 🚀 টানলে নিচে নামবে এবং স্প্রিং করবে
-              y: isRefreshing ? 120 : (pullProgress > 0 ? Math.min(pullProgress, 130) : 0),
-              scale: isRefreshing ? 1 : Math.min(pullProgress / 80, 1),
+              // 🚀 টানলে অনেক নিচে নেমে আসবে, বাটনগুলোর সাথে ওভারল্যাপ করবে না
+              y: isRefreshing ? 140 : (pullProgress > 0 ? Math.min(pullProgress * 1.2, 180) : 0),
+              // 🚀 ওভার-পুল করলে রাবার ব্যান্ডের মতো ওপর-নিচ বরাবর চ্যাপ্টা (Stretch) হবে
+              scaleY: isRefreshing ? 1 : (pullProgress > 80 ? Math.min(1 + (pullProgress - 80) * 0.008, 1.35) : 1),
+              scaleX: isRefreshing ? 1 : (pullProgress > 80 ? Math.max(1 - (pullProgress - 80) * 0.006, 0.8) : 1),
            }}
            transition={{
-             y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 }
+             y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 },
+             scaleY: { type: 'spring', stiffness: 400, damping: 25 },
+             scaleX: { type: 'spring', stiffness: 400, damping: 25 }
            }}
         >
            {isRefreshing ? (
@@ -982,7 +989,7 @@ export default function App() {
            transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
            className="w-full max-w-md mx-auto relative"
         >
-            {/* 🚀 মেইন বাউন্সি র‍্যাপার: নিচে টানলে এই পুরোটাই স্প্রিংয়ের মতো কাজ করবে */}
+            {/* 🚀 মেইন বাউন্সি র‍্যাপার: নিচে টানলে এই পুরোটাই জেলি স্প্রিংয়ের মতো কাজ করবে */}
             <motion.div animate={mainBouncer} className="w-full flex flex-col items-center gap-4 relative z-10">
               
               <header className="text-center space-y-5 pt-24 z-10 relative w-full overflow-visible">
