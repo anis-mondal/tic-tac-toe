@@ -109,7 +109,6 @@ const DynamicIcon = ({
 };
 
 const audioState = { ctx: null as AudioContext | null };
-// 🚀 'refresh' টাইপ সাউন্ড যোগ করা হলো
 const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', enabled: boolean) => {
   if (!enabled || typeof window === 'undefined') return;
   try {
@@ -153,7 +152,6 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point'
         osc.start(t + i * 0.15); osc.stop(t + i * 0.15 + 0.1);
       });
     } else if (type === 'refresh') {
-      // 🚀 অত্যন্ত সুন্দর একটি সুইট/হার্প বেল টাইপের সাউন্ড
       [523.25, 659.25, 783.99].forEach((freq, i) => { 
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -370,7 +368,6 @@ export default function App() {
   const isTransitioning = useRef(false);
   const isGameEnding = useRef(false);
 
-  // 🚀 Pull to Refresh State & Animation Controls
   const mainBouncer = useAnimation();
   const [pullProgress, setPullProgress] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -390,7 +387,7 @@ export default function App() {
     const deltaY = currentY - touchStartY.current;
     
     if (deltaY > 0) {
-       const resistance = deltaY * 0.35; // সফট টেনশন
+       const resistance = deltaY * 0.35; 
        setPullProgress(resistance);
        mainBouncer.set({ y: resistance, scale: Math.max(1 - (resistance * 0.0003), 0.96) });
     }
@@ -403,8 +400,6 @@ export default function App() {
     if (pullProgress > 80) {
        setIsRefreshing(true);
        hapticFeedback([100, 50, 100]);
-       
-       // 🚀 ডাবল সাউন্ড বন্ধ করে, রিফ্রেশের জন্য একটি নতুন সুন্দর সাউন্ড দেওয়া হলো
        playEnhancedSound('refresh', isSoundOn);
        
        mainBouncer.start({ 
@@ -413,12 +408,10 @@ export default function App() {
           transition: { type: 'spring', stiffness: 200, damping: 10, mass: 1.1 } 
        });
        
-       // 🚀 সাইলেন্ট মোডে (true) রিসেট কল করা হচ্ছে, যাতে ডাবল সাউন্ড না হয়
        setTimeout(() => {
           resetGameForMode(startingPlayer, true); 
        }, 400);
 
-       // স্পিনারটি ১.৫ সেকেন্ড স্ক্রিনে থাকবে
        setTimeout(() => {
           setIsRefreshing(false);
           setPullProgress(0);
@@ -432,14 +425,6 @@ export default function App() {
        });
        setPullProgress(0);
     }
-  };
-
-  const playModeSwitchAnimation = (callback: () => void) => {
-     if (isRefreshing) return;
-     mainBouncer.start({ y: 40, scale: 0.96, transition: { type: "tween", duration: 0.15, ease: "circOut" } }).then(() => {
-        callback(); 
-        mainBouncer.start({ y: 0, scale: 1, transition: { type: "spring", stiffness: 200, damping: 10, mass: 1.1 } });
-     });
   };
 
   useEffect(() => {
@@ -683,7 +668,6 @@ export default function App() {
       if (userWantsTargetScore) setIsTargetScoreEnabled(true);
   };
 
-  // 🚀 ডাবল সাউন্ড বন্ধ করার জন্য `silent` প্যারামিটার যোগ করা হলো
   const resetGameForMode = (currentStartingPlayer: Player, silent: boolean = false) => {
     if (!silent) {
        hapticFeedback(60); 
@@ -747,19 +731,17 @@ export default function App() {
     }
   };
 
+  // 🚀 Mode Hold Start (এটিতে কোনো বাউন্স হবে না)
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
       hapticFeedback([80, 40, 80]); 
       playEnhancedSound('mode', isSoundOn);
-      
-      playModeSwitchAnimation(() => {
-         setIsSinglePlayer(true);
-         setStartingPlayer(prevStarter => {
-            const aiSym = humanSymbol === 'X' ? 'O' : 'X';
-            const newStarter = prevStarter === humanSymbol ? aiSym : humanSymbol;
-            setTimeout(() => performHardReset(newStarter), 0);
-            return newStarter;
-         });
+      setIsSinglePlayer(true);
+      setStartingPlayer(prevStarter => {
+         const aiSym = humanSymbol === 'X' ? 'O' : 'X';
+         const newStarter = prevStarter === humanSymbol ? aiSym : humanSymbol;
+         setTimeout(() => performHardReset(newStarter), 0);
+         return newStarter;
       });
     }, 600);
   };
@@ -768,15 +750,13 @@ export default function App() {
     if (modeHoldTimer.current) clearTimeout(modeHoldTimer.current);
   };
   
+  // 🚀 Mode Switch Click (এটিতে কোনো বাউন্স হবে না)
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
     hapticFeedback(60);
     playEnhancedSound('mode', isSoundOn);
-    
-    playModeSwitchAnimation(() => {
-       setIsSinglePlayer(single);
-       performHardReset(humanSymbol); 
-    });
+    setIsSinglePlayer(single);
+    performHardReset(humanSymbol); 
   };
 
   const handleRestartPointerDown = () => {
@@ -907,7 +887,6 @@ export default function App() {
         }
       `}</style>
       
-      {/* মেইন টাচ কনটেইনার */}
       <div 
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -921,7 +900,7 @@ export default function App() {
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-        {/* 🚀 স্পিনারটিকে আরও নিচে নামানো হলো (y: 150) */}
+        {/* 🚀 স্ট্রেচিং লজিক স্পিনারে আবার যুক্ত করা হলো */}
         <motion.div 
            className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
            style={{
@@ -930,14 +909,18 @@ export default function App() {
               color: activeLineColor,
               width: 44,
               height: 44,
+              transformOrigin: "top center"
            }}
            animate={{
-              // 🚀 রিফ্রেশের সময় আরও নিচে নামবে
               y: isRefreshing ? 150 : (pullProgress > 0 ? Math.min(pullProgress * 1.1, 160) : 0),
-              scale: isRefreshing ? 1 : Math.min(pullProgress / 80, 1),
+              // 🚀 ওভার-পুল করলে স্ট্রেচ (চ্যাপ্টা) হবে
+              scaleY: isRefreshing ? 1 : (pullProgress > 80 ? Math.min(1 + (pullProgress - 80) * 0.008, 1.35) : 1),
+              scaleX: isRefreshing ? 1 : (pullProgress > 80 ? Math.max(1 - (pullProgress - 80) * 0.006, 0.8) : 1),
            }}
            transition={{
-             y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 }
+             y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 },
+             scaleY: { type: 'spring', stiffness: 400, damping: 25 },
+             scaleX: { type: 'spring', stiffness: 400, damping: 25 }
            }}
         >
            {isRefreshing ? (
@@ -995,7 +978,6 @@ export default function App() {
            transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
            className="w-full max-w-md mx-auto relative"
         >
-            {/* মেইন বাউন্সি র‍্যাপার */}
             <motion.div animate={mainBouncer} className="w-full flex flex-col items-center gap-4 relative z-10">
               
               <header className="text-center space-y-5 pt-24 z-10 relative w-full overflow-visible">
