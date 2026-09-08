@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useAnimation } from 'motion/react';
-import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound, Loader2 } from 'lucide-react';
+import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // @ts-ignore
@@ -37,6 +37,31 @@ const hapticFeedback = (pattern: number | number[]) => {
      try { navigator.vibrate(pattern); } catch (e) {}
   }
 };
+
+// 🚀 এটি হলো সবচেয়ে সুন্দর এবং প্রশংসিত অরিজিনাল Material You Circular Spinner
+const MaterialSpinner = ({ color }: { color: string }) => (
+  <motion.svg
+    viewBox="0 0 50 50"
+    className="w-[22px] h-[22px]"
+    animate={{ rotate: 360 }}
+    transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+    style={{ color }}
+  >
+    <motion.circle
+      cx="25" cy="25" r="20"
+      fill="none"
+      strokeWidth="5"
+      stroke="currentColor"
+      strokeLinecap="round"
+      initial={{ strokeDasharray: "1, 150", strokeDashoffset: 0 }}
+      animate={{
+        strokeDasharray: ["1, 150", "90, 150", "90, 150"],
+        strokeDashoffset: [0, -35, -124]
+      }}
+      transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+    />
+  </motion.svg>
+);
 
 const AILogo = () => (
   <svg width="20" height="20" viewBox="0 0 100 100" className="drop-shadow-sm shrink-0">
@@ -287,7 +312,6 @@ export default function App() {
   const [userWantsTargetScore, setUserWantsTargetScore] = useState(() => getSaved('userWantsTargetScore', true));
   const [isTargetScoreEnabled, setIsTargetScoreEnabled] = useState(() => getSaved('isTargetScoreEnabled', true));
   
-  // 🚀 Settings Modal-এর জন্য টগল স্টেট
   const [enableHardRefreshTap, setEnableHardRefreshTap] = useState(() => getSaved('enableHardRefreshTap', false));
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -377,16 +401,16 @@ export default function App() {
           transition: { type: 'spring', stiffness: 350, damping: 15, mass: 0.8 } 
        });
        
-       // 🚀 সফট রিফ্রেশ: স্কোরবোর্ড ঠিক রেখে শুধু গেম রিসেট হবে
+       // সফট রিফ্রেশ: স্কোরবোর্ড ঠিক রেখে শুধু গেম রিসেট হবে
        setTimeout(() => {
           resetGameForMode(startingPlayer); 
        }, 400);
 
-       // 🚀 ফাঙ্কি স্পিনারটি ১.৮ সেকেন্ড স্ক্রিনে থাকবে
+       // 🚀 স্পিনারটি ১.৫ সেকেন্ড স্ক্রিনে থাকবে
        setTimeout(() => {
           setIsRefreshing(false);
           setPullProgress(0);
-       }, 1800);
+       }, 1500);
 
     } else {
        // অল্প টানলে বাউন্স করে আগের জায়গায় ফিরে যাবে
@@ -399,7 +423,6 @@ export default function App() {
     }
   };
 
-  // বাটনে ক্লিক করলে বাউন্স অ্যানিমেশন (No delay)
   const playModeSwitchAnimation = (callback: () => void) => {
      if (isRefreshing) return;
      mainBouncer.start({ y: 40, scale: 0.95, transition: { type: "tween", duration: 0.12, ease: "circOut" } }).then(() => {
@@ -741,14 +764,13 @@ export default function App() {
     });
   };
 
-  // 🚀 টপ-বারের রিফ্রেশ বাটনের লজিক (Hard/Soft Refresh Control)
   const handleRestartPointerDown = () => {
     restartPointerDown.current = true;
     restartHoldTimer.current = setTimeout(() => {
       if (!restartPointerDown.current) return;
       hapticFeedback([100, 50, 100, 50]); 
       setRotation(prev => prev - 720);
-      performHardReset(startingPlayer); // হোল্ড করলে সবসময় হার্ড রিফ্রেশ
+      performHardReset(startingPlayer); 
     }, 600);
   };
   
@@ -761,7 +783,6 @@ export default function App() {
     }
     setRotation(prev => prev - 360);
     
-    // 🚀 টগলের লজিক অনুযায়ী সফট বা হার্ড রিফ্রেশ হবে
     if (enableHardRefreshTap) {
        performHardReset(startingPlayer);
     } else {
@@ -886,32 +907,32 @@ export default function App() {
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-        {/* 🚀 Material You স্টাইলের কাস্টম Pull-to-Refresh স্পিনার (Organic Blob Morphing) */}
+        {/* 🚀 সবচেয়ে সুন্দর এবং প্রশংসিত Material You Circular Spinner */}
         <motion.div 
-           className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-xl z-[200] overflow-hidden"
+           className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
            style={{
               backgroundColor: semantics.mainGridBackground,
-              top: -70, // 🚀 একদম স্ক্রিনের বাইরে লুকানো থাকবে যাতে আটকে না থাকে
+              top: -60, // 🚀 স্ক্রিনের ওপরে লুকানো থাকবে
               color: activeLineColor,
-              width: 52,
-              height: 52,
+              width: 44,
+              height: 44,
            }}
            animate={{
-              y: isRefreshing ? 150 : (pullProgress > 0 ? Math.min(pullProgress, 160) : 0),
-              // 🚀 Material You Funky Shape Morphing!
-              borderRadius: isRefreshing
-                 ? ["60% 40% 30% 70% / 60% 30% 70% 40%", "30% 60% 70% 40% / 50% 60% 30% 60%", "40% 50% 30% 60% / 60% 40% 70% 30%", "60% 40% 30% 70% / 60% 30% 70% 40%"]
-                 : "50%",
-              rotate: isRefreshing ? 360 : pullProgress * 2,
+              // 🚀 টানলে নিচে নামবে এবং স্প্রিং করবে
+              y: isRefreshing ? 120 : (pullProgress > 0 ? Math.min(pullProgress, 130) : 0),
               scale: isRefreshing ? 1 : Math.min(pullProgress / 80, 1),
            }}
            transition={{
-             y: isRefreshing ? { type: 'spring', stiffness: 350, damping: 15 } : { type: 'spring', stiffness: 500, damping: 25 },
-             borderRadius: { repeat: Infinity, duration: 2, ease: "easeInOut" },
-             rotate: isRefreshing ? { repeat: Infinity, duration: 1.5, ease: "linear" } : { type: "tween", duration: 0.1 }
+             y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 }
            }}
         >
-           <RotateCcw className="w-6 h-6" strokeWidth={2.5} />
+           {isRefreshing ? (
+             <MaterialSpinner color={activeLineColor} />
+           ) : (
+             <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}>
+                <RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} />
+             </motion.div>
+           )}
         </motion.div>
 
         <motion.nav 
