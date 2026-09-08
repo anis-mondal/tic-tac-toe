@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useAnimation } from 'motion/react';
-import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound, Loader2, ArrowDownCircle } from 'lucide-react';
+// 🚀 Material You শেপ মরফিংয়ের জন্য প্রয়োজনীয় আইকনগুলো ইমপোর্ট করা হলো
+import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound, Circle, Square, Triangle, Hexagon, Star, Diamond } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // @ts-ignore
@@ -29,6 +30,9 @@ const WINNING_COMBINATIONS = [
   [0, 3, 6], [1, 4, 7], [2, 5, 8],
   [0, 4, 8], [2, 4, 6]
 ];
+
+// 🚀 মরফিং অ্যানিমেশনের জন্য শেপগুলোর লিস্ট
+const MORPH_ICONS = [Circle, Square, Triangle, Hexagon, Star, Diamond];
 
 const hapticFeedback = (pattern: number | number[]) => {
   if (Capacitor.isNativePlatform()) {
@@ -286,6 +290,9 @@ export default function App() {
   const [targetScore, setTargetScore] = useState(() => getSaved('targetScore', 5));
   const [userWantsTargetScore, setUserWantsTargetScore] = useState(() => getSaved('userWantsTargetScore', true));
   const [isTargetScoreEnabled, setIsTargetScoreEnabled] = useState(() => getSaved('isTargetScoreEnabled', true));
+  
+  // 🚀 ফিউচারের জন্য লজিক: ট্যাপ করলে হার্ড নাকি সফট রিফ্রেশ হবে তা কন্ট্রোল করবে
+  const [enableHardRefreshTap, setEnableHardRefreshTap] = useState(() => getSaved('enableHardRefreshTap', false));
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = getSaved('isDarkMode', null);
@@ -334,10 +341,24 @@ export default function App() {
   const mainBouncer = useAnimation();
   const [pullProgress, setPullProgress] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [morphIdx, setMorphIdx] = useState(0); // 🚀 মরফিংয়ের জন্য স্টেট
   const touchStartY = useRef(0);
   const isDragging = useRef(false);
 
-  // 🚀 Touch Handlers (নিচে টানলে স্প্রিং হবে)
+  // 🚀 রিফ্রেশের সময় দ্রুত শেপ পরিবর্তন হওয়ার লজিক (Morphing Animation)
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isRefreshing) {
+      interval = setInterval(() => {
+        setMorphIdx((prev) => (prev + 1) % MORPH_ICONS.length);
+      }, 200); // ২০০ মিলি-সেকেন্ড পরপর শেপ চেঞ্জ হবে
+    } else {
+      setMorphIdx(0);
+    }
+    return () => clearInterval(interval);
+  }, [isRefreshing]);
+
+  // 🚀 টাচ করে নিচে টানলে স্প্রিং হবে
   const handleTouchStart = (e: React.TouchEvent) => {
     if (window.scrollY <= 0 && !isRefreshing && !isSettingsOpen && !isAboutOpen) {
       touchStartY.current = e.touches[0].clientY;
@@ -369,19 +390,23 @@ export default function App() {
        playEnhancedSound('pop', isSoundOn);
        
        // 🚀 ম্যাজিক: কোনো গ্যাপ বা ডিলে ছাড়াই সরাসরি 0 তে স্প্রিং করা হচ্ছে। 
-       // স্প্রিং ফিজিক্স নিজে থেকেই এটিকে লাফিয়ে ওপরে তুলে (overshoot) আবার নিচে নামাবে।
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
           transition: { type: 'spring', stiffness: 450, damping: 12, mass: 0.8 } 
        });
        
-       // সফট রিফ্রেশ: স্কোরবোর্ড ঠিক রেখে শুধু গেম রিসেট হবে
+       // 🚀 সফট রিফ্রেশ: গেম রিসেট হবে কিন্তু স্কোর একই থাকবে
        setTimeout(() => {
           resetGameForMode(startingPlayer); 
+       }, 600);
+
+       // 🚀 স্পিনারটি ১.৮ সেকেন্ড স্ক্রিনে থাকবে, যাতে অ্যানিমেশন উপভোগ করা যায়
+       setTimeout(() => {
           setIsRefreshing(false);
           setPullProgress(0);
-       }, 600);
+       }, 1800);
+
     } else {
        // অল্প টানলে বাউন্স করে আগের জায়গায় ফিরে যাবে
        mainBouncer.start({ 
@@ -396,10 +421,8 @@ export default function App() {
   // বাটনে ক্লিক করলে বাউন্স অ্যানিমেশন (No delay here too)
   const playModeSwitchAnimation = (callback: () => void) => {
      if (isRefreshing) return;
-     // টেনশন তৈরি
      mainBouncer.start({ y: 40, scale: 0.95, transition: { type: "tween", duration: 0.12, ease: "circOut" } }).then(() => {
-        callback(); // মোড চেঞ্জ হবে
-        // স্প্রিং করে রিলিজ হবে
+        callback(); 
         mainBouncer.start({ y: 0, scale: 1, transition: { type: "spring", stiffness: 450, damping: 12, mass: 0.8 } });
      });
   };
@@ -433,7 +456,8 @@ export default function App() {
     localStorage.setItem('isDraw', JSON.stringify(isDraw));
     localStorage.setItem('overallWinner', JSON.stringify(overallWinner));
     localStorage.setItem('lastMoveIdx', JSON.stringify(lastMoveIdxRef.current));
-  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner]);
+    localStorage.setItem('enableHardRefreshTap', JSON.stringify(enableHardRefreshTap));
+  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap]);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -714,7 +738,6 @@ export default function App() {
          setStartingPlayer(prevStarter => {
             const aiSym = humanSymbol === 'X' ? 'O' : 'X';
             const newStarter = prevStarter === humanSymbol ? aiSym : humanSymbol;
-            // Mode hold-এ Hard Reset থাকে, কারণ নতুন করে প্লেয়ার সেট হয়
             setTimeout(() => performHardReset(newStarter), 0);
             return newStarter;
          });
@@ -737,13 +760,14 @@ export default function App() {
     });
   };
 
+  // 🚀 ടপ-বারের রিফ্রেশ বাটনের লজিক (Hard/Soft Refresh Control)
   const handleRestartPointerDown = () => {
     restartPointerDown.current = true;
     restartHoldTimer.current = setTimeout(() => {
       if (!restartPointerDown.current) return;
       hapticFeedback([100, 50, 100, 50]); 
       setRotation(prev => prev - 720);
-      performHardReset(startingPlayer); 
+      performHardReset(startingPlayer); // হোল্ড করলে সবসময় হার্ড রিফ্রেশ
     }, 600);
   };
   
@@ -755,7 +779,13 @@ export default function App() {
         if (Date.now() - holdTime._calledAt > 600) return;
     }
     setRotation(prev => prev - 360);
-    resetGameForMode(startingPlayer); 
+    
+    // টগলের লজিক অনুযায়ী সফট বা হার্ড রিফ্রেশ হবে
+    if (enableHardRefreshTap) {
+       performHardReset(startingPlayer);
+    } else {
+       resetGameForMode(startingPlayer);
+    }
   };
 
   useEffect(() => {
@@ -844,7 +874,7 @@ export default function App() {
           font-display: swap;
         }
 
-        /* 🚀 ব্রাউজারের নেটিভ Pull-to-Refresh সম্পূর্ণ বন্ধ করা হলো */
+        /* ব্রাউজারের নেটিভ Pull-to-Refresh সম্পূর্ণ বন্ধ করা হলো */
         html, body {
            overscroll-behavior-y: none;
            touch-action: pan-x pan-y;
@@ -861,7 +891,7 @@ export default function App() {
         }
       `}</style>
       
-      {/* 🚀 মেইন টাচ কনটেইনার: এখানেই আমরা স্ক্রিন টানা ট্র্যাক করছি */}
+      {/* 🚀 মেইন টাচ কনটেইনার */}
       <div 
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -880,7 +910,7 @@ export default function App() {
            className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-lg z-[200] overflow-hidden"
            style={{
               backgroundColor: semantics.mainGridBackground,
-              top: 'max(10px, env(safe-area-inset-top))', // আরো নিচে নামানো হলো
+              top: 'max(10px, env(safe-area-inset-top))', 
               color: activeLineColor,
               transformOrigin: "top center"
            }}
@@ -888,7 +918,6 @@ export default function App() {
               y: isRefreshing ? 70 : (pullProgress > 0 ? Math.min(pullProgress, 140) - 40 : -100),
               width: 48,
               height: 48,
-              // টানার সময় চ্যাপ্টা বা লম্বাটে হবে (স্ট্রেচিং এফেক্ট), ছাড়লে গোল হয়ে যাবে
               scaleY: isRefreshing ? 1 : (pullProgress > 0 && pullProgress < 70 ? 1.15 : 1),
               scaleX: isRefreshing ? 1 : (pullProgress > 0 && pullProgress < 70 ? 0.9 : 1),
               borderRadius: isRefreshing ? '24px' : (pullProgress > 50 ? '24px' : '12px'), 
@@ -900,12 +929,11 @@ export default function App() {
            }
         >
            {isRefreshing ? (
-             <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}>
-                <Loader2 className="w-6 h-6" strokeWidth={3} />
+             <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }} className="flex items-center justify-center w-full h-full">
+                {React.createElement(MORPH_ICONS[morphIdx], { className: "w-6 h-6", strokeWidth: 2.5 })}
              </motion.div>
            ) : (
              <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}>
-                {/* রিং এর মত অ্যারো যা টানার সাথে সাথে ঘুরবে */}
                 <RotateCcw className="w-[22px] h-[22px]" strokeWidth={2.5} />
              </motion.div>
            )}
@@ -1253,6 +1281,7 @@ export default function App() {
             </motion.div>
         </motion.div> {/* Initial Wrapper End */}
 
+        {/* @ts-ignore - enableHardRefreshTap will be added to SettingsModal later */}
         <SettingsModal 
           isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} setIsAboutOpen={setIsAboutOpen}
           semantics={semantics} isDarkMode={isDarkMode} isAmoled={isAmoled} setIsAmoled={setIsAmoled}
@@ -1266,6 +1295,7 @@ export default function App() {
           isTargetScoreEnabled={isTargetScoreEnabled} setIsTargetScoreEnabled={setIsTargetScoreEnabled} setUserWantsTargetScore={setUserWantsTargetScore}
           targetScore={targetScore} setTargetScore={setTargetScore} maxScore={maxScore}
           activeLineColor={activeLineColor} currentXColor={currentXColor} currentOColor={currentOColor} hapticFeedback={hapticFeedback}
+          enableHardRefreshTap={enableHardRefreshTap} setEnableHardRefreshTap={setEnableHardRefreshTap}
         />
 
         <AboutModal 
