@@ -30,7 +30,9 @@ const WINNING_COMBINATIONS = [
   [0, 4, 8], [2, 4, 6]
 ];
 
-const hapticFeedback = (pattern: number | number[]) => {
+// 🚀 অরিজিনাল Haptic Feedback ফাংশন
+const triggerNativeHaptic = (pattern: number | number[], isEnabled: boolean) => {
+  if (!isEnabled) return;
   if (Capacitor.isNativePlatform()) {
      try { Haptics.impact({ style: ImpactStyle.Heavy }); } catch (e) {}
   } else if (typeof window !== 'undefined' && navigator.vibrate) {
@@ -38,7 +40,6 @@ const hapticFeedback = (pattern: number | number[]) => {
   }
 };
 
-// 🚀 ম্যাটেরিয়াল ইউ অরিজিনাল সার্কুলার স্পিনার
 const MaterialSpinner = ({ color }: { color: string }) => (
   <motion.svg
     viewBox="0 0 50 50"
@@ -110,8 +111,10 @@ const DynamicIcon = ({
 };
 
 const audioState = { ctx: null as AudioContext | null };
-const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', enabled: boolean) => {
-  if (!enabled || typeof window === 'undefined') return;
+
+// 🚀 দশটি আলাদা সাউন্ডের লজিক (১-১০ ভ্যারিয়েন্ট)
+const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', variant: number) => {
+  if (!variant || variant === 0 || typeof window === 'undefined') return;
   try {
     if (!audioState.ctx) {
       audioState.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -120,82 +123,93 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overall-win' | 'pop' | 'point'
     const ctx = audioState.ctx;
     const t = ctx.currentTime;
     
+    // Waveform and Multipliers array for 10 variations
+    const waveModes = ['sine', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle'];
+    const wave = (waveModes[variant] || 'sine') as OscillatorType;
+    const pM = [1, 1, 0.8, 1.2, 0.6, 1.5, 2.0, 0.5, 1.3, 0.7, 1.1][variant] || 1; // Pitch Multiplier
+    const dM = [1, 1, 1.5, 0.7, 1.2, 0.8, 1.3, 0.5, 1.4, 0.6, 1.1][variant] || 1; // Duration/Decay Multiplier
+    
     if (type === 'tap') {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'sine'; 
-      osc.frequency.setValueAtTime(800, t); 
-      osc.frequency.exponentialRampToValueAtTime(100, t + 0.05); 
+      osc.type = wave; 
+      osc.frequency.setValueAtTime(800 * pM, t); 
+      osc.frequency.exponentialRampToValueAtTime(100 * pM, t + 0.05 * dM); 
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.6, t + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.05); 
+      gain.gain.linearRampToValueAtTime(0.6, t + 0.01 * dM);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.05 * dM); 
       osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.05);
+      osc.start(t); osc.stop(t + 0.05 * dM);
     } else if (type === 'pop') {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'triangle'; osc.frequency.setValueAtTime(400, t);
-      osc.frequency.exponentialRampToValueAtTime(600, t + 0.1);
+      osc.type = (variant === 1 ? 'triangle' : wave) as OscillatorType; 
+      osc.frequency.setValueAtTime(400 * pM, t);
+      osc.frequency.exponentialRampToValueAtTime(600 * pM, t + 0.1 * dM);
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.2, t + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+      gain.gain.linearRampToValueAtTime(0.2, t + 0.02 * dM);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1 * dM);
       osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.1);
+      osc.start(t); osc.stop(t + 0.1 * dM);
     } else if (type === 'mode') {
       [600, 800].forEach((freq, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = 'sine'; osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0, t + i * 0.15);
-        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.15 + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.15 + 0.1);
+        osc.type = wave; 
+        osc.frequency.value = freq * pM;
+        gain.gain.setValueAtTime(0, t + i * 0.15 * dM);
+        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.15 * dM + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.15 * dM + 0.1 * dM);
         osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.15); osc.stop(t + i * 0.15 + 0.1);
+        osc.start(t + i * 0.15 * dM); osc.stop(t + i * 0.15 * dM + 0.1 * dM);
       });
     } else if (type === 'refresh') {
       [523.25, 659.25, 783.99].forEach((freq, i) => { 
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, t + i * 0.08);
-        gain.gain.setValueAtTime(0, t + i * 0.08);
-        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.08 + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.08 + 0.4);
+        osc.type = wave;
+        osc.frequency.setValueAtTime(freq * pM, t + i * 0.08 * dM);
+        gain.gain.setValueAtTime(0, t + i * 0.08 * dM);
+        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.08 * dM + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.08 * dM + 0.4 * dM);
         osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.08); osc.stop(t + i * 0.08 + 0.4);
+        osc.start(t + i * 0.08 * dM); osc.stop(t + i * 0.08 * dM + 0.4 * dM);
       });
     } else if (type === 'win') {
       [440, 554.37, 659.25].forEach((freq, i) => { 
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = 'sine'; osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0, t + i * 0.1);
-        gain.gain.linearRampToValueAtTime(0.25, t + i * 0.1 + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.5);
+        osc.type = wave; 
+        osc.frequency.value = freq * pM;
+        gain.gain.setValueAtTime(0, t + i * 0.1 * dM);
+        gain.gain.linearRampToValueAtTime(0.25, t + i * 0.1 * dM + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.5 * dM);
         osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.1); osc.stop(t + i * 0.1 + 0.5);
+        osc.start(t + i * 0.1 * dM); osc.stop(t + i * 0.1 * dM + 0.5 * dM);
       });
-    } else if (type === 'overall-win') {
+    } else if (type === 'overallWin') {
       [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, i) => { 
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = 'triangle'; osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0, t + i * 0.1);
-        gain.gain.linearRampToValueAtTime(0.3, t + i * 0.1 + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.1 + 0.6);
+        osc.type = (variant === 1 ? 'triangle' : wave) as OscillatorType; 
+        osc.frequency.value = freq * pM;
+        gain.gain.setValueAtTime(0, t + i * 0.1 * dM);
+        gain.gain.linearRampToValueAtTime(0.3, t + i * 0.1 * dM + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.1 * dM + 0.6 * dM);
         osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.1); osc.stop(t + i * 0.1 + 0.6);
+        osc.start(t + i * 0.1 * dM); osc.stop(t + i * 0.1 * dM + 0.6 * dM);
       });
     } else if (type === 'point' || type === 'unmute') {
        const osc = ctx.createOscillator();
        const gain = ctx.createGain();
-       osc.type = 'sine'; osc.frequency.setValueAtTime(800, t);
-       osc.frequency.exponentialRampToValueAtTime(1000, t + 0.1);
+       osc.type = wave; 
+       osc.frequency.setValueAtTime(800 * pM, t);
+       osc.frequency.exponentialRampToValueAtTime(1000 * pM, t + 0.1 * dM);
        gain.gain.setValueAtTime(0, t);
-       gain.gain.linearRampToValueAtTime(0.2, t + 0.02);
-       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+       gain.gain.linearRampToValueAtTime(0.2, t + 0.02 * dM);
+       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1 * dM);
        osc.connect(gain); gain.connect(ctx.destination);
-       osc.start(t); osc.stop(t + 0.1);
+       osc.start(t); osc.stop(t + 0.1 * dM);
     }
   } catch(e) {}
 };
@@ -304,7 +318,14 @@ export default function App() {
   const [scores, setScores] = useState(() => getSaved('scores', { X: 0, O: 0, Draws: 0 }));
   const [isSinglePlayer, setIsSinglePlayer] = useState(() => getSaved('isSinglePlayer', true));
   
+  // 🚀 New Global Sound & Haptic States
   const [isSoundOn, setIsSoundOn] = useState(() => getSaved('isSoundOn', true));
+  const [isHapticEnabled, setIsHapticEnabled] = useState(() => getSaved('isHapticEnabled', true));
+  
+  const [soundPrefs, setSoundPrefs] = useState(() => getSaved('soundPrefs', {
+     tap: 1, pop: 1, mode: 1, refresh: 1, win: 1, overallWin: 1, point: 1
+  }));
+
   const [useDefaultTheme, setUseDefaultTheme] = useState(() => getSaved('useDefaultTheme', true));
   const [themeIdx, setThemeIdx] = useState(() => getSaved('themeIdx', 0));
   const [xColorIdx, setXColorIdx] = useState(() => getSaved('xColorIdx', 0));
@@ -369,7 +390,16 @@ export default function App() {
   const isTransitioning = useRef(false);
   const isGameEnding = useRef(false);
 
-  // 🚀 Pull to Refresh State & Jelly Animation Controls
+  // 🚀 Haptic Feedback Wrapper
+  const triggerHaptic = (pattern: number | number[]) => {
+    triggerNativeHaptic(pattern, isHapticEnabled);
+  };
+
+  // 🚀 Play Preview Sound from Settings
+  const playPreviewSound = (key: string, val: number) => {
+    playEnhancedSound(key as any, val); 
+  };
+
   const mainBouncer = useAnimation();
   const [pullProgress, setPullProgress] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -391,7 +421,6 @@ export default function App() {
     if (deltaY > 0) {
        const resistance = deltaY * 0.35; 
        setPullProgress(resistance);
-       // 🚀 মেইন কন্টেন্ট সামান্য ছোট হবে (টেনশন ইফেক্ট)
        mainBouncer.set({ y: resistance, scale: Math.max(1 - (resistance * 0.0003), 0.96) });
     }
   };
@@ -402,10 +431,9 @@ export default function App() {
     
     if (pullProgress > 80) {
        setIsRefreshing(true);
-       hapticFeedback([100, 50, 100]);
-       playEnhancedSound('refresh', isSoundOn);
+       triggerHaptic([100, 50, 100]);
+       if (isSoundOn) playEnhancedSound('refresh', soundPrefs.refresh);
        
-       // 🚀 অত্যন্ত স্মুথ জেলি বাউন্স: stiffness কমিয়ে mass বাড়ানো হয়েছে
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
@@ -416,14 +444,12 @@ export default function App() {
           resetGameForMode(startingPlayer, true); 
        }, 400);
 
-       // 🚀 স্পিনারটি ঠিক ১.৫ সেকেন্ড স্ক্রিনে থাকবে
        setTimeout(() => {
           setIsRefreshing(false);
           setPullProgress(0);
        }, 1500);
 
     } else {
-       // অল্প টানলে বাউন্স করে আগের জায়গায় ফিরে যাবে
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
@@ -441,6 +467,8 @@ export default function App() {
     localStorage.setItem('scores', JSON.stringify(scores));
     localStorage.setItem('isSinglePlayer', JSON.stringify(isSinglePlayer));
     localStorage.setItem('isSoundOn', JSON.stringify(isSoundOn));
+    localStorage.setItem('isHapticEnabled', JSON.stringify(isHapticEnabled));
+    localStorage.setItem('soundPrefs', JSON.stringify(soundPrefs));
     localStorage.setItem('useDefaultTheme', JSON.stringify(useDefaultTheme));
     localStorage.setItem('themeIdx', JSON.stringify(themeIdx));
     localStorage.setItem('xColorIdx', JSON.stringify(xColorIdx));
@@ -463,7 +491,7 @@ export default function App() {
     localStorage.setItem('overallWinner', JSON.stringify(overallWinner));
     localStorage.setItem('lastMoveIdx', JSON.stringify(lastMoveIdxRef.current));
     localStorage.setItem('enableHardRefreshTap', JSON.stringify(enableHardRefreshTap));
-  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap]);
+  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap]);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -512,21 +540,18 @@ export default function App() {
 
     const nextDark = !isDarkMode;
     setUiDarkMode(nextDark); 
-    hapticFeedback([80]); 
-    playEnhancedSound('pop', isSoundOn);
+    triggerHaptic([80]); 
+    if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop);
 
     setTimeout(() => {
         setIsDarkMode(nextDark);
-        
-        setTimeout(() => {
-            isTransitioning.current = false; 
-        }, 1000);
+        setTimeout(() => { isTransitioning.current = false; }, 1000);
     }, 400); 
   };
 
   const toggleSound = () => {
-    hapticFeedback(80);
-    if (!isSoundOn) playEnhancedSound('unmute', true);
+    triggerHaptic(80);
+    if (!isSoundOn) playEnhancedSound('unmute', soundPrefs.point);
     setIsSoundOn(!isSoundOn);
   };
 
@@ -538,7 +563,6 @@ export default function App() {
     myConfettiRef.current = confetti.create(canvasRef.current, { resize: true, useWorker: true });
     
     const colors = winner === 'X' ? [currentXColor] : [currentOColor]; 
-    
     const duration = 6000;
     const animationEnd = Date.now() + duration;
 
@@ -588,15 +612,15 @@ export default function App() {
                 
                 if (isTargetScoreEnabled && newScore >= targetScore) {
                    setOverallWinner(winner);
-                   playEnhancedSound('overall-win', isSoundOn);
+                   if (isSoundOn) playEnhancedSound('overallWin', soundPrefs.overallWin);
                    setTimeout(() => setShowWinnerModal(true), 1200); 
                 } else {
-                   playEnhancedSound('win', isSoundOn);
+                   if (isSoundOn) playEnhancedSound('win', soundPrefs.win);
                 }
                 return { ...prev, [winner as Player]: newScore };
             }); 
             
-            hapticFeedback([100, 50, 100, 50, 300]); 
+            triggerHaptic([100, 50, 100, 50, 300]); 
             fireConfetti(winner);
         }, 450); 
     } else if (!board.includes(null)) {
@@ -604,11 +628,11 @@ export default function App() {
         setTimeout(() => {
             setIsDraw(true);
             setScores(prev => ({ ...prev, Draws: prev.Draws + 1 })); 
-            playEnhancedSound('point', isSoundOn);
-            hapticFeedback([200, 50, 200, 50, 300]); 
+            if (isSoundOn) playEnhancedSound('point', soundPrefs.point);
+            triggerHaptic([200, 50, 200, 50, 300]); 
         }, 450);
     }
-  }, [board, isSoundOn, isResetting, currentXColor, currentOColor, targetScore, isTargetScoreEnabled, winnerInfo, isDraw, overallWinner]);
+  }, [board, isSoundOn, isResetting, currentXColor, currentOColor, targetScore, isTargetScoreEnabled, winnerInfo, isDraw, overallWinner, soundPrefs]);
 
   const aiPlayerSymbol = isSinglePlayer ? (humanSymbol === 'X' ? 'O' : 'X') : null;
   const isAITurn = isSinglePlayer && aiPlayerSymbol && ((isXNext && aiPlayerSymbol === 'X') || (!isXNext && aiPlayerSymbol === 'O'));
@@ -617,24 +641,18 @@ export default function App() {
     if (isAITurn && !winnerInfo && !isDraw && !isResetting && !overallWinner && !isGameEnding.current) {
       const aiTimer = setTimeout(() => {
         const humanScore = scores[humanSymbol];
-        const bestMove = findBestMove(
-           [...board], 
-           aiPlayerSymbol, 
-           humanScore, 
-           targetScore, 
-           isTargetScoreEnabled
-        );
+        const bestMove = findBestMove([...board], aiPlayerSymbol, humanScore, targetScore, isTargetScoreEnabled);
         
         if (bestMove !== -1) {
           setActiveCell(bestMove);
-          hapticFeedback(50);
+          triggerHaptic(50);
           
           setTimeout(() => {
               const newBoard = [...board];
               newBoard[bestMove] = aiPlayerSymbol;
               setActiveCell(null);
-              hapticFeedback(80); 
-              playEnhancedSound('tap', isSoundOn);
+              triggerHaptic(80); 
+              if (isSoundOn) playEnhancedSound('tap', soundPrefs.tap);
               lastMoveIdxRef.current = bestMove;
               setBoard(newBoard);
               setIsXNext(aiPlayerSymbol === 'O');
@@ -643,12 +661,12 @@ export default function App() {
       }, 500); 
       return () => clearTimeout(aiTimer);
     }
-  }, [isXNext, isSinglePlayer, board, winnerInfo, isDraw, aiPlayerSymbol, isAITurn, isSoundOn, isResetting, overallWinner, scores, humanSymbol, targetScore, isTargetScoreEnabled]);
+  }, [isXNext, isSinglePlayer, board, winnerInfo, isDraw, aiPlayerSymbol, isAITurn, isSoundOn, isResetting, overallWinner, scores, humanSymbol, targetScore, isTargetScoreEnabled, soundPrefs]);
 
   const handleClick = (index: number) => {
     if (board[index] || winnerInfo || isAITurn || isResetting || overallWinner || isGameEnding.current || activeCell !== null) return;
-    hapticFeedback(80); 
-    playEnhancedSound('tap', isSoundOn);
+    triggerHaptic(80); 
+    if (isSoundOn) playEnhancedSound('tap', soundPrefs.tap);
     const newBoard = [...board];
     newBoard[index] = isXNext ? 'X' : 'O';
     lastMoveIdxRef.current = index;
@@ -676,8 +694,8 @@ export default function App() {
 
   const resetGameForMode = (currentStartingPlayer: Player, silent: boolean = false) => {
     if (!silent) {
-       hapticFeedback(60); 
-       playEnhancedSound('pop', isSoundOn);
+       triggerHaptic(60); 
+       if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop);
     }
     
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
@@ -703,8 +721,8 @@ export default function App() {
       turnWasHeld.current = false; 
       turnHoldTimer.current = setTimeout(() => {
         turnWasHeld.current = true; 
-        hapticFeedback([80, 40, 80]); 
-        playEnhancedSound('mode', isSoundOn); 
+        triggerHaptic([80, 40, 80]); 
+        if (isSoundOn) playEnhancedSound('mode', soundPrefs.mode); 
         setHumanSymbol(prev => {
           const next = prev === 'X' ? 'O' : 'X';
           setStartingPlayer(next);
@@ -727,8 +745,8 @@ export default function App() {
       return; 
     }
     if (board.every(c => c === null) && !winnerInfo && !overallWinner) {
-       hapticFeedback(60);
-       playEnhancedSound('mode', isSoundOn); 
+       triggerHaptic(60);
+       if (isSoundOn) playEnhancedSound('mode', soundPrefs.mode); 
        setStartingPlayer(prev => {
           const next = prev === 'X' ? 'O' : 'X';
           setIsXNext(next === 'X');
@@ -739,8 +757,8 @@ export default function App() {
 
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
-      hapticFeedback([80, 40, 80]); 
-      playEnhancedSound('mode', isSoundOn);
+      triggerHaptic([80, 40, 80]); 
+      if (isSoundOn) playEnhancedSound('mode', soundPrefs.mode);
       setIsSinglePlayer(true);
       setStartingPlayer(prevStarter => {
          const aiSym = humanSymbol === 'X' ? 'O' : 'X';
@@ -755,11 +773,10 @@ export default function App() {
     if (modeHoldTimer.current) clearTimeout(modeHoldTimer.current);
   };
   
-  // 🚀 모ড পরিবর্তনের সময় কোনো বাউন্স হবে না
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
-    hapticFeedback(60);
-    playEnhancedSound('mode', isSoundOn);
+    triggerHaptic(60);
+    if (isSoundOn) playEnhancedSound('mode', soundPrefs.mode);
     setIsSinglePlayer(single);
     performHardReset(humanSymbol); 
   };
@@ -768,7 +785,7 @@ export default function App() {
     restartPointerDown.current = true;
     restartHoldTimer.current = setTimeout(() => {
       if (!restartPointerDown.current) return;
-      hapticFeedback([100, 50, 100, 50]); 
+      triggerHaptic([100, 50, 100, 50]); 
       setRotation(prev => prev - 720);
       performHardReset(startingPlayer); 
     }, 600);
@@ -892,7 +909,6 @@ export default function App() {
         }
       `}</style>
       
-      {/* 🚀 মেইন টাচ কনটেইনার */}
       <div 
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -906,21 +922,18 @@ export default function App() {
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-        {/* 🚀 কাস্টম Pull-to-Refresh স্পিনার */}
         <motion.div 
            className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
            style={{
               backgroundColor: semantics.mainGridBackground,
-              top: -60, // 🚀 ওপরের বাটনগুলো থেকে দূরে একদম স্ক্রিনের বাইরে লুকানো আছে
+              top: -60, 
               color: activeLineColor,
               width: 44,
               height: 44,
               transformOrigin: "top center"
            }}
            animate={{
-              // 🚀 টানলে অনেক নিচে নেমে আসবে, বাটনগুলোর সাথে ওভারল্যাপ করবে না
-              y: isRefreshing ? 190 : (pullProgress > 0 ? Math.min(pullProgress * 1.2, 190) : 0),
-              // 🚀 ম্যাজিক: প্রথমে ছোট থেকে বড় হবে (Scale), তারপর স্ট্রেচ হবে
+              y: isRefreshing ? 170 : (pullProgress > 0 ? Math.min(pullProgress * 1.2, 190) : 0),
               scale: isRefreshing ? 1 : Math.max(0, Math.min(pullProgress / 80, 1)),
               scaleY: isRefreshing ? 1 : (pullProgress > 80 ? Math.min(1 + (pullProgress - 80) * 0.008, 1.35) : 1),
               scaleX: isRefreshing ? 1 : (pullProgress > 80 ? Math.max(1 - (pullProgress - 80) * 0.006, 0.8) : 1),
@@ -976,19 +989,17 @@ export default function App() {
             </AnimatePresence>
           </motion.button>
           
-          <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { hapticFeedback(60); playEnhancedSound('pop', isSoundOn); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
+          <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
              <SettingsIcon className="w-[20px] h-[20px]" />
           </motion.button>
         </motion.nav>
 
-        {/* initial Animation শুধুমাত্র পেজ লোড হওয়ার সময় কাজ করবে */}
         <motion.div 
            initial={{ opacity: 0, scale: 0.9, y: 15 }} 
            animate={{ opacity: 1, scale: 1, y: 0 }} 
            transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
            className="w-full max-w-md mx-auto relative"
         >
-            {/* 🚀 মেইন বাউন্সি র‍্যাপার: নিচে টানলে এই পুরোটাই স্প্রিংয়ের মতো কাজ করবে */}
             <motion.div animate={mainBouncer} className="w-full flex flex-col items-center gap-4 relative z-10">
               
               <header className="text-center space-y-5 pt-24 z-10 relative w-full overflow-visible">
@@ -1267,10 +1278,10 @@ export default function App() {
                            </div>
                            
                            <div className="flex flex-col w-full gap-2.5 pt-1 z-10">
-                              <motion.button onClick={() => { hapticFeedback(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md select-none bg-black/10 backdrop-blur-md" style={{ border: `2px solid ${activeLineColor}`, color: semantics.text }}>
+                              <motion.button onClick={() => { triggerHaptic(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md select-none bg-black/10 backdrop-blur-md" style={{ border: `2px solid ${activeLineColor}`, color: semantics.text }}>
                                  Start a New Game
                               </motion.button>
-                              <motion.button onClick={() => { hapticFeedback(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer); setOverallWinner(null); setShowWinnerModal(false); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && ORIGINAL_THEME.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
+                              <motion.button onClick={() => { triggerHaptic(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer); setOverallWinner(null); setShowWinnerModal(false); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && ORIGINAL_THEME.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
                                  Continue This Game
                               </motion.button>
                            </div>
@@ -1283,7 +1294,6 @@ export default function App() {
             </motion.div>
         </motion.div>
 
-        {/* @ts-ignore */}
         <SettingsModal 
           isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} setIsAboutOpen={setIsAboutOpen}
           semantics={semantics} isDarkMode={isDarkMode} isAmoled={isAmoled} setIsAmoled={setIsAmoled}
@@ -1296,8 +1306,12 @@ export default function App() {
           enableCustomO={enableCustomO} setEnableCustomO={setEnableCustomO} oColorIdx={oColorIdx} setOColorIdx={setOColorIdx}
           isTargetScoreEnabled={isTargetScoreEnabled} setIsTargetScoreEnabled={setIsTargetScoreEnabled} setUserWantsTargetScore={setUserWantsTargetScore}
           targetScore={targetScore} setTargetScore={setTargetScore} maxScore={maxScore}
-          activeLineColor={activeLineColor} currentXColor={currentXColor} currentOColor={currentOColor} hapticFeedback={hapticFeedback}
+          activeLineColor={activeLineColor} currentXColor={currentXColor} currentOColor={currentOColor} 
+          hapticFeedback={triggerHaptic}
           enableHardRefreshTap={enableHardRefreshTap} setEnableHardRefreshTap={setEnableHardRefreshTap}
+          isHapticEnabled={isHapticEnabled} setIsHapticEnabled={setIsHapticEnabled}
+          soundPrefs={soundPrefs} setSoundPrefs={setSoundPrefs}
+          playPreviewSound={playPreviewSound}
         />
 
         <AboutModal 
