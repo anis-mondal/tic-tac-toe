@@ -110,7 +110,7 @@ interface SettingsModalProps {
   hapticFeedback: (pattern: number | number[]) => void;
   enableHardRefreshTap: boolean; setEnableHardRefreshTap: (val: boolean) => void;
   isHapticEnabled: boolean; setIsHapticEnabled: (val: boolean) => void;
-  soundPrefs: { tap: number, pop: number, mode: number, refresh: number, win: number, overallWin: number, point: number };
+  soundPrefs: { xTap: number, oTap: number, pop: number, mode: number, refresh: number, win: number, overallWin: number, point: number };
   setSoundPrefs: React.Dispatch<React.SetStateAction<any>>;
   playPreviewSound: (key: string, val: number) => void;
 }
@@ -126,7 +126,7 @@ export default function SettingsModal(props: SettingsModalProps) {
 
   const cardBorderColor = props.isDarkMode ? 'rgba(255,255,255,0.08)' : props.activeLineColor;
 
-  // 🚀 সাউন্ড কন্ট্রোলার কম্পোনেন্ট
+  // 🚀 রাউন্ড-রবিন সাউন্ড কন্ট্রোলার (০ থেকে ২০ পর্যন্ত)
   const updateSound = (key: string, val: number) => {
     props.setSoundPrefs((prev: any) => ({ ...prev, [key]: val }));
     props.playPreviewSound(key, val);
@@ -134,13 +134,24 @@ export default function SettingsModal(props: SettingsModalProps) {
 
   const renderSoundControl = (label: string, key: keyof typeof props.soundPrefs) => {
     const value = props.soundPrefs[key];
+    
+    // 🚀 রাউন্ড রবিন লজিক (20 এর পর 0, 0 এর আগে 20)
+    const handleDec = () => {
+       props.hapticFeedback(20);
+       updateSound(key, value === 0 ? 20 : value - 1);
+    };
+    const handleInc = () => {
+       props.hapticFeedback(20);
+       updateSound(key, value === 20 ? 0 : value + 1);
+    };
+
     return (
       <div className="flex items-center justify-between py-2 border-b last:border-0 border-black/5 dark:border-white/5">
         <span className="text-[13px] font-bold opacity-80">{label}</span>
         <div className="flex items-center gap-2">
-           <button onClick={() => { props.hapticFeedback(20); updateSound(key, Math.max(0, value - 1)); }} className="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-black active:scale-90">-</button>
+           <button onClick={handleDec} className="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-black active:scale-90 transition-transform">-</button>
            <span className="w-8 text-center text-[13px] font-black">{value === 0 ? 'Off' : value}</span>
-           <button onClick={() => { props.hapticFeedback(20); updateSound(key, Math.min(10, value + 1)); }} className="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-black active:scale-90">+</button>
+           <button onClick={handleInc} className="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-black active:scale-90 transition-transform">+</button>
         </div>
       </div>
     );
@@ -437,13 +448,13 @@ export default function SettingsModal(props: SettingsModalProps) {
                       {/* Sound Customization */}
                       <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5 space-y-2" style={{ borderColor: cardBorderColor }}>
                           <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Sound Customization</h3>
-                          {renderSoundControl('Tap Sound', 'tap')}
-                          {renderSoundControl('Pop Sound', 'pop')}
+                          {renderSoundControl('Player X Tap', 'xTap')}
+                          {renderSoundControl('Player O Tap', 'oTap')}
                           {renderSoundControl('Mode Switch', 'mode')}
-                          {renderSoundControl('Refresh', 'refresh')}
-                          {renderSoundControl('Win', 'win')}
-                          {renderSoundControl('Overall Win', 'overallWin')}
-                          {renderSoundControl('Point / Draw', 'point')}
+                          {renderSoundControl('Refresh App', 'refresh')}
+                          {renderSoundControl('Win Round', 'win')}
+                          {renderSoundControl('Overall Match Win', 'overallWin')}
+                          {renderSoundControl('Draw / Other', 'point')}
                       </div>
                    </div>
                 </motion.div>
