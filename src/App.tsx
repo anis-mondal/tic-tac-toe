@@ -950,7 +950,7 @@ export default function App() {
               transformOrigin: "top center"
            }}
            animate={{
-              y: isRefreshing ? 160 : (pullProgress > 0 ? Math.min(pullProgress * 1.1, 160) : 0),
+              y: isRefreshing ? 165 : (pullProgress > 0 ? Math.min(pullProgress * 1.1, 160) : 0),
               scaleY: isRefreshing ? 1 : (pullProgress > 80 ? Math.min(1 + (pullProgress - 80) * 0.008, 1.35) : 1),
               scaleX: isRefreshing ? 1 : (pullProgress > 80 ? Math.max(1 - (pullProgress - 80) * 0.006, 0.8) : 1),
            }}
