@@ -38,6 +38,7 @@ const hapticFeedback = (pattern: number | number[]) => {
   }
 };
 
+// 🚀 ম্যাটেরিয়াল ইউ অরিজিনাল সার্কুলার স্পিনার
 const MaterialSpinner = ({ color }: { color: string }) => (
   <motion.svg
     viewBox="0 0 50 50"
@@ -368,6 +369,7 @@ export default function App() {
   const isTransitioning = useRef(false);
   const isGameEnding = useRef(false);
 
+  // 🚀 Pull to Refresh State & Jelly Animation Controls
   const mainBouncer = useAnimation();
   const [pullProgress, setPullProgress] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -389,6 +391,7 @@ export default function App() {
     if (deltaY > 0) {
        const resistance = deltaY * 0.35; 
        setPullProgress(resistance);
+       // 🚀 মেইন কন্টেন্ট সামান্য ছোট হবে (টেনশন ইফেক্ট)
        mainBouncer.set({ y: resistance, scale: Math.max(1 - (resistance * 0.0003), 0.96) });
     }
   };
@@ -402,26 +405,29 @@ export default function App() {
        hapticFeedback([100, 50, 100]);
        playEnhancedSound('refresh', isSoundOn);
        
+       // 🚀 অত্যন্ত স্মুথ জেলি বাউন্স: stiffness কমিয়ে mass বাড়ানো হয়েছে
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
-          transition: { type: 'spring', stiffness: 200, damping: 10, mass: 1.1 } 
+          transition: { type: 'spring', stiffness: 150, damping: 10, mass: 1.2 } 
        });
        
        setTimeout(() => {
           resetGameForMode(startingPlayer, true); 
        }, 400);
 
+       // 🚀 স্পিনারটি ঠিক ১.৫ সেকেন্ড স্ক্রিনে থাকবে
        setTimeout(() => {
           setIsRefreshing(false);
           setPullProgress(0);
        }, 1500);
 
     } else {
+       // অল্প টানলে বাউন্স করে আগের জায়গায় ফিরে যাবে
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
-          transition: { type: 'spring', stiffness: 300, damping: 15 } 
+          transition: { type: 'spring', stiffness: 200, damping: 14 } 
        });
        setPullProgress(0);
     }
@@ -731,7 +737,6 @@ export default function App() {
     }
   };
 
-  // 🚀 Mode Hold Start (এটিতে কোনো বাউন্স হবে না)
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
       hapticFeedback([80, 40, 80]); 
@@ -750,7 +755,7 @@ export default function App() {
     if (modeHoldTimer.current) clearTimeout(modeHoldTimer.current);
   };
   
-  // 🚀 Mode Switch Click (এটিতে কোনো বাউন্স হবে না)
+  // 🚀 모ড পরিবর্তনের সময় কোনো বাউন্স হবে না
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
     hapticFeedback(60);
@@ -887,6 +892,7 @@ export default function App() {
         }
       `}</style>
       
+      {/* 🚀 মেইন টাচ কনটেইনার */}
       <div 
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -900,25 +906,28 @@ export default function App() {
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-        {/* 🚀 স্ট্রেচিং লজিক স্পিনারে আবার যুক্ত করা হলো */}
+        {/* 🚀 কাস্টম Pull-to-Refresh স্পিনার */}
         <motion.div 
            className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
            style={{
               backgroundColor: semantics.mainGridBackground,
-              top: -50, 
+              top: -60, // 🚀 ওপরের বাটনগুলো থেকে দূরে একদম স্ক্রিনের বাইরে লুকানো আছে
               color: activeLineColor,
               width: 44,
               height: 44,
               transformOrigin: "top center"
            }}
            animate={{
-              y: isRefreshing ? 150 : (pullProgress > 0 ? Math.min(pullProgress * 1.1, 160) : 0),
-              // 🚀 ওভার-পুল করলে স্ট্রেচ (চ্যাপ্টা) হবে
+              // 🚀 টানলে অনেক নিচে নেমে আসবে, বাটনগুলোর সাথে ওভারল্যাপ করবে না
+              y: isRefreshing ? 170 : (pullProgress > 0 ? Math.min(pullProgress * 1.2, 190) : 0),
+              // 🚀 ম্যাজিক: প্রথমে ছোট থেকে বড় হবে (Scale), তারপর স্ট্রেচ হবে
+              scale: isRefreshing ? 1 : Math.max(0, Math.min(pullProgress / 80, 1)),
               scaleY: isRefreshing ? 1 : (pullProgress > 80 ? Math.min(1 + (pullProgress - 80) * 0.008, 1.35) : 1),
               scaleX: isRefreshing ? 1 : (pullProgress > 80 ? Math.max(1 - (pullProgress - 80) * 0.006, 0.8) : 1),
            }}
            transition={{
-             y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 },
+             y: isRefreshing ? { type: 'spring', stiffness: 350, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 },
+             scale: { type: 'spring', stiffness: 500, damping: 25 },
              scaleY: { type: 'spring', stiffness: 400, damping: 25 },
              scaleX: { type: 'spring', stiffness: 400, damping: 25 }
            }}
@@ -972,12 +981,14 @@ export default function App() {
           </motion.button>
         </motion.nav>
 
+        {/* initial Animation শুধুমাত্র পেজ লোড হওয়ার সময় কাজ করবে */}
         <motion.div 
            initial={{ opacity: 0, scale: 0.9, y: 15 }} 
            animate={{ opacity: 1, scale: 1, y: 0 }} 
            transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
            className="w-full max-w-md mx-auto relative"
         >
+            {/* 🚀 মেইন বাউন্সি র‍্যাপার: নিচে টানলে এই পুরোটাই স্প্রিংয়ের মতো কাজ করবে */}
             <motion.div animate={mainBouncer} className="w-full flex flex-col items-center gap-4 relative z-10">
               
               <header className="text-center space-y-5 pt-24 z-10 relative w-full overflow-visible">
