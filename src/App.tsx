@@ -112,7 +112,7 @@ const DynamicIcon = ({
 
 const audioState = { ctx: null as AudioContext | null };
 
-// 🚀 ডাইনামিক সিন্থেসাইজার: ২০টি আলাদা সাউন্ড প্রোফাইল (Web Audio API)
+// 🚀 ডাইনামিক সিন্থেসাইজার
 const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', variant: number) => {
   if (!variant || variant === 0 || typeof window === 'undefined') return;
   try {
@@ -123,7 +123,6 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' 
     const ctx = audioState.ctx;
     const t = ctx.currentTime;
     
-    // 🚀 ২০টি ডিফারেন্ট সাউন্ড প্রফাইল জেনারেটর
     const waveModes = ['sine', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth'];
     const pM = [0, 1, 1.4, 0.8, 1.2, 0.6, 2.0, 0.7, 1.5, 0.9, 2.5, 0.5, 1.8, 0.4, 2.2, 0.3, 1.7, 2.8, 0.45, 1.1, 0.85];
     const dM = [0, 1, 0.8, 1.2, 0.6, 1.4, 0.5, 1.5, 0.7, 1.3, 0.4, 1.6, 0.9, 1.8, 0.8, 2.0, 0.5, 0.6, 1.7, 1.1, 1.4];
@@ -428,7 +427,14 @@ export default function App() {
     if (deltaY > 0) {
        const resistance = deltaY * 0.35; 
        setPullProgress(resistance);
-       mainBouncer.set({ y: resistance, scale: Math.max(1 - (resistance * 0.0003), 0.96) });
+       
+       // 🚀 ম্যাজিক: কন্টেন্ট সামান্য ছোট হবে এবং স্প্রিং গ্যাপ রাবার ব্যান্ডের মতো বড় হবে
+       const dynamicGap = 16 + (resistance * 0.25); 
+       mainBouncer.set({ 
+           y: resistance, 
+           scale: Math.max(1 - (resistance * 0.0003), 0.96),
+           gap: `${dynamicGap}px`
+       });
     }
   };
 
@@ -441,9 +447,11 @@ export default function App() {
        triggerHaptic([100, 50, 100]);
        if (isSoundOn) playEnhancedSound('refresh', soundPrefs.refresh);
        
+       // 🚀 অত্যন্ত স্মুথ জেলি বাউন্স: gap 16 এ স্প্রিং করা হচ্ছে যাতে ওভারশুট করে আবার নরমাল হয়
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
+          gap: 16,
           transition: { type: 'spring', stiffness: 150, damping: 10, mass: 1.2 } 
        });
        
@@ -457,9 +465,11 @@ export default function App() {
        }, 1500);
 
     } else {
+       // অল্প টানলে বাউন্স করে আগের জায়গায় ফিরে যাবে
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
+          gap: 16,
           transition: { type: 'spring', stiffness: 200, damping: 14 } 
        });
        setPullProgress(0);
@@ -952,10 +962,10 @@ export default function App() {
            }}
            initial={{ scale: 0 }}
            animate={{
-              // 🚀 রিফ্রেশের সময় y 165 হবে
-              y: isRefreshing ? 175 : (pullProgress > 0 ? Math.min(pullProgress * 1.15, 185) : 0),
-              // 🚀 ম্যাজিক: প্রথমে ছোট (0) থেকে বড় (1) হবে
-              scale: isRefreshing ? 1 : (pullProgress > 0 ? Math.min(pullProgress / 60, 1) : 0),
+              // 🚀 রিফ্রেশের সময় y 175 হবে
+              y: isRefreshing ? 175 : (pullProgress > 0 ? Math.min(pullProgress * 1.15, 195) : 0),
+              // 🚀 ম্যাজিক: একদম ছোট (0) থেকে বড় (1) হবে
+              scale: isRefreshing ? 1 : Math.max(0, Math.min(pullProgress / 80, 1)),
               scaleY: isRefreshing ? 1 : (pullProgress > 80 ? Math.min(1 + (pullProgress - 80) * 0.008, 1.35) : 1),
               scaleX: isRefreshing ? 1 : (pullProgress > 80 ? Math.max(1 - (pullProgress - 80) * 0.006, 0.8) : 1),
            }}
@@ -1021,7 +1031,12 @@ export default function App() {
            transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
            className="w-full max-w-md mx-auto relative"
         >
-            <motion.div animate={mainBouncer} className="w-full flex flex-col items-center gap-4 relative z-10">
+            {/* 🚀 মেইন বাউন্সি র‍্যাপার: নিচে টানলে এই পুরোটাই স্প্রিংয়ের মতো কাজ করবে */}
+            <motion.div 
+               animate={mainBouncer} 
+               initial={{ gap: 16 }} // 🚀 Initial gap value for spring math
+               className="w-full flex flex-col items-center relative z-10" 
+            >
               
               <header className="text-center space-y-5 pt-24 z-10 relative w-full overflow-visible">
                 <motion.h1 style={{ color: semantics.text }} className="font-nunito-black text-[40px] sm:text-[44px] tracking-tight drop-shadow-sm transition-colors duration-1000">
@@ -1315,6 +1330,7 @@ export default function App() {
             </motion.div>
         </motion.div>
 
+        {/* @ts-ignore */}
         <SettingsModal 
           isOpen={isSettingsOpen} onClose={() => { setIsSettingsOpen(false); setIsAdvancedSettingsOpen(false); }} setIsAboutOpen={setIsAboutOpen}
           showAdvanced={isAdvancedSettingsOpen} setShowAdvanced={setIsAdvancedSettingsOpen}
