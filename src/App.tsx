@@ -325,11 +325,9 @@ export default function App() {
   const [scores, setScores] = useState(() => getSaved('scores', { X: 0, O: 0, Draws: 0 }));
   const [isSinglePlayer, setIsSinglePlayer] = useState(() => getSaved('isSinglePlayer', true));
   
-  // 🚀 New Global Sound & Haptic States
   const [isSoundOn, setIsSoundOn] = useState(() => getSaved('isSoundOn', true));
   const [isHapticEnabled, setIsHapticEnabled] = useState(() => getSaved('isHapticEnabled', true));
   
-  // 🚀 সাউন্ড সেটিংসে এখন ২০টি ভ্যারিয়েশন সাপোর্ট করবে
   const [soundPrefs, setSoundPrefs] = useState(() => getSaved('soundPrefs', {
      xTap: 1, oTap: 2, pop: 1, mode: 1, refresh: 1, win: 1, overallWin: 1, point: 1
   }));
@@ -382,6 +380,9 @@ export default function App() {
   
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  
+  // 🚀 New State for Advanced Settings hierarchy control
+  const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false);
   
   const [activeCell, setActiveCell] = useState<number | null>(null);
   
@@ -502,15 +503,20 @@ export default function App() {
     localStorage.setItem('enableHardRefreshTap', JSON.stringify(enableHardRefreshTap));
   }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap]);
 
+  // 🚀 Updated Back Button listener with Advanced Settings support
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const backSub = CapApp.addListener('backButton', () => {
       if (isAboutOpen) setIsAboutOpen(false);
-      else if (isSettingsOpen) setIsSettingsOpen(false);
+      else if (isAdvancedSettingsOpen) setIsAdvancedSettingsOpen(false);
+      else if (isSettingsOpen) {
+          setIsSettingsOpen(false);
+          setIsAdvancedSettingsOpen(false);
+      }
       else CapApp.exitApp();
     });
     return () => { backSub.then(sub => sub.remove()); };
-  }, [isAboutOpen, isSettingsOpen]);
+  }, [isAboutOpen, isSettingsOpen, isAdvancedSettingsOpen]);
 
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
@@ -662,7 +668,6 @@ export default function App() {
               setActiveCell(null);
               triggerHaptic(80); 
               
-              // 🚀 AI Tap Sound Logic
               const tapSoundVal = aiPlayerSymbol === 'X' ? soundPrefs.xTap : soundPrefs.oTap;
               if (isSoundOn) playEnhancedSound('tap', tapSoundVal);
               
@@ -680,7 +685,6 @@ export default function App() {
     if (board[index] || winnerInfo || isAITurn || isResetting || overallWinner || isGameEnding.current || activeCell !== null) return;
     triggerHaptic(80); 
     
-    // 🚀 Human Tap Sound Logic
     const tapSoundVal = isXNext ? soundPrefs.xTap : soundPrefs.oTap;
     if (isSoundOn) playEnhancedSound('tap', tapSoundVal);
     
@@ -950,12 +954,13 @@ export default function App() {
               transformOrigin: "top center"
            }}
            animate={{
-              y: isRefreshing ? 165 : (pullProgress > 0 ? Math.min(pullProgress * 1.1, 160) : 0),
+              y: isRefreshing ? 150 : (pullProgress > 0 ? Math.min(pullProgress * 1.1, 160) : 0),
               scaleY: isRefreshing ? 1 : (pullProgress > 80 ? Math.min(1 + (pullProgress - 80) * 0.008, 1.35) : 1),
               scaleX: isRefreshing ? 1 : (pullProgress > 80 ? Math.max(1 - (pullProgress - 80) * 0.006, 0.8) : 1),
            }}
            transition={{
              y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 },
+             scale: { type: 'spring', stiffness: 500, damping: 25 },
              scaleY: { type: 'spring', stiffness: 400, damping: 25 },
              scaleX: { type: 'spring', stiffness: 400, damping: 25 }
            }}
@@ -1309,9 +1314,10 @@ export default function App() {
             </motion.div>
         </motion.div>
 
-        {/* @ts-ignore */}
+        {/* 🚀 New SettingsModal integration */}
         <SettingsModal 
-          isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} setIsAboutOpen={setIsAboutOpen}
+          isOpen={isSettingsOpen} onClose={() => { setIsSettingsOpen(false); setIsAdvancedSettingsOpen(false); }} setIsAboutOpen={setIsAboutOpen}
+          showAdvanced={isAdvancedSettingsOpen} setShowAdvanced={setIsAdvancedSettingsOpen}
           semantics={semantics} isDarkMode={isDarkMode} isAmoled={isAmoled} setIsAmoled={setIsAmoled}
           useDefaultTheme={useDefaultTheme} setUseDefaultTheme={setUseDefaultTheme}
           themeIdx={themeIdx} setThemeIdx={setThemeIdx}
