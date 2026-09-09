@@ -953,7 +953,7 @@ export default function App() {
            initial={{ scale: 0 }}
            animate={{
               // 🚀 রিফ্রেশের সময় y 165 হবে
-              y: isRefreshing ? 165 : (pullProgress > 0 ? Math.min(pullProgress * 1.15, 185) : 0),
+              y: isRefreshing ? 175 : (pullProgress > 0 ? Math.min(pullProgress * 1.15, 185) : 0),
               // 🚀 ম্যাজিক: প্রথমে ছোট (0) থেকে বড় (1) হবে
               scale: isRefreshing ? 1 : (pullProgress > 0 ? Math.min(pullProgress / 60, 1) : 0),
               scaleY: isRefreshing ? 1 : (pullProgress > 80 ? Math.min(1 + (pullProgress - 80) * 0.008, 1.35) : 1),
