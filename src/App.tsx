@@ -127,7 +127,7 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' 
     const waveModes = ['sine', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth'];
     const pM = [0, 1, 1.4, 0.8, 1.2, 0.6, 2.0, 0.7, 1.5, 0.9, 2.5, 0.5, 1.8, 0.4, 2.2, 0.3, 1.7, 2.8, 0.45, 1.1, 0.85];
     const dM = [0, 1, 0.8, 1.2, 0.6, 1.4, 0.5, 1.5, 0.7, 1.3, 0.4, 1.6, 0.9, 1.8, 0.8, 2.0, 0.5, 0.6, 1.7, 1.1, 1.4];
-    const sweepDir = [0, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1]; // -1 goes down, 1 goes up
+    const sweepDir = [0, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1];
 
     const wave = (waveModes[variant] || 'sine') as OscillatorType;
     const pitch = pM[variant] || 1;
@@ -381,7 +381,6 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   
-  // 🚀 New State for Advanced Settings hierarchy control
   const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false);
   
   const [activeCell, setActiveCell] = useState<number | null>(null);
@@ -399,12 +398,10 @@ export default function App() {
   const isTransitioning = useRef(false);
   const isGameEnding = useRef(false);
 
-  // 🚀 Haptic Feedback Wrapper
   const triggerHaptic = (pattern: number | number[]) => {
     triggerNativeHaptic(pattern, isHapticEnabled);
   };
 
-  // 🚀 Play Preview Sound from Settings
   const playPreviewSound = (key: string, val: number) => {
     const type = (key === 'xTap' || key === 'oTap') ? 'tap' : key;
     playEnhancedSound(type as any, val); 
@@ -503,7 +500,6 @@ export default function App() {
     localStorage.setItem('enableHardRefreshTap', JSON.stringify(enableHardRefreshTap));
   }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap]);
 
-  // 🚀 Updated Back Button listener with Advanced Settings support
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const backSub = CapApp.addListener('backButton', () => {
@@ -943,18 +939,23 @@ export default function App() {
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
+        {/* 🚀 কাস্টম Pull-to-Refresh স্পিনার */}
         <motion.div 
            className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
            style={{
               backgroundColor: semantics.mainGridBackground,
-              top: -50, 
+              top: -60, 
               color: activeLineColor,
               width: 44,
               height: 44,
               transformOrigin: "top center"
            }}
+           initial={{ scale: 0 }}
            animate={{
-              y: isRefreshing ? 150 : (pullProgress > 0 ? Math.min(pullProgress * 1.1, 160) : 0),
+              // 🚀 রিফ্রেশের সময় y 165 হবে
+              y: isRefreshing ? 165 : (pullProgress > 0 ? Math.min(pullProgress * 1.15, 185) : 0),
+              // 🚀 ম্যাজিক: প্রথমে ছোট (0) থেকে বড় (1) হবে
+              scale: isRefreshing ? 1 : (pullProgress > 0 ? Math.min(pullProgress / 60, 1) : 0),
               scaleY: isRefreshing ? 1 : (pullProgress > 80 ? Math.min(1 + (pullProgress - 80) * 0.008, 1.35) : 1),
               scaleX: isRefreshing ? 1 : (pullProgress > 80 ? Math.max(1 - (pullProgress - 80) * 0.006, 0.8) : 1),
            }}
@@ -1314,7 +1315,6 @@ export default function App() {
             </motion.div>
         </motion.div>
 
-        {/* 🚀 New SettingsModal integration */}
         <SettingsModal 
           isOpen={isSettingsOpen} onClose={() => { setIsSettingsOpen(false); setIsAdvancedSettingsOpen(false); }} setIsAboutOpen={setIsAboutOpen}
           showAdvanced={isAdvancedSettingsOpen} setShowAdvanced={setIsAdvancedSettingsOpen}
