@@ -112,6 +112,7 @@ const DynamicIcon = ({
 
 const audioState = { ctx: null as AudioContext | null };
 
+// 🚀 ডাইনামিক সিন্থেসাইজার
 const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', variant: number) => {
   if (!variant || variant === 0 || typeof window === 'undefined') return;
   try {
@@ -378,7 +379,6 @@ export default function App() {
   
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
-  
   const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false);
   
   const [activeCell, setActiveCell] = useState<number | null>(null);
@@ -427,8 +427,8 @@ export default function App() {
        const resistance = deltaY * 0.35; 
        setPullProgress(resistance);
        
-       // 🚀 ম্যাজিক: কন্টেন্ট সামান্য ছোট হবে এবং স্প্রিং গ্যাপ রাবার ব্যান্ডের মতো বড় হবে
-       const dynamicGap = 16 + (resistance * 0.2); 
+       // 🚀 ম্যাজিক: কন্টেন্ট সামান্য ছোট হবে এবং স্প্রিং গ্যাপ রাবার ব্যান্ডের মতো বড় হবে!
+       const dynamicGap = 20 + (resistance * 0.25); 
        mainBouncer.set({ 
            y: resistance, 
            scale: Math.max(1 - (resistance * 0.0003), 0.96),
@@ -441,17 +441,17 @@ export default function App() {
     if (!isDragging.current || isRefreshing) return;
     isDragging.current = false;
     
-    // 🚀 লিমিট 75 করা হয়েছে যাতে 75px নামলেই রিফ্রেশ হয়ে যায়
+    // 🚀 লিমিট 75
     if (pullProgress > 75) {
        setIsRefreshing(true);
        triggerHaptic([100, 50, 100]);
        if (isSoundOn) playEnhancedSound('refresh', soundPrefs.refresh);
        
-       // 🚀 অত্যন্ত স্মুথ জেলি বাউন্স: gap "16px" এ স্প্রিং করা হচ্ছে যাতে ওভারশুট করে আবার নরমাল হয়
+       // 🚀 অত্যন্ত স্মুথ জেলি বাউন্স: gap "20px" এ স্প্রিং করা হচ্ছে যাতে ওভারশুট করে আবার নরমাল হয়
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
-          gap: "16px",
+          gap: "20px",
           transition: { type: 'spring', stiffness: 150, damping: 10, mass: 1.2 } 
        });
        
@@ -469,7 +469,7 @@ export default function App() {
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
-          gap: "16px",
+          gap: "20px",
           transition: { type: 'spring', stiffness: 200, damping: 14 } 
        });
        setPullProgress(0);
@@ -800,7 +800,7 @@ export default function App() {
     if (modeHoldTimer.current) clearTimeout(modeHoldTimer.current);
   };
   
-  // 🚀 모ড পরিবর্তনের সময় কোনো বাউন্স হবে না
+  // 🚀 Mode Switch Click (এটিতে কোনো বাউন্স হবে না)
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
     triggerHaptic(60);
@@ -964,14 +964,14 @@ export default function App() {
            initial={{ scale: 0, y: -50 }}
            animate={{
               // 🚀 রিফ্রেশের সময় y 75 হবে এবং বিন্দুর আকার থেকে বড় হবে
-              y: isRefreshing ? 75 : (pullProgress > 0 ? Math.min(pullProgress, 75) + (pullProgress > 75 ? (pullProgress - 75) * 0.2 : 0) : -50),
-              scale: isRefreshing ? 1 : (pullProgress > 0 ? Math.min(pullProgress / 75, 1) : 0),
-              scaleY: isRefreshing ? 1 : (pullProgress > 75 ? Math.min(1 + (pullProgress - 75) * 0.015, 1.4) : 1),
-              scaleX: isRefreshing ? 1 : (pullProgress > 75 ? Math.max(1 - (pullProgress - 75) * 0.01, 0.75) : 1),
+              y: isRefreshing ? 75 : (pullProgress > 0 ? Math.min(pullProgress * 1.15, 95) : -50),
+              scale: isRefreshing ? 1 : Math.max(0, Math.min(pullProgress / 75, 1)),
+              scaleY: isRefreshing ? 1 : (pullProgress > 75 ? Math.min(1 + (pullProgress - 75) * 0.015, 1.35) : 1),
+              scaleX: isRefreshing ? 1 : (pullProgress > 75 ? Math.max(1 - (pullProgress - 75) * 0.006, 0.8) : 1),
            }}
            transition={{
-             y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 },
-             scale: { type: 'spring', stiffness: 500, damping: 25 },
+             y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 600, damping: 30 },
+             scale: { type: 'spring', stiffness: 600, damping: 30 },
              scaleY: { type: 'spring', stiffness: 400, damping: 25 },
              scaleX: { type: 'spring', stiffness: 400, damping: 25 }
            }}
@@ -1025,99 +1025,99 @@ export default function App() {
           </motion.button>
         </motion.nav>
 
+        {/* initial Animation শুধুমাত্র পেজ লোড হওয়ার সময় কাজ করবে */}
         <motion.div 
            initial={{ opacity: 0, scale: 0.9, y: 15 }} 
            animate={{ opacity: 1, scale: 1, y: 0 }} 
            transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
            className="w-full max-w-md mx-auto relative"
         >
-            {/* 🚀 মেইন বাউন্সি র‍্যাপার: নিচে টানলে কন্টেন্টের গ্যাপ রাবার ব্যান্ডের মতো বাড়বে */}
+            {/* 🚀 মেইন বাউন্সি র‍্যাপার: নিচে টানলে এই পুরোটাই স্প্রিংয়ের মতো কাজ করবে */}
             <motion.div 
                animate={mainBouncer} 
-               initial={{ gap: "16px" }} 
-               className="w-full flex flex-col items-center relative z-10" 
+               initial={{ gap: "20px" }} // 🚀 Initial gap 20px
+               className="w-full flex flex-col items-center pt-24 relative z-10" 
             >
               
-              <header className="text-center space-y-5 pt-24 z-10 relative w-full overflow-visible">
-                <motion.h1 style={{ color: semantics.text }} className="font-nunito-black text-[40px] sm:text-[44px] tracking-tight drop-shadow-sm transition-colors duration-1000">
-                  Tic Tac Toe
-                </motion.h1>
+              {/* 🚀 Header ট্যাগ মুছে ফেলা হয়েছে, সবগুলো এখন ডাইরেক্ট চাইল্ড */}
+              <motion.h1 style={{ color: semantics.text }} className="font-nunito-black text-[40px] sm:text-[44px] tracking-tight drop-shadow-sm transition-colors duration-1000 text-center w-full m-0">
+                Tic Tac Toe
+              </motion.h1>
 
-                <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex p-1.5 rounded-[28px] relative w-[272px] mx-auto shadow-sm transition-colors duration-1000">
-                  <motion.div 
-                    className="absolute top-1.5 bottom-1.5 w-[130px] rounded-[24px] shadow-sm transition-colors duration-1000"
-                    style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }}
-                    animate={{ x: isSinglePlayer ? 0 : 130 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
-                  />
-                  <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} style={{ color: semantics.text, opacity: isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-1000">
-                    <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
-                  </button>
-                  <button onClick={() => switchModeClick(false)} style={{ color: semantics.text, opacity: !isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-1000">
-                    <span className="relative z-10 flex items-center gap-1.5"><UsersRound color="currentColor" className="w-[18px] h-[18px]" strokeWidth={2.5}/> 2 Players</span>
-                  </button>
-                </div>
-
+              <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex p-1.5 rounded-[28px] relative w-[272px] mx-auto shadow-sm transition-colors duration-1000">
                 <motion.div 
-                  onClick={handleTurnBannerClick}
-                  onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} 
-                  animate={{ scale: winnerInfo ? 1.05 : 1 }} 
-                  style={{ backgroundColor: semantics.bannerDefault.bg, color: semantics.bannerDefault.text }} 
-                  className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm select-none relative overflow-hidden transition-colors duration-1000 ${board.every(c => c === null) && !winnerInfo && !overallWinner ? 'cursor-pointer' : ''}`}
-                >
-                  <div className="flex items-center gap-2 relative z-10">
-                    {winnerInfo ? (
-                      <>
-                        <Sparkles className="w-4 h-4" style={{ color: activeLineColor }} />
-                        <span className="font-bold flex items-center">
-                          Winner: Player
-                          <DynamicIcon 
-                            player={winnerInfo.winner} 
-                            p1Custom={p1Custom} p1Idx={p1Idx} 
-                            p2Custom={p2Custom} p2Idx={p2Idx} 
-                            color={winnerInfo.winner === 'X' ? currentXColor : currentOColor} 
-                            className="w-5 h-5 ml-1.5 drop-shadow-sm" 
-                          />
-                        </span>
-                      </>
-                    ) : isDraw ? (<span className="font-bold">It's a Stalemate!</span>) : (
-                      <>
-                        {isAITurn ? (
-                          <div className="flex items-center gap-1.5 h-8">
-                            <span className="mr-1 font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF3B30] via-[#4CD964] to-[#007AFF]">AI Thinking</span>
-                            <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} className="w-1.5 h-1.5 rounded-full" style={{ background: '#FF3B30' }} />
-                            <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.15 }} className="w-1.5 h-1.5 rounded-full" style={{ background: '#4CD964' }} />
-                            <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.3 }} className="w-1.5 h-1.5 rounded-full" style={{ background: '#007AFF' }} />
+                  className="absolute top-1.5 bottom-1.5 w-[130px] rounded-[24px] shadow-sm transition-colors duration-1000"
+                  style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }}
+                  animate={{ x: isSinglePlayer ? 0 : 130 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
+                />
+                <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} style={{ color: semantics.text, opacity: isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-1000">
+                  <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
+                </button>
+                <button onClick={() => switchModeClick(false)} style={{ color: semantics.text, opacity: !isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-1000">
+                  <span className="relative z-10 flex items-center gap-1.5"><UsersRound color="currentColor" className="w-[18px] h-[18px]" strokeWidth={2.5}/> 2 Players</span>
+                </button>
+              </div>
+
+              <motion.div 
+                onClick={handleTurnBannerClick}
+                onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} 
+                animate={{ scale: winnerInfo ? 1.05 : 1 }} 
+                style={{ backgroundColor: semantics.bannerDefault.bg, color: semantics.bannerDefault.text }} 
+                className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm select-none relative overflow-hidden transition-colors duration-1000 ${board.every(c => c === null) && !winnerInfo && !overallWinner ? 'cursor-pointer' : ''}`}
+              >
+                <div className="flex items-center gap-2 relative z-10">
+                  {winnerInfo ? (
+                    <>
+                      <Sparkles className="w-4 h-4" style={{ color: activeLineColor }} />
+                      <span className="font-bold flex items-center">
+                        Winner: Player
+                        <DynamicIcon 
+                          player={winnerInfo.winner} 
+                          p1Custom={p1Custom} p1Idx={p1Idx} 
+                          p2Custom={p2Custom} p2Idx={p2Idx} 
+                          color={winnerInfo.winner === 'X' ? currentXColor : currentOColor} 
+                          className="w-5 h-5 ml-1.5 drop-shadow-sm" 
+                        />
+                      </span>
+                    </>
+                  ) : isDraw ? (<span className="font-bold">It's a Stalemate!</span>) : (
+                    <>
+                      {isAITurn ? (
+                        <div className="flex items-center gap-1.5 h-8">
+                          <span className="mr-1 font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF3B30] via-[#4CD964] to-[#007AFF]">AI Thinking</span>
+                          <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} className="w-1.5 h-1.5 rounded-full" style={{ background: '#FF3B30' }} />
+                          <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.15 }} className="w-1.5 h-1.5 rounded-full" style={{ background: '#4CD964' }} />
+                          <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.3 }} className="w-1.5 h-1.5 rounded-full" style={{ background: '#007AFF' }} />
+                        </div>
+                      ) : (
+                        <div className="flex items-center h-8 font-bold">
+                          Player&nbsp;
+                          <div className="relative h-8 w-6 overflow-hidden flex items-center justify-center">
+                            <AnimatePresence mode="popLayout">
+                              <motion.div key={isXNext ? 'X' : 'O'} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute flex items-center justify-center">
+                                <DynamicIcon player={isXNext ? 'X' : 'O'} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={isXNext ? currentXColor : currentOColor} className="w-5 h-5 drop-shadow-sm" />
+                              </motion.div>
+                            </AnimatePresence>
                           </div>
-                        ) : (
-                          <div className="flex items-center h-8 font-bold">
-                            Player&nbsp;
-                            <div className="relative h-8 w-6 overflow-hidden flex items-center justify-center">
-                              <AnimatePresence mode="popLayout">
-                                <motion.div key={isXNext ? 'X' : 'O'} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute flex items-center justify-center">
-                                  <DynamicIcon player={isXNext ? 'X' : 'O'} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={isXNext ? currentXColor : currentOColor} className="w-5 h-5 drop-shadow-sm" />
-                                </motion.div>
-                              </AnimatePresence>
-                            </div>
-                            &nbsp;'s turn
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                  {board.every(c => c === null) && !winnerInfo && !overallWinner && (
-                    <div className={`absolute bottom-1.5 w-full flex flex-col items-center z-10 transition-opacity duration-300 pointer-events-none opacity-100`}>
-                      <div className="h-[2px] w-12 bg-transparent rounded-full overflow-hidden relative">
-                         <motion.div
-                           initial={{ x: "-100%" }} animate={{ x: isHoldingBanner ? "0%" : "-100%" }}
-                           transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }}
-                           className="absolute inset-0 bg-gray-500 dark:bg-gray-300"
-                         />
-                      </div>
-                    </div>
+                          &nbsp;'s turn
+                        </div>
+                      )}
+                    </>
                   )}
-                </motion.div>
-              </header>
+                </div>
+                {board.every(c => c === null) && !winnerInfo && !overallWinner && (
+                  <div className={`absolute bottom-1.5 w-full flex flex-col items-center z-10 transition-opacity duration-300 pointer-events-none opacity-100`}>
+                    <div className="h-[2px] w-12 bg-transparent rounded-full overflow-hidden relative">
+                       <motion.div
+                         initial={{ x: "-100%" }} animate={{ x: isHoldingBanner ? "0%" : "-100%" }}
+                         transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }}
+                         className="absolute inset-0 bg-gray-500 dark:bg-gray-300"
+                       />
+                    </div>
+                  </div>
+                )}
+              </motion.div>
 
               <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible select-none">
                  <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm transition-colors duration-1000" style={{ backgroundColor: semantics.scoreBg }}>
@@ -1158,7 +1158,8 @@ export default function App() {
                  </div>
               </div>
 
-              <div className="relative group z-10 mt-2">
+              {/* 🚀 বোর্ডের মার্জিন টপ (mt-2) মুছে ফেলা হয়েছে, কারণ গ্যাপ এখন সবকিছু কন্ট্রোল করবে */}
+              <div className="relative group z-10">
                 <motion.div 
                   animate={isDraw ? { x: [-12, 12, -12, 12, -6, 6, 0], opacity: 1, scale: 1 } : { x: 0, opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, ease: "easeInOut" }}
