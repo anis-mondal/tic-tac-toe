@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   X as CloseIcon, Info, Moon, Target, Check, Settings,
@@ -96,6 +96,7 @@ const AnimatedToggle = ({ enabled, onToggle, activeColor, isDarkMode }: { enable
 
 interface SettingsModalProps {
   isOpen: boolean; onClose: () => void; setIsAboutOpen: (val: boolean) => void;
+  showAdvanced: boolean; setShowAdvanced: (val: boolean) => void;
   semantics: any; isDarkMode: boolean; isAmoled: boolean; setIsAmoled: (val: boolean) => void;
   useDefaultTheme: boolean; setUseDefaultTheme: (val: boolean) => void;
   themeIdx: number; setThemeIdx: (val: number) => void;
@@ -116,9 +117,6 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal(props: SettingsModalProps) {
-  // 🚀 Advanced Settings Popup কন্ট্রোল করার স্টেট
-  const [showAdvanced, setShowAdvanced] = useState(false);
-
   const { availableLinesDark, availableLinesLight } = {
     availableLinesDark: [...(props.useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[props.themeIdx]).linesDark, ...EXTRA_LINE_COLORS],
     availableLinesLight: [...(props.useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[props.themeIdx]).linesLight, ...EXTRA_LINE_COLORS]
@@ -126,7 +124,6 @@ export default function SettingsModal(props: SettingsModalProps) {
 
   const cardBorderColor = props.isDarkMode ? 'rgba(255,255,255,0.08)' : props.activeLineColor;
 
-  // 🚀 রাউন্ড-রবিন সাউন্ড কন্ট্রোলার (০ থেকে ২০ পর্যন্ত)
   const updateSound = (key: string, val: number) => {
     props.setSoundPrefs((prev: any) => ({ ...prev, [key]: val }));
     props.playPreviewSound(key, val);
@@ -161,7 +158,7 @@ export default function SettingsModal(props: SettingsModalProps) {
     <AnimatePresence>
       {props.isOpen && (
         <motion.div 
-           onClick={() => { setShowAdvanced(false); props.onClose(); }} 
+           onClick={props.onClose} 
            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
            transition={{ duration: 0.2 }}
            className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
@@ -176,7 +173,7 @@ export default function SettingsModal(props: SettingsModalProps) {
              className="w-full max-w-[420px] pt-7 pb-4 px-1 rounded-[36px] shadow-2xl relative border-[3px] border-gray-200 dark:border-white/10 transition-colors duration-1000 overflow-hidden"
           >
             
-            <button onClick={() => { setShowAdvanced(false); props.onClose(); }} className="absolute top-6 right-7 p-2 transition-opacity hover:opacity-70 z-[160] bg-black/5 dark:bg-white/5 rounded-full active:scale-90 border border-black/10 dark:border-white/10">
+            <button onClick={props.onClose} className="absolute top-6 right-7 p-2 transition-opacity hover:opacity-70 z-[160] bg-black/5 dark:bg-white/5 rounded-full active:scale-90 border border-black/10 dark:border-white/10">
               <CloseIcon className="w-5 h-5" />
             </button>
             
@@ -395,7 +392,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                 
                 {/* 🚀 8. Advanced Settings Button */}
                 <div className="pt-2 flex justify-center w-full">
-                   <button onClick={() => { props.hapticFeedback(30); setShowAdvanced(true); }} className="w-[85%] py-[15px] rounded-[24px] bg-black/5 dark:bg-white/5 border-[2.5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm" style={{ borderColor: cardBorderColor }}>
+                   <button onClick={() => { props.hapticFeedback(30); props.setShowAdvanced(true); }} className="w-[85%] py-[15px] rounded-[24px] bg-black/5 dark:bg-white/5 border-[2.5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm" style={{ borderColor: cardBorderColor }}>
                      <Settings className="w-[20px] h-[20px] opacity-70" style={{ color: props.activeLineColor }} /> 
                      <span className="font-black uppercase tracking-widest text-[14px] mt-0.5 opacity-80" style={{ color: props.activeLineColor }}>Advanced Settings</span>
                    </button>
@@ -414,7 +411,7 @@ export default function SettingsModal(props: SettingsModalProps) {
 
             {/* 🚀 Advanced Settings Overlay (No Blur, sits on top of Settings) */}
             <AnimatePresence>
-              {showAdvanced && (
+              {props.showAdvanced && (
                 <motion.div 
                    initial={{ x: '100%', opacity: 1 }} 
                    animate={{ x: 0, opacity: 1 }} 
@@ -424,7 +421,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                    style={{ backgroundColor: props.semantics.screenBackground }} 
                 >
                    <div className="flex items-center gap-2 mb-2 px-6 pt-6 pb-2 border-b border-black/10 dark:border-white/10">
-                      <button onClick={() => { props.hapticFeedback(20); setShowAdvanced(false); }} className="p-2 -ml-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors active:scale-90">
+                      <button onClick={() => { props.hapticFeedback(20); props.setShowAdvanced(false); }} className="p-2 -ml-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors active:scale-90">
                          <ChevronLeft className="w-6 h-6" />
                       </button>
                       <h2 className="font-nunito-black text-2xl tracking-tight mt-0.5">Advanced</h2>
