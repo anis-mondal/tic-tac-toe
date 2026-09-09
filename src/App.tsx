@@ -919,7 +919,7 @@ export default function App() {
            }}
            animate={{
               // 🚀 টানলে অনেক নিচে নেমে আসবে, বাটনগুলোর সাথে ওভারল্যাপ করবে না
-              y: isRefreshing ? 170 : (pullProgress > 0 ? Math.min(pullProgress * 1.2, 190) : 0),
+              y: isRefreshing ? 190 : (pullProgress > 0 ? Math.min(pullProgress * 1.2, 190) : 0),
               // 🚀 ম্যাজিক: প্রথমে ছোট থেকে বড় হবে (Scale), তারপর স্ট্রেচ হবে
               scale: isRefreshing ? 1 : Math.max(0, Math.min(pullProgress / 80, 1)),
               scaleY: isRefreshing ? 1 : (pullProgress > 80 ? Math.min(1 + (pullProgress - 80) * 0.008, 1.35) : 1),
