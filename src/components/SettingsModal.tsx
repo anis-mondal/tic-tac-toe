@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   X as CloseIcon, Info, Moon, Target, Check, Settings,
@@ -20,7 +21,7 @@ import {
   Carrot, Castle, Cherry, Church, Clover, Club, Cookie, Croissant, Crosshair, CupSoda, Drama, 
   Drum, Dumbbell, Ear, Eclipse, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, Guitar, 
   IceCream, Keyboard, Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle, AlarmClock, Ambulance, 
-  BaggageClaim, Beer, CarFront, ChefHat, Citrus, Grape, Lock, Joystick, MountainSnow, Wine, Nut, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich
+  BaggageClaim, Beer, CarFront, ChefHat, Citrus, Grape, Lock, Joystick, MountainSnow, Wine, Nut, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich, ChevronLeft
 } from 'lucide-react';
 
 export const ICONS_LIST = [
@@ -107,9 +108,17 @@ interface SettingsModalProps {
   targetScore: number; setTargetScore: any; maxScore: number;
   activeLineColor: string; currentXColor: string; currentOColor: string;
   hapticFeedback: (pattern: number | number[]) => void;
+  enableHardRefreshTap: boolean; setEnableHardRefreshTap: (val: boolean) => void;
+  isHapticEnabled: boolean; setIsHapticEnabled: (val: boolean) => void;
+  soundPrefs: { tap: number, pop: number, mode: number, refresh: number, win: number, overallWin: number, point: number };
+  setSoundPrefs: React.Dispatch<React.SetStateAction<any>>;
+  playPreviewSound: (key: string, val: number) => void;
 }
 
 export default function SettingsModal(props: SettingsModalProps) {
+  // 🚀 Advanced Settings Popup কন্ট্রোল করার স্টেট
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
   const { availableLinesDark, availableLinesLight } = {
     availableLinesDark: [...(props.useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[props.themeIdx]).linesDark, ...EXTRA_LINE_COLORS],
     availableLinesLight: [...(props.useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[props.themeIdx]).linesLight, ...EXTRA_LINE_COLORS]
@@ -117,11 +126,31 @@ export default function SettingsModal(props: SettingsModalProps) {
 
   const cardBorderColor = props.isDarkMode ? 'rgba(255,255,255,0.08)' : props.activeLineColor;
 
+  // 🚀 সাউন্ড কন্ট্রোলার কম্পোনেন্ট
+  const updateSound = (key: string, val: number) => {
+    props.setSoundPrefs((prev: any) => ({ ...prev, [key]: val }));
+    props.playPreviewSound(key, val);
+  };
+
+  const renderSoundControl = (label: string, key: keyof typeof props.soundPrefs) => {
+    const value = props.soundPrefs[key];
+    return (
+      <div className="flex items-center justify-between py-2 border-b last:border-0 border-black/5 dark:border-white/5">
+        <span className="text-[13px] font-bold opacity-80">{label}</span>
+        <div className="flex items-center gap-2">
+           <button onClick={() => { props.hapticFeedback(20); updateSound(key, Math.max(0, value - 1)); }} className="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-black active:scale-90">-</button>
+           <span className="w-8 text-center text-[13px] font-black">{value === 0 ? 'Off' : value}</span>
+           <button onClick={() => { props.hapticFeedback(20); updateSound(key, Math.min(10, value + 1)); }} className="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-black active:scale-90">+</button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <AnimatePresence>
       {props.isOpen && (
         <motion.div 
-           onClick={props.onClose} 
+           onClick={() => { setShowAdvanced(false); props.onClose(); }} 
            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
            transition={{ duration: 0.2 }}
            className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
@@ -133,10 +162,10 @@ export default function SettingsModal(props: SettingsModalProps) {
              exit={{ scale: 0.85, y: 50, opacity: 0 }} 
              transition={{ type: "spring", damping: 20, stiffness: 350, mass: 0.8 }}
              style={{ backgroundColor: props.semantics.screenBackground, color: props.semantics.text }} 
-             className="w-full max-w-[420px] pt-7 pb-4 px-1 rounded-[36px] shadow-2xl relative border-[3px] border-gray-200 dark:border-white/10 transition-colors duration-1000"
+             className="w-full max-w-[420px] pt-7 pb-4 px-1 rounded-[36px] shadow-2xl relative border-[3px] border-gray-200 dark:border-white/10 transition-colors duration-1000 overflow-hidden"
           >
             
-            <button onClick={props.onClose} className="absolute top-6 right-7 p-2 transition-opacity hover:opacity-70 z-[160] bg-black/5 dark:bg-white/5 rounded-full active:scale-90 border border-black/10 dark:border-white/10">
+            <button onClick={() => { setShowAdvanced(false); props.onClose(); }} className="absolute top-6 right-7 p-2 transition-opacity hover:opacity-70 z-[160] bg-black/5 dark:bg-white/5 rounded-full active:scale-90 border border-black/10 dark:border-white/10">
               <CloseIcon className="w-5 h-5" />
             </button>
             
@@ -148,47 +177,33 @@ export default function SettingsModal(props: SettingsModalProps) {
             <div className="relative w-full overflow-hidden px-4">
               <div className="max-h-[66vh] overflow-y-auto m3-scrollbar pr-3 space-y-4 pb-6">
                 
-          {/* 1. Theme Style Box */}
+                {/* 1. Theme Style Box */}
                 <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Theme Style</h3>
                    
                    <div className="relative flex p-1.5 rounded-[24px] w-full bg-black/10 dark:bg-white/10 shadow-inner">
-                      {/* Classic Button */}
                       <button 
                           onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(true); }} 
                           className="relative flex-1 h-[36px] rounded-[20px] text-[13px] font-black uppercase tracking-wider z-10 flex items-center justify-center transition-colors duration-300"
                           style={{ color: props.useDefaultTheme ? '#ffffff' : props.semantics.text }}
                       >
                           {props.useDefaultTheme && (
-                              <motion.div 
-                                  layoutId="theme-toggle-pill"
-                                  className="absolute inset-0 rounded-[20px] shadow-md z-[-1]"
-                                  style={{ backgroundColor: props.activeLineColor }}
-                                  transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
-                              />
+                              <motion.div layoutId="theme-toggle-pill" className="absolute inset-0 rounded-[20px] shadow-md z-[-1]" style={{ backgroundColor: props.activeLineColor }} transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }} />
                           )}
                           <span className="relative z-10">Classic</span>
                       </button>
-                      
-                      {/* Custom Button */}
                       <button 
                           onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(false); }} 
                           className="relative flex-1 h-[36px] rounded-[20px] text-[13px] font-black uppercase tracking-wider z-10 flex items-center justify-center transition-colors duration-300"
                           style={{ color: !props.useDefaultTheme ? '#ffffff' : props.semantics.text }}
                       >
                           {!props.useDefaultTheme && (
-                              <motion.div 
-                                  layoutId="theme-toggle-pill"
-                                  className="absolute inset-0 rounded-[20px] shadow-md z-[-1]"
-                                  style={{ backgroundColor: props.activeLineColor }}
-                                  transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
-                              />
+                              <motion.div layoutId="theme-toggle-pill" className="absolute inset-0 rounded-[20px] shadow-md z-[-1]" style={{ backgroundColor: props.activeLineColor }} transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }} />
                           )}
                           <span className="relative z-10">Custom</span>
                       </button>
                    </div>
                 </div>
-                
                 
                 {/* 2. Surface Colors Box */}
                 <AnimatePresence>
@@ -367,9 +382,17 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </AnimatePresence>
                 </div>
                 
-                {/* 8. About Game Button */}
-                <div className="pt-4 pb-2 flex justify-center w-full">
-                   <button onClick={() => { props.hapticFeedback(30); props.setIsAboutOpen(true); }} className="w-[85%] py-[15px] rounded-full bg-black/5 dark:bg-white/5 border-[2.5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm" style={{ borderColor: cardBorderColor }}>
+                {/* 🚀 8. Advanced Settings Button */}
+                <div className="pt-2 flex justify-center w-full">
+                   <button onClick={() => { props.hapticFeedback(30); setShowAdvanced(true); }} className="w-[85%] py-[15px] rounded-[24px] bg-black/5 dark:bg-white/5 border-[2.5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm" style={{ borderColor: cardBorderColor }}>
+                     <Settings className="w-[20px] h-[20px] opacity-70" style={{ color: props.activeLineColor }} /> 
+                     <span className="font-black uppercase tracking-widest text-[14px] mt-0.5 opacity-80" style={{ color: props.activeLineColor }}>Advanced Settings</span>
+                   </button>
+                </div>
+
+                {/* 9. About Game Button */}
+                <div className="pt-1 pb-2 flex justify-center w-full">
+                   <button onClick={() => { props.hapticFeedback(30); props.setIsAboutOpen(true); }} className="w-[85%] py-[15px] rounded-[24px] bg-black/5 dark:bg-white/5 border-[2.5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm" style={{ borderColor: cardBorderColor }}>
                      <Info className="w-[22px] h-[22px]" style={{ color: props.activeLineColor }} /> 
                      <span className="font-black uppercase tracking-widest text-[14px] mt-0.5" style={{ color: props.activeLineColor }}>About Game</span>
                    </button>
@@ -377,6 +400,55 @@ export default function SettingsModal(props: SettingsModalProps) {
 
               </div>
             </div>
+
+            {/* 🚀 Advanced Settings Overlay (No Blur, sits on top of Settings) */}
+            <AnimatePresence>
+              {showAdvanced && (
+                <motion.div 
+                   initial={{ x: '100%', opacity: 1 }} 
+                   animate={{ x: 0, opacity: 1 }} 
+                   exit={{ x: '100%', opacity: 1 }} 
+                   transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                   className="absolute inset-0 z-[170] flex flex-col bg-inherit"
+                   style={{ backgroundColor: props.semantics.screenBackground }} 
+                >
+                   <div className="flex items-center gap-2 mb-2 px-6 pt-6 pb-2 border-b border-black/10 dark:border-white/10">
+                      <button onClick={() => { props.hapticFeedback(20); setShowAdvanced(false); }} className="p-2 -ml-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors active:scale-90">
+                         <ChevronLeft className="w-6 h-6" />
+                      </button>
+                      <h2 className="font-nunito-black text-2xl tracking-tight mt-0.5">Advanced</h2>
+                   </div>
+
+                   <div className="flex-1 overflow-y-auto m3-scrollbar px-5 pb-6 pt-2 space-y-4">
+                      
+                      {/* Toggles */}
+                      <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5 space-y-4" style={{ borderColor: cardBorderColor }}>
+                          <div className="flex items-center justify-between">
+                             <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 w-3/4">Enable Haptic Feedback</h3>
+                             <AnimatedToggle enabled={props.isHapticEnabled} onToggle={() => { props.hapticFeedback(30); props.setIsHapticEnabled(!props.isHapticEnabled); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} />
+                          </div>
+                          <div className="w-full h-px bg-black/10 dark:bg-white/10" />
+                          <div className="flex items-center justify-between">
+                             <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Hard Refresh on Bar Tap</h3>
+                             <AnimatedToggle enabled={props.enableHardRefreshTap} onToggle={() => { props.hapticFeedback(30); props.setEnableHardRefreshTap(!props.enableHardRefreshTap); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} />
+                          </div>
+                      </div>
+
+                      {/* Sound Customization */}
+                      <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5 space-y-2" style={{ borderColor: cardBorderColor }}>
+                          <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Sound Customization</h3>
+                          {renderSoundControl('Tap Sound', 'tap')}
+                          {renderSoundControl('Pop Sound', 'pop')}
+                          {renderSoundControl('Mode Switch', 'mode')}
+                          {renderSoundControl('Refresh', 'refresh')}
+                          {renderSoundControl('Win', 'win')}
+                          {renderSoundControl('Overall Win', 'overallWin')}
+                          {renderSoundControl('Point / Draw', 'point')}
+                      </div>
+                   </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
           </motion.div>
         </motion.div>
