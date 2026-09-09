@@ -30,7 +30,7 @@ const WINNING_COMBINATIONS = [
   [0, 4, 8], [2, 4, 6]
 ];
 
-// 🚀 অরিজিনাল Haptic Feedback ফাংশন
+// 🚀 Haptic Feedback
 const triggerNativeHaptic = (pattern: number | number[], isEnabled: boolean) => {
   if (!isEnabled) return;
   if (Capacitor.isNativePlatform()) {
@@ -112,7 +112,7 @@ const DynamicIcon = ({
 
 const audioState = { ctx: null as AudioContext | null };
 
-// 🚀 দশটি আলাদা সাউন্ডের লজিক (১-১০ ভ্যারিয়েন্ট)
+// 🚀 ডাইনামিক সিন্থেসাইজার: ২০টি আলাদা সাউন্ড প্রোফাইল (Web Audio API)
 const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', variant: number) => {
   if (!variant || variant === 0 || typeof window === 'undefined') return;
   try {
@@ -123,93 +123,100 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' 
     const ctx = audioState.ctx;
     const t = ctx.currentTime;
     
-    // Waveform and Multipliers array for 10 variations
-    const waveModes = ['sine', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle'];
+    // 🚀 ২০টি ডিফারেন্ট সাউন্ড প্রফাইল জেনারেটর
+    const waveModes = ['sine', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth', 'sine', 'triangle', 'square', 'sawtooth'];
+    const pM = [0, 1, 1.4, 0.8, 1.2, 0.6, 2.0, 0.7, 1.5, 0.9, 2.5, 0.5, 1.8, 0.4, 2.2, 0.3, 1.7, 2.8, 0.45, 1.1, 0.85];
+    const dM = [0, 1, 0.8, 1.2, 0.6, 1.4, 0.5, 1.5, 0.7, 1.3, 0.4, 1.6, 0.9, 1.8, 0.8, 2.0, 0.5, 0.6, 1.7, 1.1, 1.4];
+    const sweepDir = [0, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1]; // -1 goes down, 1 goes up
+
     const wave = (waveModes[variant] || 'sine') as OscillatorType;
-    const pM = [1, 1, 0.8, 1.2, 0.6, 1.5, 2.0, 0.5, 1.3, 0.7, 1.1][variant] || 1; // Pitch Multiplier
-    const dM = [1, 1, 1.5, 0.7, 1.2, 0.8, 1.3, 0.5, 1.4, 0.6, 1.1][variant] || 1; // Duration/Decay Multiplier
+    const pitch = pM[variant] || 1;
+    const duration = dM[variant] || 1;
+    const sweep = sweepDir[variant] || -1;
     
     if (type === 'tap') {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = wave; 
-      osc.frequency.setValueAtTime(800 * pM, t); 
-      osc.frequency.exponentialRampToValueAtTime(100 * pM, t + 0.05 * dM); 
+      osc.frequency.setValueAtTime(800 * pitch, t); 
+      const endFreq = sweep === 1 ? 1200 * pitch : 100 * pitch;
+      osc.frequency.exponentialRampToValueAtTime(endFreq, t + 0.05 * duration); 
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.6, t + 0.01 * dM);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.05 * dM); 
+      gain.gain.linearRampToValueAtTime(0.6, t + 0.01 * duration);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.05 * duration); 
       osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.05 * dM);
+      osc.start(t); osc.stop(t + 0.05 * duration);
     } else if (type === 'pop') {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = (variant === 1 ? 'triangle' : wave) as OscillatorType; 
-      osc.frequency.setValueAtTime(400 * pM, t);
-      osc.frequency.exponentialRampToValueAtTime(600 * pM, t + 0.1 * dM);
+      osc.type = (variant % 2 === 0 ? 'triangle' : wave) as OscillatorType; 
+      osc.frequency.setValueAtTime(400 * pitch, t);
+      const endFreq = sweep === 1 ? 800 * pitch : 200 * pitch;
+      osc.frequency.exponentialRampToValueAtTime(endFreq, t + 0.1 * duration);
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.2, t + 0.02 * dM);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1 * dM);
+      gain.gain.linearRampToValueAtTime(0.2, t + 0.02 * duration);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1 * duration);
       osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.1 * dM);
+      osc.start(t); osc.stop(t + 0.1 * duration);
     } else if (type === 'mode') {
       [600, 800].forEach((freq, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = wave; 
-        osc.frequency.value = freq * pM;
-        gain.gain.setValueAtTime(0, t + i * 0.15 * dM);
-        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.15 * dM + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.15 * dM + 0.1 * dM);
+        osc.frequency.value = freq * pitch;
+        gain.gain.setValueAtTime(0, t + i * 0.15 * duration);
+        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.15 * duration + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.15 * duration + 0.1 * duration);
         osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.15 * dM); osc.stop(t + i * 0.15 * dM + 0.1 * dM);
+        osc.start(t + i * 0.15 * duration); osc.stop(t + i * 0.15 * duration + 0.1 * duration);
       });
     } else if (type === 'refresh') {
       [523.25, 659.25, 783.99].forEach((freq, i) => { 
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = wave;
-        osc.frequency.setValueAtTime(freq * pM, t + i * 0.08 * dM);
-        gain.gain.setValueAtTime(0, t + i * 0.08 * dM);
-        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.08 * dM + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.08 * dM + 0.4 * dM);
+        osc.frequency.setValueAtTime(freq * pitch, t + i * 0.08 * duration);
+        gain.gain.setValueAtTime(0, t + i * 0.08 * duration);
+        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.08 * duration + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.08 * duration + 0.4 * duration);
         osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.08 * dM); osc.stop(t + i * 0.08 * dM + 0.4 * dM);
+        osc.start(t + i * 0.08 * duration); osc.stop(t + i * 0.08 * duration + 0.4 * duration);
       });
     } else if (type === 'win') {
       [440, 554.37, 659.25].forEach((freq, i) => { 
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = wave; 
-        osc.frequency.value = freq * pM;
-        gain.gain.setValueAtTime(0, t + i * 0.1 * dM);
-        gain.gain.linearRampToValueAtTime(0.25, t + i * 0.1 * dM + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.5 * dM);
+        osc.frequency.value = freq * pitch;
+        gain.gain.setValueAtTime(0, t + i * 0.1 * duration);
+        gain.gain.linearRampToValueAtTime(0.25, t + i * 0.1 * duration + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.5 * duration);
         osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.1 * dM); osc.stop(t + i * 0.1 * dM + 0.5 * dM);
+        osc.start(t + i * 0.1 * duration); osc.stop(t + i * 0.1 * duration + 0.5 * duration);
       });
     } else if (type === 'overallWin') {
       [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, i) => { 
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = (variant === 1 ? 'triangle' : wave) as OscillatorType; 
-        osc.frequency.value = freq * pM;
-        gain.gain.setValueAtTime(0, t + i * 0.1 * dM);
-        gain.gain.linearRampToValueAtTime(0.3, t + i * 0.1 * dM + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.1 * dM + 0.6 * dM);
+        osc.type = (variant % 2 !== 0 ? 'triangle' : wave) as OscillatorType; 
+        osc.frequency.value = freq * pitch;
+        gain.gain.setValueAtTime(0, t + i * 0.1 * duration);
+        gain.gain.linearRampToValueAtTime(0.3, t + i * 0.1 * duration + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.1 * duration + 0.6 * duration);
         osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.1 * dM); osc.stop(t + i * 0.1 * dM + 0.6 * dM);
+        osc.start(t + i * 0.1 * duration); osc.stop(t + i * 0.1 * duration + 0.6 * duration);
       });
     } else if (type === 'point' || type === 'unmute') {
        const osc = ctx.createOscillator();
        const gain = ctx.createGain();
        osc.type = wave; 
-       osc.frequency.setValueAtTime(800 * pM, t);
-       osc.frequency.exponentialRampToValueAtTime(1000 * pM, t + 0.1 * dM);
+       osc.frequency.setValueAtTime(800 * pitch, t);
+       osc.frequency.exponentialRampToValueAtTime(1000 * pitch, t + 0.1 * duration);
        gain.gain.setValueAtTime(0, t);
-       gain.gain.linearRampToValueAtTime(0.2, t + 0.02 * dM);
-       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1 * dM);
+       gain.gain.linearRampToValueAtTime(0.2, t + 0.02 * duration);
+       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1 * duration);
        osc.connect(gain); gain.connect(ctx.destination);
-       osc.start(t); osc.stop(t + 0.1 * dM);
+       osc.start(t); osc.stop(t + 0.1 * duration);
     }
   } catch(e) {}
 };
@@ -322,8 +329,9 @@ export default function App() {
   const [isSoundOn, setIsSoundOn] = useState(() => getSaved('isSoundOn', true));
   const [isHapticEnabled, setIsHapticEnabled] = useState(() => getSaved('isHapticEnabled', true));
   
+  // 🚀 সাউন্ড সেটিংসে এখন ২০টি ভ্যারিয়েশন সাপোর্ট করবে
   const [soundPrefs, setSoundPrefs] = useState(() => getSaved('soundPrefs', {
-     tap: 1, pop: 1, mode: 1, refresh: 1, win: 1, overallWin: 1, point: 1
+     xTap: 1, oTap: 2, pop: 1, mode: 1, refresh: 1, win: 1, overallWin: 1, point: 1
   }));
 
   const [useDefaultTheme, setUseDefaultTheme] = useState(() => getSaved('useDefaultTheme', true));
@@ -397,7 +405,8 @@ export default function App() {
 
   // 🚀 Play Preview Sound from Settings
   const playPreviewSound = (key: string, val: number) => {
-    playEnhancedSound(key as any, val); 
+    const type = (key === 'xTap' || key === 'oTap') ? 'tap' : key;
+    playEnhancedSound(type as any, val); 
   };
 
   const mainBouncer = useAnimation();
@@ -652,7 +661,11 @@ export default function App() {
               newBoard[bestMove] = aiPlayerSymbol;
               setActiveCell(null);
               triggerHaptic(80); 
-              if (isSoundOn) playEnhancedSound('tap', soundPrefs.tap);
+              
+              // 🚀 AI Tap Sound Logic
+              const tapSoundVal = aiPlayerSymbol === 'X' ? soundPrefs.xTap : soundPrefs.oTap;
+              if (isSoundOn) playEnhancedSound('tap', tapSoundVal);
+              
               lastMoveIdxRef.current = bestMove;
               setBoard(newBoard);
               setIsXNext(aiPlayerSymbol === 'O');
@@ -666,7 +679,11 @@ export default function App() {
   const handleClick = (index: number) => {
     if (board[index] || winnerInfo || isAITurn || isResetting || overallWinner || isGameEnding.current || activeCell !== null) return;
     triggerHaptic(80); 
-    if (isSoundOn) playEnhancedSound('tap', soundPrefs.tap);
+    
+    // 🚀 Human Tap Sound Logic
+    const tapSoundVal = isXNext ? soundPrefs.xTap : soundPrefs.oTap;
+    if (isSoundOn) playEnhancedSound('tap', tapSoundVal);
+    
     const newBoard = [...board];
     newBoard[index] = isXNext ? 'X' : 'O';
     lastMoveIdxRef.current = index;
@@ -926,21 +943,19 @@ export default function App() {
            className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
            style={{
               backgroundColor: semantics.mainGridBackground,
-              top: -60, 
+              top: -50, 
               color: activeLineColor,
               width: 44,
               height: 44,
               transformOrigin: "top center"
            }}
            animate={{
-              y: isRefreshing ? 170 : (pullProgress > 0 ? Math.min(pullProgress * 1.2, 190) : 0),
-              scale: isRefreshing ? 1 : Math.max(0, Math.min(pullProgress / 80, 1)),
+              y: isRefreshing ? 150 : (pullProgress > 0 ? Math.min(pullProgress * 1.1, 160) : 0),
               scaleY: isRefreshing ? 1 : (pullProgress > 80 ? Math.min(1 + (pullProgress - 80) * 0.008, 1.35) : 1),
               scaleX: isRefreshing ? 1 : (pullProgress > 80 ? Math.max(1 - (pullProgress - 80) * 0.006, 0.8) : 1),
            }}
            transition={{
-             y: isRefreshing ? { type: 'spring', stiffness: 350, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 },
-             scale: { type: 'spring', stiffness: 500, damping: 25 },
+             y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 },
              scaleY: { type: 'spring', stiffness: 400, damping: 25 },
              scaleX: { type: 'spring', stiffness: 400, damping: 25 }
            }}
@@ -1294,6 +1309,7 @@ export default function App() {
             </motion.div>
         </motion.div>
 
+        {/* @ts-ignore */}
         <SettingsModal 
           isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} setIsAboutOpen={setIsAboutOpen}
           semantics={semantics} isDarkMode={isDarkMode} isAmoled={isAmoled} setIsAmoled={setIsAmoled}
