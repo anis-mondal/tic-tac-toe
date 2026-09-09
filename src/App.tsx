@@ -112,7 +112,6 @@ const DynamicIcon = ({
 
 const audioState = { ctx: null as AudioContext | null };
 
-// 🚀 ডাইনামিক সিন্থেসাইজার
 const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', variant: number) => {
   if (!variant || variant === 0 || typeof window === 'undefined') return;
   try {
@@ -429,7 +428,7 @@ export default function App() {
        setPullProgress(resistance);
        
        // 🚀 ম্যাজিক: কন্টেন্ট সামান্য ছোট হবে এবং স্প্রিং গ্যাপ রাবার ব্যান্ডের মতো বড় হবে
-       const dynamicGap = 16 + (resistance * 0.25); 
+       const dynamicGap = 16 + (resistance * 0.2); 
        mainBouncer.set({ 
            y: resistance, 
            scale: Math.max(1 - (resistance * 0.0003), 0.96),
@@ -442,16 +441,17 @@ export default function App() {
     if (!isDragging.current || isRefreshing) return;
     isDragging.current = false;
     
-    if (pullProgress > 80) {
+    // 🚀 লিমিট 75 করা হয়েছে যাতে 75px নামলেই রিফ্রেশ হয়ে যায়
+    if (pullProgress > 75) {
        setIsRefreshing(true);
        triggerHaptic([100, 50, 100]);
        if (isSoundOn) playEnhancedSound('refresh', soundPrefs.refresh);
        
-       // 🚀 অত্যন্ত স্মুথ জেলি বাউন্স: gap 16 এ স্প্রিং করা হচ্ছে যাতে ওভারশুট করে আবার নরমাল হয়
+       // 🚀 অত্যন্ত স্মুথ জেলি বাউন্স: gap "16px" এ স্প্রিং করা হচ্ছে যাতে ওভারশুট করে আবার নরমাল হয়
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
-          gap: 16,
+          gap: "16px",
           transition: { type: 'spring', stiffness: 150, damping: 10, mass: 1.2 } 
        });
        
@@ -469,7 +469,7 @@ export default function App() {
        mainBouncer.start({ 
           y: 0, 
           scale: 1, 
-          gap: 16,
+          gap: "16px",
           transition: { type: 'spring', stiffness: 200, damping: 14 } 
        });
        setPullProgress(0);
@@ -800,6 +800,7 @@ export default function App() {
     if (modeHoldTimer.current) clearTimeout(modeHoldTimer.current);
   };
   
+  // 🚀 모ড পরিবর্তনের সময় কোনো বাউন্স হবে না
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
     triggerHaptic(60);
@@ -954,20 +955,19 @@ export default function App() {
            className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
            style={{
               backgroundColor: semantics.mainGridBackground,
-              top: -60, 
+              top: 'max(10px, env(safe-area-inset-top))', 
               color: activeLineColor,
               width: 44,
               height: 44,
               transformOrigin: "top center"
            }}
-           initial={{ scale: 0 }}
+           initial={{ scale: 0, y: -50 }}
            animate={{
-              // 🚀 রিফ্রেশের সময় y 175 হবে
-              y: isRefreshing ? 175 : (pullProgress > 0 ? Math.min(pullProgress * 1.15, 195) : 0),
-              // 🚀 ম্যাজিক: একদম ছোট (0) থেকে বড় (1) হবে
-              scale: isRefreshing ? 1 : Math.max(0, Math.min(pullProgress / 80, 1)),
-              scaleY: isRefreshing ? 1 : (pullProgress > 80 ? Math.min(1 + (pullProgress - 80) * 0.008, 1.35) : 1),
-              scaleX: isRefreshing ? 1 : (pullProgress > 80 ? Math.max(1 - (pullProgress - 80) * 0.006, 0.8) : 1),
+              // 🚀 রিফ্রেশের সময় y 75 হবে এবং বিন্দুর আকার থেকে বড় হবে
+              y: isRefreshing ? 75 : (pullProgress > 0 ? Math.min(pullProgress, 75) + (pullProgress > 75 ? (pullProgress - 75) * 0.2 : 0) : -50),
+              scale: isRefreshing ? 1 : (pullProgress > 0 ? Math.min(pullProgress / 75, 1) : 0),
+              scaleY: isRefreshing ? 1 : (pullProgress > 75 ? Math.min(1 + (pullProgress - 75) * 0.015, 1.4) : 1),
+              scaleX: isRefreshing ? 1 : (pullProgress > 75 ? Math.max(1 - (pullProgress - 75) * 0.01, 0.75) : 1),
            }}
            transition={{
              y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 },
@@ -1031,10 +1031,10 @@ export default function App() {
            transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
            className="w-full max-w-md mx-auto relative"
         >
-            {/* 🚀 মেইন বাউন্সি র‍্যাপার: নিচে টানলে এই পুরোটাই স্প্রিংয়ের মতো কাজ করবে */}
+            {/* 🚀 মেইন বাউন্সি র‍্যাপার: নিচে টানলে কন্টেন্টের গ্যাপ রাবার ব্যান্ডের মতো বাড়বে */}
             <motion.div 
                animate={mainBouncer} 
-               initial={{ gap: 16 }} // 🚀 Initial gap value for spring math
+               initial={{ gap: "16px" }} 
                className="w-full flex flex-col items-center relative z-10" 
             >
               
