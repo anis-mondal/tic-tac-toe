@@ -378,7 +378,6 @@ export default function App() {
   
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
-  
   const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false);
   
   const [activeCell, setActiveCell] = useState<number | null>(null);
@@ -800,7 +799,6 @@ export default function App() {
     if (modeHoldTimer.current) clearTimeout(modeHoldTimer.current);
   };
   
-  // 🚀 모ড পরিবর্তনের সময় কোনো বাউন্স হবে না
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
     triggerHaptic(60);
@@ -921,9 +919,15 @@ export default function App() {
           font-display: swap;
         }
 
+        /* 🚀 Prevent scrollbars and lock the screen perfectly */
         html, body {
-           overscroll-behavior-y: none;
-           touch-action: pan-x pan-y;
+           overscroll-behavior: none;
+           overflow: hidden;
+           position: fixed;
+           width: 100%;
+           height: 100%;
+           margin: 0;
+           padding: 0;
         }
 
         .font-nunito { font-family: 'NunitoCustom', sans-serif; font-weight: 700; }
@@ -937,6 +941,7 @@ export default function App() {
         }
       `}</style>
       
+      {/* 🚀 মেইন টাচ কনটেইনার - Fixed size and no selection */}
       <div 
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -946,7 +951,7 @@ export default function App() {
             paddingTop: 'max(24px, env(safe-area-inset-top))',
             paddingBottom: 'max(24px, env(safe-area-inset-bottom))'
           }}
-          className="min-h-screen flex flex-col items-center justify-center p-4 gap-4 transition-colors duration-1000 relative overflow-hidden font-nunito">
+          className="fixed inset-0 w-full h-[100dvh] flex flex-col items-center justify-center p-4 transition-colors duration-1000 overflow-hidden font-nunito select-none">
         
         <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
@@ -963,11 +968,11 @@ export default function App() {
            }}
            initial={{ scale: 0, y: -50 }}
            animate={{
-              // 🚀 ম্যাজিক: প্রথমে ছোট (0) থেকে বড় (1) হবে এবং 75 এ এসে রিফ্রেশ হবে
-              y: isRefreshing ? 75 : (pullProgress > 0 ? (pullProgress <= 75 ? -50 + (pullProgress / 75) * 125 : 75 + (pullProgress - 75) * 0.2) : -50),
-              scale: isRefreshing ? 1 : Math.max(0, Math.min(pullProgress / 75, 1)),
-              scaleY: isRefreshing ? 1 : (pullProgress > 75 ? Math.min(1 + (pullProgress - 75) * 0.015, 1.35) : 1),
-              scaleX: isRefreshing ? 1 : (pullProgress > 75 ? Math.max(1 - (pullProgress - 75) * 0.006, 0.8) : 1),
+              // 🚀 রিফ্রেশের সময় y 75 হবে এবং বিন্দুর আকার থেকে বড় হবে
+              y: isRefreshing ? 75 : (pullProgress > 0 ? Math.min(pullProgress, 75) + (pullProgress > 75 ? (pullProgress - 75) * 0.2 : 0) : -50),
+              scale: isRefreshing ? 1 : (pullProgress > 0 ? Math.min(pullProgress / 75, 1) : 0),
+              scaleY: isRefreshing ? 1 : (pullProgress > 75 ? Math.min(1 + (pullProgress - 75) * 0.015, 1.4) : 1),
+              scaleX: isRefreshing ? 1 : (pullProgress > 75 ? Math.max(1 - (pullProgress - 75) * 0.01, 0.75) : 1),
            }}
            transition={{
              y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 },
@@ -980,7 +985,7 @@ export default function App() {
              <MaterialSpinner color={activeLineColor} />
            ) : (
              <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}>
-               <RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} />
+                <RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} />
              </motion.div>
            )}
         </motion.div>
@@ -1031,7 +1036,7 @@ export default function App() {
            transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
            className="w-full max-w-md mx-auto relative"
         >
-            {/* 🚀 মেইন বাউন্সি র‍্যাপার: নিচে টানলে কন্টেন্টের গ্যাপ রাবার ব্যান্ডের মতো বাড়বে */}
+            {/* 🚀 মেইন বাউন্সি র‍্যাপার: নিচে টানলে এই পুরোটাই স্প্রিংয়ের মতো কাজ করবে */}
             <motion.div 
                animate={mainBouncer} 
                initial={{ gap: "20px" }} // 🚀 Initial gap 20px
