@@ -112,7 +112,6 @@ const DynamicIcon = ({
 
 const audioState = { ctx: null as AudioContext | null };
 
-// 🚀 ডাইনামিক সিন্থেসাইজার (Soft Sounds Only - Sine/Triangle)
 const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', variant: number) => {
   if (!variant || variant === 0 || typeof window === 'undefined') return;
   try {
@@ -123,82 +122,95 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' 
     const ctx = audioState.ctx;
     const t = ctx.currentTime;
     
-    // 🚀 ২০টি সম্পূর্ণ আলাদা ও সফট সাউন্ডের প্রোফাইল (No harsh waves)
-    const profiles = [
-       { w: 'sine', f: 0, d: 0, s: 0 }, // 0: Off
-       { w: 'sine', f: 600, d: 0.1, s: 1.2 },    // 1: Soft sweet tick
-       { w: 'triangle', f: 400, d: 0.15, s: 0.8 }, // 2: Deep soft pop
-       { w: 'sine', f: 800, d: 0.05, s: 1.5 },   // 3: Gentle digital tap
-       { w: 'triangle', f: 300, d: 0.12, s: 0.6 }, // 4: Muted retro
-       { w: 'sine', f: 500, d: 0.25, s: 1.0 },   // 5: Soft bell
-       { w: 'triangle', f: 700, d: 0.08, s: 1.0 }, // 6: Wood block
-       { w: 'sine', f: 1000, d: 0.12, s: 1.1 },  // 7: High chime
-       { w: 'triangle', f: 250, d: 0.1, s: 0.5 }, // 8: Bass soft snap
-       { w: 'sine', f: 1200, d: 0.05, s: 1.0 },  // 9: Light glass tap
-       { w: 'triangle', f: 350, d: 0.2, s: 1.2 }, // 10: Bongo thump
-       { w: 'sine', f: 600, d: 0.08, s: 1.5 },   // 11: Soft coin
-       { w: 'sine', f: 900, d: 0.15, s: 0.4 },   // 12: Water drop
-       { w: 'triangle', f: 550, d: 0.1, s: 1.0 }, // 13: Marimba
-       { w: 'sine', f: 450, d: 0.3, s: 1.0 },    // 14: Vibraphone
-       { w: 'triangle', f: 800, d: 0.05, s: 0.5 }, // 15: Soft zap
-       { w: 'sine', f: 1500, d: 0.03, s: 0.8 },  // 16: Tiny tick
-       { w: 'triangle', f: 200, d: 0.2, s: 0.8 }, // 17: Muted thump
-       { w: 'sine', f: 750, d: 0.1, s: 1.5 },    // 18: Ping
-       { w: 'triangle', f: 400, d: 0.15, s: 0.5 }, // 19: Soft blip
-       { w: 'sine', f: 1100, d: 0.25, s: 1.0 },  // 20: Crystal
-    ];
-
-    const p = profiles[variant] || profiles[1];
-
-    const playTone = (freq: number, dur: number, w: string, sweep: number, offset: number) => {
+    const pMArray = [1.0, 0.85, 1.2, 0.9, 1.15, 0.75, 1.3, 0.95, 1.1, 0.7, 1.4, 0.8, 1.25, 1.05, 1.35, 0.65, 1.45, 0.6, 1.5, 0.55];
+    const wave = (variant % 2 === 0 ? 'triangle' : 'sine') as OscillatorType;
+    const pitch = pMArray[(variant - 1) % 20] || 1;
+    const duration = 1.0;
+    const sweep = variant % 3 === 0 ? 1 : -1;
+    
+    if (type === 'tap') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = wave; 
+      osc.frequency.setValueAtTime(500 * pitch, t); 
+      const endFreq = sweep === 1 ? 700 * pitch : 300 * pitch;
+      osc.frequency.exponentialRampToValueAtTime(endFreq, t + 0.05 * duration); 
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.3, t + 0.01 * duration);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.08 * duration); 
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.08 * duration);
+    } else if (type === 'pop') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = wave; 
+      osc.frequency.setValueAtTime(400 * pitch, t);
+      const endFreq = sweep === 1 ? 600 * pitch : 200 * pitch;
+      osc.frequency.exponentialRampToValueAtTime(endFreq, t + 0.1 * duration);
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.2, t + 0.02 * duration);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1 * duration);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.1 * duration);
+    } else if (type === 'mode') {
+      [500, 700].forEach((freq, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = w as OscillatorType;
-        osc.frequency.setValueAtTime(freq, t + offset);
-        if (sweep !== 1) {
-            osc.frequency.exponentialRampToValueAtTime(freq * sweep, t + offset + dur);
-        }
-        gain.gain.setValueAtTime(0, t + offset);
-        gain.gain.linearRampToValueAtTime(0.3, t + offset + dur * 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + offset + dur);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(t + offset);
-        osc.stop(t + offset + dur);
-    };
-
-    switch (type) {
-        case 'tap':
-            playTone(p.f, p.d, p.w, p.s, 0);
-            break;
-        case 'pop':
-            playTone(p.f * 0.8, p.d * 1.5, p.w, p.s * 0.8, 0);
-            break;
-        case 'point':
-        case 'unmute':
-            playTone(p.f * 1.2, p.d, p.w, p.s, 0);
-            break;
-        case 'mode':
-            playTone(p.f, p.d, p.w, 1, 0);
-            playTone(p.f * 1.33, p.d, p.w, 1, 0.15);
-            break;
-        case 'refresh':
-            playTone(p.f * 0.8, p.d, p.w, 1, 0);
-            playTone(p.f, p.d, p.w, 1, 0.1);
-            playTone(p.f * 1.25, p.d * 1.5, p.w, 1, 0.2);
-            break;
-        case 'win':
-            playTone(p.f, p.d, p.w, 1, 0);
-            playTone(p.f * 1.25, p.d, p.w, 1, 0.1);
-            playTone(p.f * 1.5, p.d * 2, p.w, 1, 0.2);
-            break;
-        case 'overallWin':
-            playTone(p.f * 0.8, p.d, p.w, 1, 0);
-            playTone(p.f, p.d, p.w, 1, 0.1);
-            playTone(p.f * 1.25, p.d, p.w, 1, 0.2);
-            playTone(p.f * 1.5, p.d, p.w, 1, 0.3);
-            playTone(p.f * 2.0, p.d * 2.5, p.w, 1, 0.4);
-            break;
+        osc.type = wave; 
+        osc.frequency.value = freq * pitch;
+        gain.gain.setValueAtTime(0, t + i * 0.15 * duration);
+        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.15 * duration + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.15 * duration + 0.1 * duration);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t + i * 0.15 * duration); osc.stop(t + i * 0.15 * duration + 0.1 * duration);
+      });
+    } else if (type === 'refresh') {
+      [400, 500, 600].forEach((freq, i) => { 
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq * pitch, t + i * 0.08 * duration);
+        gain.gain.setValueAtTime(0, t + i * 0.08 * duration);
+        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.08 * duration + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.08 * duration + 0.4 * duration);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t + i * 0.08 * duration); osc.stop(t + i * 0.08 * duration + 0.4 * duration);
+      });
+    } else if (type === 'win') {
+      [440, 554.37, 659.25].forEach((freq, i) => { 
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine'; 
+        osc.frequency.value = freq * pitch;
+        gain.gain.setValueAtTime(0, t + i * 0.1 * duration);
+        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.1 * duration + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.5 * duration);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t + i * 0.1 * duration); osc.stop(t + i * 0.1 * duration + 0.5 * duration);
+      });
+    } else if (type === 'overallWin') {
+      [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, i) => { 
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = wave; 
+        osc.frequency.value = freq * pitch;
+        gain.gain.setValueAtTime(0, t + i * 0.1 * duration);
+        gain.gain.linearRampToValueAtTime(0.25, t + i * 0.1 * duration + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.1 * duration + 0.6 * duration);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t + i * 0.1 * duration); osc.stop(t + i * 0.1 * duration + 0.6 * duration);
+      });
+    } else if (type === 'point' || type === 'unmute') {
+       const osc = ctx.createOscillator();
+       const gain = ctx.createGain();
+       osc.type = wave; 
+       osc.frequency.setValueAtTime(600 * pitch, t);
+       osc.frequency.exponentialRampToValueAtTime(800 * pitch, t + 0.1 * duration);
+       gain.gain.setValueAtTime(0, t);
+       gain.gain.linearRampToValueAtTime(0.2, t + 0.02 * duration);
+       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1 * duration);
+       osc.connect(gain); gain.connect(ctx.destination);
+       osc.start(t); osc.stop(t + 0.1 * duration);
     }
   } catch(e) {}
 };
@@ -335,7 +347,6 @@ export default function App() {
   
   const [enableHardRefreshTap, setEnableHardRefreshTap] = useState(() => getSaved('enableHardRefreshTap', false));
 
-  // 🚀 Theme Toggle Circular Animation State
   const [togglePos, setTogglePos] = useState({ x: 40, y: 40 });
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -540,7 +551,6 @@ export default function App() {
   const lightBgColor = useDefaultTheme ? ORIGINAL_THEME.light : CUSTOM_THEMES[themeIdx].light;
   const darkBgColor = isAmoled ? '#000000' : (useDefaultTheme ? ORIGINAL_THEME.dark : CUSTOM_THEMES[themeIdx].dark);
 
-  // 🚀 Telegram Style Circular Reveal Theme Toggle
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isTransitioning.current) return;
     isTransitioning.current = true;
@@ -893,9 +903,6 @@ export default function App() {
 
   const maxScore = Math.max(scores.X, scores.O);
 
-  const lightBgColor = useDefaultTheme ? ORIGINAL_THEME.light : CUSTOM_THEMES[themeIdx].light;
-  const darkBgColor = isAmoled ? '#000000' : (useDefaultTheme ? ORIGINAL_THEME.dark : CUSTOM_THEMES[themeIdx].dark);
-
   return (
     <>
       <style>{`
@@ -935,13 +942,12 @@ export default function App() {
         }
       `}</style>
       
-      {/* 🚀 মেইন টাচ কনটেইনার - Fixed size, no selection, background layers handles theme transition */}
       <div className="fixed inset-0 w-full h-[100dvh] overflow-hidden font-nunito select-none z-0">
         
         {/* Base Light Layer */}
         <div className="absolute inset-0 w-full h-full pointer-events-none transition-colors duration-500" style={{ backgroundColor: lightBgColor }} />
         
-        {/* 🚀 Telegram Style Theme Toggle Circle! */}
+        {/* Expanding/Shrinking Dark Layer (Telegram Animation) */}
         <motion.div
           className="absolute inset-0 w-full h-full pointer-events-none"
           style={{ backgroundColor: darkBgColor }}
@@ -954,7 +960,7 @@ export default function App() {
           transition={{ type: "tween", duration: 0.6, ease: "easeInOut" }}
         />
 
-        {/* 🚀 Content Overlay Container */}
+        {/* Content Overlay Container */}
         <div 
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -967,7 +973,7 @@ export default function App() {
           
           <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-          {/* 🚀 কাস্টম Pull-to-Refresh স্পিনার */}
+          {/* কাস্টম Pull-to-Refresh স্পিনার */}
           <motion.div 
              className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
              style={{
@@ -1343,6 +1349,7 @@ export default function App() {
               </motion.div>
           </motion.div>
 
+          {/* @ts-ignore */}
           <SettingsModal 
             isOpen={isSettingsOpen} onClose={() => { setIsSettingsOpen(false); setIsAdvancedSettingsOpen(false); }} setIsAboutOpen={setIsAboutOpen}
             showAdvanced={isAdvancedSettingsOpen} setShowAdvanced={setIsAdvancedSettingsOpen}
