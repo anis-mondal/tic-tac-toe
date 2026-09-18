@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { motion, AnimatePresence, useAnimation } from 'motion/react';
-import { RotateCcw, Sparkles } from 'lucide-react';
+import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // @ts-ignore
@@ -22,14 +22,8 @@ import { App as CapApp } from '@capacitor/app';
 import SettingsModal, { PLAYER_COLORS, CUSTOM_THEMES, ORIGINAL_THEME, EXTRA_LINE_COLORS, ICONS_LIST } from './components/SettingsModal';
 import AboutModal from './components/AboutModal';
 
-// 🚀 Google Material Symbols Rounded (Solid / Filled) - Premium Look
-export const MaterialSun = ({ className }: { className?: string }) => <svg viewBox="0 -960 960 960" fill="currentColor" className={className}><path d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40q-17 0-28.5-11.5T0-480q0-17 11.5-28.5T40-520h160q17 0 28.5 11.5T240-480q0 17-11.5 28.5T200-440Zm720 0H760q-17 0-28.5-11.5T720-480q0-17 11.5-28.5T760-520h160q17 0 28.5 11.5T960-480q0 17-11.5 28.5T920-440ZM480-720q-17 0-28.5-11.5T440-760v-160q0-17 11.5-28.5T480-960q17 0 28.5 11.5T520-920v160q0 17-11.5 28.5T480-720Zm0 720q-17 0-28.5-11.5T440-40v-160q0-17 11.5-28.5T480-240q17 0 28.5 11.5T520-200v160q0 17-11.5 28.5T480-0ZM226-678l-43-42q-12-11-11.5-28t12.5-28q12-12 28.5-12.5T241-777l43 42q12 11 11.5 28T283-679q-12 12-28.5 12.5T226-678Zm494 495-42-43q-11-12-11-28.5t12-28.5q11-12 28-12.5t29 11.5l42 43q11 12 11 28.5T777-183q-11 12-28 12.5T720-183Zm-42-495q-12-11-12.5-27.5T677-734l43-42q11-12 28-11.5t29 12.5q12 11 12.5 28T777-719l-43 42q-11 12-28 11.5T678-678ZM183-183q-12-11-11.5-27.5T184-239l42-43q11-12 28-11.5t29 12.5q12 11 12.5 28T283-225l-42 43q-11 12-28 11.5T183-183Z"/></svg>;
-export const MaterialMoon = ({ className }: { className?: string }) => <svg viewBox="0 -960 960 960" fill="currentColor" className={className}><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z"/></svg>;
-export const MaterialRefresh = ({ className }: { className?: string }) => <svg viewBox="0 -960 960 960" fill="currentColor" className={className}><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-70q0-17 11.5-28.5T760-800q17 0 28.5 11.5T800-760v200q0 17-11.5 28.5T760-520H560q-17 0-28.5-11.5T520-560q0-17 11.5-28.5T560-600h128q-36-54-94-87t-126-33q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116q3-14 15-22t26-4q16 4 23 17t-2 27q-35 94-118.5 156T480-160Z"/></svg>;
-export const MaterialVolume = ({ className }: { className?: string }) => <svg viewBox="0 -960 960 960" fill="currentColor" className={className}><path d="M560-131v-82q90-26 145-100t55-167q0-93-55-167T560-747v-82q124 28 202 125.5T840-480q0 127-78 224.5T560-131ZM120-360v-240h160l200-200v640L280-360H120Zm440 40v-320q47 22 73.5 66t26.5 94q0 50-26.5 94T560-320Z"/></svg>;
-export const MaterialMute = ({ className }: { className?: string }) => <svg viewBox="0 -960 960 960" fill="currentColor" className={className}><path d="M792-56 671-177q-25 16-53 27.5T560-131v-82q14-5 27.5-10t25.5-12L480-368v208L280-360H120v-240h128L56-792l56-56 736 736-56 56Zm-8-232-58-58q17-31 25.5-65t8.5-70q0-127-78-224.5T560-829v-82q124 28 202 125.5T840-480q0 53-14.5 102.5T784-288ZM650-422l-90-90v-130q47 22 73.5 66t26.5 94q0 15-2.5 29.5T650-422ZM480-592 376-696l104-104v208Z"/></svg>;
-export const MaterialSettings = ({ className }: { className?: string }) => <svg viewBox="0 -960 960 960" fill="currentColor" className={className}><path d="M440-120v-128q-23-4-44.5-12.5T355-280l-91 91-85-85 91-91q-11-19-19-40.5t-11-45.5H120v-120h120q3-24 11-45.5t19-40.5l-91-91 85-85 91 91q19-11 40.5-19t45.5-11v-120h120v120q24 3 45.5 11t40.5 19l91-91 85 85-91 91q11 19 19 40.5t11 45.5h120v120H720q-3 24-11 45.5T690-371l91 91-85 85-91-91q-19 11-40.5 19T520-248v128h-80Zm40-220q66 0 113-47t47-113q0-66-47-113t-113-47q-66 0-113 47t-47 113q0 66 47 113t113 47Z"/></svg>;
-export const SolidUsers = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>;
+// 🚀 Solid 2-Players Icon Added Here
+export const SolidUsers = ({ className, color }: { className?: string, color?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" color={color} className={className}><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>;
 
 type Player = 'X' | 'O';
 type SquareValue = Player | null;
@@ -40,6 +34,7 @@ const WINNING_COMBINATIONS = [
   [0, 4, 8], [2, 4, 6]
 ];
 
+// 🚀 Haptic Feedback
 const triggerNativeHaptic = (pattern: number | number[], isEnabled: boolean) => {
   if (!isEnabled) return;
   if (Capacitor.isNativePlatform()) {
@@ -55,7 +50,6 @@ const MaterialSpinner = ({ color }: { color: string }) => (
   </motion.svg>
 );
 
-// 🚀 Original Hollow AI Logo
 const AILogo = () => (
   <svg width="20" height="20" viewBox="0 0 100 100" className="drop-shadow-sm shrink-0">
     <defs>
@@ -72,7 +66,6 @@ const AILogo = () => (
   </svg>
 );
 
-// 🚀 Game Icons are perfectly FILLED (solid) as requested
 const DynamicIcon = ({ player, p1Custom, p1Idx, p2Custom, p2Idx, color, className }: { player: Player | null, p1Custom: boolean, p1Idx: number, p2Custom: boolean, p2Idx: number, color: string, className?: string }) => {
   if (!player) return null;
   const isP1 = player === 'X';
@@ -351,11 +344,6 @@ export default function App() {
   const playPreviewSound = (key: string, val: number) => {
     const type = (key === 'xTap' || key === 'oTap') ? 'tap' : key;
     playEnhancedSound(type as any, val); 
-  };
-
-  const updateSound = (key: string, val: number) => {
-    setSoundPrefs((prev: any) => ({ ...prev, [key]: val }));
-    playPreviewSound(key, val);
   };
 
   const mainBouncer = useAnimation();
@@ -902,7 +890,6 @@ export default function App() {
           font-display: swap;
         }
 
-        /* 🚀 Prevent scrollbars, lock the screen perfectly */
         html, body {
            overscroll-behavior: none;
            overflow: hidden;
@@ -914,7 +901,6 @@ export default function App() {
            background-color: transparent !important;
         }
 
-        /* 🚀 Perfect Telegram View Transitions API CSS */
         ::view-transition-old(root),
         ::view-transition-new(root) {
           animation: none;
@@ -922,7 +908,6 @@ export default function App() {
           display: block;
         }
         
-        /* Dark Theme Expansion */
         html.transition-to-dark ::view-transition-old(root) { z-index: 1; }
         html.transition-to-dark ::view-transition-new(root) { 
             z-index: 2; 
@@ -930,7 +915,6 @@ export default function App() {
             animation: clip-expand 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
         
-        /* Light Theme Expansion */
         html.transition-to-light ::view-transition-old(root) { 
             z-index: 2; 
             clip-path: circle(150% at var(--tx) var(--ty));
@@ -1000,8 +984,7 @@ export default function App() {
                <MaterialSpinner color={activeLineColor} />
              ) : (
                <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}>
-                  {/* 🚀 Original Hollow Refresh Icon */}
-                  <RotateCcw className="w-[22px] h-[22px]" strokeWidth={2.5} />
+                  <RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} />
                </motion.div>
              )}
           </motion.div>
@@ -1020,12 +1003,10 @@ export default function App() {
                onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isDarkMode ? 0 : 1, rotate: isDarkMode ? 90 : 0, opacity: isDarkMode ? 0 : 1 }} transition={{ duration: 0.3 }} className="absolute">
-                    {/* 🚀 Google Material Solid Sun */}
-                    <MaterialSun className="w-[22px] h-[22px]" />
+                    <Sun className="w-[20px] h-[20px]" />
                  </motion.div>
                  <motion.div animate={{ scale: isDarkMode ? 1 : 0, rotate: isDarkMode ? 0 : -90, opacity: isDarkMode ? 1 : 0 }} transition={{ duration: 0.3 }} className="absolute">
-                    {/* 🚀 Google Material Solid Moon */}
-                    <MaterialMoon className="w-[22px] h-[22px]" />
+                    <Moon className="w-[20px] h-[20px]" />
                  </motion.div>
               </div>
             </motion.button>
@@ -1040,8 +1021,7 @@ export default function App() {
                className={navBtnClass} style={getNavBtnStyle()}
             >
               <motion.div animate={{ rotate: rotation }} transition={{ type: "spring", stiffness: 300, damping: 25 }}>
-                {/* 🚀 Google Material Solid Refresh */}
-                <MaterialRefresh className="w-[22px] h-[22px]" />
+                <RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} />
               </motion.div>
             </motion.button>
 
@@ -1052,12 +1032,10 @@ export default function App() {
                onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isSoundOn ? 1 : 0, opacity: isSoundOn ? 1 : 0 }} transition={{ duration: 0.2 }} className="absolute">
-                    {/* 🚀 Google Material Solid Volume */}
-                    <MaterialVolume className="w-[22px] h-[22px]" />
+                    <Volume2 className="w-[20px] h-[20px]" />
                  </motion.div>
                  <motion.div animate={{ scale: isSoundOn ? 0 : 1, opacity: isSoundOn ? 0 : 1 }} transition={{ duration: 0.2 }} className="absolute">
-                    {/* 🚀 Google Material Solid Mute */}
-                    <MaterialMute className="w-[22px] h-[22px]" />
+                    <VolumeX className="w-[20px] h-[20px]" />
                  </motion.div>
               </div>
             </motion.button>
@@ -1067,8 +1045,7 @@ export default function App() {
                whileTap={{ scale: 0.75 }} 
                transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
                onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
-               {/* 🚀 Google Material Solid Settings */}
-               <MaterialSettings className="w-[22px] h-[22px]" />
+               <SettingsIcon className="w-[20px] h-[20px]" />
             </motion.button>
           </motion.nav>
 
@@ -1096,11 +1073,9 @@ export default function App() {
                     transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
                   />
                   <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} style={{ color: semantics.text, opacity: isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-300">
-                    {/* 🚀 Original Hollow AI Logo */}
                     <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
                   </button>
                   <button onClick={() => switchModeClick(false)} style={{ color: semantics.text, opacity: !isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-300">
-                    {/* 🚀 Solid 2-Players Icon */}
                     <span className="relative z-10 flex items-center gap-1.5"><SolidUsers className="w-[18px] h-[18px]" /> 2 Players</span>
                   </button>
                 </div>
