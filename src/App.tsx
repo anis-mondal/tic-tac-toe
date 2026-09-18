@@ -112,6 +112,7 @@ const DynamicIcon = ({
 
 const audioState = { ctx: null as AudioContext | null };
 
+// 🚀 ২০টি সম্পূর্ণ আলাদা এবং অত্যন্ত সফট সাউন্ড জেনারেটর (No Harsh Sounds)
 const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', variant: number) => {
   if (!variant || variant === 0 || typeof window === 'undefined') return;
   try {
@@ -122,95 +123,73 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' 
     const ctx = audioState.ctx;
     const t = ctx.currentTime;
     
-    const pMArray = [1.0, 0.85, 1.2, 0.9, 1.15, 0.75, 1.3, 0.95, 1.1, 0.7, 1.4, 0.8, 1.25, 1.05, 1.35, 0.65, 1.45, 0.6, 1.5, 0.55];
-    const wave = (variant % 2 === 0 ? 'triangle' : 'sine') as OscillatorType;
-    const pitch = pMArray[(variant - 1) % 20] || 1;
-    const duration = 1.0;
-    const sweep = variant % 3 === 0 ? 1 : -1;
-    
+    // 20 Distinct Soft Profiles: f = freq, d = duration, w = wave, s = sweep multiplier
+    const profiles = [
+      { w: 'sine', f: 0, d: 0, s: 0 },
+      { w: 'sine', f: 600, d: 0.1, s: 1 },        // 1: Soft Note
+      { w: 'sine', f: 400, d: 0.1, s: 1.5 },      // 2: Bubble Up
+      { w: 'triangle', f: 800, d: 0.05, s: 1 },   // 3: Wood Tap
+      { w: 'sine', f: 1200, d: 0.15, s: 1 },      // 4: Glass Tink
+      { w: 'sine', f: 300, d: 0.1, s: 0.5 },      // 5: Soft Drop
+      { w: 'triangle', f: 600, d: 0.1, s: 1 },    // 6: Marimba
+      { w: 'sine', f: 900, d: 0.08, s: 1 },       // 7: High Ping
+      { w: 'triangle', f: 350, d: 0.15, s: 1 },   // 8: Muted Thud
+      { w: 'sine', f: 1500, d: 0.05, s: 1 },      // 9: Crystal
+      { w: 'sine', f: 500, d: 0.2, s: 1 },        // 10: Vibraphone
+      { w: 'triangle', f: 1000, d: 0.05, s: 1 },  // 11: Pluck
+      { w: 'sine', f: 800, d: 0.1, s: 0.5 },      // 12: Reverse Bubble
+      { w: 'sine', f: 450, d: 0.15, s: 1 },       // 13: Soft Bell
+      { w: 'triangle', f: 750, d: 0.08, s: 1.2 }, // 14: Zip
+      { w: 'sine', f: 200, d: 0.15, s: 1 },       // 15: Deep Tone
+      { w: 'triangle', f: 550, d: 0.12, s: 1 },   // 16: Wood Block
+      { w: 'sine', f: 1800, d: 0.03, s: 1 },      // 17: Tiny Tick
+      { w: 'sine', f: 350, d: 0.1, s: 1.5 },      // 18: Hollow Pop
+      { w: 'triangle', f: 900, d: 0.1, s: 0.8 },  // 19: Synth Blip
+      { w: 'sine', f: 700, d: 0.15, s: 1 }        // 20: Chime
+    ];
+
+    const p = profiles[variant] || profiles[1];
+
+    const playTone = (freq: number, dur: number, w: string, sweep: number, offset: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = w as OscillatorType;
+        osc.frequency.setValueAtTime(freq, t + offset);
+        if (sweep !== 1) {
+            osc.frequency.exponentialRampToValueAtTime(freq * sweep, t + offset + dur);
+        }
+        gain.gain.setValueAtTime(0, t + offset);
+        gain.gain.linearRampToValueAtTime(0.3, t + offset + dur * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + offset + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t + offset);
+        osc.stop(t + offset + dur);
+    };
+
     if (type === 'tap') {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = wave; 
-      osc.frequency.setValueAtTime(500 * pitch, t); 
-      const endFreq = sweep === 1 ? 700 * pitch : 300 * pitch;
-      osc.frequency.exponentialRampToValueAtTime(endFreq, t + 0.05 * duration); 
-      gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.3, t + 0.01 * duration);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.08 * duration); 
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.08 * duration);
+        playTone(p.f, p.d, p.w, p.s, 0);
     } else if (type === 'pop') {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = wave; 
-      osc.frequency.setValueAtTime(400 * pitch, t);
-      const endFreq = sweep === 1 ? 600 * pitch : 200 * pitch;
-      osc.frequency.exponentialRampToValueAtTime(endFreq, t + 0.1 * duration);
-      gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.2, t + 0.02 * duration);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1 * duration);
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.1 * duration);
-    } else if (type === 'mode') {
-      [500, 700].forEach((freq, i) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = wave; 
-        osc.frequency.value = freq * pitch;
-        gain.gain.setValueAtTime(0, t + i * 0.15 * duration);
-        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.15 * duration + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.15 * duration + 0.1 * duration);
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.15 * duration); osc.stop(t + i * 0.15 * duration + 0.1 * duration);
-      });
-    } else if (type === 'refresh') {
-      [400, 500, 600].forEach((freq, i) => { 
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq * pitch, t + i * 0.08 * duration);
-        gain.gain.setValueAtTime(0, t + i * 0.08 * duration);
-        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.08 * duration + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.08 * duration + 0.4 * duration);
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.08 * duration); osc.stop(t + i * 0.08 * duration + 0.4 * duration);
-      });
-    } else if (type === 'win') {
-      [440, 554.37, 659.25].forEach((freq, i) => { 
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine'; 
-        osc.frequency.value = freq * pitch;
-        gain.gain.setValueAtTime(0, t + i * 0.1 * duration);
-        gain.gain.linearRampToValueAtTime(0.2, t + i * 0.1 * duration + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.5 * duration);
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.1 * duration); osc.stop(t + i * 0.1 * duration + 0.5 * duration);
-      });
-    } else if (type === 'overallWin') {
-      [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, i) => { 
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = wave; 
-        osc.frequency.value = freq * pitch;
-        gain.gain.setValueAtTime(0, t + i * 0.1 * duration);
-        gain.gain.linearRampToValueAtTime(0.25, t + i * 0.1 * duration + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.1 * duration + 0.6 * duration);
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + i * 0.1 * duration); osc.stop(t + i * 0.1 * duration + 0.6 * duration);
-      });
+        playTone(400, 0.1, 'sine', 1.5, 0);
     } else if (type === 'point' || type === 'unmute') {
-       const osc = ctx.createOscillator();
-       const gain = ctx.createGain();
-       osc.type = wave; 
-       osc.frequency.setValueAtTime(600 * pitch, t);
-       osc.frequency.exponentialRampToValueAtTime(800 * pitch, t + 0.1 * duration);
-       gain.gain.setValueAtTime(0, t);
-       gain.gain.linearRampToValueAtTime(0.2, t + 0.02 * duration);
-       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1 * duration);
-       osc.connect(gain); gain.connect(ctx.destination);
-       osc.start(t); osc.stop(t + 0.1 * duration);
+        playTone(800, 0.1, 'sine', 1.2, 0);
+    } else if (type === 'mode') {
+        playTone(600, 0.1, 'sine', 1, 0);
+        playTone(800, 0.1, 'sine', 1, 0.1);
+    } else if (type === 'refresh') {
+        playTone(400, 0.1, 'sine', 1, 0);
+        playTone(500, 0.1, 'sine', 1, 0.08);
+        playTone(600, 0.2, 'sine', 1, 0.16);
+    } else if (type === 'win') {
+        playTone(440, 0.1, 'sine', 1, 0);
+        playTone(554, 0.1, 'sine', 1, 0.1);
+        playTone(659, 0.4, 'sine', 1, 0.2);
+    } else if (type === 'overallWin') {
+        playTone(523, 0.1, 'sine', 1, 0);
+        playTone(659, 0.1, 'sine', 1, 0.1);
+        playTone(783, 0.1, 'sine', 1, 0.2);
+        playTone(1046, 0.1, 'sine', 1, 0.3);
+        playTone(1318, 0.5, 'sine', 1, 0.4);
     }
   } catch(e) {}
 };
@@ -347,8 +326,6 @@ export default function App() {
   
   const [enableHardRefreshTap, setEnableHardRefreshTap] = useState(() => getSaved('enableHardRefreshTap', false));
 
-  const [togglePos, setTogglePos] = useState({ x: 40, y: 40 });
-
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = getSaved('isDarkMode', null);
     if (saved !== null) return saved;
@@ -356,7 +333,6 @@ export default function App() {
     return true; 
   });
   
-  const [uiDarkMode, setUiDarkMode] = useState(() => isDarkMode); 
   const [isAmoled, setIsAmoled] = useState(() => getSaved('isAmoled', false));
 
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(() => getSaved('winnerInfo', null));
@@ -424,6 +400,7 @@ export default function App() {
        const resistance = deltaY * 0.35; 
        setPullProgress(resistance);
        
+       // 🚀 ম্যাজিক: সমস্ত কন্টেন্ট একসাথে ফ্লেক্স গ্যাপে প্রসারিত হবে
        const dynamicGap = 20 + (resistance * 0.25); 
        mainBouncer.set({ 
            y: resistance, 
@@ -548,27 +525,56 @@ export default function App() {
   const currentXColor = enableCustomX ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[0];
   const currentOColor = enableCustomO ? PLAYER_COLORS[oColorIdx] : PLAYER_COLORS[9];
 
-  const lightBgColor = useDefaultTheme ? ORIGINAL_THEME.light : CUSTOM_THEMES[themeIdx].light;
-  const darkBgColor = isAmoled ? '#000000' : (useDefaultTheme ? ORIGINAL_THEME.dark : CUSTOM_THEMES[themeIdx].dark);
-
+  // 🚀 Native Telegram-Style View Transition Theme Toggle 
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isTransitioning.current) return;
-    isTransitioning.current = true;
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
-    setTogglePos({ x, y });
-
-    const nextDark = !isDarkMode;
-    setIsDarkMode(nextDark);
     
     triggerHaptic([80]); 
     if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop);
+    
+    const nextDark = !isDarkMode;
 
-    setTimeout(() => {
-        isTransitioning.current = false; 
-    }, 600); 
+    // Fallback for browsers that don't support View Transitions
+    if (!document.startViewTransition) {
+        setIsDarkMode(nextDark);
+        return;
+    }
+
+    isTransitioning.current = true;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+
+    const transition = document.startViewTransition(() => {
+        setIsDarkMode(nextDark);
+    });
+
+    transition.ready.then(() => {
+        const endRadius = Math.hypot(
+            Math.max(x, window.innerWidth - x),
+            Math.max(y, window.innerHeight - y)
+        );
+
+        const clipPath = [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`
+        ];
+
+        document.documentElement.animate(
+            {
+                clipPath: nextDark ? clipPath : [...clipPath].reverse(),
+            },
+            {
+                duration: 600,
+                easing: "ease-in-out",
+                pseudoElement: nextDark ? "::view-transition-new(root)" : "::view-transition-old(root)",
+            }
+        );
+    });
+
+    transition.finished.then(() => {
+        isTransitioning.current = false;
+    });
   };
 
   const toggleSound = () => {
@@ -921,6 +927,7 @@ export default function App() {
           font-display: swap;
         }
 
+        /* 🚀 Prevent scrollbars, lock the screen perfectly */
         html, body {
            overscroll-behavior: none;
            overflow: hidden;
@@ -930,6 +937,18 @@ export default function App() {
            margin: 0;
            padding: 0;
         }
+
+        /* 🚀 View Transitions API Magic for Telegram Theme Toggle */
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+          animation: none;
+          mix-blend-mode: normal;
+          display: block;
+        }
+        ::view-transition-old(root) { z-index: 1; }
+        ::view-transition-new(root) { z-index: 2; }
+        .dark::view-transition-old(root) { z-index: 2; }
+        .dark::view-transition-new(root) { z-index: 1; }
 
         .font-nunito { font-family: 'NunitoCustom', sans-serif; font-weight: 700; }
         .font-nunito-black { font-family: 'NunitoBlack', sans-serif; font-weight: 900; }
@@ -942,25 +961,12 @@ export default function App() {
         }
       `}</style>
       
-      <div className="fixed inset-0 w-full h-[100dvh] overflow-hidden font-nunito select-none z-0">
+      {/* 🚀 মেইন টাচ কনটেইনার - Fixed size, no selection */}
+      <div 
+          className="fixed inset-0 w-full h-[100dvh] overflow-hidden font-nunito select-none z-0 transition-colors duration-100"
+          style={{ backgroundColor: semantics.screenBackground }}>
         
-        {/* Base Light Layer */}
-        <div className="absolute inset-0 w-full h-full pointer-events-none transition-colors duration-500" style={{ backgroundColor: lightBgColor }} />
-        
-        {/* Expanding/Shrinking Dark Layer (Telegram Animation) */}
-        <motion.div
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          style={{ backgroundColor: darkBgColor }}
-          initial={false}
-          animate={{
-             clipPath: isDarkMode
-               ? `circle(150% at ${togglePos.x}px ${togglePos.y}px)`
-               : `circle(0px at ${togglePos.x}px ${togglePos.y}px)`
-          }}
-          transition={{ type: "tween", duration: 0.6, ease: "easeInOut" }}
-        />
-
-        {/* Content Overlay Container */}
+        {/* 🚀 Content Overlay Container */}
         <div 
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -969,11 +975,11 @@ export default function App() {
               paddingTop: 'max(24px, env(safe-area-inset-top))',
               paddingBottom: 'max(24px, env(safe-area-inset-bottom))'
             }}
-            className="relative z-10 w-full h-full flex flex-col items-center justify-center p-4 transition-colors duration-500">
+            className="relative z-10 w-full h-full flex flex-col items-center justify-center p-4">
           
           <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-          {/* কাস্টম Pull-to-Refresh স্পিনার */}
+          {/* 🚀 কাস্টম Pull-to-Refresh স্পিনার */}
           <motion.div 
              className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
              style={{
@@ -1014,10 +1020,11 @@ export default function App() {
             style={{ top: 'max(16px, env(safe-area-inset-top))' }}
             className="absolute left-0 right-0 h-20 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
             
+            {/* 🚀 The Telegram Style Mode Toggle Button! */}
             <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
               <AnimatePresence mode="wait" initial={false}>
-                <motion.div key={uiDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
-                  {uiDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
+                <motion.div key={isDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
+                  {isDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
                 </motion.div>
               </AnimatePresence>
             </motion.button>
@@ -1047,6 +1054,7 @@ export default function App() {
             </motion.button>
           </motion.nav>
 
+          {/* 🚀 Main Content Wrapper */}
           <motion.div 
              initial={{ opacity: 0, scale: 0.9, y: 15 }} 
              animate={{ opacity: 1, scale: 1, y: 0 }} 
