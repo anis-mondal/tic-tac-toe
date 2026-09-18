@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { motion, AnimatePresence, useAnimation } from 'motion/react';
-import { RotateCcw, Sparkles } from 'lucide-react';
+import { Sparkles, X as CloseIcon, Info, Target, Check, ChevronLeft } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // @ts-ignore
@@ -19,18 +19,17 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { App as CapApp } from '@capacitor/app';
 
-import SettingsModal, { PLAYER_COLORS, CUSTOM_THEMES, ORIGINAL_THEME, EXTRA_LINE_COLORS, ICONS_LIST } from './components/SettingsModal';
+import { PLAYER_COLORS, CUSTOM_THEMES, ORIGINAL_THEME, EXTRA_LINE_COLORS, ICONS_LIST } from './components/SettingsModal';
 import AboutModal from './components/AboutModal';
 
-// 🚀 Google Material Symbols Solid (For Top Nav only)
-export const MaterialSun = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M12 17q-2.075 0-3.537-1.463Q7 14.075 7 12t1.463-3.538Q9.925 7 12 7t3.538 1.462Q17 9.925 17 12q0 2.075-1.462 3.537Q14.075 17 12 17ZM2 13q-.425 0-.712-.288Q1 12.425 1 12t.288-.713Q1.575 11 2 11h2q.425 0 .713.287Q5 11.575 5 12t-.287.712Q4.425 13 4 13Zm18 0q-.425 0-.712-.288Q19 12.425 19 12t.288-.713Q19.575 11 20 11h2q.425 0 .712.287.288.288.288.713t-.288.712Q22.425 13 22 13Zm-8-8q-.425 0-.712-.288Q11 4.425 11 4V2q0-.425.288-.713Q11.575 1 12 1t.713.287Q13 1.575 13 2v2q0 .425-.287.712Q12.425 5 12 5Zm0 18q-.425 0-.712-.288Q11 22.425 11 22v-2q0-.425.288-.712Q11.575 19 12 19t.713.288Q13 19.575 13 20v2q0 .425-.287.712Q12.425 23 12 23ZM5.65 7.05L4.225 5.65q-.275-.275-.275-.7t.275-.7q.275-.275.7-.275t.7.275l1.425 1.4q.275.275.275.7t-.275.7q-.275.275-.7.275t-.7-.275Zm12.7 12.725l-1.425-1.425q-.275-.275-.275-.7t.275-.7q.275-.275.7-.275t.7.275l1.425 1.425q.275.275.275.7t-.275.7q-.275.275-.7.275t-.7-.275ZM7.05 18.35q-.275-.275-.7-.275t-.7.275l-1.425 1.425q-.275.275-.275.7t.275.7q.275.275.7.275t.7-.275l1.425-1.425q.275-.275.275-.7t-.275-.7Zm11.3-11.3q-.275-.275-.275-.7t.275-.7l1.425-1.425q.275-.275.7-.275t.7.275q.275.275.275.7t-.275.7L19.75 7.05q-.275.275-.7.275t-.7-.275Z"/></svg>;
-export const MaterialMoon = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M12 21q-3.75 0-6.375-2.625T3 12q0-3.75 2.625-6.375T12 3q.35 0 .688.025.337.025.662.075-1.025.725-1.637 1.887Q11.1 6.15 11.1 7.5q0 2.25 1.575 3.825Q14.25 12.9 16.5 12.9q1.35 0 2.513-.613 1.162-.612 1.887-1.637.05.325.075.662Q21 11.65 21 12q0 3.75-2.625 6.375T12 21Z"/></svg>;
-export const MaterialVolume = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M14 20.725v-2.15q2.325-.675 3.913-2.612Q19.5 14.025 19.5 11.5q0-2.525-1.587-4.462Q16.325 5.1 14 4.425V2.275q3.225.725 5.363 3.325Q21.5 8.2 21.5 11.5q0 3.3-2.137 5.9Q17.225 20 14 20.725ZM4 15V8h3.15L12 3.15v16.7L7.15 15Zm10-1.875v-3.2q1.075-.425 1.787-1.413Q16.5 7.525 16.5 6.3V6.275q-.7-.975-1.787-1.4V1.6q2.025.625 3.262 2.375Q19.25 5.725 19.25 8t-1.238 4.025q-1.237 1.75-3.262 2.375Z"/><path d="M14 16.225v-9.45q1.075.525 1.788 1.587Q16.5 9.425 16.5 11.5q0 2.075-.712 3.137Q15.075 15.7 14 16.225Z"/></svg>;
-export const MaterialMute = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M21 22.425l-2.45-2.45q-.675.475-1.425.862t-1.625.563v-2.15q.55-.175 1.05-.438t.95-.612L14 14.75v5.95L9.15 15H5V8h3.175l-7-7 1.4-1.425 19.8 19.85ZM12 7.75v-4.6L9.675 5.425Zm4.5 3.75l-1.525-1.5q.275-.325.4-.737.125-.413.125-.863 0-1.25-.8-2.225Q13.9 5.2 12 4.775v-2.1q2.9.525 4.7 2.763Q18.5 7.675 18.5 10.4q0 .775-.2 1.487t-.5 1.363Z"/></svg>;
-export const MaterialSettings = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M12 15.5q1.45 0 2.475-1.025Q15.5 13.45 15.5 12q0-1.45-1.025-2.475Q13.45 8.5 12 8.5q-1.45 0-2.475 1.025Q8.5 10.55 8.5 12q0 1.45 1.025 2.475Q10.55 15.5 12 15.5Zm-1.2 5.3v-2.1q-.7-.125-1.325-.425t-1.175-.775l-1.8 1.3-1.65-2.85 1.6-1.1q-.075-.325-.112-.675T6.3 12q0-.35.038-.7t.112-.65l-1.6-1.1 1.65-2.85 1.8 1.3q.55-.475 1.175-.775T10.8 6.8V4.7h3.3v2.1q.7.125 1.325.425t1.175.775l1.8-1.3 1.65 2.85-1.6 1.1q.075.325.112.675t.038.7q0 .35-.038.7t-.112.65l1.6 1.1-1.65 2.85-1.8-1.3q-.55.475-1.175.775T13.2 17.2v2.1Z"/></svg>;
-
-// 🚀 Solid Users Icon (Kept as you liked)
-export const SolidUsers = ({ className, strokeWidth }: { className?: string, strokeWidth?: number | string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className} strokeWidth={strokeWidth}><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>;
+// 🚀 Google Material Symbols Rounded (Solid / Filled) - Premium Look
+export const MaterialSun = ({ className }: { className?: string }) => <svg viewBox="0 -960 960 960" fill="currentColor" className={className}><path d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40q-17 0-28.5-11.5T0-480q0-17 11.5-28.5T40-520h160q17 0 28.5 11.5T240-480q0 17-11.5 28.5T200-440Zm720 0H760q-17 0-28.5-11.5T720-480q0-17 11.5-28.5T760-520h160q17 0 28.5 11.5T960-480q0 17-11.5 28.5T920-440ZM480-720q-17 0-28.5-11.5T440-760v-160q0-17 11.5-28.5T480-960q17 0 28.5 11.5T520-920v160q0 17-11.5 28.5T480-720Zm0 720q-17 0-28.5-11.5T440-40v-160q0-17 11.5-28.5T480-240q17 0 28.5 11.5T520-200v160q0 17-11.5 28.5T480-0ZM226-678l-43-42q-12-11-11.5-28t12.5-28q12-12 28.5-12.5T241-777l43 42q12 11 11.5 28T283-679q-12 12-28.5 12.5T226-678Zm494 495-42-43q-11-12-11-28.5t12-28.5q11-12 28-12.5t29 11.5l42 43q11 12 11 28.5T777-183q-11 12-28 12.5T720-183Zm-42-495q-12-11-12.5-27.5T677-734l43-42q11-12 28-11.5t29 12.5q12 11 12.5 28T777-719l-43 42q-11 12-28 11.5T678-678ZM183-183q-12-11-11.5-27.5T184-239l42-43q11-12 28-11.5t29 12.5q12 11 12.5 28T283-225l-42 43q-11 12-28 11.5T183-183Z"/></svg>;
+export const MaterialMoon = ({ className }: { className?: string }) => <svg viewBox="0 -960 960 960" fill="currentColor" className={className}><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z"/></svg>;
+export const MaterialRefresh = ({ className }: { className?: string }) => <svg viewBox="0 -960 960 960" fill="currentColor" className={className}><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-70q0-17 11.5-28.5T760-800q17 0 28.5 11.5T800-760v200q0 17-11.5 28.5T760-520H560q-17 0-28.5-11.5T520-560q0-17 11.5-28.5T560-600h128q-36-54-94-87t-126-33q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116q3-14 15-22t26-4q16 4 23 17t-2 27q-35 94-118.5 156T480-160Z"/></svg>;
+export const MaterialVolume = ({ className }: { className?: string }) => <svg viewBox="0 -960 960 960" fill="currentColor" className={className}><path d="M560-131v-82q90-26 145-100t55-167q0-93-55-167T560-747v-82q124 28 202 125.5T840-480q0 127-78 224.5T560-131ZM120-360v-240h160l200-200v640L280-360H120Zm440 40v-320q47 22 73.5 66t26.5 94q0 50-26.5 94T560-320Z"/></svg>;
+export const MaterialMute = ({ className }: { className?: string }) => <svg viewBox="0 -960 960 960" fill="currentColor" className={className}><path d="M792-56 671-177q-25 16-53 27.5T560-131v-82q14-5 27.5-10t25.5-12L480-368v208L280-360H120v-240h128L56-792l56-56 736 736-56 56Zm-8-232-58-58q17-31 25.5-65t8.5-70q0-127-78-224.5T560-829v-82q124 28 202 125.5T840-480q0 53-14.5 102.5T784-288ZM650-422l-90-90v-130q47 22 73.5 66t26.5 94q0 15-2.5 29.5T650-422ZM480-592 376-696l104-104v208Z"/></svg>;
+export const MaterialSettings = ({ className }: { className?: string }) => <svg viewBox="0 -960 960 960" fill="currentColor" className={className}><path d="M440-120v-128q-23-4-44.5-12.5T355-280l-91 91-85-85 91-91q-11-19-19-40.5t-11-45.5H120v-120h120q3-24 11-45.5t19-40.5l-91-91 85-85 91 91q19-11 40.5-19t45.5-11v-120h120v120q24 3 45.5 11t40.5 19l91-91 85 85-91 91q11 19 19 40.5t11 45.5h120v120H720q-3 24-11 45.5T690-371l91 91-85 85-91-91q-19 11-40.5 19T520-248v128h-80Zm40-220q66 0 113-47t47-113q0-66-47-113t-113-47q-66 0-113 47t-47 113q0 66 47 113t113 47Z"/></svg>;
+export const SolidUsers = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>;
 
 type Player = 'X' | 'O';
 type SquareValue = Player | null;
@@ -41,7 +40,6 @@ const WINNING_COMBINATIONS = [
   [0, 4, 8], [2, 4, 6]
 ];
 
-// 🚀 Haptic Feedback
 const triggerNativeHaptic = (pattern: number | number[], isEnabled: boolean) => {
   if (!isEnabled) return;
   if (Capacitor.isNativePlatform()) {
@@ -57,7 +55,7 @@ const MaterialSpinner = ({ color }: { color: string }) => (
   </motion.svg>
 );
 
-// 🚀 AI Logo Reverted to Original Hollow Look
+// 🚀 Original Hollow AI Logo
 const AILogo = () => (
   <svg width="20" height="20" viewBox="0 0 100 100" className="drop-shadow-sm shrink-0">
     <defs>
@@ -74,7 +72,7 @@ const AILogo = () => (
   </svg>
 );
 
-// 🚀 Custom Game Icons set back to Filled (`fill={color}`)
+// 🚀 Game Icons are perfectly FILLED here
 const DynamicIcon = ({ player, p1Custom, p1Idx, p2Custom, p2Idx, color, className }: { player: Player | null, p1Custom: boolean, p1Idx: number, p2Custom: boolean, p2Idx: number, color: string, className?: string }) => {
   if (!player) return null;
   const isP1 = player === 'X';
@@ -83,6 +81,7 @@ const DynamicIcon = ({ player, p1Custom, p1Idx, p2Custom, p2Idx, color, classNam
 
   if (isCustomEnabled) {
      const SelectedIcon = ICONS_LIST[iconIndex % ICONS_LIST.length];
+     // fill={color} makes the icon fully solid
      return <SelectedIcon color={color} fill={color} className={className} strokeWidth={2.5} />;
   }
   
@@ -265,6 +264,31 @@ const getSaved = (key: string, defaultVal: any) => {
   }
 };
 
+const AnimatedToggle = ({ enabled, onToggle, activeColor, isDarkMode }: { enabled: boolean, onToggle: () => void, activeColor: string, isDarkMode: boolean }) => {
+  const offBgColor = isDarkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)';
+  return (
+    <motion.button 
+      onClick={onToggle}
+      className="w-[50px] h-[28px] rounded-full p-1 flex items-center shrink-0 relative transition-colors duration-300 cursor-pointer"
+      style={{ backgroundColor: enabled ? activeColor : offBgColor }}
+    >
+      <motion.div 
+        layout
+        animate={{ x: enabled ? 22 : 0 }} 
+        className="w-[20px] h-[20px] rounded-full bg-white shadow-sm flex items-center justify-center z-10"
+        transition={{ type: "spring", stiffness: 600, damping: 30 }}
+      >
+        <AnimatePresence mode="wait">
+          {enabled 
+            ? <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Check className="w-3 h-3" style={{ color: activeColor }} strokeWidth={4} /></motion.div>
+            : <motion.div key="close" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><CloseIcon className="w-3 h-3 text-gray-500" strokeWidth={4} /></motion.div>
+          }
+        </AnimatePresence>
+      </motion.div>
+    </motion.button>
+  );
+};
+
 export default function App() {
   const [board, setBoard] = useState<SquareValue[]>(() => getSaved('board', Array(9).fill(null)));
   const [humanSymbol, setHumanSymbol] = useState<Player>(() => getSaved('humanSymbol', 'O'));
@@ -353,6 +377,28 @@ export default function App() {
   const playPreviewSound = (key: string, val: number) => {
     const type = (key === 'xTap' || key === 'oTap') ? 'tap' : key;
     playEnhancedSound(type as any, val); 
+  };
+
+  const updateSound = (key: string, val: number) => {
+    setSoundPrefs((prev: any) => ({ ...prev, [key]: val }));
+    playPreviewSound(key, val);
+  };
+
+  const renderSoundControl = (label: string, key: keyof typeof soundPrefs) => {
+    const value = soundPrefs[key];
+    const handleDec = () => { triggerHaptic(20); updateSound(key, value === 0 ? 20 : value - 1); };
+    const handleInc = () => { triggerHaptic(20); updateSound(key, value === 20 ? 0 : value + 1); };
+
+    return (
+      <div className="flex items-center justify-between py-2 border-b last:border-0 border-black/5 dark:border-white/5">
+        <span className="text-[13px] font-bold opacity-80">{label}</span>
+        <div className="flex items-center gap-2">
+           <button onClick={handleDec} className="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-black active:scale-90 transition-transform">-</button>
+           <span className="w-8 text-center text-[13px] font-black">{value === 0 ? 'Off' : value}</span>
+           <button onClick={handleInc} className="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-black active:scale-90 transition-transform">+</button>
+        </div>
+      </div>
+    );
   };
 
   const mainBouncer = useAnimation();
@@ -899,7 +945,6 @@ export default function App() {
           font-display: swap;
         }
 
-        /* 🚀 Prevent scrollbars, lock the screen perfectly */
         html, body {
            overscroll-behavior: none;
            overflow: hidden;
@@ -911,7 +956,6 @@ export default function App() {
            background-color: transparent !important;
         }
 
-        /* 🚀 Perfect Telegram View Transitions API CSS */
         ::view-transition-old(root),
         ::view-transition-new(root) {
           animation: none;
@@ -919,7 +963,6 @@ export default function App() {
           display: block;
         }
         
-        /* Dark Theme Expansion */
         html.transition-to-dark ::view-transition-old(root) { z-index: 1; }
         html.transition-to-dark ::view-transition-new(root) { 
             z-index: 2; 
@@ -927,7 +970,6 @@ export default function App() {
             animation: clip-expand 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
         
-        /* Light Theme Expansion */
         html.transition-to-light ::view-transition-old(root) { 
             z-index: 2; 
             clip-path: circle(150% at var(--tx) var(--ty));
@@ -997,7 +1039,8 @@ export default function App() {
                <MaterialSpinner color={activeLineColor} />
              ) : (
                <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}>
-                  <RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} />
+                  {/* 🚀 Original Hollow Refresh Icon */}
+                  <RotateCcw className="w-[22px] h-[22px]" strokeWidth={2.5} />
                </motion.div>
              )}
           </motion.div>
@@ -1016,12 +1059,12 @@ export default function App() {
                onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isDarkMode ? 0 : 1, rotate: isDarkMode ? 90 : 0, opacity: isDarkMode ? 0 : 1 }} transition={{ duration: 0.3 }} className="absolute">
-                    {/* 🚀 Beautiful Solid Google Material Sun */}
-                    <MaterialSun className="w-[20px] h-[20px]" />
+                    {/* 🚀 Google Material Solid Sun */}
+                    <MaterialSun className="w-[22px] h-[22px]" />
                  </motion.div>
                  <motion.div animate={{ scale: isDarkMode ? 1 : 0, rotate: isDarkMode ? 0 : -90, opacity: isDarkMode ? 1 : 0 }} transition={{ duration: 0.3 }} className="absolute">
-                    {/* 🚀 Beautiful Solid Google Material Moon */}
-                    <MaterialMoon className="w-[20px] h-[20px]" />
+                    {/* 🚀 Google Material Solid Moon */}
+                    <MaterialMoon className="w-[22px] h-[22px]" />
                  </motion.div>
               </div>
             </motion.button>
@@ -1036,8 +1079,8 @@ export default function App() {
                className={navBtnClass} style={getNavBtnStyle()}
             >
               <motion.div animate={{ rotate: rotation }} transition={{ type: "spring", stiffness: 300, damping: 25 }}>
-                {/* 🚀 Original Hollow Refresh Icon */}
-                <RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} />
+                {/* 🚀 Google Material Solid Refresh */}
+                <MaterialRefresh className="w-[22px] h-[22px]" />
               </motion.div>
             </motion.button>
 
@@ -1048,12 +1091,12 @@ export default function App() {
                onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isSoundOn ? 1 : 0, opacity: isSoundOn ? 1 : 0 }} transition={{ duration: 0.2 }} className="absolute">
-                    {/* 🚀 Beautiful Solid Google Material Volume */}
-                    <MaterialVolume className="w-[20px] h-[20px]" />
+                    {/* 🚀 Google Material Solid Volume */}
+                    <MaterialVolume className="w-[22px] h-[22px]" />
                  </motion.div>
                  <motion.div animate={{ scale: isSoundOn ? 0 : 1, opacity: isSoundOn ? 0 : 1 }} transition={{ duration: 0.2 }} className="absolute">
-                    {/* 🚀 Beautiful Solid Google Material Mute */}
-                    <MaterialMute className="w-[20px] h-[20px]" />
+                    {/* 🚀 Google Material Solid Mute */}
+                    <MaterialMute className="w-[22px] h-[22px]" />
                  </motion.div>
               </div>
             </motion.button>
@@ -1063,8 +1106,8 @@ export default function App() {
                whileTap={{ scale: 0.75 }} 
                transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
                onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
-               {/* 🚀 Beautiful Solid Google Material Settings */}
-               <MaterialSettings className="w-[20px] h-[20px]" />
+               {/* 🚀 Google Material Solid Settings */}
+               <MaterialSettings className="w-[22px] h-[22px]" />
             </motion.button>
           </motion.nav>
 
@@ -1092,10 +1135,11 @@ export default function App() {
                     transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
                   />
                   <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} style={{ color: semantics.text, opacity: isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-300">
+                    {/* 🚀 Original Hollow AI Logo */}
                     <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
                   </button>
                   <button onClick={() => switchModeClick(false)} style={{ color: semantics.text, opacity: !isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-300">
-                    {/* 🚀 Solid Users Icon kept as requested */}
+                    {/* 🚀 Solid 2-Players Icon */}
                     <span className="relative z-10 flex items-center gap-1.5"><SolidUsers className="w-[18px] h-[18px]" /> 2 Players</span>
                   </button>
                 </div>
