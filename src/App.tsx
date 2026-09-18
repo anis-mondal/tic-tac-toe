@@ -93,34 +93,32 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' 
     const ctx = audioState.ctx;
     const t = ctx.currentTime;
     
-    // 20 Distinct Soft Profiles (f = freq, d = duration, w = wave form, s = sweep mult)
     const profiles = [
       { w: 'sine', f: 0, d: 0, s: 0 },
-      { w: 'sine', f: 600, d: 0.1, s: 1 },        // 1: Soft Note
-      { w: 'sine', f: 400, d: 0.1, s: 1.5 },      // 2: Bubble Up
-      { w: 'triangle', f: 800, d: 0.05, s: 1 },   // 3: Wood Tap
-      { w: 'sine', f: 1200, d: 0.15, s: 1 },      // 4: Glass Tink
-      { w: 'sine', f: 300, d: 0.1, s: 0.5 },      // 5: Soft Drop
-      { w: 'triangle', f: 600, d: 0.1, s: 1 },    // 6: Marimba
-      { w: 'sine', f: 900, d: 0.08, s: 1 },       // 7: High Ping
-      { w: 'triangle', f: 350, d: 0.15, s: 1 },   // 8: Muted Thud
-      { w: 'sine', f: 1500, d: 0.05, s: 1 },      // 9: Crystal
-      { w: 'sine', f: 500, d: 0.2, s: 1 },        // 10: Vibraphone
-      { w: 'triangle', f: 1000, d: 0.05, s: 1 },  // 11: Pluck
-      { w: 'sine', f: 800, d: 0.1, s: 0.5 },      // 12: Reverse Bubble
-      { w: 'sine', f: 450, d: 0.15, s: 1 },       // 13: Soft Bell
-      { w: 'triangle', f: 750, d: 0.08, s: 1.2 }, // 14: Zip
-      { w: 'sine', f: 200, d: 0.15, s: 1 },       // 15: Deep Tone
-      { w: 'triangle', f: 550, d: 0.12, s: 1 },   // 16: Wood Block
-      { w: 'sine', f: 1800, d: 0.03, s: 1 },      // 17: Tiny Tick
-      { w: 'sine', f: 350, d: 0.1, s: 1.5 },      // 18: Hollow Pop
-      { w: 'triangle', f: 900, d: 0.1, s: 0.8 },  // 19: Synth Blip
-      { w: 'sine', f: 700, d: 0.15, s: 1 }        // 20: Chime
+      { w: 'sine', f: 600, d: 0.1, s: 1 },        
+      { w: 'sine', f: 400, d: 0.1, s: 1.5 },      
+      { w: 'triangle', f: 800, d: 0.05, s: 1 },   
+      { w: 'sine', f: 1200, d: 0.15, s: 1 },      
+      { w: 'sine', f: 300, d: 0.1, s: 0.5 },      
+      { w: 'triangle', f: 600, d: 0.1, s: 1 },    
+      { w: 'sine', f: 900, d: 0.08, s: 1 },       
+      { w: 'triangle', f: 350, d: 0.15, s: 1 },   
+      { w: 'sine', f: 1500, d: 0.05, s: 1 },      
+      { w: 'sine', f: 500, d: 0.2, s: 1 },        
+      { w: 'triangle', f: 1000, d: 0.05, s: 1 },  
+      { w: 'sine', f: 800, d: 0.1, s: 0.5 },      
+      { w: 'sine', f: 450, d: 0.15, s: 1 },       
+      { w: 'triangle', f: 750, d: 0.08, s: 1.2 }, 
+      { w: 'sine', f: 200, d: 0.15, s: 1 },       
+      { w: 'triangle', f: 550, d: 0.12, s: 1 },   
+      { w: 'sine', f: 1800, d: 0.03, s: 1 },      
+      { w: 'sine', f: 350, d: 0.1, s: 1.5 },      
+      { w: 'triangle', f: 900, d: 0.1, s: 0.8 },  
+      { w: 'sine', f: 700, d: 0.15, s: 1 }        
     ];
 
     const p = profiles[variant] || profiles[1];
 
-    // Core Oscillator Player
     const playOsc = (wave: string, freq: number, vol: number, attack: number, decay: number, sweep: number = 1, sweepDur: number = 0, delay: number = 0) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -138,7 +136,6 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' 
         osc.stop(t + delay + attack + decay);
     };
 
-    // 🚀 সমস্ত সাউন্ড এখন সিলেক্টেড ভেরিয়েন্টের উপর ভিত্তি করে ডায়নামিক!
     if (type === 'tap') {
         playOsc(p.w, p.f, 0.4, 0.01, p.d, p.s, 0.1);
     } else if (type === 'pop') {
@@ -491,10 +488,7 @@ export default function App() {
   const currentXColor = enableCustomX ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[0];
   const currentOColor = enableCustomO ? PLAYER_COLORS[oColorIdx] : PLAYER_COLORS[9];
 
-  const lightBgColor = useDefaultTheme ? ORIGINAL_THEME.light : CUSTOM_THEMES[themeIdx].light;
-  const darkBgColor = isAmoled ? '#000000' : (useDefaultTheme ? ORIGINAL_THEME.dark : CUSTOM_THEMES[themeIdx].dark);
-
-  // 🚀 Native Telegram-Style View Transition (Flawless, Zero Lag, Exact Position)
+  // 🚀 Native Telegram-Style View Transition (Flawless, Zero Lag)
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isTransitioning.current) return;
     
@@ -539,13 +533,13 @@ export default function App() {
             // Light -> Dark (Dark Circle Expands perfectly from button)
             document.documentElement.animate(
                 { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
-                { duration: 600, easing: "cubic-bezier(0.25, 1, 0.5, 1)", pseudoElement: "::view-transition-new(root)" }
+                { duration: 450, easing: "ease-in", pseudoElement: "::view-transition-new(root)" }
             );
         } else {
             // Dark -> Light (Dark Circle Shrinks back to the button, revealing light)
             document.documentElement.animate(
                 { clipPath: [`circle(${endRadius}px at ${x}px ${y}px)`, `circle(0px at ${x}px ${y}px)`] },
-                { duration: 600, easing: "cubic-bezier(0.25, 1, 0.5, 1)", pseudoElement: "::view-transition-old(root)" }
+                { duration: 450, easing: "ease-in", pseudoElement: "::view-transition-old(root)" }
             );
         }
     });
@@ -875,7 +869,7 @@ export default function App() {
     topNavBtn: isDarkMode && isAmoled ? (useDefaultTheme ? '#0f0f0f' : blendDarker(activeTheme.gridDark, amoFactor)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
   };
 
-  const navBtnClass = "w-[48px] h-[48px] rounded-full shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer transition-colors duration-1000";
+  const navBtnClass = "w-[48px] h-[48px] rounded-full shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer";
   const getNavBtnStyle = () => ({
     backgroundColor: semantics.topNavBtn,
     color: semantics.text,
@@ -915,20 +909,22 @@ export default function App() {
            height: 100%;
            margin: 0;
            padding: 0;
+           background-color: transparent !important;
         }
 
-        /* 🚀 View Transitions API Magic for Telegram Theme Toggle */
+        /* 🚀 Perfect Telegram View Transitions API CSS */
         ::view-transition-old(root),
         ::view-transition-new(root) {
           animation: none;
           mix-blend-mode: normal;
           display: block;
         }
-        /* Going to Dark: New (Dark) on top */
+        
+        /* Dark Theme Expansion (Dark Circle Grows over Light) */
         html.transition-to-dark ::view-transition-old(root) { z-index: 1; }
         html.transition-to-dark ::view-transition-new(root) { z-index: 2; }
         
-        /* Going to Light: Old (Dark) on top */
+        /* Light Theme Expansion (Dark Circle Shrinks Revealing Light underneath) */
         html.transition-to-light ::view-transition-old(root) { z-index: 2; }
         html.transition-to-light ::view-transition-new(root) { z-index: 1; }
 
@@ -945,7 +941,7 @@ export default function App() {
       
       {/* 🚀 মেইন টাচ কনটেইনার - Fixed size, no selection */}
       <div 
-          className="fixed inset-0 w-full h-[100dvh] overflow-hidden font-nunito select-none z-0 transition-colors duration-100"
+          className="fixed inset-0 w-full h-[100dvh] overflow-hidden font-nunito select-none z-0"
           style={{ backgroundColor: semantics.screenBackground }}>
         
         {/* 🚀 Content Overlay Container */}
@@ -961,6 +957,7 @@ export default function App() {
           
           <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
+          {/* 🚀 কাস্টম Pull-to-Refresh স্পিনার */}
           <motion.div 
              className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
              style={{
@@ -1001,21 +998,24 @@ export default function App() {
             style={{ top: 'max(16px, env(safe-area-inset-top))' }}
             className="absolute left-0 right-0 h-20 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
             
-            {/* 🚀 Spring Bouncy Buttons */}
+            {/* 🚀 Spring Bouncy Buttons with perfect icon swapping */}
             <motion.button 
-               whileTap={{ scale: 0.75, y: 4 }} 
-               transition={{ type: "spring", stiffness: 400, damping: 12, mass: 0.8 }}
+               whileTap={{ scale: 0.8 }} 
+               transition={{ type: "spring", stiffness: 400, damping: 10 }}
                onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div key={isDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ type: "spring", stiffness: 400, damping: 15 }}>
-                  {isDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
-                </motion.div>
-              </AnimatePresence>
+              <div className="relative w-[20px] h-[20px] flex items-center justify-center">
+                 <motion.div animate={{ scale: isDarkMode ? 0 : 1, rotate: isDarkMode ? 90 : 0, opacity: isDarkMode ? 0 : 1 }} transition={{ duration: 0.3 }} className="absolute">
+                    <Sun className="w-[20px] h-[20px]" />
+                 </motion.div>
+                 <motion.div animate={{ scale: isDarkMode ? 1 : 0, rotate: isDarkMode ? 0 : -90, opacity: isDarkMode ? 1 : 0 }} transition={{ duration: 0.3 }} className="absolute">
+                    <Moon className="w-[20px] h-[20px]" />
+                 </motion.div>
+              </div>
             </motion.button>
 
             <motion.button 
-               whileTap={{ scale: 0.75, y: 4 }} 
-               transition={{ type: "spring", stiffness: 400, damping: 12, mass: 0.8 }}
+               whileTap={{ scale: 0.8 }} 
+               transition={{ type: "spring", stiffness: 400, damping: 10 }}
                onPointerDown={handleRestartPointerDown} 
                onPointerUp={handleRestartPointerUp}
                onPointerLeave={handleRestartPointerUp}
@@ -1027,24 +1027,28 @@ export default function App() {
             </motion.button>
 
             <motion.button 
-               whileTap={{ scale: 0.75, y: 4 }} 
-               transition={{ type: "spring", stiffness: 400, damping: 12, mass: 0.8 }}
+               whileTap={{ scale: 0.8 }} 
+               transition={{ type: "spring", stiffness: 400, damping: 10 }}
                onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div key={isSoundOn ? 'on' : 'off'} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: "spring", stiffness: 400, damping: 15 }}>
-                  {isSoundOn ? <Volume2 className="w-[20px] h-[20px]" /> : <VolumeX className="w-[20px] h-[20px]" />}
-                </motion.div>
-              </AnimatePresence>
+              <div className="relative w-[20px] h-[20px] flex items-center justify-center">
+                 <motion.div animate={{ scale: isSoundOn ? 1 : 0, opacity: isSoundOn ? 1 : 0 }} transition={{ duration: 0.2 }} className="absolute">
+                    <Volume2 className="w-[20px] h-[20px]" />
+                 </motion.div>
+                 <motion.div animate={{ scale: isSoundOn ? 0 : 1, opacity: isSoundOn ? 0 : 1 }} transition={{ duration: 0.2 }} className="absolute">
+                    <VolumeX className="w-[20px] h-[20px]" />
+                 </motion.div>
+              </div>
             </motion.button>
             
             <motion.button 
-               whileTap={{ scale: 0.75, y: 4 }} 
-               transition={{ type: "spring", stiffness: 400, damping: 12, mass: 0.8 }}
+               whileTap={{ scale: 0.8 }} 
+               transition={{ type: "spring", stiffness: 400, damping: 10 }}
                onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
                <SettingsIcon className="w-[20px] h-[20px]" />
             </motion.button>
           </motion.nav>
 
+          {/* 🚀 Main Content Wrapper */}
           <motion.div 
              initial={{ opacity: 0, scale: 0.9, y: 15 }} 
              animate={{ opacity: 1, scale: 1, y: 0 }} 
@@ -1057,21 +1061,21 @@ export default function App() {
                  className="w-full flex flex-col items-center pt-24 relative z-10" 
               >
                 
-                <motion.h1 style={{ color: semantics.text }} className="font-nunito-black text-[40px] sm:text-[44px] tracking-tight drop-shadow-sm transition-colors duration-1000 text-center w-full m-0">
+                <motion.h1 style={{ color: semantics.text }} className="font-nunito-black text-[40px] sm:text-[44px] tracking-tight drop-shadow-sm text-center w-full m-0">
                   Tic Tac Toe
                 </motion.h1>
 
-                <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex p-1.5 rounded-[28px] relative w-[272px] mx-auto shadow-sm transition-colors duration-1000 m-0">
+                <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex p-1.5 rounded-[28px] relative w-[272px] mx-auto shadow-sm m-0">
                   <motion.div 
-                    className="absolute top-1.5 bottom-1.5 w-[130px] rounded-[24px] shadow-sm transition-colors duration-1000"
+                    className="absolute top-1.5 bottom-1.5 w-[130px] rounded-[24px] shadow-sm"
                     style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }}
                     animate={{ x: isSinglePlayer ? 0 : 130 }}
                     transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
                   />
-                  <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} style={{ color: semantics.text, opacity: isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-1000">
+                  <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} style={{ color: semantics.text, opacity: isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-300">
                     <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
                   </button>
-                  <button onClick={() => switchModeClick(false)} style={{ color: semantics.text, opacity: !isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-1000">
+                  <button onClick={() => switchModeClick(false)} style={{ color: semantics.text, opacity: !isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-300">
                     <span className="relative z-10 flex items-center gap-1.5"><UsersRound color="currentColor" className="w-[18px] h-[18px]" strokeWidth={2.5}/> 2 Players</span>
                   </button>
                 </div>
@@ -1081,7 +1085,7 @@ export default function App() {
                   onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} 
                   animate={{ scale: winnerInfo ? 1.05 : 1 }} 
                   style={{ backgroundColor: semantics.bannerDefault.bg, color: semantics.bannerDefault.text }} 
-                  className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm select-none relative overflow-hidden transition-colors duration-1000 m-0 ${board.every(c => c === null) && !winnerInfo && !overallWinner ? 'cursor-pointer' : ''}`}
+                  className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm select-none relative overflow-hidden m-0 ${board.every(c => c === null) && !winnerInfo && !overallWinner ? 'cursor-pointer' : ''}`}
                 >
                   <div className="flex items-center gap-2 relative z-10">
                     {winnerInfo ? (
@@ -1137,7 +1141,7 @@ export default function App() {
                 </motion.div>
 
                 <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible select-none m-0">
-                   <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm transition-colors duration-1000" style={{ backgroundColor: semantics.scoreBg }}>
+                   <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg }}>
                       <div className="flex items-center justify-center mb-0.5 opacity-90">
                          <DynamicIcon player="X" p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={currentXColor} className="w-3.5 h-3.5" />
                       </div>
@@ -1150,7 +1154,7 @@ export default function App() {
                       </div>
                    </div>
 
-                   <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm transition-colors duration-1000" style={{ backgroundColor: semantics.scoreBg, color: semantics.text }}>
+                   <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg, color: semantics.text }}>
                       <span className="text-[10px] sm:text-xs font-black uppercase opacity-60">Draws</span>
                       <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
                         <AnimatePresence mode="popLayout">
@@ -1161,7 +1165,7 @@ export default function App() {
                       </div>
                    </div>
 
-                   <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm transition-colors duration-1000" style={{ backgroundColor: semantics.scoreBg }}>
+                   <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg }}>
                       <div className="flex items-center justify-center mb-0.5 opacity-90">
                          <DynamicIcon player="O" p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={currentOColor} className="w-3.5 h-3.5" />
                       </div>
@@ -1180,7 +1184,7 @@ export default function App() {
                     animate={isDraw ? { x: [-12, 12, -12, 12, -6, 6, 0], opacity: 1, scale: 1 } : { x: 0, opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5, ease: "easeInOut" }}
                     style={{ backgroundColor: semantics.mainGridBackground }} 
-                    className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden transition-colors duration-1000"
+                    className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden"
                   >
                     <div ref={boardRef} className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] aspect-square">
                       {board.map((value, i) => {
@@ -1193,7 +1197,7 @@ export default function App() {
                             whileTap={!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? { borderRadius: '50%', scale: 0.85 } : {}}
                             animate={isSquished ? { borderRadius: '50%', scale: 0.85 } : { borderRadius: '24px', scale: 1 }}
                             transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                            className={`w-full h-full flex items-center justify-center relative overflow-hidden shadow-sm transition-colors duration-1000 ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}
+                            className={`w-full h-full flex items-center justify-center relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}
                           >
                             <AnimatePresence>
                               {value && !isResetting && (
