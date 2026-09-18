@@ -81,7 +81,7 @@ const DynamicIcon = ({ player, p1Custom, p1Idx, p2Custom, p2Idx, color, classNam
 
 const audioState = { ctx: null as AudioContext | null };
 
-// 🚀 20 Completely Distinct, Soft & Pleasant Synthesizers
+// 🚀 ২০টি সম্পূর্ণ ইউনিক এবং সফট সাউন্ড লজিক (যা সব মোডের জন্য ডায়নামিক)
 const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', variant: number) => {
   if (!variant || variant === 0 || typeof window === 'undefined') return;
   try {
@@ -92,11 +92,38 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' 
     const ctx = audioState.ctx;
     const t = ctx.currentTime;
     
-    // Core Oscillator Function for 100% Customization
-    const playOsc = (wave: OscillatorType, freq: number, vol: number, attack: number, decay: number, sweep: number = 1, sweepDur: number = 0, delay: number = 0) => {
+    // 20 Distinct Soft Profiles (f = freq, d = duration, w = wave form, s = sweep mult)
+    const profiles = [
+      { w: 'sine', f: 0, d: 0, s: 0 },
+      { w: 'sine', f: 600, d: 0.1, s: 1 },        // 1: Soft Note
+      { w: 'sine', f: 400, d: 0.1, s: 1.5 },      // 2: Bubble Up
+      { w: 'triangle', f: 800, d: 0.05, s: 1 },   // 3: Wood Tap
+      { w: 'sine', f: 1200, d: 0.15, s: 1 },      // 4: Glass Tink
+      { w: 'sine', f: 300, d: 0.1, s: 0.5 },      // 5: Soft Drop
+      { w: 'triangle', f: 600, d: 0.1, s: 1 },    // 6: Marimba
+      { w: 'sine', f: 900, d: 0.08, s: 1 },       // 7: High Ping
+      { w: 'triangle', f: 350, d: 0.15, s: 1 },   // 8: Muted Thud
+      { w: 'sine', f: 1500, d: 0.05, s: 1 },      // 9: Crystal
+      { w: 'sine', f: 500, d: 0.2, s: 1 },        // 10: Vibraphone
+      { w: 'triangle', f: 1000, d: 0.05, s: 1 },  // 11: Pluck
+      { w: 'sine', f: 800, d: 0.1, s: 0.5 },      // 12: Reverse Bubble
+      { w: 'sine', f: 450, d: 0.15, s: 1 },       // 13: Soft Bell
+      { w: 'triangle', f: 750, d: 0.08, s: 1.2 }, // 14: Zip
+      { w: 'sine', f: 200, d: 0.15, s: 1 },       // 15: Deep Tone
+      { w: 'triangle', f: 550, d: 0.12, s: 1 },   // 16: Wood Block
+      { w: 'sine', f: 1800, d: 0.03, s: 1 },      // 17: Tiny Tick
+      { w: 'sine', f: 350, d: 0.1, s: 1.5 },      // 18: Hollow Pop
+      { w: 'triangle', f: 900, d: 0.1, s: 0.8 },  // 19: Synth Blip
+      { w: 'sine', f: 700, d: 0.15, s: 1 }        // 20: Chime
+    ];
+
+    const p = profiles[variant] || profiles[1];
+
+    // Core Oscillator Player
+    const playOsc = (wave: string, freq: number, vol: number, attack: number, decay: number, sweep: number = 1, sweepDur: number = 0, delay: number = 0) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = wave;
+        osc.type = wave as OscillatorType;
         osc.frequency.setValueAtTime(freq, t + delay);
         if (sweep !== 1) osc.frequency.exponentialRampToValueAtTime(freq * sweep, t + delay + sweepDur);
         
@@ -110,44 +137,30 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' 
         osc.stop(t + delay + attack + decay);
     };
 
+    // 🚀 Dynamic Tone Application based on selected variant!
     if (type === 'tap') {
-        switch(variant) {
-            case 1: playOsc('triangle', 600, 0.5, 0.01, 0.15); break; // Marimba
-            case 2: playOsc('sine', 1200, 0.4, 0.01, 0.3); break; // Glass Ping
-            case 3: playOsc('triangle', 400, 0.5, 0.01, 0.1, 0.5, 0.1); break; // Wood Knock
-            case 4: playOsc('sine', 800, 0.3, 0.01, 0.4); playOsc('sine', 1600, 0.1, 0.01, 0.3); break; // Soft Bell
-            case 5: playOsc('sine', 150, 0.6, 0.02, 0.2, 0.5, 0.2); break; // Deep Sub Drop
-            case 6: playOsc('square', 1500, 0.05, 0.005, 0.05); break; // Short Digital Blip
-            case 7: playOsc('sine', 523.25, 0.2, 0.02, 0.2); playOsc('sine', 659.25, 0.2, 0.02, 0.2); playOsc('sine', 783.99, 0.2, 0.02, 0.2); break; // Magic Chord
-            case 8: playOsc('triangle', 300, 0.5, 0.01, 0.1, 1.5, 0.1); break; // Hollow Pop
-            case 9: playOsc('sawtooth', 300, 0.1, 0.01, 0.15, 0.5, 0.1); break; // Rubber Band
-            case 10: playOsc('sine', 2000, 0.3, 0.005, 0.1); break; // Metallic Tink
-            case 11: playOsc('sine', 400, 0.4, 0.02, 0.1, 2, 0.1); break; // Bubble
-            case 12: playOsc('sawtooth', 1200, 0.08, 0.01, 0.2, 0.2, 0.2); break; // Space Zap
-            case 13: playOsc('sine', 700, 0.3, 0.05, 0.3); break; // Gentle Flute
-            case 14: playOsc('triangle', 900, 0.4, 0.01, 0.15, 0.8, 0.1); break; // Pluck
-            case 15: playOsc('square', 600, 0.05, 0.01, 0.2); playOsc('sine', 600, 0.3, 0.01, 0.2); break; // Toy Piano
-            case 16: playOsc('triangle', 1000, 0.3, 0.01, 0.05); playOsc('triangle', 1200, 0.3, 0.01, 0.05, 1, 0, 0.08); break; // Double Beep
-            case 17: playOsc('sine', 1400, 0.4, 0.005, 0.08); break; // Xylophone
-            case 18: playOsc('triangle', 500, 0.5, 0.02, 0.25); break; // Kalimba
-            case 19: playOsc('sine', 800, 0.4, 0.01, 0.08, 1.5, 0.05); break; // Water Drop
-            case 20: playOsc('sine', 1800, 0.2, 0.01, 0.5); playOsc('sine', 3600, 0.1, 0.01, 0.4); break; // Crystal
-            default: playOsc('sine', 600, 0.4, 0.01, 0.1); break;
-        }
+        playOsc(p.w, p.f, 0.4, 0.01, p.d, p.s, 0.1);
     } else if (type === 'pop') {
-        playOsc('sine', 400, 0.4, 0.01, 0.1, 1.5, 0.1);
+        playOsc(p.w, p.f * 0.8, 0.4, 0.01, p.d * 1.5, p.s * 0.8, 0.1);
     } else if (type === 'point' || type === 'unmute') {
-        playOsc('sine', 800, 0.3, 0.01, 0.1, 1.2, 0.1);
+        playOsc(p.w, p.f * 1.2, 0.3, 0.01, p.d, p.s, 0.1);
     } else if (type === 'mode') {
-        playOsc('sine', 600, 0.3, 0.02, 0.1); playOsc('sine', 800, 0.3, 0.02, 0.1, 1, 0, 0.15);
+        playOsc(p.w, p.f, 0.3, 0.02, p.d);
+        playOsc(p.w, p.f * 1.33, 0.3, 0.02, p.d, 1, 0, 0.15);
     } else if (type === 'refresh') {
-        playOsc('sine', 400, 0.3, 0.02, 0.1); playOsc('sine', 500, 0.3, 0.02, 0.1, 1, 0, 0.08); playOsc('sine', 600, 0.3, 0.02, 0.2, 1, 0, 0.16);
+        playOsc(p.w, p.f * 0.8, 0.3, 0.02, p.d);
+        playOsc(p.w, p.f, 0.3, 0.02, p.d, 1, 0, 0.08);
+        playOsc(p.w, p.f * 1.25, 0.3, 0.02, p.d * 1.5, 1, 0, 0.16);
     } else if (type === 'win') {
-        playOsc('sine', 440, 0.3, 0.05, 0.1); playOsc('sine', 554, 0.3, 0.05, 0.1, 1, 0, 0.1); playOsc('sine', 659, 0.3, 0.05, 0.4, 1, 0, 0.2);
+        playOsc(p.w, p.f, 0.3, 0.05, p.d);
+        playOsc(p.w, p.f * 1.25, 0.3, 0.05, p.d, 1, 0, 0.1);
+        playOsc(p.w, p.f * 1.5, 0.3, 0.05, p.d * 2, 1, 0, 0.2);
     } else if (type === 'overallWin') {
-        playOsc('triangle', 523, 0.3, 0.05, 0.1); playOsc('triangle', 659, 0.3, 0.05, 0.1, 1, 0, 0.1); 
-        playOsc('triangle', 783, 0.3, 0.05, 0.1, 1, 0, 0.2); playOsc('triangle', 1046, 0.3, 0.05, 0.1, 1, 0, 0.3); 
-        playOsc('triangle', 1318, 0.4, 0.05, 0.6, 1, 0, 0.4);
+        playOsc(p.w, p.f * 0.8, 0.3, 0.05, p.d);
+        playOsc(p.w, p.f, 0.3, 0.05, p.d, 1, 0, 0.1);
+        playOsc(p.w, p.f * 1.25, 0.3, 0.05, p.d, 1, 0, 0.2);
+        playOsc(p.w, p.f * 1.5, 0.3, 0.05, p.d, 1, 0, 0.3);
+        playOsc(p.w, p.f * 2.0, 0.4, 0.05, p.d * 2.5, 1, 0, 0.4);
     }
   } catch(e) {}
 };
@@ -286,6 +299,7 @@ export default function App() {
     return true; 
   });
   
+  const [uiDarkMode, setUiDarkMode] = useState(() => isDarkMode); 
   const [isAmoled, setIsAmoled] = useState(() => getSaved('isAmoled', false));
 
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(() => getSaved('winnerInfo', null));
@@ -353,7 +367,6 @@ export default function App() {
        const resistance = deltaY * 0.35; 
        setPullProgress(resistance);
        
-       // 🚀 ম্যাজিক: সমস্ত কন্টেন্ট একসাথে ফ্লেক্স গ্যাপে প্রসারিত হবে
        const dynamicGap = 20 + (resistance * 0.25); 
        mainBouncer.set({ 
            y: resistance, 
@@ -478,65 +491,70 @@ export default function App() {
   const currentXColor = enableCustomX ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[0];
   const currentOColor = enableCustomO ? PLAYER_COLORS[oColorIdx] : PLAYER_COLORS[9];
 
-  // 🚀 Native Telegram-Style View Transition Theme Toggle
+  const lightBgColor = useDefaultTheme ? ORIGINAL_THEME.light : CUSTOM_THEMES[themeIdx].light;
+  const darkBgColor = isAmoled ? '#000000' : (useDefaultTheme ? ORIGINAL_THEME.dark : CUSTOM_THEMES[themeIdx].dark);
+
+  // 🚀 Native Telegram-Style View Transition Theme Toggle (BUG FREE)
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isTransitioning.current) return;
-    isTransitioning.current = true;
     
     triggerHaptic([80]); 
     if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop);
     
     const nextDark = !isDarkMode;
+    const targetBtn = e.currentTarget;
 
-    // Fallback if browser doesn't support it
-    if (!document.startViewTransition) {
-        setIsDarkMode(nextDark);
-        isTransitioning.current = false;
-        return;
-    }
+    // 1. Immediately change the UI to bounce the button icon smoothly
+    setUiDarkMode(nextDark);
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
+    // 2. Wait exactly for the button's spring animation to settle before triggering full screen dark mode overlay
+    setTimeout(() => {
+        if (!document.startViewTransition) {
+            setIsDarkMode(nextDark);
+            return;
+        }
 
-    // Set classes for dynamic z-index in CSS
-    if (nextDark) {
-        document.documentElement.classList.add('transition-to-dark');
-        document.documentElement.classList.remove('transition-to-light');
-    } else {
-        document.documentElement.classList.add('transition-to-light');
-        document.documentElement.classList.remove('transition-to-dark');
-    }
-
-    const transition = document.startViewTransition(() => {
-        setIsDarkMode(nextDark);
-    });
-
-    transition.ready.then(() => {
-        const endRadius = Math.hypot(
-            Math.max(x, window.innerWidth - x),
-            Math.max(y, window.innerHeight - y)
-        );
+        isTransitioning.current = true;
+        const rect = targetBtn.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
 
         if (nextDark) {
-            // Light -> Dark (Dark Circle Expands)
-            document.documentElement.animate(
-                { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
-                { duration: 500, easing: "ease-in-out", pseudoElement: "::view-transition-new(root)" }
-            );
+            document.documentElement.classList.add('transition-to-dark');
+            document.documentElement.classList.remove('transition-to-light');
         } else {
-            // Dark -> Light (Dark Circle Shrinks Revealing Light)
-            document.documentElement.animate(
-                { clipPath: [`circle(${endRadius}px at ${x}px ${y}px)`, `circle(0px at ${x}px ${y}px)`] },
-                { duration: 500, easing: "ease-in-out", pseudoElement: "::view-transition-old(root)" }
-            );
+            document.documentElement.classList.add('transition-to-light');
+            document.documentElement.classList.remove('transition-to-dark');
         }
-    });
 
-    transition.finished.then(() => {
-        document.documentElement.classList.remove('transition-to-dark', 'transition-to-light');
-        isTransitioning.current = false;
-    });
+        const transition = document.startViewTransition(() => {
+            setIsDarkMode(nextDark);
+        });
+
+        transition.ready.then(() => {
+            const endRadius = Math.hypot(
+                Math.max(x, window.innerWidth - x),
+                Math.max(y, window.innerHeight - y)
+            );
+
+            if (nextDark) {
+                document.documentElement.animate(
+                    { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
+                    { duration: 500, easing: "ease-in-out", pseudoElement: "::view-transition-new(root)" }
+                );
+            } else {
+                document.documentElement.animate(
+                    { clipPath: [`circle(${endRadius}px at ${x}px ${y}px)`, `circle(0px at ${x}px ${y}px)`] },
+                    { duration: 500, easing: "ease-in-out", pseudoElement: "::view-transition-old(root)" }
+                );
+            }
+        });
+
+        transition.finished.then(() => {
+            document.documentElement.classList.remove('transition-to-dark', 'transition-to-light');
+            isTransitioning.current = false;
+        });
+    }, 200); // 🚀 200ms delay ensures the button finishes jumping!
   };
 
   const toggleSound = () => {
@@ -928,7 +946,7 @@ export default function App() {
       
       {/* 🚀 মেইন টাচ কনটেইনার - Fixed size, no selection */}
       <div 
-          className="fixed inset-0 w-full h-[100dvh] overflow-hidden font-nunito select-none z-0"
+          className="fixed inset-0 w-full h-[100dvh] overflow-hidden font-nunito select-none z-0 transition-colors duration-100"
           style={{ backgroundColor: semantics.screenBackground }}>
         
         {/* 🚀 Content Overlay Container */}
@@ -985,12 +1003,13 @@ export default function App() {
             style={{ top: 'max(16px, env(safe-area-inset-top))' }}
             className="absolute left-0 right-0 h-20 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
             
-            {/* 🚀 Fixed Theme Button - CSS Fade instead of Unmount Bug */}
+            {/* 🚀 The Telegram Style Mode Toggle Button! */}
             <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
-              <div className="relative w-[20px] h-[20px] flex items-center justify-center">
-                 <Sun className={`absolute w-full h-full transition-transform duration-500 ease-in-out ${isDarkMode ? 'scale-0 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'}`} />
-                 <Moon className={`absolute w-full h-full transition-transform duration-500 ease-in-out ${isDarkMode ? 'scale-100 rotate-0 opacity-100' : 'scale-0 -rotate-90 opacity-0'}`} />
-              </div>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div key={uiDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
+                  {uiDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
+                </motion.div>
+              </AnimatePresence>
             </motion.button>
 
             <motion.button 
@@ -1005,12 +1024,12 @@ export default function App() {
               </motion.div>
             </motion.button>
 
-            {/* 🚀 Fixed Sound Button - CSS Fade instead of Unmount Bug */}
             <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
-              <div className="relative w-[20px] h-[20px] flex items-center justify-center">
-                 <Volume2 className={`absolute w-full h-full transition-transform duration-300 ease-in-out ${isSoundOn ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`} />
-                 <VolumeX className={`absolute w-full h-full transition-transform duration-300 ease-in-out ${isSoundOn ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`} />
-              </div>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div key={isSoundOn ? 'on' : 'off'} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ duration: 0.2 }}>
+                  {isSoundOn ? <Volume2 className="w-[20px] h-[20px]" /> : <VolumeX className="w-[20px] h-[20px]" />}
+                </motion.div>
+              </AnimatePresence>
             </motion.button>
             
             <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
