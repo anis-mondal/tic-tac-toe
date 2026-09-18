@@ -22,13 +22,15 @@ import { App as CapApp } from '@capacitor/app';
 import SettingsModal, { PLAYER_COLORS, CUSTOM_THEMES, ORIGINAL_THEME, EXTRA_LINE_COLORS, ICONS_LIST } from './components/SettingsModal';
 import AboutModal from './components/AboutModal';
 
-// 🚀 Premium Solid Icons (Heroicons Solid) - No extra library needed
-export const SolidSun = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18.75a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM6.166 17.834a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.06-1.061l-1.591-1.59zM4.5 12a.75.75 0 01-.75.75H1.5a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM6.166 5.106a.75.75 0 00-1.06 1.06l1.591 1.59a.75.75 0 101.06-1.061l-1.59-1.59z"/></svg>;
-export const SolidMoon = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path fillRule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clipRule="evenodd"/></svg>;
-export const SolidVolume = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06zM18.584 5.106a.75.75 0 011.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 11-1.06-1.06 8.25 8.25 0 000-11.668.75.75 0 010-1.06z"/><path d="M15.932 7.757a.75.75 0 011.061 0 6 6 0 010 8.486.75.75 0 01-1.06-1.061 4.5 4.5 0 000-6.364.75.75 0 010-1.06z"/></svg>;
-export const SolidMute = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06zM17.78 9.22a.75.75 0 10-1.06 1.06L18.44 12l-1.72 1.72a.75.75 0 001.06 1.06l1.72-1.72 1.72 1.72a.75.75 0 101.06-1.06L20.56 12l1.72-1.72a.75.75 0 00-1.06-1.06l-1.72 1.72-1.72-1.72z"/></svg>;
-export const SolidSettings = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path fillRule="evenodd" d="M11.828 2.25c-.916 0-1.699.663-1.85 1.567l-.091.549a.798.798 0 01-.517.608 7.45 7.45 0 00-.478.198.798.798 0 01-.796-.064l-.453-.324a1.875 1.875 0 00-2.416.2l-.243.243a1.875 1.875 0 00-.2 2.416l.324.453a.798.798 0 01.064.796 7.448 7.448 0 00-.198.478.798.798 0 01-.608.517l-.55.092a1.875 1.875 0 00-1.566 1.849v.344c0 .916.663 1.699 1.567 1.85l.549.091c.281.047.508.25.608.517.06.162.127.321.198.478a.798.798 0 01-.064.796l-.324.453a1.875 1.875 0 00.2 2.416l.243.243c.648.648 1.67.733 2.416.2l.453-.324a.798.798 0 01.796-.064c.157.071.316.137.478.198.267.1.47.327.517.608l.092.55c.15.903.932 1.566 1.849 1.566h.344c.916 0 1.699-.663 1.85-1.567l.091-.549a.798.798 0 01.517-.608 7.52 7.52 0 00.478-.198.798.798 0 01.796.064l.453.324a1.875 1.875 0 002.416-.2l.243-.243c.648-.648.733-1.67.2-2.416l-.324-.453a.798.798 0 01-.064-.796c.071-.157.137-.316.198-.478.1-.267.327-.47.608-.517l.55-.091a1.875 1.875 0 001.566-1.85v-.344c0-.916-.663-1.699-1.567-1.85l-.549-.091a.798.798 0 01-.608-.517 7.507 7.507 0 00-.198-.478.798.798 0 01.064-.796l.324-.453a1.875 1.875 0 00-.2-2.416l-.243-.243a1.875 1.875 0 00-2.416-.2l-.453.324a.798.798 0 01-.796.064 7.462 7.462 0 00-.478-.198.798.798 0 01-.517-.608l-.091-.55a1.875 1.875 0 00-1.85-1.566h-.344zM12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" clipRule="evenodd"/></svg>;
-export const SolidUsers = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>;
+// 🚀 Google Material Symbols Solid (For Top Nav only)
+export const MaterialSun = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M12 17q-2.075 0-3.537-1.463Q7 14.075 7 12t1.463-3.538Q9.925 7 12 7t3.538 1.462Q17 9.925 17 12q0 2.075-1.462 3.537Q14.075 17 12 17ZM2 13q-.425 0-.712-.288Q1 12.425 1 12t.288-.713Q1.575 11 2 11h2q.425 0 .713.287Q5 11.575 5 12t-.287.712Q4.425 13 4 13Zm18 0q-.425 0-.712-.288Q19 12.425 19 12t.288-.713Q19.575 11 20 11h2q.425 0 .712.287.288.288.288.713t-.288.712Q22.425 13 22 13Zm-8-8q-.425 0-.712-.288Q11 4.425 11 4V2q0-.425.288-.713Q11.575 1 12 1t.713.287Q13 1.575 13 2v2q0 .425-.287.712Q12.425 5 12 5Zm0 18q-.425 0-.712-.288Q11 22.425 11 22v-2q0-.425.288-.712Q11.575 19 12 19t.713.288Q13 19.575 13 20v2q0 .425-.287.712Q12.425 23 12 23ZM5.65 7.05L4.225 5.65q-.275-.275-.275-.7t.275-.7q.275-.275.7-.275t.7.275l1.425 1.4q.275.275.275.7t-.275.7q-.275.275-.7.275t-.7-.275Zm12.7 12.725l-1.425-1.425q-.275-.275-.275-.7t.275-.7q.275-.275.7-.275t.7.275l1.425 1.425q.275.275.275.7t-.275.7q-.275.275-.7.275t-.7-.275ZM7.05 18.35q-.275-.275-.7-.275t-.7.275l-1.425 1.425q-.275.275-.275.7t.275.7q.275.275.7.275t.7-.275l1.425-1.425q.275-.275.275-.7t-.275-.7Zm11.3-11.3q-.275-.275-.275-.7t.275-.7l1.425-1.425q.275-.275.7-.275t.7.275q.275.275.275.7t-.275.7L19.75 7.05q-.275.275-.7.275t-.7-.275Z"/></svg>;
+export const MaterialMoon = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M12 21q-3.75 0-6.375-2.625T3 12q0-3.75 2.625-6.375T12 3q.35 0 .688.025.337.025.662.075-1.025.725-1.637 1.887Q11.1 6.15 11.1 7.5q0 2.25 1.575 3.825Q14.25 12.9 16.5 12.9q1.35 0 2.513-.613 1.162-.612 1.887-1.637.05.325.075.662Q21 11.65 21 12q0 3.75-2.625 6.375T12 21Z"/></svg>;
+export const MaterialVolume = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M14 20.725v-2.15q2.325-.675 3.913-2.612Q19.5 14.025 19.5 11.5q0-2.525-1.587-4.462Q16.325 5.1 14 4.425V2.275q3.225.725 5.363 3.325Q21.5 8.2 21.5 11.5q0 3.3-2.137 5.9Q17.225 20 14 20.725ZM4 15V8h3.15L12 3.15v16.7L7.15 15Zm10-1.875v-3.2q1.075-.425 1.787-1.413Q16.5 7.525 16.5 6.3V6.275q-.7-.975-1.787-1.4V1.6q2.025.625 3.262 2.375Q19.25 5.725 19.25 8t-1.238 4.025q-1.237 1.75-3.262 2.375Z"/><path d="M14 16.225v-9.45q1.075.525 1.788 1.587Q16.5 9.425 16.5 11.5q0 2.075-.712 3.137Q15.075 15.7 14 16.225Z"/></svg>;
+export const MaterialMute = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M21 22.425l-2.45-2.45q-.675.475-1.425.862t-1.625.563v-2.15q.55-.175 1.05-.438t.95-.612L14 14.75v5.95L9.15 15H5V8h3.175l-7-7 1.4-1.425 19.8 19.85ZM12 7.75v-4.6L9.675 5.425Zm4.5 3.75l-1.525-1.5q.275-.325.4-.737.125-.413.125-.863 0-1.25-.8-2.225Q13.9 5.2 12 4.775v-2.1q2.9.525 4.7 2.763Q18.5 7.675 18.5 10.4q0 .775-.2 1.487t-.5 1.363Z"/></svg>;
+export const MaterialSettings = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M12 15.5q1.45 0 2.475-1.025Q15.5 13.45 15.5 12q0-1.45-1.025-2.475Q13.45 8.5 12 8.5q-1.45 0-2.475 1.025Q8.5 10.55 8.5 12q0 1.45 1.025 2.475Q10.55 15.5 12 15.5Zm-1.2 5.3v-2.1q-.7-.125-1.325-.425t-1.175-.775l-1.8 1.3-1.65-2.85 1.6-1.1q-.075-.325-.112-.675T6.3 12q0-.35.038-.7t.112-.65l-1.6-1.1 1.65-2.85 1.8 1.3q.55-.475 1.175-.775T10.8 6.8V4.7h3.3v2.1q.7.125 1.325.425t1.175.775l1.8-1.3 1.65 2.85-1.6 1.1q.075.325.112.675t.038.7q0 .35-.038.7t-.112.65l1.6 1.1-1.65 2.85-1.8-1.3q-.55.475-1.175.775T13.2 17.2v2.1Z"/></svg>;
+
+// 🚀 Solid Users Icon (Kept as you liked)
+export const SolidUsers = ({ className, strokeWidth }: { className?: string, strokeWidth?: number | string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className} strokeWidth={strokeWidth}><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>;
 
 type Player = 'X' | 'O';
 type SquareValue = Player | null;
@@ -55,7 +57,7 @@ const MaterialSpinner = ({ color }: { color: string }) => (
   </motion.svg>
 );
 
-// 🚀 Original Hollow AI Logo
+// 🚀 AI Logo Reverted to Original Hollow Look
 const AILogo = () => (
   <svg width="20" height="20" viewBox="0 0 100 100" className="drop-shadow-sm shrink-0">
     <defs>
@@ -72,6 +74,7 @@ const AILogo = () => (
   </svg>
 );
 
+// 🚀 Custom Game Icons set back to Filled (`fill={color}`)
 const DynamicIcon = ({ player, p1Custom, p1Idx, p2Custom, p2Idx, color, className }: { player: Player | null, p1Custom: boolean, p1Idx: number, p2Custom: boolean, p2Idx: number, color: string, className?: string }) => {
   if (!player) return null;
   const isP1 = player === 'X';
@@ -80,7 +83,7 @@ const DynamicIcon = ({ player, p1Custom, p1Idx, p2Custom, p2Idx, color, classNam
 
   if (isCustomEnabled) {
      const SelectedIcon = ICONS_LIST[iconIndex % ICONS_LIST.length];
-     return <SelectedIcon color={color} fill="none" className={className} strokeWidth={2.5} />;
+     return <SelectedIcon color={color} fill={color} className={className} strokeWidth={2.5} />;
   }
   
   if (isP1) {
@@ -908,7 +911,7 @@ export default function App() {
            background-color: transparent !important;
         }
 
-        /* 🚀 Perfect Telegram View Transitions API CSS (Zero Lag GPU Render) */
+        /* 🚀 Perfect Telegram View Transitions API CSS */
         ::view-transition-old(root),
         ::view-transition-new(root) {
           animation: none;
@@ -994,8 +997,7 @@ export default function App() {
                <MaterialSpinner color={activeLineColor} />
              ) : (
                <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}>
-                  {/* 🚀 Original Hollow Refresh Icon */}
-                  <RotateCcw className="w-[22px] h-[22px]" strokeWidth={2.5} />
+                  <RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} />
                </motion.div>
              )}
           </motion.div>
@@ -1014,12 +1016,12 @@ export default function App() {
                onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isDarkMode ? 0 : 1, rotate: isDarkMode ? 90 : 0, opacity: isDarkMode ? 0 : 1 }} transition={{ duration: 0.3 }} className="absolute">
-                    {/* 🚀 Premium Solid Sun Icon */}
-                    <SolidSun className="w-[20px] h-[20px]" />
+                    {/* 🚀 Beautiful Solid Google Material Sun */}
+                    <MaterialSun className="w-[20px] h-[20px]" />
                  </motion.div>
                  <motion.div animate={{ scale: isDarkMode ? 1 : 0, rotate: isDarkMode ? 0 : -90, opacity: isDarkMode ? 1 : 0 }} transition={{ duration: 0.3 }} className="absolute">
-                    {/* 🚀 Premium Solid Moon Icon (like Pitch Black) */}
-                    <SolidMoon className="w-[20px] h-[20px]" />
+                    {/* 🚀 Beautiful Solid Google Material Moon */}
+                    <MaterialMoon className="w-[20px] h-[20px]" />
                  </motion.div>
               </div>
             </motion.button>
@@ -1046,12 +1048,12 @@ export default function App() {
                onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isSoundOn ? 1 : 0, opacity: isSoundOn ? 1 : 0 }} transition={{ duration: 0.2 }} className="absolute">
-                    {/* 🚀 Premium Solid Volume Icon */}
-                    <SolidVolume className="w-[20px] h-[20px]" />
+                    {/* 🚀 Beautiful Solid Google Material Volume */}
+                    <MaterialVolume className="w-[20px] h-[20px]" />
                  </motion.div>
                  <motion.div animate={{ scale: isSoundOn ? 0 : 1, opacity: isSoundOn ? 0 : 1 }} transition={{ duration: 0.2 }} className="absolute">
-                    {/* 🚀 Premium Solid Mute Icon */}
-                    <SolidMute className="w-[20px] h-[20px]" />
+                    {/* 🚀 Beautiful Solid Google Material Mute */}
+                    <MaterialMute className="w-[20px] h-[20px]" />
                  </motion.div>
               </div>
             </motion.button>
@@ -1061,8 +1063,8 @@ export default function App() {
                whileTap={{ scale: 0.75 }} 
                transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
                onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
-               {/* 🚀 Premium Solid Settings Icon */}
-               <SolidSettings className="w-[20px] h-[20px]" />
+               {/* 🚀 Beautiful Solid Google Material Settings */}
+               <MaterialSettings className="w-[20px] h-[20px]" />
             </motion.button>
           </motion.nav>
 
@@ -1090,11 +1092,10 @@ export default function App() {
                     transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
                   />
                   <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} style={{ color: semantics.text, opacity: isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-300">
-                    {/* 🚀 Original Hollow AI Icon */}
                     <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
                   </button>
                   <button onClick={() => switchModeClick(false)} style={{ color: semantics.text, opacity: !isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-300">
-                    {/* 🚀 Solid 2-Players Icon */}
+                    {/* 🚀 Solid Users Icon kept as requested */}
                     <span className="relative z-10 flex items-center gap-1.5"><SolidUsers className="w-[18px] h-[18px]" /> 2 Players</span>
                   </button>
                 </div>
@@ -1348,9 +1349,24 @@ export default function App() {
                                <h2 className="font-nunito-black text-3xl tracking-tight leading-tight drop-shadow-md" style={{ color: semantics.text }}>
                                  Winner!
                                </h2>
-                               <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-xl flex justify-center mt-2 mb-1">
+                               
+                               {/* 🚀 Magical Hopping & Wiggling Animation! */}
+                               <motion.span 
+                                 animate={{ 
+                                    scale: [0.5, 1.2, 0.9, 1.1, 1],
+                                    y: [20, -25, 0, -12, 0],
+                                    rotate: [0, -15, 15, -10, 10, 0]
+                                 }} 
+                                 transition={{ 
+                                    duration: 1.2, 
+                                    ease: "easeOut",
+                                    delay: 0.1 
+                                 }} 
+                                 className="drop-shadow-xl flex justify-center mt-3 mb-2"
+                               >
                                  <DynamicIcon player={overallWinner} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={overallWinner === 'X' ? currentXColor : currentOColor} className="w-16 h-16" />
                                </motion.span>
+                               
                              </div>
                              
                              <div className="flex flex-col w-full gap-2.5 pt-1 z-10">
