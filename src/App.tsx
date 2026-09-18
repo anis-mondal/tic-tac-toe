@@ -22,6 +22,16 @@ import { App as CapApp } from '@capacitor/app';
 import SettingsModal, { PLAYER_COLORS, CUSTOM_THEMES, ORIGINAL_THEME, EXTRA_LINE_COLORS, ICONS_LIST } from './components/SettingsModal';
 import AboutModal from './components/AboutModal';
 
+// 🚀 Premium Solid Icons
+export const SolidSun = ({ className, fill, strokeWidth }: { className?: string, fill?: string, strokeWidth?: number | string }) => <svg viewBox="0 0 24 24" fill={fill || "currentColor"} className={className} strokeWidth={strokeWidth}><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18.75a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM6.166 17.834a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.06-1.061l-1.591-1.59zM4.5 12a.75.75 0 01-.75.75H1.5a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM6.166 5.106a.75.75 0 00-1.06 1.06l1.591 1.59a.75.75 0 101.06-1.061l-1.59-1.59z"/></svg>;
+export const SolidMoon = ({ className, fill, strokeWidth }: { className?: string, fill?: string, strokeWidth?: number | string }) => <svg viewBox="0 0 24 24" fill={fill || "currentColor"} className={className} strokeWidth={strokeWidth}><path fillRule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clipRule="evenodd"/></svg>;
+export const SolidRefresh = ({ className, strokeWidth }: { className?: string, strokeWidth?: number | string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className} strokeWidth={strokeWidth}><path fillRule="evenodd" d="M4.755 10.059a7.5 7.5 0 0112.548-3.364l1.903 1.903h-3.183a.75.75 0 100 1.5h4.992a.75.75 0 00.75-.75V4.356a.75.75 0 00-1.5 0v3.18l-1.9-1.9A9 9 0 003.306 9.67a.75.75 0 101.45.388zm15.408 3.352a.75.75 0 00-.919.53 7.5 7.5 0 01-12.548 3.364l-1.902-1.903h3.183a.75.75 0 000-1.5H2.984a.75.75 0 00-.75.75v4.992a.75.75 0 001.5 0v-3.18l1.9 1.9a9 9 0 0015.059-4.035.75.75 0 00-.53-.918z" clipRule="evenodd"/></svg>;
+export const SolidVolume = ({ className, fill, strokeWidth }: { className?: string, fill?: string, strokeWidth?: number | string }) => <svg viewBox="0 0 24 24" fill={fill || "currentColor"} className={className} strokeWidth={strokeWidth}><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06zM18.584 5.106a.75.75 0 011.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 11-1.06-1.06 8.25 8.25 0 000-11.668.75.75 0 010-1.06z"/><path d="M15.932 7.757a.75.75 0 011.061 0 6 6 0 010 8.486.75.75 0 01-1.06-1.061 4.5 4.5 0 000-6.364.75.75 0 010-1.06z"/></svg>;
+export const SolidMute = ({ className, fill, strokeWidth }: { className?: string, fill?: string, strokeWidth?: number | string }) => <svg viewBox="0 0 24 24" fill={fill || "currentColor"} className={className} strokeWidth={strokeWidth}><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06zM17.78 9.22a.75.75 0 10-1.06 1.06L18.44 12l-1.72 1.72a.75.75 0 001.06 1.06l1.72-1.72 1.72 1.72a.75.75 0 101.06-1.06L20.56 12l1.72-1.72a.75.75 0 00-1.06-1.06l-1.72 1.72-1.72-1.72z"/></svg>;
+export const SolidSettings = ({ className, fill, strokeWidth }: { className?: string, fill?: string, strokeWidth?: number | string }) => <svg viewBox="0 0 24 24" fill={fill || "currentColor"} className={className} strokeWidth={strokeWidth}><path fillRule="evenodd" d="M11.828 2.25c-.916 0-1.699.663-1.85 1.567l-.091.549a.798.798 0 01-.517.608 7.45 7.45 0 00-.478.198.798.798 0 01-.796-.064l-.453-.324a1.875 1.875 0 00-2.416.2l-.243.243a1.875 1.875 0 00-.2 2.416l.324.453a.798.798 0 01.064.796 7.448 7.448 0 00-.198.478.798.798 0 01-.608.517l-.55.092a1.875 1.875 0 00-1.566 1.849v.344c0 .916.663 1.699 1.567 1.85l.549.091c.281.047.508.25.608.517.06.162.127.321.198.478a.798.798 0 01-.064.796l-.324.453a1.875 1.875 0 00.2 2.416l.243.243c.648.648 1.67.733 2.416.2l.453-.324a.798.798 0 01.796-.064c.157.071.316.137.478.198.267.1.47.327.517.608l.092.55c.15.903.932 1.566 1.849 1.566h.344c.916 0 1.699-.663 1.85-1.567l.091-.549a.798.798 0 01.517-.608 7.52 7.52 0 00.478-.198.798.798 0 01.796.064l.453.324a1.875 1.875 0 002.416-.2l.243-.243c.648-.648.733-1.67.2-2.416l-.324-.453a.798.798 0 01-.064-.796c.071-.157.137-.316.198-.478.1-.267.327-.47.608-.517l.55-.091a1.875 1.875 0 001.566-1.85v-.344c0-.916-.663-1.699-1.567-1.85l-.549-.091a.798.798 0 01-.608-.517 7.507 7.507 0 00-.198-.478.798.798 0 01.064-.796l.324-.453a1.875 1.875 0 00-.2-2.416l-.243-.243a1.875 1.875 0 00-2.416-.2l-.453.324a.798.798 0 01-.796.064 7.462 7.462 0 00-.478-.198.798.798 0 01-.517-.608l-.091-.55a1.875 1.875 0 00-1.85-1.566h-.344zM12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" clipRule="evenodd"/></svg>;
+export const SolidUser = ({ className, fill, strokeWidth }: { className?: string, fill?: string, strokeWidth?: number | string }) => <svg viewBox="0 0 24 24" fill={fill || "currentColor"} className={className} strokeWidth={strokeWidth}><path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd"/></svg>;
+export const SolidUsers = ({ className, fill, strokeWidth }: { className?: string, fill?: string, strokeWidth?: number | string }) => <svg viewBox="0 0 24 24" fill={fill || "currentColor"} className={className} strokeWidth={strokeWidth}><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>;
+
 type Player = 'X' | 'O';
 type SquareValue = Player | null;
 
@@ -58,8 +68,8 @@ const AILogo = () => (
         <stop offset="100%" stopColor="#007AFF" />  
       </linearGradient>
     </defs>
-    <circle cx="50" cy="50" r="42" fill="none" stroke="url(#ai-grad)" strokeWidth="12" />
-    <text x="50" y="68" fontFamily="NunitoCustom, sans-serif" fontWeight="900" fontSize="48" fill="url(#ai-grad)" textAnchor="middle">Ai</text>
+    <circle cx="50" cy="50" r="50" fill="url(#ai-grad)" />
+    <text x="50" y="68" fontFamily="NunitoCustom, sans-serif" fontWeight="900" fontSize="48" fill="#ffffff" textAnchor="middle">Ai</text>
   </svg>
 );
 
@@ -71,7 +81,7 @@ const DynamicIcon = ({ player, p1Custom, p1Idx, p2Custom, p2Idx, color, classNam
 
   if (isCustomEnabled) {
      const SelectedIcon = ICONS_LIST[iconIndex % ICONS_LIST.length];
-     return <SelectedIcon color={color} fill={color} className={className} strokeWidth={2.5} />;
+     return <SelectedIcon color={color} className={className} strokeWidth={2.5} />;
   }
   
   if (isP1) {
@@ -288,6 +298,9 @@ export default function App() {
   const [isTargetScoreEnabled, setIsTargetScoreEnabled] = useState(() => getSaved('isTargetScoreEnabled', true));
   
   const [enableHardRefreshTap, setEnableHardRefreshTap] = useState(() => getSaved('enableHardRefreshTap', false));
+  
+  // 🚀 Hard Pull to Refresh State (Default On)
+  const [enableHardPullToRefresh, setEnableHardPullToRefresh] = useState(() => getSaved('enableHardPullToRefresh', true));
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = getSaved('isDarkMode', null);
@@ -389,7 +402,12 @@ export default function App() {
        });
        
        setTimeout(() => {
-          resetGameForMode(startingPlayer, true); 
+          // 🚀 Implementing the Hard Pull to Refresh Logic here
+          if (enableHardPullToRefresh) {
+             performHardReset(startingPlayer);
+          } else {
+             resetGameForMode(startingPlayer, true); 
+          }
        }, 400);
 
        setTimeout(() => {
@@ -440,7 +458,8 @@ export default function App() {
     localStorage.setItem('overallWinner', JSON.stringify(overallWinner));
     localStorage.setItem('lastMoveIdx', JSON.stringify(lastMoveIdxRef.current));
     localStorage.setItem('enableHardRefreshTap', JSON.stringify(enableHardRefreshTap));
-  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap]);
+    localStorage.setItem('enableHardPullToRefresh', JSON.stringify(enableHardPullToRefresh));
+  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap, enableHardPullToRefresh]);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -487,7 +506,6 @@ export default function App() {
   const currentXColor = enableCustomX ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[0];
   const currentOColor = enableCustomO ? PLAYER_COLORS[oColorIdx] : PLAYER_COLORS[9];
 
-  // 🚀 Native Telegram-Style View Transition (Flawless, Pure CSS Animation, Zero Lag)
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isTransitioning.current) return;
     
@@ -504,16 +522,13 @@ export default function App() {
 
     isTransitioning.current = true;
     
-    // Get absolute center of the button for the animation origin
     const rect = targetBtn.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
 
-    // Pass coordinates to CSS variables
     document.documentElement.style.setProperty('--tx', `${x}px`);
     document.documentElement.style.setProperty('--ty', `${y}px`);
 
-    // Assign animation classes before taking the snapshot
     if (nextDark) {
         document.documentElement.classList.add('transition-to-dark');
         document.documentElement.classList.remove('transition-to-light');
@@ -522,7 +537,6 @@ export default function App() {
         document.documentElement.classList.remove('transition-to-dark');
     }
 
-    // Capture the state perfectly using flushSync
     const transition = document.startViewTransition(() => {
         flushSync(() => {
             setIsDarkMode(nextDark);
@@ -905,7 +919,7 @@ export default function App() {
           display: block;
         }
         
-        /* Dark Theme Expansion (Dark Circle Grows over Light from button center) */
+        /* Dark Theme Expansion */
         html.transition-to-dark ::view-transition-old(root) { z-index: 1; }
         html.transition-to-dark ::view-transition-new(root) { 
             z-index: 2; 
@@ -913,7 +927,7 @@ export default function App() {
             animation: clip-expand 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
         
-        /* Light Theme Expansion (Dark Circle Shrinks back to the button, revealing light) */
+        /* Light Theme Expansion */
         html.transition-to-light ::view-transition-old(root) { 
             z-index: 2; 
             clip-path: circle(150% at var(--tx) var(--ty));
@@ -939,12 +953,10 @@ export default function App() {
         }
       `}</style>
       
-      {/* 🚀 মেইন টাচ কনটেইনার - Fixed size, no selection */}
       <div 
           className="fixed inset-0 w-full h-[100dvh] overflow-hidden font-nunito select-none z-0"
           style={{ backgroundColor: semantics.screenBackground }}>
         
-        {/* 🚀 Content Overlay Container */}
         <div 
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -957,7 +969,6 @@ export default function App() {
           
           <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-          {/* 🚀 কাস্টম Pull-to-Refresh স্পিনার */}
           <motion.div 
              className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
              style={{
@@ -986,7 +997,8 @@ export default function App() {
                <MaterialSpinner color={activeLineColor} />
              ) : (
                <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}>
-                  <RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} />
+                  {/* 🚀 Solid Refresh Icon */}
+                  <SolidRefresh className="w-[20px] h-[20px]" strokeWidth={3} />
                </motion.div>
              )}
           </motion.div>
@@ -998,7 +1010,6 @@ export default function App() {
             style={{ top: 'max(16px, env(safe-area-inset-top))' }}
             className="absolute left-0 right-0 h-20 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
             
-            {/* 🚀 Spring Bouncy Buttons with perfect icon swapping */}
             <motion.button 
                whileHover={{ scale: 1.05 }}
                whileTap={{ scale: 0.75 }} 
@@ -1006,10 +1017,12 @@ export default function App() {
                onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isDarkMode ? 0 : 1, rotate: isDarkMode ? 90 : 0, opacity: isDarkMode ? 0 : 1 }} transition={{ duration: 0.3 }} className="absolute">
-                    <Sun className="w-[20px] h-[20px]" />
+                    {/* 🚀 Solid Sun Icon */}
+                    <SolidSun className="w-[20px] h-[20px]" fill="currentColor" strokeWidth={1.5} />
                  </motion.div>
                  <motion.div animate={{ scale: isDarkMode ? 1 : 0, rotate: isDarkMode ? 0 : -90, opacity: isDarkMode ? 1 : 0 }} transition={{ duration: 0.3 }} className="absolute">
-                    <Moon className="w-[20px] h-[20px]" />
+                    {/* 🚀 Solid Moon Icon */}
+                    <SolidMoon className="w-[20px] h-[20px]" fill="currentColor" strokeWidth={1.5} />
                  </motion.div>
               </div>
             </motion.button>
@@ -1024,7 +1037,8 @@ export default function App() {
                className={navBtnClass} style={getNavBtnStyle()}
             >
               <motion.div animate={{ rotate: rotation }} transition={{ type: "spring", stiffness: 300, damping: 25 }}>
-                <RotateCcw className="w-[20px] h-[20px]" />
+                {/* 🚀 Solid Refresh Icon */}
+                <SolidRefresh className="w-[20px] h-[20px]" strokeWidth={3} />
               </motion.div>
             </motion.button>
 
@@ -1035,10 +1049,12 @@ export default function App() {
                onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isSoundOn ? 1 : 0, opacity: isSoundOn ? 1 : 0 }} transition={{ duration: 0.2 }} className="absolute">
-                    <Volume2 className="w-[20px] h-[20px]" />
+                    {/* 🚀 Solid Volume Icon */}
+                    <SolidVolume className="w-[20px] h-[20px]" fill="currentColor" strokeWidth={1.5} />
                  </motion.div>
                  <motion.div animate={{ scale: isSoundOn ? 0 : 1, opacity: isSoundOn ? 0 : 1 }} transition={{ duration: 0.2 }} className="absolute">
-                    <VolumeX className="w-[20px] h-[20px]" />
+                    {/* 🚀 Solid Mute Icon */}
+                    <SolidMute className="w-[20px] h-[20px]" fill="currentColor" strokeWidth={1.5} />
                  </motion.div>
               </div>
             </motion.button>
@@ -1048,11 +1064,11 @@ export default function App() {
                whileTap={{ scale: 0.75 }} 
                transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
                onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
-               <SettingsIcon className="w-[20px] h-[20px]" />
+               {/* 🚀 Solid Settings Icon */}
+               <SolidSettings className="w-[20px] h-[20px]" fill="currentColor" strokeWidth={1.5} />
             </motion.button>
           </motion.nav>
 
-          {/* 🚀 Main Content Wrapper */}
           <motion.div 
              initial={{ opacity: 0, scale: 0.9, y: 15 }} 
              animate={{ opacity: 1, scale: 1, y: 0 }} 
@@ -1080,7 +1096,8 @@ export default function App() {
                     <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
                   </button>
                   <button onClick={() => switchModeClick(false)} style={{ color: semantics.text, opacity: !isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-300">
-                    <span className="relative z-10 flex items-center gap-1.5"><UsersRound color="currentColor" className="w-[18px] h-[18px]" strokeWidth={2.5}/> 2 Players</span>
+                    {/* 🚀 Solid Users Icon */}
+                    <span className="relative z-10 flex items-center gap-1.5"><SolidUsers color="currentColor" fill="currentColor" className="w-[18px] h-[18px]" strokeWidth={1.5}/> 2 Players</span>
                   </button>
                 </div>
 
@@ -1372,6 +1389,7 @@ export default function App() {
             activeLineColor={activeLineColor} currentXColor={currentXColor} currentOColor={currentOColor} 
             hapticFeedback={triggerHaptic}
             enableHardRefreshTap={enableHardRefreshTap} setEnableHardRefreshTap={setEnableHardRefreshTap}
+            enableHardPullToRefresh={enableHardPullToRefresh} setEnableHardPullToRefresh={setEnableHardPullToRefresh}
             isHapticEnabled={isHapticEnabled} setIsHapticEnabled={setIsHapticEnabled}
             soundPrefs={soundPrefs} setSoundPrefs={setSoundPrefs}
             playPreviewSound={playPreviewSound}
