@@ -333,7 +333,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                                <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                   {ICONS_LIST.map((IconComponent, idx) => (
                                      <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP1Idx(idx); }} className={`w-8 h-8 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p1Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p1Idx === idx ? props.currentXColor : 'transparent' }}>
-                                        <IconComponent className="w-5 h-5" color={props.currentXColor} strokeWidth={2.5} />
+                                        <IconComponent className="w-5 h-5" color={props.currentXColor} fill={props.currentXColor} strokeWidth={2.5} />
                                      </button>
                                   ))}
                                </div>
@@ -380,7 +380,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                                <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                   {ICONS_LIST.map((IconComponent, idx) => (
                                      <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP2Idx(idx); }} className={`w-8 h-8 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p2Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p2Idx === idx ? props.currentOColor : 'transparent' }}>
-                                        <IconComponent className="w-5 h-5" color={props.currentOColor} strokeWidth={2.5} />
+                                        <IconComponent className="w-5 h-5" color={props.currentOColor} fill={props.currentOColor} strokeWidth={2.5} />
                                      </button>
                                   ))}
                                </div>
