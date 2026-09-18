@@ -41,26 +41,8 @@ const triggerNativeHaptic = (pattern: number | number[], isEnabled: boolean) => 
 };
 
 const MaterialSpinner = ({ color }: { color: string }) => (
-  <motion.svg
-    viewBox="0 0 50 50"
-    className="w-[22px] h-[22px]"
-    animate={{ rotate: 360 }}
-    transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-    style={{ color }}
-  >
-    <motion.circle
-      cx="25" cy="25" r="20"
-      fill="none"
-      strokeWidth="5"
-      stroke="currentColor"
-      strokeLinecap="round"
-      initial={{ strokeDasharray: "1, 150", strokeDashoffset: 0 }}
-      animate={{
-        strokeDasharray: ["1, 150", "90, 150", "90, 150"],
-        strokeDashoffset: [0, -35, -124]
-      }}
-      transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-    />
+  <motion.svg viewBox="0 0 50 50" className="w-[22px] h-[22px]" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} style={{ color }}>
+    <motion.circle cx="25" cy="25" r="20" fill="none" strokeWidth="5" stroke="currentColor" strokeLinecap="round" initial={{ strokeDasharray: "1, 150", strokeDashoffset: 0 }} animate={{ strokeDasharray: ["1, 150", "90, 150", "90, 150"], strokeDashoffset: [0, -35, -124] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} />
   </motion.svg>
 );
 
@@ -80,13 +62,8 @@ const AILogo = () => (
   </svg>
 );
 
-const DynamicIcon = ({ 
-  player, p1Custom, p1Idx, p2Custom, p2Idx, color, className 
-}: { 
-  player: Player | null, p1Custom: boolean, p1Idx: number, p2Custom: boolean, p2Idx: number, color: string, className?: string 
-}) => {
+const DynamicIcon = ({ player, p1Custom, p1Idx, p2Custom, p2Idx, color, className }: { player: Player | null, p1Custom: boolean, p1Idx: number, p2Custom: boolean, p2Idx: number, color: string, className?: string }) => {
   if (!player) return null;
-  
   const isP1 = player === 'X';
   const isCustomEnabled = isP1 ? p1Custom : p2Custom;
   const iconIndex = isP1 ? p1Idx : p2Idx;
@@ -97,22 +74,14 @@ const DynamicIcon = ({
   }
   
   if (isP1) {
-     return (
-       <svg viewBox="0 0 24 24" className={className} fill="none">
-         <path d="M18 6L6 18M6 6L18 18" stroke={color} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
-       </svg>
-     );
+     return (<svg viewBox="0 0 24 24" className={className} fill="none"><path d="M18 6L6 18M6 6L18 18" stroke={color} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" /></svg>);
   }
-  return (
-     <svg viewBox="0 0 24 24" className={className} fill="none">
-       <circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="4.5" />
-     </svg>
-  );
+  return (<svg viewBox="0 0 24 24" className={className} fill="none"><circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="4.5" /></svg>);
 };
 
 const audioState = { ctx: null as AudioContext | null };
 
-// 🚀 ২০টি সম্পূর্ণ আলাদা এবং অত্যন্ত সফট সাউন্ড জেনারেটর (No Harsh Sounds)
+// 🚀 20 Completely Distinct, Soft & Pleasant Synthesizers
 const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', variant: number) => {
   if (!variant || variant === 0 || typeof window === 'undefined') return;
   try {
@@ -123,73 +92,62 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' 
     const ctx = audioState.ctx;
     const t = ctx.currentTime;
     
-    // 20 Distinct Soft Profiles: f = freq, d = duration, w = wave, s = sweep multiplier
-    const profiles = [
-      { w: 'sine', f: 0, d: 0, s: 0 },
-      { w: 'sine', f: 600, d: 0.1, s: 1 },        // 1: Soft Note
-      { w: 'sine', f: 400, d: 0.1, s: 1.5 },      // 2: Bubble Up
-      { w: 'triangle', f: 800, d: 0.05, s: 1 },   // 3: Wood Tap
-      { w: 'sine', f: 1200, d: 0.15, s: 1 },      // 4: Glass Tink
-      { w: 'sine', f: 300, d: 0.1, s: 0.5 },      // 5: Soft Drop
-      { w: 'triangle', f: 600, d: 0.1, s: 1 },    // 6: Marimba
-      { w: 'sine', f: 900, d: 0.08, s: 1 },       // 7: High Ping
-      { w: 'triangle', f: 350, d: 0.15, s: 1 },   // 8: Muted Thud
-      { w: 'sine', f: 1500, d: 0.05, s: 1 },      // 9: Crystal
-      { w: 'sine', f: 500, d: 0.2, s: 1 },        // 10: Vibraphone
-      { w: 'triangle', f: 1000, d: 0.05, s: 1 },  // 11: Pluck
-      { w: 'sine', f: 800, d: 0.1, s: 0.5 },      // 12: Reverse Bubble
-      { w: 'sine', f: 450, d: 0.15, s: 1 },       // 13: Soft Bell
-      { w: 'triangle', f: 750, d: 0.08, s: 1.2 }, // 14: Zip
-      { w: 'sine', f: 200, d: 0.15, s: 1 },       // 15: Deep Tone
-      { w: 'triangle', f: 550, d: 0.12, s: 1 },   // 16: Wood Block
-      { w: 'sine', f: 1800, d: 0.03, s: 1 },      // 17: Tiny Tick
-      { w: 'sine', f: 350, d: 0.1, s: 1.5 },      // 18: Hollow Pop
-      { w: 'triangle', f: 900, d: 0.1, s: 0.8 },  // 19: Synth Blip
-      { w: 'sine', f: 700, d: 0.15, s: 1 }        // 20: Chime
-    ];
-
-    const p = profiles[variant] || profiles[1];
-
-    const playTone = (freq: number, dur: number, w: string, sweep: number, offset: number) => {
+    // Core Oscillator Function for 100% Customization
+    const playOsc = (wave: OscillatorType, freq: number, vol: number, attack: number, decay: number, sweep: number = 1, sweepDur: number = 0, delay: number = 0) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = w as OscillatorType;
-        osc.frequency.setValueAtTime(freq, t + offset);
-        if (sweep !== 1) {
-            osc.frequency.exponentialRampToValueAtTime(freq * sweep, t + offset + dur);
-        }
-        gain.gain.setValueAtTime(0, t + offset);
-        gain.gain.linearRampToValueAtTime(0.3, t + offset + dur * 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + offset + dur);
+        osc.type = wave;
+        osc.frequency.setValueAtTime(freq, t + delay);
+        if (sweep !== 1) osc.frequency.exponentialRampToValueAtTime(freq * sweep, t + delay + sweepDur);
+        
+        gain.gain.setValueAtTime(0, t + delay);
+        gain.gain.linearRampToValueAtTime(vol, t + delay + attack);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + delay + attack + decay);
+        
         osc.connect(gain);
         gain.connect(ctx.destination);
-        osc.start(t + offset);
-        osc.stop(t + offset + dur);
+        osc.start(t + delay);
+        osc.stop(t + delay + attack + decay);
     };
 
     if (type === 'tap') {
-        playTone(p.f, p.d, p.w, p.s, 0);
+        switch(variant) {
+            case 1: playOsc('triangle', 600, 0.5, 0.01, 0.15); break; // Marimba
+            case 2: playOsc('sine', 1200, 0.4, 0.01, 0.3); break; // Glass Ping
+            case 3: playOsc('triangle', 400, 0.5, 0.01, 0.1, 0.5, 0.1); break; // Wood Knock
+            case 4: playOsc('sine', 800, 0.3, 0.01, 0.4); playOsc('sine', 1600, 0.1, 0.01, 0.3); break; // Soft Bell
+            case 5: playOsc('sine', 150, 0.6, 0.02, 0.2, 0.5, 0.2); break; // Deep Sub Drop
+            case 6: playOsc('square', 1500, 0.05, 0.005, 0.05); break; // Short Digital Blip
+            case 7: playOsc('sine', 523.25, 0.2, 0.02, 0.2); playOsc('sine', 659.25, 0.2, 0.02, 0.2); playOsc('sine', 783.99, 0.2, 0.02, 0.2); break; // Magic Chord
+            case 8: playOsc('triangle', 300, 0.5, 0.01, 0.1, 1.5, 0.1); break; // Hollow Pop
+            case 9: playOsc('sawtooth', 300, 0.1, 0.01, 0.15, 0.5, 0.1); break; // Rubber Band
+            case 10: playOsc('sine', 2000, 0.3, 0.005, 0.1); break; // Metallic Tink
+            case 11: playOsc('sine', 400, 0.4, 0.02, 0.1, 2, 0.1); break; // Bubble
+            case 12: playOsc('sawtooth', 1200, 0.08, 0.01, 0.2, 0.2, 0.2); break; // Space Zap
+            case 13: playOsc('sine', 700, 0.3, 0.05, 0.3); break; // Gentle Flute
+            case 14: playOsc('triangle', 900, 0.4, 0.01, 0.15, 0.8, 0.1); break; // Pluck
+            case 15: playOsc('square', 600, 0.05, 0.01, 0.2); playOsc('sine', 600, 0.3, 0.01, 0.2); break; // Toy Piano
+            case 16: playOsc('triangle', 1000, 0.3, 0.01, 0.05); playOsc('triangle', 1200, 0.3, 0.01, 0.05, 1, 0, 0.08); break; // Double Beep
+            case 17: playOsc('sine', 1400, 0.4, 0.005, 0.08); break; // Xylophone
+            case 18: playOsc('triangle', 500, 0.5, 0.02, 0.25); break; // Kalimba
+            case 19: playOsc('sine', 800, 0.4, 0.01, 0.08, 1.5, 0.05); break; // Water Drop
+            case 20: playOsc('sine', 1800, 0.2, 0.01, 0.5); playOsc('sine', 3600, 0.1, 0.01, 0.4); break; // Crystal
+            default: playOsc('sine', 600, 0.4, 0.01, 0.1); break;
+        }
     } else if (type === 'pop') {
-        playTone(400, 0.1, 'sine', 1.5, 0);
+        playOsc('sine', 400, 0.4, 0.01, 0.1, 1.5, 0.1);
     } else if (type === 'point' || type === 'unmute') {
-        playTone(800, 0.1, 'sine', 1.2, 0);
+        playOsc('sine', 800, 0.3, 0.01, 0.1, 1.2, 0.1);
     } else if (type === 'mode') {
-        playTone(600, 0.1, 'sine', 1, 0);
-        playTone(800, 0.1, 'sine', 1, 0.1);
+        playOsc('sine', 600, 0.3, 0.02, 0.1); playOsc('sine', 800, 0.3, 0.02, 0.1, 1, 0, 0.15);
     } else if (type === 'refresh') {
-        playTone(400, 0.1, 'sine', 1, 0);
-        playTone(500, 0.1, 'sine', 1, 0.08);
-        playTone(600, 0.2, 'sine', 1, 0.16);
+        playOsc('sine', 400, 0.3, 0.02, 0.1); playOsc('sine', 500, 0.3, 0.02, 0.1, 1, 0, 0.08); playOsc('sine', 600, 0.3, 0.02, 0.2, 1, 0, 0.16);
     } else if (type === 'win') {
-        playTone(440, 0.1, 'sine', 1, 0);
-        playTone(554, 0.1, 'sine', 1, 0.1);
-        playTone(659, 0.4, 'sine', 1, 0.2);
+        playOsc('sine', 440, 0.3, 0.05, 0.1); playOsc('sine', 554, 0.3, 0.05, 0.1, 1, 0, 0.1); playOsc('sine', 659, 0.3, 0.05, 0.4, 1, 0, 0.2);
     } else if (type === 'overallWin') {
-        playTone(523, 0.1, 'sine', 1, 0);
-        playTone(659, 0.1, 'sine', 1, 0.1);
-        playTone(783, 0.1, 'sine', 1, 0.2);
-        playTone(1046, 0.1, 'sine', 1, 0.3);
-        playTone(1318, 0.5, 'sine', 1, 0.4);
+        playOsc('triangle', 523, 0.3, 0.05, 0.1); playOsc('triangle', 659, 0.3, 0.05, 0.1, 1, 0, 0.1); 
+        playOsc('triangle', 783, 0.3, 0.05, 0.1, 1, 0, 0.2); playOsc('triangle', 1046, 0.3, 0.05, 0.1, 1, 0, 0.3); 
+        playOsc('triangle', 1318, 0.4, 0.05, 0.6, 1, 0, 0.4);
     }
   } catch(e) {}
 };
@@ -234,22 +192,17 @@ const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean, a
 const findBestMove = (squares: SquareValue[], aiPlayer: Player, humanScore: number, targetScore: number, isTargetScoreEnabled: boolean) => {
   const availableMoves: number[] = [];
   for (let i = 0; i < 9; i++) if (!squares[i]) availableMoves.push(i);
-  
   if (availableMoves.length === 9) return [0, 2, 4, 6, 8][Math.floor(Math.random() * 5)];
   
   const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
   const accuracy = 0.75; 
-
-  if (Math.random() > accuracy) {
-    return availableMoves[Math.floor(Math.random() * availableMoves.length)];
-  }
+  if (Math.random() > accuracy) return availableMoves[Math.floor(Math.random() * availableMoves.length)];
 
   for (const [a, b, c] of WINNING_COMBINATIONS) {
     if (!squares[a] && squares[b] === aiPlayer && squares[c] === aiPlayer) return a;
     if (squares[a] === aiPlayer && !squares[b] && squares[c] === aiPlayer) return b;
     if (squares[a] === aiPlayer && squares[b] === aiPlayer && !squares[c]) return c;
   }
-  
   for (const [a, b, c] of WINNING_COMBINATIONS) {
     if (!squares[a] && squares[b] === humanPlayer && squares[c] === humanPlayer) return a;
     if (squares[a] === humanPlayer && !squares[b] && squares[c] === humanPlayer) return b;
@@ -525,25 +478,35 @@ export default function App() {
   const currentXColor = enableCustomX ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[0];
   const currentOColor = enableCustomO ? PLAYER_COLORS[oColorIdx] : PLAYER_COLORS[9];
 
-  // 🚀 Native Telegram-Style View Transition Theme Toggle 
+  // 🚀 Native Telegram-Style View Transition Theme Toggle
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isTransitioning.current) return;
+    isTransitioning.current = true;
     
     triggerHaptic([80]); 
     if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop);
     
     const nextDark = !isDarkMode;
 
-    // Fallback for browsers that don't support View Transitions
+    // Fallback if browser doesn't support it
     if (!document.startViewTransition) {
         setIsDarkMode(nextDark);
+        isTransitioning.current = false;
         return;
     }
 
-    isTransitioning.current = true;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
+
+    // Set classes for dynamic z-index in CSS
+    if (nextDark) {
+        document.documentElement.classList.add('transition-to-dark');
+        document.documentElement.classList.remove('transition-to-light');
+    } else {
+        document.documentElement.classList.add('transition-to-light');
+        document.documentElement.classList.remove('transition-to-dark');
+    }
 
     const transition = document.startViewTransition(() => {
         setIsDarkMode(nextDark);
@@ -555,24 +518,23 @@ export default function App() {
             Math.max(y, window.innerHeight - y)
         );
 
-        const clipPath = [
-            `circle(0px at ${x}px ${y}px)`,
-            `circle(${endRadius}px at ${x}px ${y}px)`
-        ];
-
-        document.documentElement.animate(
-            {
-                clipPath: nextDark ? clipPath : [...clipPath].reverse(),
-            },
-            {
-                duration: 600,
-                easing: "ease-in-out",
-                pseudoElement: nextDark ? "::view-transition-new(root)" : "::view-transition-old(root)",
-            }
-        );
+        if (nextDark) {
+            // Light -> Dark (Dark Circle Expands)
+            document.documentElement.animate(
+                { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
+                { duration: 500, easing: "ease-in-out", pseudoElement: "::view-transition-new(root)" }
+            );
+        } else {
+            // Dark -> Light (Dark Circle Shrinks Revealing Light)
+            document.documentElement.animate(
+                { clipPath: [`circle(${endRadius}px at ${x}px ${y}px)`, `circle(0px at ${x}px ${y}px)`] },
+                { duration: 500, easing: "ease-in-out", pseudoElement: "::view-transition-old(root)" }
+            );
+        }
     });
 
     transition.finished.then(() => {
+        document.documentElement.classList.remove('transition-to-dark', 'transition-to-light');
         isTransitioning.current = false;
     });
   };
@@ -945,10 +907,13 @@ export default function App() {
           mix-blend-mode: normal;
           display: block;
         }
-        ::view-transition-old(root) { z-index: 1; }
-        ::view-transition-new(root) { z-index: 2; }
-        .dark::view-transition-old(root) { z-index: 2; }
-        .dark::view-transition-new(root) { z-index: 1; }
+        /* Going to Dark: New (Dark) on top */
+        html.transition-to-dark ::view-transition-old(root) { z-index: 1; }
+        html.transition-to-dark ::view-transition-new(root) { z-index: 2; }
+        
+        /* Going to Light: Old (Dark) on top */
+        html.transition-to-light ::view-transition-old(root) { z-index: 2; }
+        html.transition-to-light ::view-transition-new(root) { z-index: 1; }
 
         .font-nunito { font-family: 'NunitoCustom', sans-serif; font-weight: 700; }
         .font-nunito-black { font-family: 'NunitoBlack', sans-serif; font-weight: 900; }
@@ -963,7 +928,7 @@ export default function App() {
       
       {/* 🚀 মেইন টাচ কনটেইনার - Fixed size, no selection */}
       <div 
-          className="fixed inset-0 w-full h-[100dvh] overflow-hidden font-nunito select-none z-0 transition-colors duration-100"
+          className="fixed inset-0 w-full h-[100dvh] overflow-hidden font-nunito select-none z-0"
           style={{ backgroundColor: semantics.screenBackground }}>
         
         {/* 🚀 Content Overlay Container */}
@@ -1020,13 +985,12 @@ export default function App() {
             style={{ top: 'max(16px, env(safe-area-inset-top))' }}
             className="absolute left-0 right-0 h-20 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
             
-            {/* 🚀 The Telegram Style Mode Toggle Button! */}
+            {/* 🚀 Fixed Theme Button - CSS Fade instead of Unmount Bug */}
             <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div key={isDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
-                  {isDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
-                </motion.div>
-              </AnimatePresence>
+              <div className="relative w-[20px] h-[20px] flex items-center justify-center">
+                 <Sun className={`absolute w-full h-full transition-transform duration-500 ease-in-out ${isDarkMode ? 'scale-0 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'}`} />
+                 <Moon className={`absolute w-full h-full transition-transform duration-500 ease-in-out ${isDarkMode ? 'scale-100 rotate-0 opacity-100' : 'scale-0 -rotate-90 opacity-0'}`} />
+              </div>
             </motion.button>
 
             <motion.button 
@@ -1041,12 +1005,12 @@ export default function App() {
               </motion.div>
             </motion.button>
 
+            {/* 🚀 Fixed Sound Button - CSS Fade instead of Unmount Bug */}
             <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div key={isSoundOn ? 'on' : 'off'} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ duration: 0.2 }}>
-                  {isSoundOn ? <Volume2 className="w-[20px] h-[20px]" /> : <VolumeX className="w-[20px] h-[20px]" />}
-                </motion.div>
-              </AnimatePresence>
+              <div className="relative w-[20px] h-[20px] flex items-center justify-center">
+                 <Volume2 className={`absolute w-full h-full transition-transform duration-300 ease-in-out ${isSoundOn ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`} />
+                 <VolumeX className={`absolute w-full h-full transition-transform duration-300 ease-in-out ${isSoundOn ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`} />
+              </div>
             </motion.button>
             
             <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
