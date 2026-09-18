@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { motion, AnimatePresence, useAnimation } from 'motion/react';
-import { Sparkles, X as CloseIcon, Info, Target, Check, ChevronLeft } from 'lucide-react';
+import { RotateCcw, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // @ts-ignore
@@ -19,7 +19,7 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { App as CapApp } from '@capacitor/app';
 
-import { PLAYER_COLORS, CUSTOM_THEMES, ORIGINAL_THEME, EXTRA_LINE_COLORS, ICONS_LIST } from './components/SettingsModal';
+import SettingsModal, { PLAYER_COLORS, CUSTOM_THEMES, ORIGINAL_THEME, EXTRA_LINE_COLORS, ICONS_LIST } from './components/SettingsModal';
 import AboutModal from './components/AboutModal';
 
 // 🚀 Google Material Symbols Rounded (Solid / Filled) - Premium Look
@@ -72,7 +72,7 @@ const AILogo = () => (
   </svg>
 );
 
-// 🚀 Game Icons are perfectly FILLED here
+// 🚀 Game Icons are perfectly FILLED (solid) as requested
 const DynamicIcon = ({ player, p1Custom, p1Idx, p2Custom, p2Idx, color, className }: { player: Player | null, p1Custom: boolean, p1Idx: number, p2Custom: boolean, p2Idx: number, color: string, className?: string }) => {
   if (!player) return null;
   const isP1 = player === 'X';
@@ -81,7 +81,6 @@ const DynamicIcon = ({ player, p1Custom, p1Idx, p2Custom, p2Idx, color, classNam
 
   if (isCustomEnabled) {
      const SelectedIcon = ICONS_LIST[iconIndex % ICONS_LIST.length];
-     // fill={color} makes the icon fully solid
      return <SelectedIcon color={color} fill={color} className={className} strokeWidth={2.5} />;
   }
   
@@ -264,31 +263,6 @@ const getSaved = (key: string, defaultVal: any) => {
   }
 };
 
-const AnimatedToggle = ({ enabled, onToggle, activeColor, isDarkMode }: { enabled: boolean, onToggle: () => void, activeColor: string, isDarkMode: boolean }) => {
-  const offBgColor = isDarkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)';
-  return (
-    <motion.button 
-      onClick={onToggle}
-      className="w-[50px] h-[28px] rounded-full p-1 flex items-center shrink-0 relative transition-colors duration-300 cursor-pointer"
-      style={{ backgroundColor: enabled ? activeColor : offBgColor }}
-    >
-      <motion.div 
-        layout
-        animate={{ x: enabled ? 22 : 0 }} 
-        className="w-[20px] h-[20px] rounded-full bg-white shadow-sm flex items-center justify-center z-10"
-        transition={{ type: "spring", stiffness: 600, damping: 30 }}
-      >
-        <AnimatePresence mode="wait">
-          {enabled 
-            ? <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Check className="w-3 h-3" style={{ color: activeColor }} strokeWidth={4} /></motion.div>
-            : <motion.div key="close" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><CloseIcon className="w-3 h-3 text-gray-500" strokeWidth={4} /></motion.div>
-          }
-        </AnimatePresence>
-      </motion.div>
-    </motion.button>
-  );
-};
-
 export default function App() {
   const [board, setBoard] = useState<SquareValue[]>(() => getSaved('board', Array(9).fill(null)));
   const [humanSymbol, setHumanSymbol] = useState<Player>(() => getSaved('humanSymbol', 'O'));
@@ -382,23 +356,6 @@ export default function App() {
   const updateSound = (key: string, val: number) => {
     setSoundPrefs((prev: any) => ({ ...prev, [key]: val }));
     playPreviewSound(key, val);
-  };
-
-  const renderSoundControl = (label: string, key: keyof typeof soundPrefs) => {
-    const value = soundPrefs[key];
-    const handleDec = () => { triggerHaptic(20); updateSound(key, value === 0 ? 20 : value - 1); };
-    const handleInc = () => { triggerHaptic(20); updateSound(key, value === 20 ? 0 : value + 1); };
-
-    return (
-      <div className="flex items-center justify-between py-2 border-b last:border-0 border-black/5 dark:border-white/5">
-        <span className="text-[13px] font-bold opacity-80">{label}</span>
-        <div className="flex items-center gap-2">
-           <button onClick={handleDec} className="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-black active:scale-90 transition-transform">-</button>
-           <span className="w-8 text-center text-[13px] font-black">{value === 0 ? 'Off' : value}</span>
-           <button onClick={handleInc} className="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center font-black active:scale-90 transition-transform">+</button>
-        </div>
-      </div>
-    );
   };
 
   const mainBouncer = useAnimation();
@@ -945,6 +902,7 @@ export default function App() {
           font-display: swap;
         }
 
+        /* 🚀 Prevent scrollbars, lock the screen perfectly */
         html, body {
            overscroll-behavior: none;
            overflow: hidden;
@@ -956,6 +914,7 @@ export default function App() {
            background-color: transparent !important;
         }
 
+        /* 🚀 Perfect Telegram View Transitions API CSS */
         ::view-transition-old(root),
         ::view-transition-new(root) {
           animation: none;
@@ -963,6 +922,7 @@ export default function App() {
           display: block;
         }
         
+        /* Dark Theme Expansion */
         html.transition-to-dark ::view-transition-old(root) { z-index: 1; }
         html.transition-to-dark ::view-transition-new(root) { 
             z-index: 2; 
@@ -970,6 +930,7 @@ export default function App() {
             animation: clip-expand 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
         
+        /* Light Theme Expansion */
         html.transition-to-light ::view-transition-old(root) { 
             z-index: 2; 
             clip-path: circle(150% at var(--tx) var(--ty));
