@@ -82,7 +82,6 @@ const DynamicIcon = ({ player, p1Custom, p1Idx, p2Custom, p2Idx, color, classNam
 
 const audioState = { ctx: null as AudioContext | null };
 
-// 🚀 ২০টি সম্পূর্ণ ইউনিক এবং সফট সাউন্ড লজিক (যা সব ইভেন্টের জন্য আলাদা হবে)
 const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', variant: number) => {
   if (!variant || variant === 0 || typeof window === 'undefined') return;
   try {
@@ -488,7 +487,7 @@ export default function App() {
   const currentXColor = enableCustomX ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[0];
   const currentOColor = enableCustomO ? PLAYER_COLORS[oColorIdx] : PLAYER_COLORS[9];
 
-  // 🚀 Native Telegram-Style View Transition (Flawless, Zero Lag)
+  // 🚀 Native Telegram-Style View Transition (Flawless, Pure CSS Animation, Zero Lag)
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isTransitioning.current) return;
     
@@ -504,10 +503,17 @@ export default function App() {
     }
 
     isTransitioning.current = true;
+    
+    // Get absolute center of the button for the animation origin
     const rect = targetBtn.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
 
+    // Pass coordinates to CSS variables
+    document.documentElement.style.setProperty('--tx', `${x}px`);
+    document.documentElement.style.setProperty('--ty', `${y}px`);
+
+    // Assign animation classes before taking the snapshot
     if (nextDark) {
         document.documentElement.classList.add('transition-to-dark');
         document.documentElement.classList.remove('transition-to-light');
@@ -516,32 +522,11 @@ export default function App() {
         document.documentElement.classList.remove('transition-to-dark');
     }
 
-    // 🚀 flushSync guarantees React updates DOM *synchronously* to prevent lag!
+    // Capture the state perfectly using flushSync
     const transition = document.startViewTransition(() => {
         flushSync(() => {
             setIsDarkMode(nextDark);
         });
-    });
-
-    transition.ready.then(() => {
-        const endRadius = Math.hypot(
-            Math.max(x, window.innerWidth - x),
-            Math.max(y, window.innerHeight - y)
-        );
-
-        if (nextDark) {
-            // Light -> Dark (Dark Circle Expands perfectly from button)
-            document.documentElement.animate(
-                { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
-                { duration: 450, easing: "ease-in", pseudoElement: "::view-transition-new(root)" }
-            );
-        } else {
-            // Dark -> Light (Dark Circle Shrinks back to the button, revealing light)
-            document.documentElement.animate(
-                { clipPath: [`circle(${endRadius}px at ${x}px ${y}px)`, `circle(0px at ${x}px ${y}px)`] },
-                { duration: 450, easing: "ease-in", pseudoElement: "::view-transition-old(root)" }
-            );
-        }
     });
 
     transition.finished.then(() => {
@@ -912,7 +897,7 @@ export default function App() {
            background-color: transparent !important;
         }
 
-        /* 🚀 Perfect Telegram View Transitions API CSS */
+        /* 🚀 Perfect Telegram View Transitions API CSS (Zero Lag GPU Render) */
         ::view-transition-old(root),
         ::view-transition-new(root) {
           animation: none;
@@ -920,13 +905,28 @@ export default function App() {
           display: block;
         }
         
-        /* Dark Theme Expansion (Dark Circle Grows over Light) */
+        /* Dark Theme Expansion (Dark Circle Grows over Light from button center) */
         html.transition-to-dark ::view-transition-old(root) { z-index: 1; }
-        html.transition-to-dark ::view-transition-new(root) { z-index: 2; }
+        html.transition-to-dark ::view-transition-new(root) { 
+            z-index: 2; 
+            clip-path: circle(0px at var(--tx) var(--ty));
+            animation: clip-expand 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
         
-        /* Light Theme Expansion (Dark Circle Shrinks Revealing Light underneath) */
-        html.transition-to-light ::view-transition-old(root) { z-index: 2; }
+        /* Light Theme Expansion (Dark Circle Shrinks back to the button, revealing light) */
+        html.transition-to-light ::view-transition-old(root) { 
+            z-index: 2; 
+            clip-path: circle(150% at var(--tx) var(--ty));
+            animation: clip-shrink 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
         html.transition-to-light ::view-transition-new(root) { z-index: 1; }
+
+        @keyframes clip-expand {
+          to { clip-path: circle(150% at var(--tx) var(--ty)); }
+        }
+        @keyframes clip-shrink {
+          to { clip-path: circle(0px at var(--tx) var(--ty)); }
+        }
 
         .font-nunito { font-family: 'NunitoCustom', sans-serif; font-weight: 700; }
         .font-nunito-black { font-family: 'NunitoBlack', sans-serif; font-weight: 900; }
@@ -1000,8 +1000,9 @@ export default function App() {
             
             {/* 🚀 Spring Bouncy Buttons with perfect icon swapping */}
             <motion.button 
-               whileTap={{ scale: 0.8 }} 
-               transition={{ type: "spring", stiffness: 400, damping: 10 }}
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.75 }} 
+               transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
                onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isDarkMode ? 0 : 1, rotate: isDarkMode ? 90 : 0, opacity: isDarkMode ? 0 : 1 }} transition={{ duration: 0.3 }} className="absolute">
@@ -1014,8 +1015,9 @@ export default function App() {
             </motion.button>
 
             <motion.button 
-               whileTap={{ scale: 0.8 }} 
-               transition={{ type: "spring", stiffness: 400, damping: 10 }}
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.75 }} 
+               transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
                onPointerDown={handleRestartPointerDown} 
                onPointerUp={handleRestartPointerUp}
                onPointerLeave={handleRestartPointerUp}
@@ -1027,8 +1029,9 @@ export default function App() {
             </motion.button>
 
             <motion.button 
-               whileTap={{ scale: 0.8 }} 
-               transition={{ type: "spring", stiffness: 400, damping: 10 }}
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.75 }} 
+               transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
                onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isSoundOn ? 1 : 0, opacity: isSoundOn ? 1 : 0 }} transition={{ duration: 0.2 }} className="absolute">
@@ -1041,8 +1044,9 @@ export default function App() {
             </motion.button>
             
             <motion.button 
-               whileTap={{ scale: 0.8 }} 
-               transition={{ type: "spring", stiffness: 400, damping: 10 }}
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.75 }} 
+               transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
                onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
                <SettingsIcon className="w-[20px] h-[20px]" />
             </motion.button>
