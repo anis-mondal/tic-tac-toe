@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { motion, AnimatePresence, useAnimation } from 'motion/react';
 import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -81,7 +82,7 @@ const DynamicIcon = ({ player, p1Custom, p1Idx, p2Custom, p2Idx, color, classNam
 
 const audioState = { ctx: null as AudioContext | null };
 
-// 🚀 ২০টি সম্পূর্ণ ইউনিক এবং সফট সাউন্ড লজিক (যা সব মোডের জন্য ডায়নামিক)
+// 🚀 ২০টি সম্পূর্ণ ইউনিক এবং সফট সাউন্ড লজিক (যা সব ইভেন্টের জন্য আলাদা হবে)
 const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', variant: number) => {
   if (!variant || variant === 0 || typeof window === 'undefined') return;
   try {
@@ -137,30 +138,30 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' 
         osc.stop(t + delay + attack + decay);
     };
 
-    // 🚀 Dynamic Tone Application based on selected variant!
+    // 🚀 সমস্ত সাউন্ড এখন সিলেক্টেড ভেরিয়েন্টের উপর ভিত্তি করে ডায়নামিক!
     if (type === 'tap') {
         playOsc(p.w, p.f, 0.4, 0.01, p.d, p.s, 0.1);
     } else if (type === 'pop') {
-        playOsc(p.w, p.f * 0.8, 0.4, 0.01, p.d * 1.5, p.s * 0.8, 0.1);
+        playOsc(p.w, p.f * 0.75, 0.4, 0.01, p.d * 1.5, p.s, 0.1);
     } else if (type === 'point' || type === 'unmute') {
-        playOsc(p.w, p.f * 1.2, 0.3, 0.01, p.d, p.s, 0.1);
+        playOsc(p.w, p.f * 1.5, 0.3, 0.01, p.d * 1.2, p.s, 0.1);
     } else if (type === 'mode') {
-        playOsc(p.w, p.f, 0.3, 0.02, p.d);
-        playOsc(p.w, p.f * 1.33, 0.3, 0.02, p.d, 1, 0, 0.15);
+        playOsc(p.w, p.f * 0.8, 0.3, 0.02, p.d);
+        playOsc(p.w, p.f * 1.2, 0.3, 0.02, p.d * 1.2, 1, 0, 0.15);
     } else if (type === 'refresh') {
         playOsc(p.w, p.f * 0.8, 0.3, 0.02, p.d);
         playOsc(p.w, p.f, 0.3, 0.02, p.d, 1, 0, 0.08);
-        playOsc(p.w, p.f * 1.25, 0.3, 0.02, p.d * 1.5, 1, 0, 0.16);
+        playOsc(p.w, p.f * 1.4, 0.3, 0.02, p.d * 1.5, 1, 0, 0.16);
     } else if (type === 'win') {
-        playOsc(p.w, p.f, 0.3, 0.05, p.d);
-        playOsc(p.w, p.f * 1.25, 0.3, 0.05, p.d, 1, 0, 0.1);
-        playOsc(p.w, p.f * 1.5, 0.3, 0.05, p.d * 2, 1, 0, 0.2);
+        playOsc(p.w, p.f, 0.3, 0.02, p.d);
+        playOsc(p.w, p.f * 1.25, 0.3, 0.02, p.d, 1, 0, 0.15);
+        playOsc(p.w, p.f * 1.5, 0.3, 0.02, p.d * 2, 1, 0, 0.3);
     } else if (type === 'overallWin') {
         playOsc(p.w, p.f * 0.8, 0.3, 0.05, p.d);
-        playOsc(p.w, p.f, 0.3, 0.05, p.d, 1, 0, 0.1);
-        playOsc(p.w, p.f * 1.25, 0.3, 0.05, p.d, 1, 0, 0.2);
-        playOsc(p.w, p.f * 1.5, 0.3, 0.05, p.d, 1, 0, 0.3);
-        playOsc(p.w, p.f * 2.0, 0.4, 0.05, p.d * 2.5, 1, 0, 0.4);
+        playOsc(p.w, p.f * 1.0, 0.3, 0.05, p.d, 1, 0, 0.15);
+        playOsc(p.w, p.f * 1.25, 0.3, 0.05, p.d, 1, 0, 0.3);
+        playOsc(p.w, p.f * 1.5, 0.3, 0.05, p.d, 1, 0, 0.45);
+        playOsc(p.w, p.f * 2.0, 0.4, 0.05, p.d * 3, 1, 0, 0.6);
     }
   } catch(e) {}
 };
@@ -299,7 +300,6 @@ export default function App() {
     return true; 
   });
   
-  const [uiDarkMode, setUiDarkMode] = useState(() => isDarkMode); 
   const [isAmoled, setIsAmoled] = useState(() => getSaved('isAmoled', false));
 
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(() => getSaved('winnerInfo', null));
@@ -494,7 +494,7 @@ export default function App() {
   const lightBgColor = useDefaultTheme ? ORIGINAL_THEME.light : CUSTOM_THEMES[themeIdx].light;
   const darkBgColor = isAmoled ? '#000000' : (useDefaultTheme ? ORIGINAL_THEME.dark : CUSTOM_THEMES[themeIdx].dark);
 
-  // 🚀 Native Telegram-Style View Transition Theme Toggle (BUG FREE)
+  // 🚀 Native Telegram-Style View Transition (Flawless, Zero Lag, Exact Position)
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isTransitioning.current) return;
     
@@ -504,57 +504,56 @@ export default function App() {
     const nextDark = !isDarkMode;
     const targetBtn = e.currentTarget;
 
-    // 1. Immediately change the UI to bounce the button icon smoothly
-    setUiDarkMode(nextDark);
+    if (!document.startViewTransition) {
+        setIsDarkMode(nextDark);
+        return;
+    }
 
-    // 2. Wait exactly for the button's spring animation to settle before triggering full screen dark mode overlay
-    setTimeout(() => {
-        if (!document.startViewTransition) {
+    isTransitioning.current = true;
+    const rect = targetBtn.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+
+    if (nextDark) {
+        document.documentElement.classList.add('transition-to-dark');
+        document.documentElement.classList.remove('transition-to-light');
+    } else {
+        document.documentElement.classList.add('transition-to-light');
+        document.documentElement.classList.remove('transition-to-dark');
+    }
+
+    // 🚀 flushSync guarantees React updates DOM *synchronously* to prevent lag!
+    const transition = document.startViewTransition(() => {
+        flushSync(() => {
             setIsDarkMode(nextDark);
-            return;
-        }
+        });
+    });
 
-        isTransitioning.current = true;
-        const rect = targetBtn.getBoundingClientRect();
-        const x = rect.left + rect.width / 2;
-        const y = rect.top + rect.height / 2;
+    transition.ready.then(() => {
+        const endRadius = Math.hypot(
+            Math.max(x, window.innerWidth - x),
+            Math.max(y, window.innerHeight - y)
+        );
 
         if (nextDark) {
-            document.documentElement.classList.add('transition-to-dark');
-            document.documentElement.classList.remove('transition-to-light');
-        } else {
-            document.documentElement.classList.add('transition-to-light');
-            document.documentElement.classList.remove('transition-to-dark');
-        }
-
-        const transition = document.startViewTransition(() => {
-            setIsDarkMode(nextDark);
-        });
-
-        transition.ready.then(() => {
-            const endRadius = Math.hypot(
-                Math.max(x, window.innerWidth - x),
-                Math.max(y, window.innerHeight - y)
+            // Light -> Dark (Dark Circle Expands perfectly from button)
+            document.documentElement.animate(
+                { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
+                { duration: 600, easing: "cubic-bezier(0.25, 1, 0.5, 1)", pseudoElement: "::view-transition-new(root)" }
             );
+        } else {
+            // Dark -> Light (Dark Circle Shrinks back to the button, revealing light)
+            document.documentElement.animate(
+                { clipPath: [`circle(${endRadius}px at ${x}px ${y}px)`, `circle(0px at ${x}px ${y}px)`] },
+                { duration: 600, easing: "cubic-bezier(0.25, 1, 0.5, 1)", pseudoElement: "::view-transition-old(root)" }
+            );
+        }
+    });
 
-            if (nextDark) {
-                document.documentElement.animate(
-                    { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
-                    { duration: 500, easing: "ease-in-out", pseudoElement: "::view-transition-new(root)" }
-                );
-            } else {
-                document.documentElement.animate(
-                    { clipPath: [`circle(${endRadius}px at ${x}px ${y}px)`, `circle(0px at ${x}px ${y}px)`] },
-                    { duration: 500, easing: "ease-in-out", pseudoElement: "::view-transition-old(root)" }
-                );
-            }
-        });
-
-        transition.finished.then(() => {
-            document.documentElement.classList.remove('transition-to-dark', 'transition-to-light');
-            isTransitioning.current = false;
-        });
-    }, 200); // 🚀 200ms delay ensures the button finishes jumping!
+    transition.finished.then(() => {
+        document.documentElement.classList.remove('transition-to-dark', 'transition-to-light');
+        isTransitioning.current = false;
+    });
   };
 
   const toggleSound = () => {
@@ -876,7 +875,7 @@ export default function App() {
     topNavBtn: isDarkMode && isAmoled ? (useDefaultTheme ? '#0f0f0f' : blendDarker(activeTheme.gridDark, amoFactor)) : (isDarkMode ? activeTheme.gridDark : activeTheme.gridLight),
   };
 
-  const navBtnClass = "w-[48px] h-[48px] rounded-full active:scale-95 shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer transition-colors duration-1000";
+  const navBtnClass = "w-[48px] h-[48px] rounded-full shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer transition-colors duration-1000";
   const getNavBtnStyle = () => ({
     backgroundColor: semantics.topNavBtn,
     color: semantics.text,
@@ -962,7 +961,6 @@ export default function App() {
           
           <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-          {/* 🚀 কাস্টম Pull-to-Refresh স্পিনার */}
           <motion.div 
              className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
              style={{
@@ -1003,17 +1001,21 @@ export default function App() {
             style={{ top: 'max(16px, env(safe-area-inset-top))' }}
             className="absolute left-0 right-0 h-20 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
             
-            {/* 🚀 The Telegram Style Mode Toggle Button! */}
-            <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
+            {/* 🚀 Spring Bouncy Buttons */}
+            <motion.button 
+               whileTap={{ scale: 0.75, y: 4 }} 
+               transition={{ type: "spring", stiffness: 400, damping: 12, mass: 0.8 }}
+               onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
               <AnimatePresence mode="wait" initial={false}>
-                <motion.div key={uiDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
-                  {uiDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
+                <motion.div key={isDarkMode ? 'dark' : 'light'} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }} transition={{ type: "spring", stiffness: 400, damping: 15 }}>
+                  {isDarkMode ? <Sun className="w-[20px] h-[20px]" /> : <Moon className="w-[20px] h-[20px]" />}
                 </motion.div>
               </AnimatePresence>
             </motion.button>
 
             <motion.button 
-               whileTap={{ scale: 0.85, y: 2 }}
+               whileTap={{ scale: 0.75, y: 4 }} 
+               transition={{ type: "spring", stiffness: 400, damping: 12, mass: 0.8 }}
                onPointerDown={handleRestartPointerDown} 
                onPointerUp={handleRestartPointerUp}
                onPointerLeave={handleRestartPointerUp}
@@ -1024,20 +1026,25 @@ export default function App() {
               </motion.div>
             </motion.button>
 
-            <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
+            <motion.button 
+               whileTap={{ scale: 0.75, y: 4 }} 
+               transition={{ type: "spring", stiffness: 400, damping: 12, mass: 0.8 }}
+               onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
               <AnimatePresence mode="wait" initial={false}>
-                <motion.div key={isSoundOn ? 'on' : 'off'} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ duration: 0.2 }}>
+                <motion.div key={isSoundOn ? 'on' : 'off'} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: "spring", stiffness: 400, damping: 15 }}>
                   {isSoundOn ? <Volume2 className="w-[20px] h-[20px]" /> : <VolumeX className="w-[20px] h-[20px]" />}
                 </motion.div>
               </AnimatePresence>
             </motion.button>
             
-            <motion.button whileTap={{ scale: 0.85, y: 2 }} onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
+            <motion.button 
+               whileTap={{ scale: 0.75, y: 4 }} 
+               transition={{ type: "spring", stiffness: 400, damping: 12, mass: 0.8 }}
+               onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
                <SettingsIcon className="w-[20px] h-[20px]" />
             </motion.button>
           </motion.nav>
 
-          {/* 🚀 Main Content Wrapper */}
           <motion.div 
              initial={{ opacity: 0, scale: 0.9, y: 15 }} 
              animate={{ opacity: 1, scale: 1, y: 0 }} 
