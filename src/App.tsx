@@ -47,6 +47,7 @@ const MaterialSpinner = ({ color }: { color: string }) => (
   </motion.svg>
 );
 
+// 🚀 Solid AI Logo
 const AILogo = () => (
   <svg width="20" height="20" viewBox="0 0 100 100" className="drop-shadow-sm shrink-0">
     <defs>
@@ -58,8 +59,8 @@ const AILogo = () => (
         <stop offset="100%" stopColor="#007AFF" />  
       </linearGradient>
     </defs>
-    <circle cx="50" cy="50" r="42" fill="none" stroke="url(#ai-grad)" strokeWidth="12" />
-    <text x="50" y="68" fontFamily="NunitoCustom, sans-serif" fontWeight="900" fontSize="48" fill="url(#ai-grad)" textAnchor="middle">Ai</text>
+    <circle cx="50" cy="50" r="50" fill="url(#ai-grad)" />
+    <text x="50" y="68" fontFamily="NunitoCustom, sans-serif" fontWeight="900" fontSize="48" fill="#ffffff" textAnchor="middle">Ai</text>
   </svg>
 );
 
@@ -296,6 +297,7 @@ export default function App() {
     return true; 
   });
   
+  const [uiDarkMode, setUiDarkMode] = useState(() => isDarkMode); 
   const [isAmoled, setIsAmoled] = useState(() => getSaved('isAmoled', false));
 
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(() => getSaved('winnerInfo', null));
@@ -487,7 +489,6 @@ export default function App() {
   const currentXColor = enableCustomX ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[0];
   const currentOColor = enableCustomO ? PLAYER_COLORS[oColorIdx] : PLAYER_COLORS[9];
 
-  // 🚀 Native Telegram-Style View Transition (Flawless, Pure CSS Animation, Zero Lag)
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isTransitioning.current) return;
     
@@ -503,17 +504,13 @@ export default function App() {
     }
 
     isTransitioning.current = true;
-    
-    // Get absolute center of the button for the animation origin
     const rect = targetBtn.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
 
-    // Pass coordinates to CSS variables
     document.documentElement.style.setProperty('--tx', `${x}px`);
     document.documentElement.style.setProperty('--ty', `${y}px`);
 
-    // Assign animation classes before taking the snapshot
     if (nextDark) {
         document.documentElement.classList.add('transition-to-dark');
         document.documentElement.classList.remove('transition-to-light');
@@ -522,7 +519,6 @@ export default function App() {
         document.documentElement.classList.remove('transition-to-dark');
     }
 
-    // Capture the state perfectly using flushSync
     const transition = document.startViewTransition(() => {
         flushSync(() => {
             setIsDarkMode(nextDark);
@@ -897,7 +893,7 @@ export default function App() {
            background-color: transparent !important;
         }
 
-        /* 🚀 Perfect Telegram View Transitions API CSS (Zero Lag GPU Render) */
+        /* 🚀 Perfect Telegram View Transitions API CSS */
         ::view-transition-old(root),
         ::view-transition-new(root) {
           animation: none;
@@ -957,7 +953,6 @@ export default function App() {
           
           <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-          {/* 🚀 কাস্টম Pull-to-Refresh স্পিনার */}
           <motion.div 
              className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
              style={{
@@ -986,7 +981,8 @@ export default function App() {
                <MaterialSpinner color={activeLineColor} />
              ) : (
                <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}>
-                  <RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} />
+                  {/* 🚀 Thicker Refresh Icon */}
+                  <RotateCcw className="w-[20px] h-[20px]" strokeWidth={3} />
                </motion.div>
              )}
           </motion.div>
@@ -998,7 +994,6 @@ export default function App() {
             style={{ top: 'max(16px, env(safe-area-inset-top))' }}
             className="absolute left-0 right-0 h-20 px-6 flex items-center justify-between z-50 w-full max-w-[420px] mx-auto">
             
-            {/* 🚀 Spring Bouncy Buttons with perfect icon swapping */}
             <motion.button 
                whileHover={{ scale: 1.05 }}
                whileTap={{ scale: 0.75 }} 
@@ -1006,10 +1001,12 @@ export default function App() {
                onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isDarkMode ? 0 : 1, rotate: isDarkMode ? 90 : 0, opacity: isDarkMode ? 0 : 1 }} transition={{ duration: 0.3 }} className="absolute">
-                    <Sun className="w-[20px] h-[20px]" />
+                    {/* 🚀 Solid Sun Icon */}
+                    <Sun className="w-[20px] h-[20px]" fill="currentColor" strokeWidth={1.5} />
                  </motion.div>
                  <motion.div animate={{ scale: isDarkMode ? 1 : 0, rotate: isDarkMode ? 0 : -90, opacity: isDarkMode ? 1 : 0 }} transition={{ duration: 0.3 }} className="absolute">
-                    <Moon className="w-[20px] h-[20px]" />
+                    {/* 🚀 Solid Moon Icon */}
+                    <Moon className="w-[20px] h-[20px]" fill="currentColor" strokeWidth={1.5} />
                  </motion.div>
               </div>
             </motion.button>
@@ -1024,7 +1021,8 @@ export default function App() {
                className={navBtnClass} style={getNavBtnStyle()}
             >
               <motion.div animate={{ rotate: rotation }} transition={{ type: "spring", stiffness: 300, damping: 25 }}>
-                <RotateCcw className="w-[20px] h-[20px]" />
+                {/* 🚀 Thicker Refresh Icon */}
+                <RotateCcw className="w-[20px] h-[20px]" strokeWidth={3} />
               </motion.div>
             </motion.button>
 
@@ -1035,10 +1033,12 @@ export default function App() {
                onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isSoundOn ? 1 : 0, opacity: isSoundOn ? 1 : 0 }} transition={{ duration: 0.2 }} className="absolute">
-                    <Volume2 className="w-[20px] h-[20px]" />
+                    {/* 🚀 Solid Volume Icon */}
+                    <Volume2 className="w-[20px] h-[20px]" fill="currentColor" strokeWidth={1.5} />
                  </motion.div>
                  <motion.div animate={{ scale: isSoundOn ? 0 : 1, opacity: isSoundOn ? 0 : 1 }} transition={{ duration: 0.2 }} className="absolute">
-                    <VolumeX className="w-[20px] h-[20px]" />
+                    {/* 🚀 Solid Mute Icon */}
+                    <VolumeX className="w-[20px] h-[20px]" fill="currentColor" strokeWidth={1.5} />
                  </motion.div>
               </div>
             </motion.button>
@@ -1048,11 +1048,11 @@ export default function App() {
                whileTap={{ scale: 0.75 }} 
                transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
                onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
-               <SettingsIcon className="w-[20px] h-[20px]" />
+               {/* 🚀 Solid Settings Icon */}
+               <SettingsIcon className="w-[20px] h-[20px]" fill="currentColor" strokeWidth={1.5} />
             </motion.button>
           </motion.nav>
 
-          {/* 🚀 Main Content Wrapper */}
           <motion.div 
              initial={{ opacity: 0, scale: 0.9, y: 15 }} 
              animate={{ opacity: 1, scale: 1, y: 0 }} 
@@ -1080,7 +1080,8 @@ export default function App() {
                     <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
                   </button>
                   <button onClick={() => switchModeClick(false)} style={{ color: semantics.text, opacity: !isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-300">
-                    <span className="relative z-10 flex items-center gap-1.5"><UsersRound color="currentColor" className="w-[18px] h-[18px]" strokeWidth={2.5}/> 2 Players</span>
+                    {/* 🚀 Solid Users Icon */}
+                    <span className="relative z-10 flex items-center gap-1.5"><UsersRound color="currentColor" fill="currentColor" className="w-[18px] h-[18px]" strokeWidth={1.5}/> 2 Players</span>
                   </button>
                 </div>
 
@@ -1094,7 +1095,8 @@ export default function App() {
                   <div className="flex items-center gap-2 relative z-10">
                     {winnerInfo ? (
                       <>
-                        <Sparkles className="w-4 h-4" style={{ color: activeLineColor }} />
+                        {/* 🚀 Solid Sparkles Icon */}
+                        <Sparkles className="w-4 h-4" fill={activeLineColor} style={{ color: activeLineColor }} />
                         <span className="font-bold flex items-center">
                           Winner: Player
                           <DynamicIcon 
