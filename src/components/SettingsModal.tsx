@@ -1,3 +1,8 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -51,10 +56,10 @@ export const CUSTOM_THEMES = [
   { name: 'M3 Cyan', light: '#ecfeff', dark: '#020d12', gridLight: '#67e8f9', gridDark: '#051f2b', cellLight: '#ffffff', cellDark: '#093142', indicatorLight: '#0891b2', indicatorDark: '#06b6d4', linesLight: ['#0e7490', '#0891b2', '#0369a1', '#0f766e', '#115e59'], linesDark: ['#4cdada', '#67e8f9', '#7dd3fc', '#5eead4', '#99f6e4'] },
   { name: 'M3 Amber', light: '#fffbeb', dark: '#140b01', gridLight: '#fde047', gridDark: '#291702', cellLight: '#ffffff', cellDark: '#3d2304', indicatorLight: '#d97706', indicatorDark: '#f59e0b', linesLight: ['#ca8a04', '#d97706', '#b45309', '#a16207', '#ea580c'], linesDark: ['#f59e0b', '#fbbf24', '#fcd34d', '#fdba74', '#fde047'] },
   { name: 'M3 Crimson', light: '#fef2f2', dark: '#140303', gridLight: '#fca5a5', gridDark: '#290707', cellLight: '#ffffff', cellDark: '#400c0c', indicatorLight: '#dc2626', indicatorDark: '#ef4444', linesLight: ['#b91c1c', '#dc2626', '#991b1b', '#7f1d1d', '#e11d48'], linesDark: ['#ef4444', '#f87171', '#fca5a5', '#fb7185', '#f87171'] },
-  { name: 'M3 Indigo', light: '#eef2ff', dark: '#050512', gridLight: '#c7d2fe', gridDark: '#0e0c29', cellLight: '#ffffff', cellDark: '#161340', indicatorLight: '#4f46e5', indicatorDark: '#6366f1', linesLight: ['#4338ca', '#4f46e5', '#3730a3', '#312e81', '#1e3a8a'], linesDark: ['#6366f1', '#818cf8', '#a5b4fc', '#93c5fd', '#bfdbfe'] },
+  { name: 'M3 Indigo', light: '#eef2ff', dark: '#050512', gridLight: '#c7d2fe', gridDark: '#0e0c29', cellLight: '#ffffff', cellDark: '#161340', indicatorLight: '#4f46e5', indicatorDark: '#6366f1', linesLight: ['#4338ca', '#4f46e5', '#6366f1', '#a5b4fc', '#c7d2fe'], linesDark: ['#818cf8', '#6366f1', '#4f46e5', '#4338ca', '#3730a3'] },
   { name: 'M3 Mint', light: '#f0fdfa', dark: '#01120f', gridLight: '#99f6e4', gridDark: '#03241d', cellLight: '#ffffff', cellDark: '#06362c', indicatorLight: '#0d9488', indicatorDark: '#14b8a6', linesLight: ['#0f766e', '#0d9488', '#0b1d1d', '#14532d', '#065f46'], linesDark: ['#6ab5ab', '#84c9bf', '#a0c7bb', '#8cc4a8', '#7bb89d'] },
-  { name: 'M3 Pink', light: '#fdf2f8', dark: '#170312', gridLight: '#fbcfe8', gridDark: '#330a28', cellLight: '#ffffff', cellDark: '#4a0f3a', indicatorLight: '#ec4899', indicatorDark: '#f472b6', linesLight: ['#db2777', '#ec4899', '#f472b6', '#be185d', '#9d174d'], linesDark: ['#f472b6', '#f9a8d4', '#ec4899', '#fbcfe8', '#db2777'] },
-  { name: 'M3 Yellow', light: '#fefce8', dark: '#141000', gridLight: '#fef08a', gridDark: '#332800', cellLight: '#ffffff', cellDark: '#4a3a00', indicatorLight: '#eab308', indicatorDark: '#facc15', linesLight: ['#ca8a04', '#eab308', '#facc15', '#a16207', '#854d0e'], linesDark: ['#facc15', '#fef08a', '#eab308', '#fef9c3', '#ca8a04'] },
+  { name: 'M3 Pink', light: '#fdf2f8', dark: '#170312', gridLight: '#fbcfe8', gridDark: '#330a28', cellLight: '#ffffff', cellDark: '#4a0f3a', indicatorLight: '#ec4899', indicatorDark: '#f472b6', linesLight: ['#be185d', '#db2777', '#ec4899', '#f9a8d4', '#fbcfe8'], linesDark: ['#f472b6', '#ec4899', '#db2777', '#be185d', '#9d174d'] },
+  { name: 'M3 Yellow', light: '#fefce8', dark: '#141000', gridLight: '#fef08a', gridDark: '#332800', cellLight: '#ffffff', cellDark: '#4a3a00', indicatorLight: '#eab308', indicatorDark: '#facc15', linesLight: ['#ca8a04', '#eab308', '#facc15', '#fef08a', '#fef9c3'], linesDark: ['#facc15', '#fef08a', '#eab308', '#fef9c3', '#ca8a04'] },
   { name: 'M3 Lime', light: '#f7fee7', dark: '#0f1402', gridLight: '#d9f99d', gridDark: '#1d2905', cellLight: '#ffffff', cellDark: '#2a3b07', indicatorLight: '#84cc16', indicatorDark: '#a3e635', linesLight: ['#65a30d', '#84cc16', '#a3e635', '#4d7c0f', '#3f6212'], linesDark: ['#a3e635', '#d9f99d', '#84cc16', '#ecfccb', '#65a30d'] },
   { name: 'M3 Teal', light: '#f0fdfa', dark: '#041414', gridLight: '#ccfbf1', gridDark: '#0f3333', cellLight: '#ffffff', cellDark: '#144040', indicatorLight: '#14b8a6', indicatorDark: '#2dd4bf', linesLight: ['#0d9488', '#14b8a6', '#2dd4bf', '#0f766e', '#115e59'], linesDark: ['#2dd4bf', '#99f6e4', '#14b8a6', '#ccfbf1', '#0d9488'] },
   { name: 'Vibrant Green', light: '#f0fdf4', dark: '#022c22', gridLight: '#bbf7d0', gridDark: '#064e3b', cellLight: '#ffffff', cellDark: '#065f46', indicatorLight: '#22c55e', indicatorDark: '#4ade80', linesLight: ['#16a34a', '#22c55e', '#4ade80', '#86efac', '#bbf7d0'], linesDark: ['#4ade80', '#22c55e', '#16a34a', '#15803d', '#166534'] },
@@ -110,6 +115,7 @@ interface SettingsModalProps {
   activeLineColor: string; currentXColor: string; currentOColor: string;
   hapticFeedback: (pattern: number | number[]) => void;
   enableHardRefreshTap: boolean; setEnableHardRefreshTap: (val: boolean) => void;
+  enableHardPullToRefresh: boolean; setEnableHardPullToRefresh: (val: boolean) => void;
   isHapticEnabled: boolean; setIsHapticEnabled: (val: boolean) => void;
   soundPrefs: { xTap: number, oTap: number, pop: number, mode: number, refresh: number, win: number, overallWin: number, point: number };
   setSoundPrefs: React.Dispatch<React.SetStateAction<any>>;
@@ -132,7 +138,6 @@ export default function SettingsModal(props: SettingsModalProps) {
   const renderSoundControl = (label: string, key: keyof typeof props.soundPrefs) => {
     const value = props.soundPrefs[key];
     
-    // 🚀 রাউন্ড রবিন লজিক (20 এর পর 0, 0 এর আগে 20)
     const handleDec = () => {
        props.hapticFeedback(20);
        updateSound(key, value === 0 ? 20 : value - 1);
@@ -332,7 +337,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                                <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                   {ICONS_LIST.map((IconComponent, idx) => (
                                      <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP1Idx(idx); }} className={`w-8 h-8 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p1Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p1Idx === idx ? props.currentXColor : 'transparent' }}>
-                                        <IconComponent className="w-5 h-5" color={props.currentXColor} fill={props.currentXColor} strokeWidth={2.5} />
+                                        <IconComponent className="w-5 h-5" color={props.currentXColor} strokeWidth={2.5} />
                                      </button>
                                   ))}
                                </div>
@@ -379,7 +384,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                                <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                   {ICONS_LIST.map((IconComponent, idx) => (
                                      <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP2Idx(idx); }} className={`w-8 h-8 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p2Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p2Idx === idx ? props.currentOColor : 'transparent' }}>
-                                        <IconComponent className="w-5 h-5" color={props.currentOColor} fill={props.currentOColor} strokeWidth={2.5} />
+                                        <IconComponent className="w-5 h-5" color={props.currentOColor} strokeWidth={2.5} />
                                      </button>
                                   ))}
                                </div>
@@ -409,7 +414,7 @@ export default function SettingsModal(props: SettingsModalProps) {
               </div>
             </div>
 
-            {/* 🚀 Advanced Settings Overlay (No Blur, sits on top of Settings) */}
+            {/* 🚀 Advanced Settings Overlay */}
             <AnimatePresence>
               {props.showAdvanced && (
                 <motion.div 
@@ -439,6 +444,11 @@ export default function SettingsModal(props: SettingsModalProps) {
                           <div className="flex items-center justify-between">
                              <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Hard Refresh on Bar Tap</h3>
                              <AnimatedToggle enabled={props.enableHardRefreshTap} onToggle={() => { props.hapticFeedback(30); props.setEnableHardRefreshTap(!props.enableHardRefreshTap); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} />
+                          </div>
+                          <div className="w-full h-px bg-black/10 dark:bg-white/10" />
+                          <div className="flex items-center justify-between">
+                             <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Hard Refresh on Pull down</h3>
+                             <AnimatedToggle enabled={props.enableHardPullToRefresh} onToggle={() => { props.hapticFeedback(30); props.setEnableHardPullToRefresh(!props.enableHardPullToRefresh); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} />
                           </div>
                       </div>
 
