@@ -890,6 +890,7 @@ export default function App() {
           font-display: swap;
         }
 
+        /* 🚀 Prevent scrollbars, lock the screen perfectly */
         html, body {
            overscroll-behavior: none;
            overflow: hidden;
@@ -901,6 +902,7 @@ export default function App() {
            background-color: transparent !important;
         }
 
+        /* 🚀 Perfect Telegram View Transitions API CSS */
         ::view-transition-old(root),
         ::view-transition-new(root) {
           animation: none;
@@ -908,6 +910,7 @@ export default function App() {
           display: block;
         }
         
+        /* Dark Theme Expansion */
         html.transition-to-dark ::view-transition-old(root) { z-index: 1; }
         html.transition-to-dark ::view-transition-new(root) { 
             z-index: 2; 
@@ -915,6 +918,7 @@ export default function App() {
             animation: clip-expand 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
         
+        /* Light Theme Expansion */
         html.transition-to-light ::view-transition-old(root) { 
             z-index: 2; 
             clip-path: circle(150% at var(--tx) var(--ty));
@@ -1003,10 +1007,12 @@ export default function App() {
                onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isDarkMode ? 0 : 1, rotate: isDarkMode ? 90 : 0, opacity: isDarkMode ? 0 : 1 }} transition={{ duration: 0.3 }} className="absolute">
-                    <Sun className="w-[20px] h-[20px]" />
+                    {/* 🚀 Changed: Added fill="currentColor" */}
+                    <Sun className="w-[20px] h-[20px]" fill="currentColor" />
                  </motion.div>
                  <motion.div animate={{ scale: isDarkMode ? 1 : 0, rotate: isDarkMode ? 0 : -90, opacity: isDarkMode ? 1 : 0 }} transition={{ duration: 0.3 }} className="absolute">
-                    <Moon className="w-[20px] h-[20px]" />
+                    {/* 🚀 Changed: Added fill="currentColor" */}
+                    <Moon className="w-[20px] h-[20px]" fill="currentColor" />
                  </motion.div>
               </div>
             </motion.button>
@@ -1032,10 +1038,12 @@ export default function App() {
                onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isSoundOn ? 1 : 0, opacity: isSoundOn ? 1 : 0 }} transition={{ duration: 0.2 }} className="absolute">
-                    <Volume2 className="w-[20px] h-[20px]" />
+                    {/* 🚀 Changed: Added fill="currentColor" */}
+                    <Volume2 className="w-[20px] h-[20px]" fill="currentColor" />
                  </motion.div>
                  <motion.div animate={{ scale: isSoundOn ? 0 : 1, opacity: isSoundOn ? 0 : 1 }} transition={{ duration: 0.2 }} className="absolute">
-                    <VolumeX className="w-[20px] h-[20px]" />
+                    {/* 🚀 Changed: Added fill="currentColor" */}
+                    <VolumeX className="w-[20px] h-[20px]" fill="currentColor" />
                  </motion.div>
               </div>
             </motion.button>
@@ -1045,7 +1053,8 @@ export default function App() {
                whileTap={{ scale: 0.75 }} 
                transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
                onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
-               <SettingsIcon className="w-[20px] h-[20px]" />
+               {/* 🚀 Changed: Added fill="currentColor" */}
+               <SettingsIcon className="w-[20px] h-[20px]" fill="currentColor" />
             </motion.button>
           </motion.nav>
 
@@ -1329,24 +1338,9 @@ export default function App() {
                                <h2 className="font-nunito-black text-3xl tracking-tight leading-tight drop-shadow-md" style={{ color: semantics.text }}>
                                  Winner!
                                </h2>
-                               
-                               {/* 🚀 Magical Hopping & Wiggling Animation! */}
-                               <motion.span 
-                                 animate={{ 
-                                    scale: [0.5, 1.2, 0.9, 1.1, 1],
-                                    y: [20, -25, 0, -12, 0],
-                                    rotate: [0, -15, 15, -10, 10, 0]
-                                 }} 
-                                 transition={{ 
-                                    duration: 1.2, 
-                                    ease: "easeOut",
-                                    delay: 0.1 
-                                 }} 
-                                 className="drop-shadow-xl flex justify-center mt-3 mb-2"
-                               >
+                               <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-xl flex justify-center mt-2 mb-1">
                                  <DynamicIcon player={overallWinner} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={overallWinner === 'X' ? currentXColor : currentOColor} className="w-16 h-16" />
                                </motion.span>
-                               
                              </div>
                              
                              <div className="flex flex-col w-full gap-2.5 pt-1 z-10">
