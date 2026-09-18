@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { motion, AnimatePresence, useAnimation } from 'motion/react';
-import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound } from 'lucide-react';
+import { RotateCcw, Moon, Sun, Sparkles, UsersRound } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // @ts-ignore
@@ -22,7 +22,37 @@ import { App as CapApp } from '@capacitor/app';
 import SettingsModal, { PLAYER_COLORS, CUSTOM_THEMES, ORIGINAL_THEME, EXTRA_LINE_COLORS, ICONS_LIST } from './components/SettingsModal';
 import AboutModal from './components/AboutModal';
 
-// 🚀 Solid 2-Players Icon Added Here
+// 🚀 Custom Filled Volume2 (Only Speaker Filled, Waves Hollow)
+const CustomVolume2 = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" fill="none" />
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" fill="none" />
+  </svg>
+);
+
+// 🚀 Custom Filled VolumeX (Only Speaker Filled, Cross Hollow)
+const CustomVolumeX = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
+    <line x1="23" y1="9" x2="17" y2="15" fill="none" />
+    <line x1="17" y1="9" x2="23" y2="15" fill="none" />
+  </svg>
+);
+
+// 🚀 Custom Filled Settings (Gear Filled, Center Circle Hollow with Border)
+const CustomSettings = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <mask id="settings-hole">
+      <rect width="24" height="24" fill="white" />
+      <circle cx="12" cy="12" r="3" fill="black" stroke="black" strokeWidth="1" />
+    </mask>
+    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" fill="currentColor" mask="url(#settings-hole)" />
+    <circle cx="12" cy="12" r="3" fill="none" />
+  </svg>
+);
+
+// 🚀 Solid 2-Players Icon
 export const SolidUsers = ({ className, color }: { className?: string, color?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" color={color} className={className}><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>;
 
 type Player = 'X' | 'O';
@@ -34,7 +64,6 @@ const WINNING_COMBINATIONS = [
   [0, 4, 8], [2, 4, 6]
 ];
 
-// 🚀 Haptic Feedback
 const triggerNativeHaptic = (pattern: number | number[], isEnabled: boolean) => {
   if (!isEnabled) return;
   if (Capacitor.isNativePlatform()) {
@@ -890,7 +919,6 @@ export default function App() {
           font-display: swap;
         }
 
-        /* 🚀 Prevent scrollbars, lock the screen perfectly */
         html, body {
            overscroll-behavior: none;
            overflow: hidden;
@@ -902,7 +930,6 @@ export default function App() {
            background-color: transparent !important;
         }
 
-        /* 🚀 Perfect Telegram View Transitions API CSS */
         ::view-transition-old(root),
         ::view-transition-new(root) {
           animation: none;
@@ -910,7 +937,6 @@ export default function App() {
           display: block;
         }
         
-        /* Dark Theme Expansion */
         html.transition-to-dark ::view-transition-old(root) { z-index: 1; }
         html.transition-to-dark ::view-transition-new(root) { 
             z-index: 2; 
@@ -918,7 +944,6 @@ export default function App() {
             animation: clip-expand 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
         
-        /* Light Theme Expansion */
         html.transition-to-light ::view-transition-old(root) { 
             z-index: 2; 
             clip-path: circle(150% at var(--tx) var(--ty));
@@ -1038,12 +1063,12 @@ export default function App() {
                onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isSoundOn ? 1 : 0, opacity: isSoundOn ? 1 : 0 }} transition={{ duration: 0.2 }} className="absolute">
-                    {/* 🚀 Changed: Added fill="currentColor" */}
-                    <Volume2 className="w-[20px] h-[20px]" fill="currentColor" />
+                    {/* 🚀 Changed to custom filled Volume2 */}
+                    <CustomVolume2 className="w-[20px] h-[20px]" />
                  </motion.div>
                  <motion.div animate={{ scale: isSoundOn ? 0 : 1, opacity: isSoundOn ? 0 : 1 }} transition={{ duration: 0.2 }} className="absolute">
-                    {/* 🚀 Changed: Added fill="currentColor" */}
-                    <VolumeX className="w-[20px] h-[20px]" fill="currentColor" />
+                    {/* 🚀 Changed to custom filled VolumeX */}
+                    <CustomVolumeX className="w-[20px] h-[20px]" />
                  </motion.div>
               </div>
             </motion.button>
@@ -1053,8 +1078,8 @@ export default function App() {
                whileTap={{ scale: 0.75 }} 
                transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
                onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
-               {/* 🚀 Changed: Added fill="currentColor" */}
-               <SettingsIcon className="w-[20px] h-[20px]" fill="currentColor" />
+               {/* 🚀 Changed to custom filled Settings */}
+               <CustomSettings className="w-[20px] h-[20px]" />
             </motion.button>
           </motion.nav>
 
