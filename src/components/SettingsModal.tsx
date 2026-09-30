@@ -243,34 +243,55 @@ export default function SettingsModal(props: SettingsModalProps) {
             <div className="relative w-full overflow-hidden px-4">
               <div className="max-h-[66vh] overflow-y-auto m3-scrollbar pr-3 space-y-4 pb-6">
                 
-                {/* 1. Theme Style Box */}
+            {/* 1. Theme Style Box */}
                 <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Theme Style</h3>
                    
-                   <div className="relative flex p-1.5 rounded-[24px] w-full bg-black/10 dark:bg-white/10 shadow-inner">
+                   {/* 🚀 Updated Theme Toggle mimicking 1-Player/2-Player logic */}
+                   <div 
+                      className="relative flex p-1.5 rounded-[28px] w-full shadow-sm"
+                      style={{ 
+                         // 🚀 Light mode: uses the theme's bright color as background. Dark mode: uses the standard dark mode slider background.
+                         backgroundColor: props.isDarkMode ? (props.isAmoled ? '#0f0f0f' : props.semantics.modeSliderContainer.bg) : props.activeLineColor 
+                      }}
+                   >
+                      <motion.div 
+                        className="absolute top-1.5 bottom-1.5 rounded-[24px] shadow-sm"
+                        style={{ 
+                           // 🚀 The sliding pill. Light mode: pure white. Dark mode: semi-transparent white (like the game screen).
+                           backgroundColor: props.isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff',
+                           width: 'calc(50% - 6px)'
+                        }}
+                        animate={{ x: props.useDefaultTheme ? 0 : '100%' }}
+                        transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
+                      />
                       <button 
                           onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(true); }} 
-                          className="relative flex-1 h-[36px] rounded-[20px] text-[13px] font-black uppercase tracking-wider z-10 flex items-center justify-center transition-colors duration-300"
-                          style={{ color: props.useDefaultTheme ? '#ffffff' : props.semantics.text }}
+                          className="relative flex-1 h-[40px] rounded-[24px] text-[13px] font-black uppercase tracking-wider z-10 flex items-center justify-center transition-colors duration-300"
+                          style={{ 
+                             // 🚀 Text color logic
+                             color: props.useDefaultTheme 
+                                ? (props.isDarkMode ? '#ffffff' : props.activeLineColor) // Selected state text
+                                : (props.isDarkMode ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.8)') // Unselected state text
+                          }}
                       >
-                          {props.useDefaultTheme && (
-                              <motion.div layoutId="theme-toggle-pill" className="absolute inset-0 rounded-[20px] shadow-md z-[-1]" style={{ backgroundColor: props.activeLineColor }} transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }} />
-                          )}
                           <span className="relative z-10">Classic</span>
                       </button>
                       <button 
                           onClick={() => { props.hapticFeedback(20); props.setUseDefaultTheme(false); }} 
-                          className="relative flex-1 h-[36px] rounded-[20px] text-[13px] font-black uppercase tracking-wider z-10 flex items-center justify-center transition-colors duration-300"
-                          style={{ color: !props.useDefaultTheme ? '#ffffff' : props.semantics.text }}
+                          className="relative flex-1 h-[40px] rounded-[24px] text-[13px] font-black uppercase tracking-wider z-10 flex items-center justify-center transition-colors duration-300"
+                          style={{ 
+                             // 🚀 Text color logic
+                             color: !props.useDefaultTheme 
+                                ? (props.isDarkMode ? '#ffffff' : props.activeLineColor) // Selected state text
+                                : (props.isDarkMode ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.8)') // Unselected state text
+                          }}
                       >
-                          {!props.useDefaultTheme && (
-                              <motion.div layoutId="theme-toggle-pill" className="absolute inset-0 rounded-[20px] shadow-md z-[-1]" style={{ backgroundColor: props.activeLineColor }} transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }} />
-                          )}
                           <span className="relative z-10">Custom</span>
                       </button>
                    </div>
                 </div>
-                
+
                 {/* 2. Surface Colors Box */}
                 <AnimatePresence>
                   {!props.useDefaultTheme && (
