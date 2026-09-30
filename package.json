@@ -23,7 +23,7 @@
     "canvas-confetti": "^1.9.4",
     "dotenv": "^18.0.4",
     "express": "^5.2.1",
-    "lucide-react": "^1.47.0",
+    "lucide-react": "^1.48.0",
     "motion": "^13.4.4",
     "react": "^19.0.1",
     "react-dom": "^19.3.0",
