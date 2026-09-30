@@ -94,6 +94,7 @@ const AILogo = () => (
   </svg>
 );
 
+
 // 🚀 Hyper-Optimized DynamicIcon with React.memo (Prevents Board Lag)
 const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2Custom, p2Idx, p2Emoji, p2Filled, color, className }: any) => {
   if (!player) return null;
