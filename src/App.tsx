@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { motion, AnimatePresence, useAnimation } from 'motion/react';
-import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound } from 'lucide-react';
+import { RotateCcw, Moon, Sun, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // @ts-ignore
@@ -40,7 +40,7 @@ const CustomVolumeX = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// 🚀 Custom Filled Settings
+// 🚀 Custom Filled Settings (Gear Filled, Center Circle Hollow with Border)
 const CustomSettings = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <mask id="settings-hole">
@@ -52,6 +52,7 @@ const CustomSettings = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// 🚀 Solid 2-Players Icon
 export const SolidUsers = ({ className, color }: { className?: string, color?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" color={color} className={className}><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>;
 
 type Player = 'X' | 'O';
@@ -94,7 +95,7 @@ const AILogo = () => (
   </svg>
 );
 
-// 🚀 Updated DynamicIcon to support Emojis properly
+// 🚀 Updated DynamicIcon: Added Logic for Emojis and Custom Text Fonts
 const DynamicIcon = ({ player, p1Custom, p1Idx, p1Emoji, p2Custom, p2Idx, p2Emoji, color, className }: any) => {
   if (!player) return null;
   const isP1 = player === 'X';
@@ -103,11 +104,23 @@ const DynamicIcon = ({ player, p1Custom, p1Idx, p1Emoji, p2Custom, p2Idx, p2Emoj
   const emoji = isP1 ? p1Emoji : p2Emoji;
 
   if (isCustomEnabled) {
-     // If user selected an Emoji, render the text
-     if (emoji) {
-         return <span className={className} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: color, fontSize: '1.2em' }}>{emoji}</span>;
+     if (iconIndex === -1 && emoji) {
+         // 🚀 লেটার দিলে অ্যাপের ফন্ট পাবে, ইমোজি দিলে ইমোজির ফন্ট পাবে
+         return (
+            <span 
+               className={className} 
+               style={{ 
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                  color: color, 
+                  fontSize: '1.25em',
+                  fontFamily: '"NunitoBlack", "Noto Color Emoji", sans-serif',
+                  lineHeight: 1, marginTop: '-2px'
+               }}
+            >
+               {emoji}
+            </span>
+         );
      }
-     // Otherwise render the Lucide Icon safely
      const SafeIndex = Math.max(0, iconIndex) % ICONS_LIST.length;
      const SelectedIcon = ICONS_LIST[SafeIndex];
      return <SelectedIcon color={color} fill={color} className={className} strokeWidth={2.5} />;
@@ -318,7 +331,7 @@ export default function App() {
   const [p2Custom, setP2Custom] = useState(() => getSaved('p2Custom', false));
   const [p2Idx, setP2Idx] = useState(() => getSaved('p2Idx', 1));
   
-  // 🚀 New Emoji States
+  // 🚀 New Emoji States initialized here
   const [p1Emoji, setP1Emoji] = useState<string | null>(() => getSaved('p1Emoji', null));
   const [p2Emoji, setP2Emoji] = useState<string | null>(() => getSaved('p2Emoji', null));
 
