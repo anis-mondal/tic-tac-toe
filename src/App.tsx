@@ -1270,7 +1270,7 @@ export default function App() {
                     style={{ backgroundColor: semantics.mainGridBackground }} 
                     className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden"
                   >
-                    <div ref={boardRef} className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] aspect-square">
+               <div ref={boardRef} className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] aspect-square">
                       {board.map((value, i) => {
                         const isWinningCell = winnerInfo && winnerInfo.line.includes(i);
                         const isSquished = activeCell === i;
@@ -1299,7 +1299,8 @@ export default function App() {
                                        ? { duration: 0.65, ease: "easeInOut", times: [0, 0.2, 0.5, 0.8, 1] }
                                        : { type: 'spring', stiffness: 500, damping: 14, mass: 1 } 
                                    } 
-                                   className="w-full h-full flex items-center justify-center"
+                                   // 🚀 Added absolute positioning to prevent the initial render lag/stutter
+                                   className="absolute inset-0 m-auto flex items-center justify-center w-full h-full"
                                 >
                                    <DynamicIcon 
                                       player={value} 
@@ -1314,6 +1315,7 @@ export default function App() {
                           </motion.button>
                         );
                       })}
+
 
                       <AnimatePresence>
                         {linePoints && winnerInfo && (
