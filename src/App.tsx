@@ -946,7 +946,6 @@ export default function App() {
           font-display: swap;
         }
 
-        /* 🚀 Noto Color Emoji Added */
         .font-nunito { 
             font-family: 'NunitoCustom', 'Noto Color Emoji', sans-serif; 
             font-weight: 700; 
@@ -1019,7 +1018,7 @@ export default function App() {
           
           <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-          {/* 🚀 Updated Spinner Alignment for Desktop */}
+          {/* 🚀 Desktop Spinner Alignment */}
           <motion.div 
              className="fixed left-1/2 md:left-1/4 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
              style={{
@@ -1053,7 +1052,7 @@ export default function App() {
              )}
           </motion.div>
 
-          {/* 🚀 Desktop Optimized Top Nav: Shifts left and limits width on md screens */}
+          {/* 🚀 Desktop Optimized Top Nav */}
           <motion.nav 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1116,7 +1115,7 @@ export default function App() {
             </div>
           </motion.nav>
 
-          {/* 🚀 Main Split Layout Wrapper: Stacks vertically on mobile, side-by-side on desktop */}
+          {/* 🚀 Main Split Layout Wrapper */}
           <motion.div 
              initial={{ opacity: 0, scale: 0.9, y: 15 }} 
              animate={{ opacity: 1, scale: 1, y: 0 }} 
@@ -1128,8 +1127,11 @@ export default function App() {
                  initial={{ gap: "20px" }} 
                  className="w-full flex flex-col md:flex-row items-center justify-center pt-24 md:pt-0 relative z-10" 
               >
-                  {/* 🚀 LEFT PANE (Controls) */}
-                  <div className="w-full md:w-1/2 flex flex-col items-center justify-center gap-5 md:gap-7">
+                  {/* 🚀 LEFT PANE (Controls) - Automatically scales down on small mobile landscape screens */}
+                  <div 
+                     className="w-full md:w-1/2 flex flex-col items-center justify-center gap-4 sm:gap-5 md:gap-6 lg:gap-8"
+                     style={{ transform: 'scale(min(1, calc(100vh / 600)))', transformOrigin: 'center center' }}
+                  >
                       <motion.h1 style={{ color: semantics.text }} className="font-nunito-black text-[40px] sm:text-[44px] lg:text-[52px] tracking-tight drop-shadow-sm text-center w-full m-0">
                         Tic Tac Toe
                       </motion.h1>
@@ -1265,16 +1267,20 @@ export default function App() {
                       </div>
                   </div>
 
-                  {/* 🚀 RIGHT PANE (Game Board) - Scales up automatically on Desktop */}
+                  {/* 🚀 RIGHT PANE (Game Board) - Dynamically scales with `min()` to fit any screen sizes perfectly */}
                   <div className="w-full md:w-1/2 flex items-center justify-center mt-6 md:mt-0">
-                      <div className="relative group z-10 m-0 md:scale-[1.15] lg:scale-[1.3] transition-transform duration-500 origin-center">
+                      <div className="relative group z-10 m-0 transition-transform duration-500 origin-center">
                         <motion.div 
                           animate={isDraw ? { x: [-12, 12, -12, 12, -6, 6, 0], opacity: 1, scale: 1 } : { x: 0, opacity: 1, scale: 1 }}
                           transition={{ duration: 0.5, ease: "easeInOut" }}
                           style={{ backgroundColor: semantics.mainGridBackground }} 
                           className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden"
                         >
-                          <div ref={boardRef} className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] aspect-square">
+                          <div 
+                             ref={boardRef} 
+                             className="grid grid-cols-3 grid-rows-3 gap-2.5 sm:gap-3 relative z-10 aspect-square" 
+                             style={{ width: 'min(85vw, 380px, 60vh)' }} /* 🚀 The Secret Sauce for perfect fitting */
+                          >
                             {board.map((value, i) => {
                               const isWinningCell = winnerInfo && winnerInfo.line.includes(i);
                               const isSquished = activeCell === i;
@@ -1419,7 +1425,7 @@ export default function App() {
                   </div>
               </motion.div>
 
-              {/* 🚀 Updated Desktop Alignment for Winner Modal */}
+              {/* 🚀 Desktop Optimized Winner Modal */}
               <AnimatePresence>
                 {showWinnerModal && overallWinner && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="fixed inset-0 z-50 flex items-center justify-center md:justify-start p-2 bg-black/15 backdrop-blur-sm">
