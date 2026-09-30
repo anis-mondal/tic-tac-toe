@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { motion, AnimatePresence, useAnimation } from 'motion/react';
-import { RotateCcw, Moon, Sun, Sparkles, UsersRound } from 'lucide-react';
+import { RotateCcw, Moon, Sun, Sparkles, Volume2, VolumeX, Settings as SettingsIcon, UsersRound } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // @ts-ignore
@@ -40,7 +40,7 @@ const CustomVolumeX = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// 🚀 Custom Filled Settings (Gear Filled, Center Circle Hollow with Border)
+// 🚀 Custom Filled Settings
 const CustomSettings = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <mask id="settings-hole">
@@ -52,7 +52,6 @@ const CustomSettings = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// 🚀 Solid 2-Players Icon
 export const SolidUsers = ({ className, color }: { className?: string, color?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" color={color} className={className}><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>;
 
 type Player = 'X' | 'O';
@@ -95,14 +94,22 @@ const AILogo = () => (
   </svg>
 );
 
-const DynamicIcon = ({ player, p1Custom, p1Idx, p2Custom, p2Idx, color, className }: { player: Player | null, p1Custom: boolean, p1Idx: number, p2Custom: boolean, p2Idx: number, color: string, className?: string }) => {
+// 🚀 Updated DynamicIcon to support Emojis properly
+const DynamicIcon = ({ player, p1Custom, p1Idx, p1Emoji, p2Custom, p2Idx, p2Emoji, color, className }: any) => {
   if (!player) return null;
   const isP1 = player === 'X';
   const isCustomEnabled = isP1 ? p1Custom : p2Custom;
   const iconIndex = isP1 ? p1Idx : p2Idx;
+  const emoji = isP1 ? p1Emoji : p2Emoji;
 
   if (isCustomEnabled) {
-     const SelectedIcon = ICONS_LIST[iconIndex % ICONS_LIST.length];
+     // If user selected an Emoji, render the text
+     if (emoji) {
+         return <span className={className} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: color, fontSize: '1.2em' }}>{emoji}</span>;
+     }
+     // Otherwise render the Lucide Icon safely
+     const SafeIndex = Math.max(0, iconIndex) % ICONS_LIST.length;
+     const SelectedIcon = ICONS_LIST[SafeIndex];
      return <SelectedIcon color={color} fill={color} className={className} strokeWidth={2.5} />;
   }
   
@@ -311,6 +318,10 @@ export default function App() {
   const [p2Custom, setP2Custom] = useState(() => getSaved('p2Custom', false));
   const [p2Idx, setP2Idx] = useState(() => getSaved('p2Idx', 1));
   
+  // 🚀 New Emoji States
+  const [p1Emoji, setP1Emoji] = useState<string | null>(() => getSaved('p1Emoji', null));
+  const [p2Emoji, setP2Emoji] = useState<string | null>(() => getSaved('p2Emoji', null));
+
   const [enableCustomLine, setEnableCustomLine] = useState(() => getSaved('enableCustomLine', false));
   const [enableCustomX, setEnableCustomX] = useState(() => getSaved('enableCustomX', false));
   const [enableCustomO, setEnableCustomO] = useState(() => getSaved('enableCustomO', false));
@@ -465,6 +476,8 @@ export default function App() {
     localStorage.setItem('p1Idx', JSON.stringify(p1Idx));
     localStorage.setItem('p2Custom', JSON.stringify(p2Custom));
     localStorage.setItem('p2Idx', JSON.stringify(p2Idx));
+    localStorage.setItem('p1Emoji', JSON.stringify(p1Emoji));
+    localStorage.setItem('p2Emoji', JSON.stringify(p2Emoji));
     localStorage.setItem('enableCustomLine', JSON.stringify(enableCustomLine));
     localStorage.setItem('enableCustomX', JSON.stringify(enableCustomX));
     localStorage.setItem('enableCustomO', JSON.stringify(enableCustomO));
@@ -479,7 +492,7 @@ export default function App() {
     localStorage.setItem('lastMoveIdx', JSON.stringify(lastMoveIdxRef.current));
     localStorage.setItem('enableHardRefreshTap', JSON.stringify(enableHardRefreshTap));
     localStorage.setItem('enableHardPullToRefresh', JSON.stringify(enableHardPullToRefresh));
-  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap, enableHardPullToRefresh]);
+  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, p1Emoji, p2Emoji, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap, enableHardPullToRefresh]);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -904,6 +917,9 @@ export default function App() {
   return (
     <>
       <style>{`
+        /* 🚀 Google Material Emoji Font */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
+
         @font-face {
           font-family: 'NunitoCustom';
           src: url('${nunitoFont}') format('truetype');
@@ -917,6 +933,16 @@ export default function App() {
           font-weight: 900;
           font-style: normal;
           font-display: swap;
+        }
+
+        /* 🚀 Noto Color Emoji Added */
+        .font-nunito { 
+            font-family: 'NunitoCustom', 'Noto Color Emoji', sans-serif; 
+            font-weight: 700; 
+        }
+        .font-nunito-black { 
+            font-family: 'NunitoBlack', 'Noto Color Emoji', sans-serif; 
+            font-weight: 900; 
         }
 
         html, body {
@@ -958,9 +984,6 @@ export default function App() {
           to { clip-path: circle(0px at var(--tx) var(--ty)); }
         }
 
-        .font-nunito { font-family: 'NunitoCustom', sans-serif; font-weight: 700; }
-        .font-nunito-black { font-family: 'NunitoBlack', sans-serif; font-weight: 900; }
-        
         .m3-scrollbar::-webkit-scrollbar { width: 6px; }
         .m3-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .m3-scrollbar::-webkit-scrollbar-thumb { 
@@ -1032,11 +1055,9 @@ export default function App() {
                onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isDarkMode ? 0 : 1, rotate: isDarkMode ? 90 : 0, opacity: isDarkMode ? 0 : 1 }} transition={{ duration: 0.3 }} className="absolute">
-                    {/* 🚀 Changed: Added fill="currentColor" */}
                     <Sun className="w-[20px] h-[20px]" fill="currentColor" />
                  </motion.div>
                  <motion.div animate={{ scale: isDarkMode ? 1 : 0, rotate: isDarkMode ? 0 : -90, opacity: isDarkMode ? 1 : 0 }} transition={{ duration: 0.3 }} className="absolute">
-                    {/* 🚀 Changed: Added fill="currentColor" */}
                     <Moon className="w-[20px] h-[20px]" fill="currentColor" />
                  </motion.div>
               </div>
@@ -1063,11 +1084,9 @@ export default function App() {
                onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
               <div className="relative w-[20px] h-[20px] flex items-center justify-center">
                  <motion.div animate={{ scale: isSoundOn ? 1 : 0, opacity: isSoundOn ? 1 : 0 }} transition={{ duration: 0.2 }} className="absolute">
-                    {/* 🚀 Changed to custom filled Volume2 */}
                     <CustomVolume2 className="w-[20px] h-[20px]" />
                  </motion.div>
                  <motion.div animate={{ scale: isSoundOn ? 0 : 1, opacity: isSoundOn ? 0 : 1 }} transition={{ duration: 0.2 }} className="absolute">
-                    {/* 🚀 Changed to custom filled VolumeX */}
                     <CustomVolumeX className="w-[20px] h-[20px]" />
                  </motion.div>
               </div>
@@ -1078,7 +1097,6 @@ export default function App() {
                whileTap={{ scale: 0.75 }} 
                transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
                onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
-               {/* 🚀 Changed to custom filled Settings */}
                <CustomSettings className="w-[20px] h-[20px]" />
             </motion.button>
           </motion.nav>
@@ -1129,8 +1147,8 @@ export default function App() {
                           Winner: Player
                           <DynamicIcon 
                             player={winnerInfo.winner} 
-                            p1Custom={p1Custom} p1Idx={p1Idx} 
-                            p2Custom={p2Custom} p2Idx={p2Idx} 
+                            p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji}
+                            p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji}
                             color={winnerInfo.winner === 'X' ? currentXColor : currentOColor} 
                             className="w-5 h-5 ml-1.5 drop-shadow-sm" 
                           />
@@ -1151,7 +1169,13 @@ export default function App() {
                             <div className="relative h-8 w-6 overflow-hidden flex items-center justify-center">
                               <AnimatePresence mode="popLayout">
                                 <motion.div key={isXNext ? 'X' : 'O'} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute flex items-center justify-center">
-                                  <DynamicIcon player={isXNext ? 'X' : 'O'} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={isXNext ? currentXColor : currentOColor} className="w-5 h-5 drop-shadow-sm" />
+                                  <DynamicIcon 
+                                     player={isXNext ? 'X' : 'O'} 
+                                     p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji}
+                                     p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji}
+                                     color={isXNext ? currentXColor : currentOColor} 
+                                     className="w-5 h-5 drop-shadow-sm" 
+                                  />
                                 </motion.div>
                               </AnimatePresence>
                             </div>
@@ -1177,7 +1201,12 @@ export default function App() {
                 <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible select-none m-0">
                    <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg }}>
                       <div className="flex items-center justify-center mb-0.5 opacity-90">
-                         <DynamicIcon player="X" p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={currentXColor} className="w-3.5 h-3.5" />
+                         <DynamicIcon 
+                            player="X" 
+                            p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji}
+                            p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji}
+                            color={currentXColor} className="w-3.5 h-3.5" 
+                         />
                       </div>
                       <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
                         <AnimatePresence mode="popLayout">
@@ -1201,7 +1230,12 @@ export default function App() {
 
                    <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg }}>
                       <div className="flex items-center justify-center mb-0.5 opacity-90">
-                         <DynamicIcon player="O" p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={currentOColor} className="w-3.5 h-3.5" />
+                         <DynamicIcon 
+                            player="O" 
+                            p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji}
+                            p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji}
+                            color={currentOColor} className="w-3.5 h-3.5" 
+                         />
                       </div>
                       <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
                         <AnimatePresence mode="popLayout">
@@ -1251,7 +1285,13 @@ export default function App() {
                                    } 
                                    className="w-full h-full flex items-center justify-center"
                                 >
-                                   <DynamicIcon player={value} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={value === 'X' ? currentXColor : currentOColor} className="w-3/5 h-3/5 drop-shadow-sm" />
+                                   <DynamicIcon 
+                                      player={value} 
+                                      p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji}
+                                      p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji}
+                                      color={value === 'X' ? currentXColor : currentOColor} 
+                                      className="w-3/5 h-3/5 drop-shadow-sm" 
+                                   />
                                 </motion.div>
                               )}
                             </AnimatePresence>
@@ -1364,7 +1404,13 @@ export default function App() {
                                  Winner!
                                </h2>
                                <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-xl flex justify-center mt-2 mb-1">
-                                 <DynamicIcon player={overallWinner} p1Custom={p1Custom} p1Idx={p1Idx} p2Custom={p2Custom} p2Idx={p2Idx} color={overallWinner === 'X' ? currentXColor : currentOColor} className="w-16 h-16" />
+                                 <DynamicIcon 
+                                    player={overallWinner} 
+                                    p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji}
+                                    p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji}
+                                    color={overallWinner === 'X' ? currentXColor : currentOColor} 
+                                    className="w-16 h-16" 
+                                 />
                                </motion.span>
                              </div>
                              
@@ -1394,6 +1440,8 @@ export default function App() {
             themeIdx={themeIdx} setThemeIdx={setThemeIdx}
             p1Custom={p1Custom} setP1Custom={setP1Custom} p1Idx={p1Idx} setP1Idx={setP1Idx}
             p2Custom={p2Custom} setP2Custom={setP2Custom} p2Idx={p2Idx} setP2Idx={setP2Idx}
+            p1Emoji={p1Emoji} setP1Emoji={setP1Emoji}
+            p2Emoji={p2Emoji} setP2Emoji={setP2Emoji}
             enableCustomLine={enableCustomLine} setEnableCustomLine={setEnableCustomLine} customLineIdx={customLineIdx} setCustomLineIdx={setCustomLineIdx}
             enableCustomX={enableCustomX} setEnableCustomX={setEnableCustomX} xColorIdx={xColorIdx} setXColorIdx={setXColorIdx}
             enableCustomO={enableCustomO} setEnableCustomO={setEnableCustomO} oColorIdx={oColorIdx} setOColorIdx={setOColorIdx}
