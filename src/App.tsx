@@ -95,7 +95,7 @@ const AILogo = () => (
   </svg>
 );
 
-// 🚀 Updated DynamicIcon: Added Logic for Emojis and Custom Text Fonts
+// 🚀 Updated DynamicIcon: Added Logic for Emojis and Custom Text Fonts with Perfect SVG Scaling
 const DynamicIcon = ({ player, p1Custom, p1Idx, p1Emoji, p2Custom, p2Idx, p2Emoji, color, className }: any) => {
   if (!player) return null;
   const isP1 = player === 'X';
@@ -105,20 +105,24 @@ const DynamicIcon = ({ player, p1Custom, p1Idx, p1Emoji, p2Custom, p2Idx, p2Emoj
 
   if (isCustomEnabled) {
      if (iconIndex === -1 && emoji) {
-         // 🚀 লেটার দিলে অ্যাপের ফন্ট পাবে, ইমোজি দিলে ইমোজির ফন্ট পাবে
+         // 🚀 লেটার বা ইমোজিকে SVG-এর ভেতরে রাখলে এটি বাকি আইকনগুলোর মতোই সমানভাবে স্বয়ংক্রিয়ভাবে বড়/ছোট হবে
          return (
-            <span 
-               className={className} 
-               style={{ 
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                  color: color, 
-                  fontSize: '1.25em',
-                  fontFamily: '"NunitoBlack", "Noto Color Emoji", sans-serif',
-                  lineHeight: 1, marginTop: '-2px'
-               }}
-            >
-               {emoji}
-            </span>
+            <svg viewBox="0 0 24 24" className={className} style={{ overflow: 'visible' }}>
+               <text 
+                  x="50%" 
+                  y="50%" 
+                  dominantBaseline="central" 
+                  textAnchor="middle" 
+                  fill={color} 
+                  style={{ 
+                     fontFamily: '"NunitoBlack", "Noto Color Emoji", sans-serif', 
+                     fontSize: '19px', // 24x24 বক্সের জন্য পারফেক্ট বেস সাইজ, এরপর এটি অটোমেটিক স্কেল হবে
+                     fontWeight: 900
+                  }}
+               >
+                  {emoji}
+               </text>
+            </svg>
          );
      }
      const SafeIndex = Math.max(0, iconIndex) % ICONS_LIST.length;
