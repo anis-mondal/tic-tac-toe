@@ -24,7 +24,6 @@ import {
   BaggageClaim, Beer, CarFront, ChefHat, Citrus, Grape, Lock, Joystick, MountainSnow, Wine, Nut, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich, ChevronLeft
 } from 'lucide-react';
 
-// 🚀 ইমোজি লিস্ট ইম্পোর্ট করা হলো
 import { EMOJI_LIST } from './emojiList'; 
 
 export const ICONS_LIST = [
@@ -105,8 +104,8 @@ interface SettingsModalProps {
   themeIdx: number; setThemeIdx: (val: number) => void;
   p1Custom: boolean; setP1Custom: (val: boolean) => void; p1Idx: number; setP1Idx: (val: number) => void;
   p2Custom: boolean; setP2Custom: (val: boolean) => void; p2Idx: number; setP2Idx: (val: number) => void;
-  p1Emoji: string | null; setP1Emoji: (val: string | null) => void; // 🚀 Added missing props
-  p2Emoji: string | null; setP2Emoji: (val: string | null) => void; // 🚀 Added missing props
+  p1Emoji: string | null; setP1Emoji: (val: string | null) => void; 
+  p2Emoji: string | null; setP2Emoji: (val: string | null) => void; 
   enableCustomLine: boolean; setEnableCustomLine: (val: boolean) => void; customLineIdx: number; setCustomLineIdx: (val: number) => void;
   enableCustomX: boolean; setEnableCustomX: (val: boolean) => void; xColorIdx: number; setXColorIdx: (val: number) => void;
   enableCustomO: boolean; setEnableCustomO: (val: boolean) => void; oColorIdx: number; setOColorIdx: (val: number) => void;
@@ -120,6 +119,8 @@ interface SettingsModalProps {
   soundPrefs: { xTap: number, oTap: number, pop: number, mode: number, refresh: number, win: number, overallWin: number, point: number };
   setSoundPrefs: React.Dispatch<React.SetStateAction<any>>;
   playPreviewSound: (key: string, val: number) => void;
+  isIconsFilledX: boolean; setIsIconsFilledX: (val: boolean) => void; // 🚀 Added missing prop
+  isIconsFilledO: boolean; setIsIconsFilledO: (val: boolean) => void; // 🚀 Added missing prop
 }
 
 const getRandomEmojis = (count: number) => {
@@ -181,7 +182,6 @@ export default function SettingsModal(props: SettingsModalProps) {
       else setOEmojiQueue(newRandoms);
   };
 
-  // 🚀 Updated Logic: Properly sends selected Emoji to App.tsx
   const handleAddCustomEmoji = () => {
       const newEmoji = emojiInput.trim();
       if (!newEmoji) return;
@@ -195,8 +195,8 @@ export default function SettingsModal(props: SettingsModalProps) {
               updated.push(newEmoji);
               return updated;
           });
-          props.setP1Emoji(newEmoji); // Tell App.tsx
-          props.setP1Idx(-1);         // Tell App.tsx not to use Lucide Icon
+          props.setP1Emoji(newEmoji);
+          props.setP1Idx(-1);
       } else {
           setOEmojiQueue(prev => {
               const updated = [...prev];
@@ -204,8 +204,8 @@ export default function SettingsModal(props: SettingsModalProps) {
               updated.push(newEmoji);
               return updated;
           });
-          props.setP2Emoji(newEmoji); // Tell App.tsx
-          props.setP2Idx(-1);         // Tell App.tsx not to use Lucide Icon
+          props.setP2Emoji(newEmoji);
+          props.setP2Idx(-1);
       }
       
       setEmojiModal({isOpen: false, target: 'X'});
@@ -354,7 +354,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </AnimatePresence>
                 </div>
 
-                {/* 6. Custom Player X Box */}
+                {/* 🚀 6. Custom Player X Box */}
                 <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <div className="flex items-start justify-between">
                       <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Player X Color</h3>
@@ -387,7 +387,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                    {props.p1Custom && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
                          
-                         {/* 🚀 Emojis Row for Player X */}
                          <div className="w-full pt-4 pb-2 border-b border-black/10 dark:border-white/10 mb-3 overflow-hidden">
                              <div className="flex justify-between items-center mb-2.5 px-1">
                                  <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Emojis</span>
@@ -406,8 +405,8 @@ export default function SettingsModal(props: SettingsModalProps) {
                                             transition={{ type: "spring", stiffness: 400, damping: 25 }}
                                             onClick={() => { 
                                                props.hapticFeedback(20); 
-                                               props.setP1Emoji(emj); // 🚀 Update App.tsx State
-                                               props.setP1Idx(-1);    // 🚀 Disable Lucide Icon
+                                               props.setP1Emoji(emj);
+                                               props.setP1Idx(-1);
                                             }} 
                                             className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center text-xl transition-all border-[2.5px] ${props.p1Emoji === emj && props.p1Idx === -1 ? 'bg-black/10 dark:bg-white/10 shadow-sm' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} 
                                             style={{ borderColor: props.p1Emoji === emj && props.p1Idx === -1 ? props.currentXColor : 'transparent' }}
@@ -422,17 +421,23 @@ export default function SettingsModal(props: SettingsModalProps) {
                              </div>
                          </div>
 
-                         {/* Lucide Icons for Player X */}
+                         {/* 🚀 Icons Row for Player X */}
                          <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
+                            <div className="flex justify-between items-center mb-2 px-1">
+                               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Icons</span>
+                               <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledX(!props.isIconsFilledX); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10">
+                                  <RotateCcw className="w-3.5 h-3.5 opacity-70" />
+                               </button>
+                            </div>
                             <div className="max-h-[185px] overflow-y-auto m3-scrollbar pr-3">
                                <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                   {ICONS_LIST.map((IconComponent, idx) => (
                                      <button key={idx} onClick={() => { 
                                         props.hapticFeedback(20); 
-                                        props.setP1Idx(idx);       // 🚀 Enable Lucide Icon
-                                        props.setP1Emoji(null);    // 🚀 Clear Emoji
+                                        props.setP1Idx(idx);
+                                        props.setP1Emoji(null);
                                      }} className={`w-9 h-9 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p1Idx === idx ? 'bg-black/10 dark:bg-white/10 shadow-sm' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p1Idx === idx ? props.currentXColor : 'transparent' }}>
-                                        <IconComponent className="w-[22px] h-[22px]" color={props.currentXColor} strokeWidth={2.5} />
+                                        <IconComponent className="w-[22px] h-[22px]" color={props.currentXColor} fill={props.isIconsFilledX ? props.currentXColor : 'none'} strokeWidth={2.5} />
                                      </button>
                                   ))}
                                </div>
@@ -444,7 +449,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </AnimatePresence>
                 </div>
 
-                {/* 7. Custom Player O Box */}
+                {/* 🚀 7. Custom Player O Box */}
                 <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <div className="flex items-start justify-between">
                       <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Player O Color</h3>
@@ -476,7 +481,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                    {props.p2Custom && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
                          
-                         {/* 🚀 Emojis Row for Player O */}
                          <div className="w-full pt-4 pb-2 border-b border-black/10 dark:border-white/10 mb-3 overflow-hidden">
                              <div className="flex justify-between items-center mb-2.5 px-1">
                                  <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Emojis</span>
@@ -495,8 +499,8 @@ export default function SettingsModal(props: SettingsModalProps) {
                                             transition={{ type: "spring", stiffness: 400, damping: 25 }}
                                             onClick={() => { 
                                                props.hapticFeedback(20); 
-                                               props.setP2Emoji(emj); // 🚀 Update App.tsx State
-                                               props.setP2Idx(-1);    // 🚀 Disable Lucide Icon
+                                               props.setP2Emoji(emj);
+                                               props.setP2Idx(-1);
                                             }} 
                                             className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center text-xl transition-all border-[2.5px] ${props.p2Emoji === emj && props.p2Idx === -1 ? 'bg-black/10 dark:bg-white/10 shadow-sm' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} 
                                             style={{ borderColor: props.p2Emoji === emj && props.p2Idx === -1 ? props.currentOColor : 'transparent' }}
@@ -511,17 +515,23 @@ export default function SettingsModal(props: SettingsModalProps) {
                              </div>
                          </div>
 
-                         {/* Lucide Icons for Player O */}
+                         {/* 🚀 Icons Row for Player O */}
                          <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
+                            <div className="flex justify-between items-center mb-2 px-1">
+                               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Icons</span>
+                               <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledO(!props.isIconsFilledO); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10">
+                                  <RotateCcw className="w-3.5 h-3.5 opacity-70" />
+                               </button>
+                            </div>
                             <div className="max-h-[185px] overflow-y-auto m3-scrollbar pr-3">
                                <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                   {ICONS_LIST.map((IconComponent, idx) => (
                                      <button key={idx} onClick={() => { 
                                         props.hapticFeedback(20); 
-                                        props.setP2Idx(idx);       // 🚀 Enable Lucide Icon
-                                        props.setP2Emoji(null);    // 🚀 Clear Emoji
+                                        props.setP2Idx(idx);
+                                        props.setP2Emoji(null);
                                      }} className={`w-9 h-9 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p2Idx === idx ? 'bg-black/10 dark:bg-white/10 shadow-sm' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p2Idx === idx ? props.currentOColor : 'transparent' }}>
-                                        <IconComponent className="w-[22px] h-[22px]" color={props.currentOColor} strokeWidth={2.5} />
+                                        <IconComponent className="w-[22px] h-[22px]" color={props.currentOColor} fill={props.isIconsFilledO ? props.currentOColor : 'none'} strokeWidth={2.5} />
                                      </button>
                                   ))}
                                </div>
@@ -607,7 +617,7 @@ export default function SettingsModal(props: SettingsModalProps) {
               )}
             </AnimatePresence>
             
-            {/* 🚀 Smart Emoji Popup with Keyboard Integration */}
+            {/* Smart Emoji Popup with Keyboard Integration */}
             <AnimatePresence>
               {emojiModal.isOpen && (
                  <motion.div 
@@ -629,12 +639,12 @@ export default function SettingsModal(props: SettingsModalProps) {
                           value={emojiInput}
                           onChange={(e) => setEmojiInput(e.target.value)}
                           onKeyDown={(e) => { if(e.key === 'Enter' && emojiInput.trim()) handleAddCustomEmoji(); }}
-                          enterKeyHint="done" // Brings up "Done/Tick" on mobile keyboards
+                          enterKeyHint="done" 
                           autoFocus
                           className="w-[84px] h-[84px] text-center text-[44px] rounded-[24px] bg-black/5 dark:bg-white/5 border-[3px] outline-none transition-colors shadow-inner"
                           style={{ 
                              borderColor: emojiInput.trim() ? doneBtnColor : (props.isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'),
-                             fontFamily: '"NunitoBlack", "Noto Color Emoji", sans-serif' // Applies app font to letters
+                             fontFamily: '"NunitoBlack", "Noto Color Emoji", sans-serif'
                           }}
                        />
                        
