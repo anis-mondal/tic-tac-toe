@@ -94,8 +94,7 @@ const AILogo = () => (
     <text x="50" y="68" fontFamily="NunitoCustom, sans-serif" fontWeight="900" fontSize="48" fill="url(#ai-grad)" textAnchor="middle">Ai</text>
   </svg>
 );
-
-// 🚀 Updated DynamicIcon: Added Logic for Emojis and Custom Text Fonts with Perfect SVG Scaling
+// 🚀 Updated DynamicIcon: Fixed Emoji Baseline Jump!
 const DynamicIcon = ({ player, p1Custom, p1Idx, p1Emoji, p2Custom, p2Idx, p2Emoji, color, className }: any) => {
   if (!player) return null;
   const isP1 = player === 'X';
@@ -105,18 +104,17 @@ const DynamicIcon = ({ player, p1Custom, p1Idx, p1Emoji, p2Custom, p2Idx, p2Emoj
 
   if (isCustomEnabled) {
      if (iconIndex === -1 && emoji) {
-         // 🚀 লেটার বা ইমোজিকে SVG-এর ভেতরে রাখলে এটি বাকি আইকনগুলোর মতোই সমানভাবে স্বয়ংক্রিয়ভাবে বড়/ছোট হবে
          return (
             <svg viewBox="0 0 24 24" className={className} style={{ overflow: 'visible' }}>
                <text 
                   x="50%" 
                   y="50%" 
-                  dominantBaseline="central" 
+                  dy=".35em" /* 🚀 This perfectly centers text and fixes the end-of-animation jump */
                   textAnchor="middle" 
                   fill={color} 
                   style={{ 
                      fontFamily: '"NunitoBlack", "Noto Color Emoji", sans-serif', 
-                     fontSize: '19px', // 24x24 বক্সের জন্য পারফেক্ট বেস সাইজ, এরপর এটি অটোমেটিক স্কেল হবে
+                     fontSize: '18px', 
                      fontWeight: 900
                   }}
                >
@@ -135,6 +133,7 @@ const DynamicIcon = ({ player, p1Custom, p1Idx, p1Emoji, p2Custom, p2Idx, p2Emoj
   }
   return (<svg viewBox="0 0 24 24" className={className} fill="none"><circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="4.5" /></svg>);
 };
+
 
 const audioState = { ctx: null as AudioContext | null };
 
