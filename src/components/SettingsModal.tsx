@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  X as CloseIcon, Info, Moon, Target, Check, Settings,
+  X as CloseIcon, Info, Moon, Target, Check, Settings, RotateCcw,
   Hexagon, Octagon, Pentagon, Triangle, Square, Diamond, Asterisk, Target as TargetIcon, Shield, Zap,
   Dna, Star, Heart, Infinity as InfinityIcon, Puzzle, Sparkles as SparkleIcon, Gem, Crown, Trophy, Ghost,
   Leaf, Flame, Droplet, Flower2, Snowflake, Feather, Sun as SunIcon, Moon as MoonIcon, Cloud, Wind,
@@ -23,6 +23,9 @@ import {
   IceCream, Keyboard, Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle, AlarmClock, Ambulance, 
   BaggageClaim, Beer, CarFront, ChefHat, Citrus, Grape, Lock, Joystick, MountainSnow, Wine, Nut, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich, ChevronLeft
 } from 'lucide-react';
+
+// 🚀 আপনার আলাদা ফাইল থেকে ইমোজি লিস্ট ইম্পোর্ট করা হলো (এই ফাইলে কোনো হার্ডকোড ইমোজি নেই)
+import { EMOJI_LIST } from './emojiList'; 
 
 export const ICONS_LIST = [
   Hexagon, Octagon, Pentagon, Triangle, Square, Diamond, Asterisk, TargetIcon, Shield, Zap, Dna, Star, Heart, InfinityIcon, Puzzle, SparkleIcon, Gem, Crown, Trophy, Ghost, Leaf, Flame, Droplet, Flower2, Snowflake, Feather, SunIcon, MoonIcon, Cloud, Wind, Sprout, TreePine, Mountain, Bug, Cat, Dog, Bird, Fish, Rabbit, Snail, Anchor, Magnet, Umbrella, Coffee, Camera, Bell, Music, Gamepad2, Lightbulb, Dice5, Tent, Wand2, Atom, Orbit, Bomb, Key, Glasses, Clock, Hourglass, Timer, Rocket, Plane, Car, Ship, Bus, Train, Bike, Tractor, Sailboat, Truck, Compass, MapPin, Radar, LifeBuoy, Map, Navigation, Flag, Globe, Ticket, Luggage, Cpu, Database, Laptop, Smartphone, Watch, Headphones, Mic, Radio, Tv, Monitor, Smile, Skull, Bot, Eye, Fingerprint, Activity, Box, Layers, Aperture, Grid, Palette, PenTool, Brush, Scissors, Hammer, Wrench, Ruler, Drill, HardHat, Thermometer, Sunrise, Sunset, CloudRain, CloudSnow, CloudLightning, Tornado, Waves, Trees, Palmtree, Droplets, ShoppingCart, ShoppingBag, ShoppingBasket, Tag, Wallet, CreditCard, Banknote, Coins, PiggyBank, Receipt, Stethoscope, Syringe, TestTube, FlaskConical, Pill, Microscope, Telescope, Webcam, Film, Clapperboard, Megaphone, Speaker, Book, Bookmark, Briefcase, GraduationCap, Medal, Award, Gift, PartyPopper, Apple, Axe, Backpack, Banana, Battery, Bed, Binoculars, Bone, Brain, Cake, Calculator, Calendar, Candy, Carrot, Castle, Cherry, Church, Clover, Club, Cookie, Croissant, Crosshair, CupSoda, Drama, Drum, Dumbbell, Ear, Eclipse, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, Guitar, IceCream, Keyboard, Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle, AlarmClock, Ambulance, BaggageClaim, Beer, CarFront, ChefHat, Citrus, Grape, Lock, Joystick, MountainSnow, Wine, Nut, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich
@@ -117,6 +120,14 @@ interface SettingsModalProps {
   playPreviewSound: (key: string, val: number) => void;
 }
 
+// 🚀 Random Emojis Fetcher (From your external emojiList)
+const getRandomEmojis = (count: number) => {
+    const list = Array.isArray(EMOJI_LIST) && EMOJI_LIST.length > 0 ? EMOJI_LIST : [];
+    if (list.length === 0) return Array(count).fill('');
+    const shuffled = [...list].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+};
+
 export default function SettingsModal(props: SettingsModalProps) {
   const { availableLinesDark, availableLinesLight } = {
     availableLinesDark: [...(props.useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[props.themeIdx]).linesDark, ...EXTRA_LINE_COLORS],
@@ -124,6 +135,10 @@ export default function SettingsModal(props: SettingsModalProps) {
   };
 
   const cardBorderColor = props.isDarkMode ? 'rgba(255,255,255,0.08)' : props.activeLineColor;
+  
+  // 🚀 Button Colors
+  const cancelBtnColor = '#ea4335'; // Material Red
+  const doneBtnColor = props.useDefaultTheme ? '#22c55e' : props.activeLineColor; // Material Green or Theme Color
 
   const updateSound = (key: string, val: number) => {
     props.setSoundPrefs((prev: any) => ({ ...prev, [key]: val }));
@@ -132,8 +147,6 @@ export default function SettingsModal(props: SettingsModalProps) {
 
   const renderSoundControl = (label: string, key: keyof typeof props.soundPrefs) => {
     const value = props.soundPrefs[key];
-    
-    // 🚀 রাউন্ড রবিন লজিক (20 এর পর 0, 0 এর আগে 20)
     const handleDec = () => {
        props.hapticFeedback(20);
        updateSound(key, value === 0 ? 20 : value - 1);
@@ -153,6 +166,56 @@ export default function SettingsModal(props: SettingsModalProps) {
         </div>
       </div>
     );
+  };
+
+  // 🚀 Emoji State & Logic
+  const [xEmojiQueue, setXEmojiQueue] = useState<string[]>(getRandomEmojis(9));
+  const [oEmojiQueue, setOEmojiQueue] = useState<string[]>(getRandomEmojis(9));
+  
+  // To visually highlight the selected emoji within Settings 
+  const [selectedEmojiX, setSelectedEmojiX] = useState<string>('');
+  const [selectedEmojiO, setSelectedEmojiO] = useState<string>('');
+
+  const [emojiModal, setEmojiModal] = useState<{isOpen: boolean, target: 'X' | 'O'}>({isOpen: false, target: 'X'});
+  const [emojiInput, setEmojiInput] = useState('');
+
+  // 🚀 Refresh Emojis Logic
+  const handleRefreshEmojis = (player: 'X' | 'O') => {
+      props.hapticFeedback(20);
+      const newRandoms = getRandomEmojis(9);
+      if (player === 'X') setXEmojiQueue(newRandoms);
+      else setOEmojiQueue(newRandoms);
+  };
+
+  // 🚀 FIFO Logic for Adding Custom Emoji
+  const handleAddCustomEmoji = () => {
+      const newEmoji = emojiInput.trim();
+      if (!newEmoji) return;
+      
+      props.hapticFeedback(30);
+
+      if (emojiModal.target === 'X') {
+          setXEmojiQueue(prev => {
+              const updated = [...prev];
+              updated.shift(); // Remove 1st emoji (oldest)
+              updated.push(newEmoji); // Add new emoji before the '+'
+              return updated;
+          });
+          setSelectedEmojiX(newEmoji);
+          props.setP1Idx(-1); // Set to -1 so App knows custom Emoji is selected instead of Lucide Icon
+      } else {
+          setOEmojiQueue(prev => {
+              const updated = [...prev];
+              updated.shift(); 
+              updated.push(newEmoji);
+              return updated;
+          });
+          setSelectedEmojiO(newEmoji);
+          props.setP2Idx(-1);
+      }
+      
+      setEmojiModal({isOpen: false, target: 'X'});
+      setEmojiInput('');
   };
 
   return (
@@ -297,7 +360,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                    </AnimatePresence>
                 </div>
 
-                {/* 6. Custom Player X Box */}
+                {/* 🚀 6. Custom Player X Box */}
                 <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <div className="flex items-start justify-between">
                       <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Player X Color</h3>
@@ -325,26 +388,61 @@ export default function SettingsModal(props: SettingsModalProps) {
                       <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1.5 leading-snug w-3/5">Custom Player X Shape</h3>
                       <div className="mt-0.5"><AnimatedToggle enabled={props.p1Custom} onToggle={() => { props.hapticFeedback(30); props.setP1Custom(!props.p1Custom); }} activeColor={props.currentXColor} isDarkMode={props.isDarkMode} /></div>
                    </div>
+                   
                    <AnimatePresence>
                    {props.p1Custom && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                         
+                         {/* 🚀 New Emoji Row (10 Slots, Queue Animation) */}
+                         <div className="w-full pt-4 pb-2 border-b border-black/10 dark:border-white/10 mb-3 overflow-hidden">
+                             <div className="flex justify-between items-center mb-2.5 px-1">
+                                 <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Emojis</span>
+                                 <button onClick={() => handleRefreshEmojis('X')} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10">
+                                     <RotateCcw className="w-3.5 h-3.5 opacity-70" />
+                                 </button>
+                             </div>
+                             
+                             <div className="grid grid-cols-5 gap-y-3 gap-x-2 place-items-center">
+                                 <AnimatePresence mode="popLayout">
+                                     {xEmojiQueue.map((emj, idx) => (
+                                        <motion.button 
+                                            key={`${emj}-${idx}`} 
+                                            layout 
+                                            initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }}
+                                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                            onClick={() => { props.hapticFeedback(20); setSelectedEmojiX(emj); props.setP1Idx(-1); }} 
+                                            className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center text-xl transition-all border-[2.5px] ${selectedEmojiX === emj && props.p1Idx === -1 ? 'bg-black/10 dark:bg-white/10 shadow-sm' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} 
+                                            style={{ borderColor: selectedEmojiX === emj && props.p1Idx === -1 ? props.currentXColor : 'transparent' }}
+                                        >
+                                            {emj}
+                                        </motion.button>
+                                     ))}
+                                 </AnimatePresence>
+                                 <motion.button layout onClick={() => { props.hapticFeedback(20); setEmojiModal({isOpen: true, target: 'X'}); setEmojiInput(''); }} className="w-[38px] h-[38px] rounded-xl flex items-center justify-center border-[2.5px] border-dashed border-black/20 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 active:scale-90 transition-all text-xl font-black opacity-60 hover:opacity-100">
+                                    +
+                                 </motion.button>
+                             </div>
+                         </div>
+
+                         {/* Old ICONS_LIST Box */}
                          <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
                             <div className="max-h-[185px] overflow-y-auto m3-scrollbar pr-3">
                                <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                   {ICONS_LIST.map((IconComponent, idx) => (
-                                     <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP1Idx(idx); }} className={`w-8 h-8 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p1Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p1Idx === idx ? props.currentXColor : 'transparent' }}>
-                                        <IconComponent className="w-5 h-5" color={props.currentXColor} fill={props.currentXColor} strokeWidth={2.5} />
+                                     <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP1Idx(idx); setSelectedEmojiX(''); }} className={`w-9 h-9 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p1Idx === idx ? 'bg-black/10 dark:bg-white/10 shadow-sm' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p1Idx === idx ? props.currentXColor : 'transparent' }}>
+                                        <IconComponent className="w-[22px] h-[22px]" color={props.currentXColor} strokeWidth={2.5} />
                                      </button>
                                   ))}
                                </div>
                             </div>
                          </div>
+
                       </motion.div>
                    )}
                    </AnimatePresence>
                 </div>
 
-                {/* 7. Custom Player O Box */}
+                {/* 🚀 7. Custom Player O Box */}
                 <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5" style={{ borderColor: cardBorderColor }}>
                    <div className="flex items-start justify-between">
                       <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Player O Color</h3>
@@ -375,23 +473,57 @@ export default function SettingsModal(props: SettingsModalProps) {
                    <AnimatePresence>
                    {props.p2Custom && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                         
+                         {/* 🚀 New Emoji Row (10 Slots, Queue Animation) */}
+                         <div className="w-full pt-4 pb-2 border-b border-black/10 dark:border-white/10 mb-3 overflow-hidden">
+                             <div className="flex justify-between items-center mb-2.5 px-1">
+                                 <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Emojis</span>
+                                 <button onClick={() => handleRefreshEmojis('O')} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10">
+                                     <RotateCcw className="w-3.5 h-3.5 opacity-70" />
+                                 </button>
+                             </div>
+                             
+                             <div className="grid grid-cols-5 gap-y-3 gap-x-2 place-items-center">
+                                 <AnimatePresence mode="popLayout">
+                                     {oEmojiQueue.map((emj, idx) => (
+                                        <motion.button 
+                                            key={`${emj}-${idx}`} 
+                                            layout 
+                                            initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }}
+                                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                            onClick={() => { props.hapticFeedback(20); setSelectedEmojiO(emj); props.setP2Idx(-1); }} 
+                                            className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center text-xl transition-all border-[2.5px] ${selectedEmojiO === emj && props.p2Idx === -1 ? 'bg-black/10 dark:bg-white/10 shadow-sm' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} 
+                                            style={{ borderColor: selectedEmojiO === emj && props.p2Idx === -1 ? props.currentOColor : 'transparent' }}
+                                        >
+                                            {emj}
+                                        </motion.button>
+                                     ))}
+                                 </AnimatePresence>
+                                 <motion.button layout onClick={() => { props.hapticFeedback(20); setEmojiModal({isOpen: true, target: 'O'}); setEmojiInput(''); }} className="w-[38px] h-[38px] rounded-xl flex items-center justify-center border-[2.5px] border-dashed border-black/20 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5 active:scale-90 transition-all text-xl font-black opacity-60 hover:opacity-100">
+                                    +
+                                 </motion.button>
+                             </div>
+                         </div>
+
+                         {/* Old ICONS_LIST Box */}
                          <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
                             <div className="max-h-[185px] overflow-y-auto m3-scrollbar pr-3">
                                <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                   {ICONS_LIST.map((IconComponent, idx) => (
-                                     <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP2Idx(idx); }} className={`w-8 h-8 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p2Idx === idx ? 'bg-black/10 dark:bg-white/10' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p2Idx === idx ? props.currentOColor : 'transparent' }}>
-                                        <IconComponent className="w-5 h-5" color={props.currentOColor} fill={props.currentOColor} strokeWidth={2.5} />
+                                     <button key={idx} onClick={() => { props.hapticFeedback(20); props.setP2Idx(idx); setSelectedEmojiO(''); }} className={`w-9 h-9 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p2Idx === idx ? 'bg-black/10 dark:bg-white/10 shadow-sm' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p2Idx === idx ? props.currentOColor : 'transparent' }}>
+                                        <IconComponent className="w-[22px] h-[22px]" color={props.currentOColor} strokeWidth={2.5} />
                                      </button>
                                   ))}
                                </div>
                             </div>
                          </div>
+
                       </motion.div>
                    )}
                    </AnimatePresence>
                 </div>
                 
-                {/* 🚀 8. Advanced Settings Button */}
+                {/* 8. Advanced Settings Button */}
                 <div className="pt-2 flex justify-center w-full">
                    <button onClick={() => { props.hapticFeedback(30); props.setShowAdvanced(true); }} className="w-[85%] py-[15px] rounded-[24px] bg-black/5 dark:bg-white/5 border-[2.5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm" style={{ borderColor: cardBorderColor }}>
                      <Settings className="w-[20px] h-[20px] opacity-70" style={{ color: props.activeLineColor }} /> 
@@ -410,7 +542,7 @@ export default function SettingsModal(props: SettingsModalProps) {
               </div>
             </div>
 
-            {/* 🚀 Advanced Settings Overlay */}
+            {/* Advanced Settings Overlay */}
             <AnimatePresence>
               {props.showAdvanced && (
                 <motion.div 
@@ -442,7 +574,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                              <AnimatedToggle enabled={props.enableHardRefreshTap} onToggle={() => { props.hapticFeedback(30); props.setEnableHardRefreshTap(!props.enableHardRefreshTap); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} />
                           </div>
                           
-                          {/* 🚀 New Hard Pull To Refresh Toggle */}
                           <div className="w-full h-px bg-black/10 dark:bg-white/10" />
                           <div className="flex items-center justify-between">
                              <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Hard Pull to Refresh</h3>
@@ -463,6 +594,58 @@ export default function SettingsModal(props: SettingsModalProps) {
                       </div>
                    </div>
                 </motion.div>
+              )}
+            </AnimatePresence>
+            
+            {/* 🚀 Smart Emoji Popup with Keyboard Integration */}
+            <AnimatePresence>
+              {emojiModal.isOpen && (
+                 <motion.div 
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    onClick={() => setEmojiModal({isOpen: false, target: 'X'})}
+                    className="absolute inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-[36px]"
+                 >
+                    <motion.div 
+                       initial={{ scale: 0.8, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 20 }}
+                       onClick={(e) => e.stopPropagation()}
+                       className="w-[80%] max-w-[280px] p-6 rounded-[32px] shadow-2xl flex flex-col items-center gap-5 border-[2px] border-white/10"
+                       style={{ backgroundColor: props.semantics.screenBackground }}
+                    >
+                       <h3 className="font-black text-xl opacity-90 tracking-tight">New Emoji</h3>
+                       
+                       <input 
+                          type="text"
+                          maxLength={5} // Allows multi-byte emojis
+                          value={emojiInput}
+                          onChange={(e) => setEmojiInput(e.target.value)}
+                          onKeyDown={(e) => { if(e.key === 'Enter' && emojiInput.trim()) handleAddCustomEmoji(); }}
+                          enterKeyHint="done" // 🚀 Brings up "Done/Tick" on mobile keyboards
+                          autoFocus
+                          className="w-[84px] h-[84px] text-center text-[44px] rounded-[24px] bg-black/5 dark:bg-white/5 border-[3px] outline-none transition-colors shadow-inner"
+                          style={{ borderColor: emojiInput.trim() ? doneBtnColor : (props.isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)') }}
+                       />
+                       
+                       <div className="flex w-full gap-3 mt-1">
+                          <button onClick={() => setEmojiModal({isOpen: false, target: 'X'})} className="flex-1 py-3.5 rounded-[18px] font-black text-white shadow-sm active:scale-95 transition-transform" style={{ backgroundColor: cancelBtnColor }}>
+                             Cancel
+                          </button>
+                          <AnimatePresence>
+                             {emojiInput.trim().length > 0 && (
+                                <motion.button 
+                                   initial={{ opacity: 0, width: 0, padding: 0 }} 
+                                   animate={{ opacity: 1, width: '100%', padding: '14px' }} 
+                                   exit={{ opacity: 0, width: 0, padding: 0 }} 
+                                   onClick={handleAddCustomEmoji} 
+                                   className="flex-1 rounded-[18px] font-black text-white shadow-sm active:scale-95 transition-transform overflow-hidden" 
+                                   style={{ backgroundColor: doneBtnColor }}
+                                >
+                                   Done
+                                </motion.button>
+                             )}
+                          </AnimatePresence>
+                       </div>
+                    </motion.div>
+                 </motion.div>
               )}
             </AnimatePresence>
 
