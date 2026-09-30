@@ -1127,10 +1127,9 @@ export default function App() {
                  initial={{ gap: "20px" }} 
                  className="w-full flex flex-col md:flex-row items-center justify-center pt-24 md:pt-0 relative z-10" 
               >
-                  {/* 🚀 LEFT PANE (Controls) - Automatically scales down on small mobile landscape screens */}
+                  {/* 🚀 LEFT PANE (Controls) - Custom Landscape Scale Logic via Tailwind Media Query */}
                   <div 
-                     className="w-full md:w-1/2 flex flex-col items-center justify-center gap-4 sm:gap-5 md:gap-6 lg:gap-8"
-                     style={{ transform: 'scale(min(1, calc(100vh / 600)))', transformOrigin: 'center center' }}
+                     className="w-full md:w-1/2 flex flex-col items-center justify-center gap-4 sm:gap-5 md:gap-6 lg:gap-8 landscape:scale-[min(1,calc(100vh/650))] portrait:scale-100 origin-center transition-transform"
                   >
                       <motion.h1 style={{ color: semantics.text }} className="font-nunito-black text-[40px] sm:text-[44px] lg:text-[52px] tracking-tight drop-shadow-sm text-center w-full m-0">
                         Tic Tac Toe
@@ -1267,19 +1266,19 @@ export default function App() {
                       </div>
                   </div>
 
-                  {/* 🚀 RIGHT PANE (Game Board) - Dynamically scales with `min()` to fit any screen sizes perfectly */}
+                  {/* 🚀 RIGHT PANE (Game Board) - Fixed Portrait scaling & Smooth Landscape sizing */}
                   <div className="w-full md:w-1/2 flex items-center justify-center mt-6 md:mt-0">
-                      <div className="relative group z-10 m-0 transition-transform duration-500 origin-center">
+                      <div className="relative group z-10 m-0 transition-transform duration-500 origin-center md:scale-[1.15] lg:scale-[1.3]">
                         <motion.div 
                           animate={isDraw ? { x: [-12, 12, -12, 12, -6, 6, 0], opacity: 1, scale: 1 } : { x: 0, opacity: 1, scale: 1 }}
                           transition={{ duration: 0.5, ease: "easeInOut" }}
                           style={{ backgroundColor: semantics.mainGridBackground }} 
                           className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden"
                         >
+                          {/* 🚀 Restored the standard fixed width for portrait, added landscape height calculation */}
                           <div 
                              ref={boardRef} 
-                             className="grid grid-cols-3 grid-rows-3 gap-2.5 sm:gap-3 relative z-10 aspect-square" 
-                             style={{ width: 'min(85vw, 380px, 60vh)' }} /* 🚀 The Secret Sauce for perfect fitting */
+                             className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] md:w-auto md:h-[60vh] aspect-square" 
                           >
                             {board.map((value, i) => {
                               const isWinningCell = winnerInfo && winnerInfo.line.includes(i);
