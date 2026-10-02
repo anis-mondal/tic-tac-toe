@@ -493,7 +493,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                                    <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                       {ICONS_LIST.map((IconComponent, idx) => {
                                          let fillVal = 'none'; let fillOp = 1; let strokeW = 2.5;
-                                         if (props.isIconsFilledX === 1) { fillVal = props.currentXColor; fillOp = 0.12; strokeW = 2.8; }
+                                         if (props.isIconsFilledX === 1) { fillVal = props.currentXColor; fillOp = 0.40; strokeW = 2.8; }
                                          else if (props.isIconsFilledX === 2) { fillVal = props.currentXColor; fillOp = 1; strokeW = 2.2; }
                                          
                                          return (
@@ -591,7 +591,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                                    <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                       {ICONS_LIST.map((IconComponent, idx) => {
                                          let fillVal = 'none'; let fillOp = 1; let strokeW = 2.5;
-                                         if (props.isIconsFilledO === 1) { fillVal = props.currentOColor; fillOp = 0.12; strokeW = 2.8; }
+                                         if (props.isIconsFilledO === 1) { fillVal = props.currentOColor; fillOp = 0.40; strokeW = 2.8; }
                                          else if (props.isIconsFilledO === 2) { fillVal = props.currentOColor; fillOp = 1; strokeW = 2.2; }
 
                                          return (
