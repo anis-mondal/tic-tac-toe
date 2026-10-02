@@ -95,7 +95,7 @@ const AILogo = () => (
 );
 
 
-// 🚀 Hyper-Optimized DynamicIcon with React.memo
+// 🚀 Hyper-Optimized DynamicIcon with Perfect Filled State
 const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2Custom, p2Idx, p2Emoji, p2Filled, color, className }: any) => {
   if (!player) return null;
   const isP1 = player === 'X';
@@ -116,7 +116,17 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
      }
      const SafeIndex = Math.max(0, iconIndex) % ICONS_LIST.length;
      const SelectedIcon = ICONS_LIST[SafeIndex];
-     return <SelectedIcon color={color} fill={isFilled ? color : 'none'} className={className} strokeWidth={2.5} />;
+     
+     // 🚀 Magic Fix: Soft Fill (20% Opacity) + Bolder Stroke (2.8)
+     return (
+        <SelectedIcon 
+           color={color} 
+           fill={isFilled ? color : 'none'} 
+           fillOpacity={isFilled ? 0.2 : 1} 
+           className={className} 
+           strokeWidth={isFilled ? 2.8 : 2.2} 
+        />
+     );
   }
   
   if (isP1) {
