@@ -123,7 +123,7 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
 
      if (fillState === 1) { // Soft Fill (আরো বেশি স্বচ্ছ করা হয়েছে)
          fillVal = color;
-         fillOp = 0.50; // আইকনের স্বচ্ছতা 50% করা হলো 
+         fillOp = 0.45; // আইকনের স্বচ্ছতা 45% করা হলো 
          strokeW = 2.8;
      } else if (fillState === 2) { // Solid Fill
          fillVal = color;
