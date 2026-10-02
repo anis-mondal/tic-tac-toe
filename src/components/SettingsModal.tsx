@@ -484,10 +484,9 @@ export default function SettingsModal(props: SettingsModalProps) {
                              <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
                                 <div className="flex justify-between items-center mb-2 px-1">
                                    <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Icons</span>
-                                   <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledX(prev => (prev + 1) % 3); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10 relative">
-                                      <RotateCcw className="w-3.5 h-3.5 opacity-70" />
-                                      {props.isIconsFilledX > 0 && <span className="absolute top-0 right-0 w-2 h-2 rounded-full" style={{ backgroundColor: props.currentXColor }} />}
-                                   </button>
+                                   <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledX(prev => (prev + 1) % 3); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10">
+                                    <RotateCcw className="w-3.5 h-3.5 opacity-70" />
+                                 </button>
                                 </div>
                                 <div className="max-h-[185px] overflow-y-auto m3-scrollbar pr-3">
                                    <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
@@ -582,11 +581,10 @@ export default function SettingsModal(props: SettingsModalProps) {
                              <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
                                 <div className="flex justify-between items-center mb-2 px-1">
                                    <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Icons</span>
-                                   <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledO(prev => (prev + 1) % 3); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10 relative">
+                                       <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledO(prev => (prev + 1) % 3); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10">
                                       <RotateCcw className="w-3.5 h-3.5 opacity-70" />
-                                      {props.isIconsFilledO > 0 && <span className="absolute top-0 right-0 w-2 h-2 rounded-full" style={{ backgroundColor: props.currentOColor }} />}
-                                   </button>
-                                </div>
+                               </button>
+                            </div>
                                 <div className="max-h-[185px] overflow-y-auto m3-scrollbar pr-3">
                                    <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                       {ICONS_LIST.map((IconComponent, idx) => {
