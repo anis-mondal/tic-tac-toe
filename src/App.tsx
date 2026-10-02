@@ -94,15 +94,14 @@ const AILogo = () => (
   </svg>
 );
 
-
-// 🚀 Hyper-Optimized DynamicIcon with Perfect Filled State
+// 🚀 Hyper-Optimized DynamicIcon (Supports Outline, Soft Fill, and Solid)
 const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2Custom, p2Idx, p2Emoji, p2Filled, color, className }: any) => {
   if (!player) return null;
   const isP1 = player === 'X';
   const isCustomEnabled = isP1 ? p1Custom : p2Custom;
   const iconIndex = isP1 ? p1Idx : p2Idx;
   const emoji = isP1 ? p1Emoji : p2Emoji;
-  const isFilled = isP1 ? p1Filled : p2Filled; 
+  const fillState = isP1 ? p1Filled : p2Filled; // 0 = Outline, 1 = Soft Fill, 2 = Solid
 
   if (isCustomEnabled) {
      if (iconIndex === -1 && emoji) {
@@ -117,16 +116,22 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
      const SafeIndex = Math.max(0, iconIndex) % ICONS_LIST.length;
      const SelectedIcon = ICONS_LIST[SafeIndex];
      
-     // 🚀 Magic Fix: Soft Fill (20% Opacity) + Bolder Stroke (2.8)
-     return (
-        <SelectedIcon 
-           color={color} 
-           fill={isFilled ? color : 'none'} 
-           fillOpacity={isFilled ? 0.2 : 1} 
-           className={className} 
-           strokeWidth={isFilled ? 2.8 : 2.2} 
-        />
-     );
+     // 🚀 3-State Logic
+     let fillVal = 'none';
+     let fillOp = 1;
+     let strokeW = 2.5;
+
+     if (fillState === 1) { // Soft Fill (আরো বেশি স্বচ্ছ করা হয়েছে)
+         fillVal = color;
+         fillOp = 0.12; 
+         strokeW = 2.8;
+     } else if (fillState === 2) { // Solid Fill
+         fillVal = color;
+         fillOp = 1;
+         strokeW = 2.2;
+     }
+
+     return <SelectedIcon color={color} fill={fillVal} fillOpacity={fillOp} className={className} strokeWidth={strokeW} />;
   }
   
   if (isP1) {
@@ -134,6 +139,7 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
   }
   return (<svg viewBox="0 0 24 24" className={className} fill="none"><circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="4.5" /></svg>);
 });
+
 
 
 const audioState = { ctx: null as AudioContext | null };
