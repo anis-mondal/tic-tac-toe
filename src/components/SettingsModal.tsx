@@ -119,8 +119,8 @@ interface SettingsModalProps {
   soundPrefs: { xTap: number, oTap: number, pop: number, mode: number, refresh: number, win: number, overallWin: number, point: number };
   setSoundPrefs: React.Dispatch<React.SetStateAction<any>>;
   playPreviewSound: (key: string, val: number) => void;
-  isIconsFilledX: boolean; setIsIconsFilledX: (val: boolean) => void; 
-  isIconsFilledO: boolean; setIsIconsFilledO: (val: boolean) => void; 
+  isIconsFilledX: number; setIsIconsFilledX: React.Dispatch<React.SetStateAction<number>>; // 🚀 Type changed to number
+  isIconsFilledO: number; setIsIconsFilledO: React.Dispatch<React.SetStateAction<number>>; // 🚀 Type changed to number
 }
 
 const getRandomEmojis = (count: number) => {
@@ -260,10 +260,8 @@ export default function SettingsModal(props: SettingsModalProps) {
            onClick={props.onClose} 
            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
            transition={{ duration: 0.2 }}
-           // 🚀 Desktop Alignment Logic added here!
            className="fixed inset-0 z-[150] flex items-center justify-center md:justify-start bg-black/70 backdrop-blur-md"
         >
-          {/* 🚀 Wrapper that takes 50% width on Desktop to align perfectly with the Left Pane */}
           <div className="w-full md:w-1/2 h-full flex items-center justify-center p-4">
              <motion.div 
                 onClick={(e) => e.stopPropagation()} 
@@ -482,24 +480,29 @@ export default function SettingsModal(props: SettingsModalProps) {
                                  </div>
                              </div>
 
+                             {/* 🚀 Icons Row for Player X (3-State Toggle) */}
                              <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
                                 <div className="flex justify-between items-center mb-2 px-1">
                                    <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Icons</span>
-                                   <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledX(!props.isIconsFilledX); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10">
+                                   <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledX(prev => (prev + 1) % 3); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10 relative">
                                       <RotateCcw className="w-3.5 h-3.5 opacity-70" />
+                                      {props.isIconsFilledX > 0 && <span className="absolute top-0 right-0 w-2 h-2 rounded-full" style={{ backgroundColor: props.currentXColor }} />}
                                    </button>
                                 </div>
                                 <div className="max-h-[185px] overflow-y-auto m3-scrollbar pr-3">
                                    <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
-                                      {ICONS_LIST.map((IconComponent, idx) => (
+                                      {ICONS_LIST.map((IconComponent, idx) => {
+                                         let fillVal = 'none'; let fillOp = 1; let strokeW = 2.5;
+                                         if (props.isIconsFilledX === 1) { fillVal = props.currentXColor; fillOp = 0.12; strokeW = 2.8; }
+                                         else if (props.isIconsFilledX === 2) { fillVal = props.currentXColor; fillOp = 1; strokeW = 2.2; }
+                                         
+                                         return (
                                          <button key={idx} onClick={() => { 
-                                            props.hapticFeedback(20); 
-                                            props.setP1Idx(idx);
-                                            props.setP1Emoji(null);
+                                            props.hapticFeedback(20); props.setP1Idx(idx); props.setP1Emoji(null);
                                          }} className={`w-9 h-9 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p1Idx === idx ? 'bg-black/10 dark:bg-white/10 shadow-sm' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p1Idx === idx ? props.currentXColor : 'transparent' }}>
-                                            <IconComponent className="w-[22px] h-[22px]" color={props.currentXColor} fill={props.isIconsFilledX ? props.currentXColor : 'none'} strokeWidth={2.5} />
+                                            <IconComponent className="w-[22px] h-[22px]" color={props.currentXColor} fill={fillVal} fillOpacity={fillOp} strokeWidth={strokeW} />
                                          </button>
-                                      ))}
+                                      )})}
                                    </div>
                                 </div>
                              </div>
@@ -575,24 +578,29 @@ export default function SettingsModal(props: SettingsModalProps) {
                                  </div>
                              </div>
 
+                             {/* 🚀 Icons Row for Player O (3-State Toggle) */}
                              <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
                                 <div className="flex justify-between items-center mb-2 px-1">
                                    <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Icons</span>
-                                   <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledO(!props.isIconsFilledO); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10">
+                                   <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledO(prev => (prev + 1) % 3); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10 relative">
                                       <RotateCcw className="w-3.5 h-3.5 opacity-70" />
+                                      {props.isIconsFilledO > 0 && <span className="absolute top-0 right-0 w-2 h-2 rounded-full" style={{ backgroundColor: props.currentOColor }} />}
                                    </button>
                                 </div>
                                 <div className="max-h-[185px] overflow-y-auto m3-scrollbar pr-3">
                                    <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
-                                      {ICONS_LIST.map((IconComponent, idx) => (
+                                      {ICONS_LIST.map((IconComponent, idx) => {
+                                         let fillVal = 'none'; let fillOp = 1; let strokeW = 2.5;
+                                         if (props.isIconsFilledO === 1) { fillVal = props.currentOColor; fillOp = 0.12; strokeW = 2.8; }
+                                         else if (props.isIconsFilledO === 2) { fillVal = props.currentOColor; fillOp = 1; strokeW = 2.2; }
+
+                                         return (
                                          <button key={idx} onClick={() => { 
-                                            props.hapticFeedback(20); 
-                                            props.setP2Idx(idx);
-                                            props.setP2Emoji(null);
+                                            props.hapticFeedback(20); props.setP2Idx(idx); props.setP2Emoji(null);
                                          }} className={`w-9 h-9 rounded-xl flex items-center justify-center border-[2.5px] transition-colors ${props.p2Idx === idx ? 'bg-black/10 dark:bg-white/10 shadow-sm' : 'border-transparent hover:bg-black/5 dark:hover:bg-white/5'}`} style={{ borderColor: props.p2Idx === idx ? props.currentOColor : 'transparent' }}>
-                                            <IconComponent className="w-[22px] h-[22px]" color={props.currentOColor} fill={props.isIconsFilledO ? props.currentOColor : 'none'} strokeWidth={2.5} />
+                                            <IconComponent className="w-[22px] h-[22px]" color={props.currentOColor} fill={fillVal} fillOpacity={fillOp} strokeWidth={strokeW} />
                                          </button>
-                                      ))}
+                                      )})}
                                    </div>
                                 </div>
                              </div>
