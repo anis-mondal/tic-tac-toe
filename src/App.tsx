@@ -343,9 +343,10 @@ export default function App() {
   
   const [p1Emoji, setP1Emoji] = useState<string | null>(() => getSaved('p1Emoji', null));
   const [p2Emoji, setP2Emoji] = useState<string | null>(() => getSaved('p2Emoji', null));
-
-  const [isIconsFilledX, setIsIconsFilledX] = useState(() => getSaved('isIconsFilledX', false));
-  const [isIconsFilledO, setIsIconsFilledO] = useState(() => getSaved('isIconsFilledO', false));
+  
+  // 🚀 Updated States for 3-Step Icon Fill (0: Outline, 1: Soft Fill, 2: Solid)
+  const [isIconsFilledX, setIsIconsFilledX] = useState<number>(() => getSaved('isIconsFilledX', 0));
+  const [isIconsFilledO, setIsIconsFilledO] = useState<number>(() => getSaved('isIconsFilledO', 0));
 
   const [enableCustomLine, setEnableCustomLine] = useState(() => getSaved('enableCustomLine', false));
   const [enableCustomX, setEnableCustomX] = useState(() => getSaved('enableCustomX', false));
