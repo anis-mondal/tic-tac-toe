@@ -22,6 +22,9 @@ import { App as CapApp } from '@capacitor/app';
 import SettingsModal, { PLAYER_COLORS, CUSTOM_THEMES, ORIGINAL_THEME, EXTRA_LINE_COLORS, ICONS_LIST } from './components/SettingsModal';
 import AboutModal from './components/AboutModal';
 
+// 🚀 ইম্পোর্ট করা হলো গেম লজিক
+import { Player, SquareValue, WINNING_COMBINATIONS, findBestMove } from './utils/gameLogic';
+
 // 🚀 Custom Filled Volume2 (Only Speaker Filled, Waves Hollow)
 const CustomVolume2 = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -54,14 +57,6 @@ const CustomSettings = ({ className }: { className?: string }) => (
 
 export const SolidUsers = ({ className, color }: { className?: string, color?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" color={color} className={className}><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>;
 
-type Player = 'X' | 'O';
-type SquareValue = Player | null;
-
-const WINNING_COMBINATIONS = [
-  [0, 1, 2], [3, 4, 5], [6, 7, 8],
-  [0, 3, 6], [1, 4, 7], [2, 5, 8],
-  [0, 4, 8], [2, 4, 6]
-];
 
 const triggerNativeHaptic = (pattern: number | number[], isEnabled: boolean) => {
   if (!isEnabled) return;
@@ -121,9 +116,9 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
      let fillOp = 1;
      let strokeW = 2.5;
 
-     if (fillState === 1) { // Soft Fill (আরো বেশি স্বচ্ছ করা হয়েছে)
+     if (fillState === 1) { // Soft Fill 
          fillVal = color;
-         fillOp = 0.45; // আইকনের স্বচ্ছতা 45% করা হলো 
+         fillOp = 0.40; // 🚀 আইকনের স্বচ্ছতা 40% করা হলো 
          strokeW = 2.8;
      } else if (fillState === 2) { // Solid Fill
          fillVal = color;
@@ -139,8 +134,6 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
   }
   return (<svg viewBox="0 0 24 24" className={className} fill="none"><circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="4.5" /></svg>);
 });
-
-
 
 const audioState = { ctx: null as AudioContext | null };
 
@@ -222,79 +215,6 @@ const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' 
         playOsc(p.w, p.f * 2.0, 0.4, 0.05, p.d * 3, 1, 0, 0.6);
     }
   } catch(e) {}
-};
-
-const evaluateBoard = (squares: SquareValue[], aiPlayer: Player) => {
-  for (const combination of WINNING_COMBINATIONS) {
-    const [a, b, c] = combination;
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) return squares[a] === aiPlayer ? 10 : -10;
-  }
-  return 0;
-};
-
-const minimax = (squares: SquareValue[], depth: number, isMaximizing: boolean, aiPlayer: Player): number => {
-  const score = evaluateBoard(squares, aiPlayer);
-  if (score === 10) return score - depth;
-  if (score === -10) return score + depth;
-  if (!squares.includes(null)) return 0;
-  const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
-  if (isMaximizing) {
-    let best = -Infinity;
-    for (let i = 0; i < 9; i++) {
-      if (!squares[i]) {
-        squares[i] = aiPlayer;
-        best = Math.max(best, minimax(squares, depth + 1, false, aiPlayer));
-        squares[i] = null;
-      }
-    }
-    return best;
-  } else {
-    let best = Infinity;
-    for (let i = 0; i < 9; i++) {
-      if (!squares[i]) {
-        squares[i] = humanPlayer;
-        best = Math.min(best, minimax(squares, depth + 1, true, aiPlayer));
-        squares[i] = null;
-      }
-    }
-    return best;
-  }
-};
-
-const findBestMove = (squares: SquareValue[], aiPlayer: Player, humanScore: number, targetScore: number, isTargetScoreEnabled: boolean) => {
-  const availableMoves: number[] = [];
-  for (let i = 0; i < 9; i++) if (!squares[i]) availableMoves.push(i);
-  if (availableMoves.length === 9) return [0, 2, 4, 6, 8][Math.floor(Math.random() * 5)];
-  
-  const humanPlayer = aiPlayer === 'X' ? 'O' : 'X';
-  const accuracy = 0.75; 
-  if (Math.random() > accuracy) return availableMoves[Math.floor(Math.random() * availableMoves.length)];
-
-  for (const [a, b, c] of WINNING_COMBINATIONS) {
-    if (!squares[a] && squares[b] === aiPlayer && squares[c] === aiPlayer) return a;
-    if (squares[a] === aiPlayer && !squares[b] && squares[c] === aiPlayer) return b;
-    if (squares[a] === aiPlayer && squares[b] === aiPlayer && !squares[c]) return c;
-  }
-  for (const [a, b, c] of WINNING_COMBINATIONS) {
-    if (!squares[a] && squares[b] === humanPlayer && squares[c] === humanPlayer) return a;
-    if (squares[a] === humanPlayer && !squares[b] && squares[c] === humanPlayer) return b;
-    if (squares[a] === humanPlayer && squares[b] === humanPlayer && !squares[c]) return c;
-  }
-  
-  let bestVal = -Infinity;
-  let bestMove = availableMoves[0];
-  const trickWeights = [0.2, 0.0, 0.2, 0.0, 0.3, 0.0, 0.2, 0.0, 0.2];
-  
-  for (let i = 0; i < 9; i++) {
-    if (!squares[i]) {
-      squares[i] = aiPlayer;
-      let moveVal = minimax(squares, 0, false, aiPlayer);
-      squares[i] = null;
-      moveVal += trickWeights[i];
-      if (moveVal > bestVal) { bestMove = i; bestVal = moveVal; }
-    }
-  }
-  return bestMove;
 };
 
 const blendDarker = (hex: string, factor: number) => {
