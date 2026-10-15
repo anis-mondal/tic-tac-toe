@@ -452,15 +452,19 @@ export default function App() {
     if (!Capacitor.isNativePlatform()) return;
     const backSub = CapApp.addListener('backButton', () => {
       if (isAboutOpen) setIsAboutOpen(false);
+      // 🚀 নতুন: ব্যাক বাটন চাপলে অ্যানিমেশন মেনু থেকে মেইন সেটিংসে ফিরবে
+      else if (isLoadersMenuOpen) setIsLoadersMenuOpen(false); 
       else if (isAdvancedSettingsOpen) setIsAdvancedSettingsOpen(false);
       else if (isSettingsOpen) {
           setIsSettingsOpen(false);
           setIsAdvancedSettingsOpen(false);
+          setIsLoadersMenuOpen(false); // 🚀 নতুন: সেটিংস বন্ধ হলে এটিও বন্ধ হবে
       }
       else CapApp.exitApp();
     });
     return () => { backSub.then(sub => sub.remove()); };
-  }, [isAboutOpen, isSettingsOpen, isAdvancedSettingsOpen]);
+  }, [isAboutOpen, isSettingsOpen, isAdvancedSettingsOpen, isLoadersMenuOpen]); // 🚀 ডিপেন্ডেন্সি আপডেট
+  
 
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
