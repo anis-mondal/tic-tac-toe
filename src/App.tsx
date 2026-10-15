@@ -444,6 +444,7 @@ export default function App() {
     localStorage.setItem('lastMoveIdx', JSON.stringify(lastMoveIdxRef.current));
     localStorage.setItem('enableHardRefreshTap', JSON.stringify(enableHardRefreshTap));
     localStorage.setItem('enableHardPullToRefresh', JSON.stringify(enableHardPullToRefresh));
+    localStorage.setItem('refreshLoaderIdx', JSON.stringify(refreshLoaderIdx));
   }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, p1Emoji, p2Emoji, isIconsFilledX, isIconsFilledO, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap, enableHardPullToRefresh]);
 
   useEffect(() => {
