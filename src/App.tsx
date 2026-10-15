@@ -1,6 +1,11 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
-import { motion, AnimatePresence, useAnimation } from 'motion/react';
+import { motion, AnimatePresence, useAnimation, useMotionValue, useSpring } from 'motion/react';
 import { RotateCcw, Moon, Sun, Sparkles, UsersRound } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -55,7 +60,8 @@ const AILogo = () => (
   </svg>
 );
 
-const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2Custom, p2Idx, p2Emoji, p2Filled, color, className }: any) => {
+// 🚀 DynamicIcon (Crash-Proof version with framer-motion)
+const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2Custom, p2Idx, p2Emoji, p2Filled, color, className, gyroX, gyroY }: any) => {
   if (!player) return null;
   const isP1 = player === 'X';
   const isCustomEnabled = isP1 ? p1Custom : p2Custom;
@@ -63,14 +69,17 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
   const emoji = isP1 ? p1Emoji : p2Emoji;
   const fillState = isP1 ? p1Filled : p2Filled; 
 
+  // 🚀 Safe Motion Style Assignment
+  const motionStyle = (gyroX && gyroY) ? { x: gyroX, y: gyroY } : { x: 0, y: 0 };
+
   if (isCustomEnabled) {
      if (iconIndex === -1 && emoji) {
          return (
-            <div className={`flex items-center justify-center ${className}`}>
+            <motion.div style={{ ...motionStyle, overflow: 'visible' }} className={`flex items-center justify-center ${className}`}>
                <svg viewBox="0 0 24 24" className="w-full h-full" style={{ overflow: 'visible' }}>
                  <text x="50%" y="50%" dy=".35em" textAnchor="middle" fill={color} style={{ fontFamily: '"NunitoBlack", "Noto Color Emoji", sans-serif', fontSize: '19px', fontWeight: 900 }}>{emoji}</text>
                </svg>
-            </div>
+            </motion.div>
          );
      }
      const SafeIndex = Math.max(0, iconIndex) % ICONS_LIST.length;
@@ -81,23 +90,23 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
      else if (fillState === 2) { fillVal = color; fillOp = 1; strokeW = 2.2; }
 
      return (
-        <div className={`flex items-center justify-center ${className}`}>
+        <motion.div style={motionStyle} className={`flex items-center justify-center ${className}`}>
            <SelectedIcon color={color} fill={fillVal} fillOpacity={fillOp} className="w-full h-full" strokeWidth={strokeW} />
-        </div>
+        </motion.div>
      );
   }
   
   if (isP1) {
      return (
-        <div className={`flex items-center justify-center ${className}`}>
+        <motion.div style={motionStyle} className={`flex items-center justify-center ${className}`}>
            <svg viewBox="0 0 24 24" className="w-full h-full" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke={color} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        </div>
+        </motion.div>
      );
   }
   return (
-      <div className={`flex items-center justify-center ${className}`}>
+      <motion.div style={motionStyle} className={`flex items-center justify-center ${className}`}>
          <svg viewBox="0 0 24 24" className="w-full h-full" fill="none"><circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="4.5" /></svg>
-      </div>
+      </motion.div>
   );
 });
 
@@ -166,7 +175,9 @@ export default function App() {
   
   const [isSoundOn, setIsSoundOn] = useState(() => getSaved('isSoundOn', true));
   const [isHapticEnabled, setIsHapticEnabled] = useState(() => getSaved('isHapticEnabled', true));
-  const [isGyroEnabled, setIsGyroEnabled] = useState(() => getSaved('isGyroEnabled', true));
+  
+  // 🚀 Gyroscope Physics - DEFAULT OFF (false) to prevent initial crashes
+  const [isGyroEnabled, setIsGyroEnabled] = useState(() => getSaved('isGyroEnabled', false));
   
   const [soundPrefs, setSoundPrefs] = useState(() => getSaved('soundPrefs', { xTap: 1, oTap: 2, pop: 1, mode: 1, refresh: 1, win: 1, overallWin: 1, point: 1 }));
 
@@ -243,6 +254,40 @@ export default function App() {
 
   const triggerHaptic = (pattern: number | number[]) => { triggerNativeHaptic(pattern, isHapticEnabled); };
   const playPreviewSound = (key: string, val: number) => { playEnhancedSound((key === 'xTap' || key === 'oTap') ? 'tap' : key as any, val); };
+
+  // 🚀 Gyroscope Spring Physics Logic (CRASH PROOF VERSION)
+  const gyroX = useMotionValue(0);
+  const gyroY = useMotionValue(0);
+  const smoothGyroX = useSpring(gyroX, { stiffness: 200, damping: 20, mass: 0.5 });
+  const smoothGyroY = useSpring(gyroY, { stiffness: 200, damping: 20, mass: 0.5 });
+
+  useEffect(() => {
+    if (!isGyroEnabled || typeof window === 'undefined') {
+      gyroX.set(0); gyroY.set(0);
+      return;
+    }
+    
+    // 🚀 Fallback Check: Does the device support Orientation Events?
+    if (!('DeviceOrientationEvent' in window)) {
+        console.warn("DeviceOrientationEvent not supported on this device.");
+        return;
+    }
+
+    const handleOrientation = (event: any) => {
+      try {
+          let g = Math.max(-45, Math.min(45, event.gamma || 0));
+          let b = Math.max(-45, Math.min(45, (event.beta || 0) - 45));
+          const maxDisplacement = 6; // Limit strictly to keep inside cell
+          gyroX.set((g / 45) * maxDisplacement);
+          gyroY.set((b / 45) * maxDisplacement);
+      } catch (e) {
+          // Prevent any calculation error from crashing the app
+      }
+    };
+    
+    window.addEventListener('deviceorientation', handleOrientation, true);
+    return () => window.removeEventListener('deviceorientation', handleOrientation, true);
+  }, [isGyroEnabled, gyroX, gyroY]);
 
   const mainBouncer = useAnimation();
   const [pullProgress, setPullProgress] = useState(0);
@@ -571,6 +616,9 @@ export default function App() {
   const getNavBtnStyle = () => ({ backgroundColor: semantics.topNavBtn, color: semantics.text, boxShadow: isDarkMode ? '0 2px 6px rgba(0,0,0,0.4)' : '0 2px 6px rgba(0,0,0,0.06)' });
   const displayScore = (score: number) => isTargetScoreEnabled ? `${score} / ${targetScore}` : score;
 
+  // 🚀 Safe Loader Validation
+  const SafeLoader = REFRESH_LOADERS[refreshLoaderIdx] || REFRESH_LOADERS[0];
+
   return (
     <>
       <style>{`
@@ -603,7 +651,7 @@ export default function App() {
              animate={{ y: isRefreshing ? 75 : (pullProgress > 0 ? Math.min(pullProgress, 75) + (pullProgress > 75 ? (pullProgress - 75) * 0.2 : 0) : -50), scale: isRefreshing ? 1 : (pullProgress > 0 ? Math.min(pullProgress / 75, 1) : 0), scaleY: isRefreshing ? 1 : (pullProgress > 75 ? Math.min(1 + (pullProgress - 75) * 0.015, 1.4) : 1), scaleX: isRefreshing ? 1 : (pullProgress > 75 ? Math.max(1 - (pullProgress - 75) * 0.01, 0.75) : 1) }}
              transition={{ y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 }, scale: { type: 'spring', stiffness: 500, damping: 25 }, scaleY: { type: 'spring', stiffness: 400, damping: 25 }, scaleX: { type: 'spring', stiffness: 400, damping: 25 } }}
           >
-             {isRefreshing ? React.createElement(REFRESH_LOADERS[refreshLoaderIdx].component, { color: activeLineColor }) : <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}><RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} /></motion.div>}
+             {isRefreshing ? React.createElement(SafeLoader.component, { color: activeLineColor }) : <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}><RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} /></motion.div>}
           </motion.div>
 
           <motion.nav 
