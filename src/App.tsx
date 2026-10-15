@@ -25,6 +25,9 @@ import AboutModal from './components/AboutModal';
 // 🚀 ইম্পোর্ট করা হলো গেম লজিক
 import { Player, SquareValue, WINNING_COMBINATIONS, findBestMove } from './utils/gameLogic';
 
+//লোডিং স্পিনার ইমপোর্ট করার জন্য
+import { REFRESH_LOADERS } from './components/RefreshLoaders';
+
 // 🚀 Custom Filled Volume2 (Only Speaker Filled, Waves Hollow)
 const CustomVolume2 = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
