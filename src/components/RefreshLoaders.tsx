@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Loader2, Loader } from 'lucide-react';
 
-// 🚀 40 Premium Authentic & Cute Loading Animations
+// 🚀 65 Premium Authentic, Geometric & Cute Loading Animations
 export const REFRESH_LOADERS = [
   {
     name: 'Material',
@@ -10,6 +10,27 @@ export const REFRESH_LOADERS = [
       <motion.svg viewBox="0 0 50 50" className="w-6 h-6" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} style={{ color }}>
         <motion.circle cx="25" cy="25" r="20" fill="none" strokeWidth="5" stroke="currentColor" strokeLinecap="round" initial={{ strokeDasharray: "1, 150", strokeDashoffset: 0 }} animate={{ strokeDasharray: ["1, 150", "90, 150", "90, 150"], strokeDashoffset: [0, -35, -124] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} />
       </motion.svg>
+    )
+  },
+  {
+    name: 'Dual Ring', // 🚀 Fixed: Rounded Corners
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-6 h-6 flex items-center justify-center" style={{ color }}>
+        <motion.svg viewBox="0 0 24 24" className="absolute w-6 h-6" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}>
+          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="15 40" />
+        </motion.svg>
+        <motion.svg viewBox="0 0 24 24" className="absolute w-3.5 h-3.5" animate={{ rotate: -360 }} transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}>
+          <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="10 30" />
+        </motion.svg>
+      </div>
+    )
+  },
+  {
+    name: 'Ping Pong', // 🚀 Fixed: 100% Perfectly Centered
+    component: ({ color }: { color: string }) => (
+      <div className="w-[26px] h-[12px] rounded-full border-[2px] border-current flex items-center px-[2px]" style={{ color }}>
+        <motion.div animate={{ x: [0, 16, 0] }} transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }} className="w-1.5 h-1.5 bg-current rounded-full" />
+      </div>
     )
   },
   {
@@ -25,7 +46,7 @@ export const REFRESH_LOADERS = [
   {
     name: 'Bars',
     component: ({ color }: { color: string }) => (
-      <div className="flex gap-1 items-center justify-center h-6" style={{ color }}>
+      <div className="flex gap-[3px] items-center justify-center h-6" style={{ color }}>
         {[0, 1, 2].map((i) => (
           <motion.div key={i} className="w-1.5 h-3 bg-current rounded-full" animate={{ scaleY: [1, 2, 1] }} transition={{ repeat: Infinity, duration: 0.8, delay: i * 0.15, ease: "easeInOut" }} />
         ))}
@@ -44,8 +65,8 @@ export const REFRESH_LOADERS = [
   {
     name: 'Orbit',
     component: ({ color }: { color: string }) => (
-      <motion.div className="w-6 h-6 border-2 border-dashed rounded-full flex items-center justify-center border-current" style={{ color }} animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
-         <div className="w-1.5 h-1.5 rounded-full bg-current absolute -top-1" />
+      <motion.div className="w-6 h-6 border-[2px] border-dashed rounded-full flex items-center justify-center border-current" style={{ color }} animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
+         <div className="w-1.5 h-1.5 rounded-full bg-current absolute -top-[3px]" />
       </motion.div>
     )
   },
@@ -66,22 +87,9 @@ export const REFRESH_LOADERS = [
     )
   },
   {
-    name: 'Dual Ring', // 🚀 Fixed: Rounded Corners applied!
-    component: ({ color }: { color: string }) => (
-      <div className="relative w-6 h-6 flex items-center justify-center" style={{ color }}>
-        <motion.svg viewBox="0 0 24 24" className="absolute w-6 h-6" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}>
-          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="15 40" />
-        </motion.svg>
-        <motion.svg viewBox="0 0 24 24" className="absolute w-3.5 h-3.5" animate={{ rotate: -360 }} transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}>
-          <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="10 30" />
-        </motion.svg>
-      </div>
-    )
-  },
-  {
     name: 'Grid',
     component: ({ color }: { color: string }) => (
-      <div className="w-[18px] h-[18px] grid grid-cols-2 gap-1" style={{ color }}>
+      <div className="w-[18px] h-[18px] grid grid-cols-2 gap-[2px]" style={{ color }}>
         {[0, 1, 2, 3].map(i => (
            <motion.div key={i} animate={{ scale: [0.4, 1, 0.4], opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2, delay: [0, 0.3, 0.9, 0.6][i] }} className="bg-current rounded-full w-full h-full" />
         ))}
@@ -95,6 +103,12 @@ export const REFRESH_LOADERS = [
     )
   },
   {
+    name: 'Flip',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ rotateX: [0, 180, 180], rotateY: [0, 0, 180] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} className="w-4 h-4 bg-current rounded-[4px]" style={{ color }} />
+    )
+  },
+  {
     name: 'Echo',
     component: ({ color }: { color: string }) => (
       <div className="relative w-6 h-6 flex items-center justify-center" style={{ color }}>
@@ -104,11 +118,9 @@ export const REFRESH_LOADERS = [
     )
   },
   {
-    name: 'Ping Pong',
+    name: 'Dash Ring',
     component: ({ color }: { color: string }) => (
-      <div className="w-[26px] h-2.5 rounded-full border-[2px] border-current relative p-[1px]" style={{ color }}>
-        <motion.div animate={{ x: [0, 16, 0] }} transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }} className="w-1.5 h-1.5 bg-current rounded-full" />
-      </div>
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 3, ease: "linear" }} className="w-6 h-6 rounded-full border-[2.5px] border-current border-dashed" style={{ color }} />
     )
   },
   {
@@ -118,15 +130,34 @@ export const REFRESH_LOADERS = [
     )
   },
   {
+    name: 'Wave',
+    component: ({ color }: { color: string }) => (
+      <div className="flex gap-[2px] overflow-hidden w-6 justify-center" style={{ color }}>
+        {[0, 1, 2].map(i => (
+           <motion.div key={i} animate={{ x: [6, -6], opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.4 }} className="w-1.5 h-1.5 bg-current rounded-full shrink-0" />
+        ))}
+      </div>
+    )
+  },
+  {
     name: 'Morph',
     component: ({ color }: { color: string }) => (
       <motion.div animate={{ borderRadius: ['20%', '50%', '20%'], rotate: [0, 90, 180] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="w-4 h-4 border-[2.5px] border-current" style={{ color }} />
     )
   },
   {
+    name: 'Focus',
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-6 h-6 flex items-center justify-center" style={{ color }}>
+         <motion.div animate={{ scale: [1, 0.6, 1] }} transition={{ repeat: Infinity, duration: 1.5 }} className="absolute w-6 h-6 rounded-full border-[2.5px] border-current opacity-40" />
+         <motion.div animate={{ scale: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }} className="absolute w-2 h-2 bg-current rounded-full" />
+      </div>
+    )
+  },
+  {
     name: 'Stairs',
     component: ({ color }: { color: string }) => (
-      <div className="flex gap-[3px] items-end justify-center h-4" style={{ color }}>
+      <div className="flex gap-[3px] items-end h-4" style={{ color }}>
          {[1, 2, 3].map((v, i) => (
             <motion.div key={i} animate={{ height: [`${v*30}%`, '100%', `${v*30}%`] }} transition={{ repeat: Infinity, duration: 1, delay: i*0.2 }} className="w-1.5 bg-current rounded-full" />
          ))}
@@ -184,8 +215,8 @@ export const REFRESH_LOADERS = [
     name: 'Concentric',
     component: ({ color }: { color: string }) => (
       <div className="relative w-6 h-6 flex items-center justify-center" style={{ color }}>
-         <motion.div className="absolute rounded-full border-[2px] border-current" animate={{ width: ['0px', '22px'], height: ['0px', '22px'], opacity: [1, 0] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0 }} />
-         <motion.div className="absolute rounded-full border-[2px] border-current" animate={{ width: ['0px', '22px'], height: ['0px', '22px'], opacity: [1, 0] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0.75 }} />
+         <motion.div className="absolute rounded-full border-[2.5px] border-current" animate={{ width: ['0px', '22px'], height: ['0px', '22px'], opacity: [1, 0] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0 }} />
+         <motion.div className="absolute rounded-full border-[2.5px] border-current" animate={{ width: ['0px', '22px'], height: ['0px', '22px'], opacity: [1, 0] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0.75 }} />
       </div>
     )
   },
@@ -216,7 +247,7 @@ export const REFRESH_LOADERS = [
   {
     name: 'Cube Wave',
     component: ({ color }: { color: string }) => (
-      <div className="flex gap-1 items-center justify-center h-6" style={{ color }}>
+      <div className="flex gap-[3px] items-center justify-center h-6" style={{ color }}>
          {[0, 1, 2].map(i => (
             <motion.div key={i} className="w-1.5 h-1.5 bg-current rounded-[3px]" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, ease: "easeInOut", delay: i * 0.1 }} />
          ))}
@@ -243,7 +274,7 @@ export const REFRESH_LOADERS = [
   {
     name: 'Flower',
     component: ({ color }: { color: string }) => (
-      <motion.div className="relative w-4 h-4 grid grid-cols-2 gap-[3px]" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 4, ease: "linear" }} style={{ color }}>
+      <motion.div className="relative w-4 h-4 grid grid-cols-2 gap-[2px]" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 4, ease: "linear" }} style={{ color }}>
          {[0, 1, 2, 3].map(i => (
             <motion.div key={i} className="w-full h-full bg-current rounded-full" animate={{ scale: [0.6, 1, 0.6] }} transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.2 }} />
          ))}
@@ -254,7 +285,7 @@ export const REFRESH_LOADERS = [
     name: 'Ripple',
     component: ({ color }: { color: string }) => (
       <div className="relative w-6 h-6 flex items-center justify-center" style={{ color }}>
-         <motion.div className="absolute w-full h-full rounded-full border-[2px] border-current" animate={{ scale: [0, 1], opacity: [1, 0] }} transition={{ repeat: Infinity, duration: 1, ease: "easeOut" }} />
+         <motion.div className="absolute w-full h-full rounded-full border-[2.5px] border-current" animate={{ scale: [0, 1], opacity: [1, 0] }} transition={{ repeat: Infinity, duration: 1, ease: "easeOut" }} />
       </div>
     )
   },
@@ -315,7 +346,7 @@ export const REFRESH_LOADERS = [
   {
     name: 'Rotate Box',
     component: ({ color }: { color: string }) => (
-      <motion.div className="w-3.5 h-3.5 bg-current rounded-[3px]" style={{ color }} animate={{ rotate: [0, 180, 180, 360] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} />
+      <motion.div className="w-3.5 h-3.5 bg-current rounded-[4px]" style={{ color }} animate={{ rotate: [0, 180, 180, 360] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} />
     )
   },
   {
@@ -323,7 +354,7 @@ export const REFRESH_LOADERS = [
     component: ({ color }: { color: string }) => (
       <motion.div className="w-6 h-6 flex justify-center origin-top" animate={{ rotate: [-40, 40, -40] }} transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }} style={{ color }}>
          <div className="w-1.5 h-1.5 mt-4 bg-current rounded-full" />
-         <div className="absolute top-1 w-[1.5px] h-3 bg-current opacity-40 rounded-full" />
+         <div className="absolute top-1 w-[2px] h-3 bg-current opacity-40 rounded-full" />
       </motion.div>
     )
   },
@@ -355,6 +386,188 @@ export const REFRESH_LOADERS = [
          {[1, 2, 4, 2, 1].map((h, i) => (
             <motion.div key={i} className="w-[2px] bg-current rounded-full" animate={{ height: [`${h*2}px`, `${h*4}px`, `${h*2}px`] }} transition={{ repeat: Infinity, duration: 0.8, delay: i * 0.1, ease: "easeInOut" }} />
          ))}
+      </div>
+    )
+  },
+  {
+    name: 'Solar',
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-6 h-6 flex items-center justify-center" style={{ color }}>
+        <div className="w-2 h-2 bg-current rounded-full" />
+        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} className="absolute w-full h-full flex items-center">
+           <div className="w-1.5 h-1.5 bg-current rounded-full" />
+        </motion.div>
+      </div>
+    )
+  },
+  {
+    name: 'Clockwork',
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-5 h-5 rounded-full border-[2.5px] border-current flex items-center justify-center" style={{ color }}>
+        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }} className="absolute h-[8px] w-[2px] bg-current origin-bottom top-[1px] rounded-full" />
+        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2.4, ease: "linear" }} className="absolute h-[6px] w-[2px] bg-current origin-bottom top-[3px] rounded-full" />
+      </div>
+    )
+  },
+  {
+    name: 'Juggler',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} className="w-5 h-5 relative flex items-center justify-center" style={{ color }}>
+        <div className="absolute top-0 w-1.5 h-1.5 bg-current rounded-full" />
+        <div className="absolute bottom-0 left-0 w-1.5 h-1.5 bg-current rounded-full" />
+        <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-current rounded-full" />
+      </motion.div>
+    )
+  },
+  {
+    name: 'Square Spin',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ rotate: [0, 90, 180, 270, 360], scale: [1, 0.7, 1, 0.7, 1], borderRadius: ['20%', '50%', '20%', '50%', '20%'] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="w-4 h-4 bg-current" style={{ color }} />
+    )
+  },
+  {
+    name: 'Cross Spin',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }} className="relative w-5 h-5 flex items-center justify-center" style={{ color }}>
+         <div className="w-1 h-5 bg-current rounded-full absolute" />
+         <div className="w-5 h-1 bg-current rounded-full absolute" />
+      </motion.div>
+    )
+  },
+  {
+    name: 'Cube Fold',
+    component: ({ color }: { color: string }) => (
+      <div className="w-4 h-4 grid grid-cols-2 gap-[2px]" style={{ color }}>
+        {[0, 1, 3, 2].map((v, i) => (
+           <motion.div key={i} animate={{ opacity: [1, 0.2, 1] }} transition={{ repeat: Infinity, duration: 1.2, delay: v * 0.3 }} className="bg-current rounded-[2px]" />
+        ))}
+      </div>
+    )
+  },
+  {
+    name: 'Double Bounce',
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-5 h-5 flex items-center justify-center" style={{ color }}>
+        <motion.div animate={{ y: [-8, 0, -8], scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }} className="absolute w-2 h-2 bg-current rounded-full top-0" />
+        <motion.div animate={{ y: [8, 0, 8], scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }} className="absolute w-2 h-2 bg-current rounded-full bottom-0" />
+      </div>
+    )
+  },
+  {
+    name: 'Flower Spin',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 3, ease: "linear" }} className="relative w-5 h-5 flex items-center justify-center" style={{ color }}>
+         <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} className="absolute w-2 h-2 bg-current rounded-full top-0 opacity-60" />
+         <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} className="absolute w-2 h-2 bg-current rounded-full bottom-0 opacity-60" />
+         <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} className="absolute w-2 h-2 bg-current rounded-full left-0 opacity-60" />
+         <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} className="absolute w-2 h-2 bg-current rounded-full right-0 opacity-60" />
+      </motion.div>
+    )
+  },
+  {
+    name: 'Pinwheel',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} className="w-5 h-5 relative flex items-center justify-center" style={{ color }}>
+         <div className="absolute w-2 h-2 bg-current rounded-tr-full rounded-bl-full top-0 left-0" />
+         <div className="absolute w-2 h-2 bg-current rounded-tl-full rounded-br-full top-0 right-0" />
+         <div className="absolute w-2 h-2 bg-current rounded-bl-full rounded-tr-full bottom-0 right-0" />
+         <div className="absolute w-2 h-2 bg-current rounded-br-full rounded-tl-full bottom-0 left-0" />
+      </motion.div>
+    )
+  },
+  {
+    name: 'Blink Grid',
+    component: ({ color }: { color: string }) => (
+      <div className="w-5 h-5 grid grid-cols-3 gap-[2px]" style={{ color }}>
+        {[...Array(9)].map((_, i) => (
+           <motion.div key={i} animate={{ opacity: [0.2, 1, 0.2] }} transition={{ repeat: Infinity, duration: 1.5, delay: Math.random() * 1 }} className="bg-current rounded-full" />
+        ))}
+      </div>
+    )
+  },
+  {
+    name: 'Orbit Dots',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} className="relative w-5 h-5 flex items-center justify-center" style={{ color }}>
+         <div className="w-1.5 h-1.5 bg-current rounded-full absolute top-0" />
+         <div className="w-1.5 h-1.5 bg-current rounded-full absolute bottom-0" />
+         <div className="w-1.5 h-1.5 bg-current rounded-full absolute left-0 opacity-50" />
+         <div className="w-1.5 h-1.5 bg-current rounded-full absolute right-0 opacity-50" />
+      </motion.div>
+    )
+  },
+  {
+    name: 'Tear Drop',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ rotate: 360, borderTopRightRadius: ['50%', '0%', '50%'] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} className="w-4 h-4 bg-current rounded-full" style={{ color }} />
+    )
+  },
+  {
+    name: 'Scale Ring',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ borderWidth: ['2px', '6px', '2px'] }} transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }} className="w-5 h-5 rounded-full border-current" style={{ color }} />
+    )
+  },
+  {
+    name: 'Corner Square',
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-5 h-5 border-[1.5px] border-current border-opacity-30 rounded-[4px]" style={{ color }}>
+         <motion.div animate={{ x: [0, 12, 12, 0, 0], y: [0, 0, 12, 12, 0] }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} className="absolute w-1.5 h-1.5 bg-current rounded-full -top-[1.5px] -left-[1.5px]" />
+      </div>
+    )
+  },
+  {
+    name: 'Tri-Spin',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} className="w-0 h-0 border-l-[8px] border-r-[8px] border-b-[14px] border-l-transparent border-r-transparent border-b-current origin-[50%_65%]" style={{ color }} />
+    )
+  },
+  {
+    name: 'Swing Dots',
+    component: ({ color }: { color: string }) => (
+      <div className="flex gap-[3px] items-center justify-center h-6 w-6" style={{ color }}>
+         <motion.div animate={{ y: [-4, 4, -4] }} transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }} className="w-1.5 h-1.5 bg-current rounded-full" />
+         <motion.div animate={{ y: [4, -4, 4] }} transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }} className="w-1.5 h-1.5 bg-current rounded-full" />
+      </div>
+    )
+  },
+  {
+    name: 'Wave Dots',
+    component: ({ color }: { color: string }) => (
+      <div className="flex gap-[3px] items-center justify-center h-6 w-6" style={{ color }}>
+         {[0, 1, 2, 3].map(i => <motion.div key={i} animate={{ scale: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1, delay: i*0.15 }} className="w-1.5 h-1.5 bg-current rounded-full" />)}
+      </div>
+    )
+  },
+  {
+    name: 'Bounce Scale',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ y: [0, -8, 0], scaleY: [0.8, 1.1, 0.8], scaleX: [1.2, 0.9, 1.2] }} transition={{ repeat: Infinity, duration: 0.8, ease: "easeOut" }} className="w-3 h-3 bg-current rounded-full" style={{ color }} />
+    )
+  },
+  {
+    name: 'Infinity Dot',
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-6 h-4" style={{ color }}>
+         <motion.div animate={{ x: [0, 12, 0, -12, 0], y: [0, -4, 0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} className="absolute w-1.5 h-1.5 bg-current rounded-full top-1.5 left-2.5" />
+      </div>
+    )
+  },
+  {
+    name: 'Bubble',
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-6 h-6 flex items-center justify-center" style={{ color }}>
+         <motion.div animate={{ x: [0, -6, 0] }} transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }} className="absolute w-3 h-3 bg-current rounded-full opacity-70" />
+         <motion.div animate={{ x: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }} className="absolute w-3 h-3 bg-current rounded-full opacity-70" />
+      </div>
+    )
+  },
+  {
+    name: 'Shift',
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-5 h-4 flex flex-col justify-between" style={{ color }}>
+         <motion.div animate={{ x: [-4, 4, -4] }} transition={{ repeat: Infinity, duration: 1 }} className="w-3 h-[3px] bg-current rounded-full self-start" />
+         <motion.div animate={{ x: [4, -4, 4] }} transition={{ repeat: Infinity, duration: 1 }} className="w-3 h-[3px] bg-current rounded-full self-end" />
       </div>
     )
   }
