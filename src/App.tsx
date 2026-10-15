@@ -5,7 +5,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
-// 🚀 useMotionValue এবং useSpring ইমপোর্ট করা হলো জাইরোস্কোপ ফিজিক্সের জন্য
 import { motion, AnimatePresence, useAnimation, useMotionValue, useSpring } from 'motion/react';
 import { RotateCcw, Moon, Sun, Sparkles, UsersRound } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -23,40 +22,19 @@ import { App as CapApp } from '@capacitor/app';
 import SettingsModal, { PLAYER_COLORS, CUSTOM_THEMES, ORIGINAL_THEME, EXTRA_LINE_COLORS, ICONS_LIST } from './components/SettingsModal';
 import AboutModal from './components/AboutModal';
 
-// 🚀 ইম্পোর্ট করা হলো গেম লজিক
 import { Player, SquareValue, WINNING_COMBINATIONS, findBestMove } from './utils/gameLogic';
-
-//লোডিং স্পিনার ইমপোর্ট করার জন্য
 import { REFRESH_LOADERS } from './components/RefreshLoaders';
 
-// 🚀 Custom Filled Volume2 (Only Speaker Filled, Waves Hollow)
 const CustomVolume2 = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
-    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" fill="none" />
-    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" fill="none" />
-  </svg>
+  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" fill="none" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" fill="none" /></svg>
 );
 
-// 🚀 Custom Filled VolumeX (Only Speaker Filled, Cross Hollow)
 const CustomVolumeX = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
-    <line x1="23" y1="9" x2="17" y2="15" fill="none" />
-    <line x1="17" y1="9" x2="23" y2="15" fill="none" />
-  </svg>
+  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" /><line x1="23" y1="9" x2="17" y2="15" fill="none" /><line x1="17" y1="9" x2="23" y2="15" fill="none" /></svg>
 );
 
-// 🚀 Custom Filled Settings (Gear Filled, Center Circle Hollow with Border)
 const CustomSettings = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <mask id="settings-hole">
-      <rect width="24" height="24" fill="white" />
-      <circle cx="12" cy="12" r="3" fill="black" stroke="black" strokeWidth="1" />
-    </mask>
-    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" fill="currentColor" mask="url(#settings-hole)" />
-    <circle cx="12" cy="12" r="3" fill="none" />
-  </svg>
+  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><mask id="settings-hole"><rect width="24" height="24" fill="white" /><circle cx="12" cy="12" r="3" fill="black" stroke="black" strokeWidth="1" /></mask><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" fill="currentColor" mask="url(#settings-hole)" /><circle cx="12" cy="12" r="3" fill="none" /></svg>
 );
 
 export const SolidUsers = ({ className, color }: { className?: string, color?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" color={color} className={className}><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>;
@@ -69,6 +47,18 @@ const triggerNativeHaptic = (pattern: number | number[], isEnabled: boolean) => 
      try { navigator.vibrate(pattern); } catch (e) {}
   }
 };
+
+const AILogo = () => (
+  <svg width="20" height="20" viewBox="0 0 100 100" className="drop-shadow-sm shrink-0">
+    <defs>
+      <linearGradient id="ai-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#FF3B30" /><stop offset="25%" stopColor="#FF9500" /><stop offset="50%" stopColor="#4CD964" /><stop offset="75%" stopColor="#5AC8FA" /><stop offset="100%" stopColor="#007AFF" />  
+      </linearGradient>
+    </defs>
+    <circle cx="50" cy="50" r="42" fill="none" stroke="url(#ai-grad)" strokeWidth="12" />
+    <text x="50" y="68" fontFamily="NunitoCustom, sans-serif" fontWeight="900" fontSize="48" fill="url(#ai-grad)" textAnchor="middle">Ai</text>
+  </svg>
+);
 
 // 🚀 DynamicIcon Updated with Gyroscope Spring Support
 const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2Custom, p2Idx, p2Emoji, p2Filled, color, className, gyroX, gyroY }: any) => {
@@ -86,9 +76,7 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
          return (
             <motion.div style={{ ...style, overflow: 'visible' }} className={`flex items-center justify-center ${className}`}>
                <svg viewBox="0 0 24 24" className="w-full h-full" style={{ overflow: 'visible' }}>
-                 <text x="50%" y="50%" dy=".35em" textAnchor="middle" fill={color} style={{ fontFamily: '"NunitoBlack", "Noto Color Emoji", sans-serif', fontSize: '19px', fontWeight: 900 }}>
-                    {emoji}
-                 </text>
+                 <text x="50%" y="50%" dy=".35em" textAnchor="middle" fill={color} style={{ fontFamily: '"NunitoBlack", "Noto Color Emoji", sans-serif', fontSize: '19px', fontWeight: 900 }}>{emoji}</text>
                </svg>
             </motion.div>
          );
@@ -96,19 +84,9 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
      const SafeIndex = Math.max(0, iconIndex) % ICONS_LIST.length;
      const SelectedIcon = ICONS_LIST[SafeIndex];
      
-     let fillVal = 'none';
-     let fillOp = 1;
-     let strokeW = 2.5;
-
-     if (fillState === 1) { 
-         fillVal = color;
-         fillOp = 0.40; 
-         strokeW = 2.8;
-     } else if (fillState === 2) { 
-         fillVal = color;
-         fillOp = 1;
-         strokeW = 2.2;
-     }
+     let fillVal = 'none'; let fillOp = 1; let strokeW = 2.5;
+     if (fillState === 1) { fillVal = color; fillOp = 0.40; strokeW = 2.8; } 
+     else if (fillState === 2) { fillVal = color; fillOp = 1; strokeW = 2.2; }
 
      return (
         <motion.div style={style} className={`flex items-center justify-center ${className}`}>
@@ -132,84 +110,39 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
 });
 
 const audioState = { ctx: null as AudioContext | null };
-
 const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', variant: number) => {
   if (!variant || variant === 0 || typeof window === 'undefined') return;
   try {
-    if (!audioState.ctx) {
-      audioState.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
+    if (!audioState.ctx) audioState.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
     if (audioState.ctx.state === 'suspended') audioState.ctx.resume();
     const ctx = audioState.ctx;
     const t = ctx.currentTime;
     
     const profiles = [
-      { w: 'sine', f: 0, d: 0, s: 0 },
-      { w: 'sine', f: 600, d: 0.1, s: 1 },        
-      { w: 'sine', f: 400, d: 0.1, s: 1.5 },      
-      { w: 'triangle', f: 800, d: 0.05, s: 1 },   
-      { w: 'sine', f: 1200, d: 0.15, s: 1 },      
-      { w: 'sine', f: 300, d: 0.1, s: 0.5 },      
-      { w: 'triangle', f: 600, d: 0.1, s: 1 },    
-      { w: 'sine', f: 900, d: 0.08, s: 1 },       
-      { w: 'triangle', f: 350, d: 0.15, s: 1 },   
-      { w: 'sine', f: 1500, d: 0.05, s: 1 },      
-      { w: 'sine', f: 500, d: 0.2, s: 1 },        
-      { w: 'triangle', f: 1000, d: 0.05, s: 1 },  
-      { w: 'sine', f: 800, d: 0.1, s: 0.5 },      
-      { w: 'sine', f: 450, d: 0.15, s: 1 },       
-      { w: 'triangle', f: 750, d: 0.08, s: 1.2 }, 
-      { w: 'sine', f: 200, d: 0.15, s: 1 },       
-      { w: 'triangle', f: 550, d: 0.12, s: 1 },   
-      { w: 'sine', f: 1800, d: 0.03, s: 1 },      
-      { w: 'sine', f: 350, d: 0.1, s: 1.5 },      
-      { w: 'triangle', f: 900, d: 0.1, s: 0.8 },  
-      { w: 'sine', f: 700, d: 0.15, s: 1 }        
+      { w: 'sine', f: 0, d: 0, s: 0 }, { w: 'sine', f: 600, d: 0.1, s: 1 }, { w: 'sine', f: 400, d: 0.1, s: 1.5 }, { w: 'triangle', f: 800, d: 0.05, s: 1 }, { w: 'sine', f: 1200, d: 0.15, s: 1 }, { w: 'sine', f: 300, d: 0.1, s: 0.5 }, { w: 'triangle', f: 600, d: 0.1, s: 1 }, { w: 'sine', f: 900, d: 0.08, s: 1 }, { w: 'triangle', f: 350, d: 0.15, s: 1 }, { w: 'sine', f: 1500, d: 0.05, s: 1 }, { w: 'sine', f: 500, d: 0.2, s: 1 }, { w: 'triangle', f: 1000, d: 0.05, s: 1 }, { w: 'sine', f: 800, d: 0.1, s: 0.5 }, { w: 'sine', f: 450, d: 0.15, s: 1 }, { w: 'triangle', f: 750, d: 0.08, s: 1.2 }, { w: 'sine', f: 200, d: 0.15, s: 1 }, { w: 'triangle', f: 550, d: 0.12, s: 1 }, { w: 'sine', f: 1800, d: 0.03, s: 1 }, { w: 'sine', f: 350, d: 0.1, s: 1.5 }, { w: 'triangle', f: 900, d: 0.1, s: 0.8 }, { w: 'sine', f: 700, d: 0.15, s: 1 }
     ];
 
     const p = profiles[variant] || profiles[1];
-
     const playOsc = (wave: string, freq: number, vol: number, attack: number, decay: number, sweep: number = 1, sweepDur: number = 0, delay: number = 0) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = wave as OscillatorType;
         osc.frequency.setValueAtTime(freq, t + delay);
         if (sweep !== 1) osc.frequency.exponentialRampToValueAtTime(freq * sweep, t + delay + sweepDur);
-        
         gain.gain.setValueAtTime(0, t + delay);
         gain.gain.linearRampToValueAtTime(vol, t + delay + attack);
         gain.gain.exponentialRampToValueAtTime(0.001, t + delay + attack + decay);
-        
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(t + delay);
-        osc.stop(t + delay + attack + decay);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t + delay); osc.stop(t + delay + attack + decay);
     };
 
-    if (type === 'tap') {
-        playOsc(p.w, p.f, 0.4, 0.01, p.d, p.s, 0.1);
-    } else if (type === 'pop') {
-        playOsc(p.w, p.f * 0.75, 0.4, 0.01, p.d * 1.5, p.s, 0.1);
-    } else if (type === 'point' || type === 'unmute') {
-        playOsc(p.w, p.f * 1.5, 0.3, 0.01, p.d * 1.2, p.s, 0.1);
-    } else if (type === 'mode') {
-        playOsc(p.w, p.f * 0.8, 0.3, 0.02, p.d);
-        playOsc(p.w, p.f * 1.2, 0.3, 0.02, p.d * 1.2, 1, 0, 0.15);
-    } else if (type === 'refresh') {
-        playOsc(p.w, p.f * 0.8, 0.3, 0.02, p.d);
-        playOsc(p.w, p.f, 0.3, 0.02, p.d, 1, 0, 0.08);
-        playOsc(p.w, p.f * 1.4, 0.3, 0.02, p.d * 1.5, 1, 0, 0.16);
-    } else if (type === 'win') {
-        playOsc(p.w, p.f, 0.3, 0.02, p.d);
-        playOsc(p.w, p.f * 1.25, 0.3, 0.02, p.d, 1, 0, 0.15);
-        playOsc(p.w, p.f * 1.5, 0.3, 0.02, p.d * 2, 1, 0, 0.3);
-    } else if (type === 'overallWin') {
-        playOsc(p.w, p.f * 0.8, 0.3, 0.05, p.d);
-        playOsc(p.w, p.f * 1.0, 0.3, 0.05, p.d, 1, 0, 0.15);
-        playOsc(p.w, p.f * 1.25, 0.3, 0.05, p.d, 1, 0, 0.3);
-        playOsc(p.w, p.f * 1.5, 0.3, 0.05, p.d, 1, 0, 0.45);
-        playOsc(p.w, p.f * 2.0, 0.4, 0.05, p.d * 3, 1, 0, 0.6);
-    }
+    if (type === 'tap') playOsc(p.w, p.f, 0.4, 0.01, p.d, p.s, 0.1);
+    else if (type === 'pop') playOsc(p.w, p.f * 0.75, 0.4, 0.01, p.d * 1.5, p.s, 0.1);
+    else if (type === 'point' || type === 'unmute') playOsc(p.w, p.f * 1.5, 0.3, 0.01, p.d * 1.2, p.s, 0.1);
+    else if (type === 'mode') { playOsc(p.w, p.f * 0.8, 0.3, 0.02, p.d); playOsc(p.w, p.f * 1.2, 0.3, 0.02, p.d * 1.2, 1, 0, 0.15); }
+    else if (type === 'refresh') { playOsc(p.w, p.f * 0.8, 0.3, 0.02, p.d); playOsc(p.w, p.f, 0.3, 0.02, p.d, 1, 0, 0.08); playOsc(p.w, p.f * 1.4, 0.3, 0.02, p.d * 1.5, 1, 0, 0.16); }
+    else if (type === 'win') { playOsc(p.w, p.f, 0.3, 0.02, p.d); playOsc(p.w, p.f * 1.25, 0.3, 0.02, p.d, 1, 0, 0.15); playOsc(p.w, p.f * 1.5, 0.3, 0.02, p.d * 2, 1, 0, 0.3); }
+    else if (type === 'overallWin') { playOsc(p.w, p.f * 0.8, 0.3, 0.05, p.d); playOsc(p.w, p.f * 1.0, 0.3, 0.05, p.d, 1, 0, 0.15); playOsc(p.w, p.f * 1.25, 0.3, 0.05, p.d, 1, 0, 0.3); playOsc(p.w, p.f * 1.5, 0.3, 0.05, p.d, 1, 0, 0.45); playOsc(p.w, p.f * 2.0, 0.4, 0.05, p.d * 3, 1, 0, 0.6); }
   } catch(e) {}
 };
 
@@ -241,13 +174,9 @@ export default function App() {
   
   const [isSoundOn, setIsSoundOn] = useState(() => getSaved('isSoundOn', true));
   const [isHapticEnabled, setIsHapticEnabled] = useState(() => getSaved('isHapticEnabled', true));
-  
-  // 🚀 নতুন: জাইরোস্কোপ ফিজিক্স এনাবল/ডিসএবল করার স্টেট
   const [isGyroEnabled, setIsGyroEnabled] = useState(() => getSaved('isGyroEnabled', true));
   
-  const [soundPrefs, setSoundPrefs] = useState(() => getSaved('soundPrefs', {
-     xTap: 1, oTap: 2, pop: 1, mode: 1, refresh: 1, win: 1, overallWin: 1, point: 1
-  }));
+  const [soundPrefs, setSoundPrefs] = useState(() => getSaved('soundPrefs', { xTap: 1, oTap: 2, pop: 1, mode: 1, refresh: 1, win: 1, overallWin: 1, point: 1 }));
 
   const [useDefaultTheme, setUseDefaultTheme] = useState(() => getSaved('useDefaultTheme', true));
   const [themeIdx, setThemeIdx] = useState(() => getSaved('themeIdx', 0));
@@ -293,12 +222,8 @@ export default function App() {
 
   const [winnerInfo, setWinnerInfo] = useState<{ winner: Player; line: number[] } | null>(() => getSaved('winnerInfo', null));
   const [isDraw, setIsDraw] = useState(() => getSaved('isDraw', false));
-  
   const [overallWinner, setOverallWinner] = useState<Player | null>(() => getSaved('overallWinner', null));
-  const [showWinnerModal, setShowWinnerModal] = useState(() => {
-      const ow = getSaved('overallWinner', null);
-      return ow !== null;
-  });
+  const [showWinnerModal, setShowWinnerModal] = useState(() => getSaved('overallWinner', null) !== null);
 
   const lastMoveIdxRef = useRef<number | null>(getSaved('lastMoveIdx', null));
   const [linePoints, setLinePoints] = useState<{ type: 'normal' | 'center-out', start: { x: number; y: number }; end: { x: number; y: number }, mid: { x: number; y: number } } | null>(null);
@@ -324,14 +249,8 @@ export default function App() {
   const isTransitioning = useRef(false);
   const isGameEnding = useRef(false);
 
-  const triggerHaptic = (pattern: number | number[]) => {
-    triggerNativeHaptic(pattern, isHapticEnabled);
-  };
-
-  const playPreviewSound = (key: string, val: number) => {
-    const type = (key === 'xTap' || key === 'oTap') ? 'tap' : key;
-    playEnhancedSound(type as any, val); 
-  };
+  const triggerHaptic = (pattern: number | number[]) => { triggerNativeHaptic(pattern, isHapticEnabled); };
+  const playPreviewSound = (key: string, val: number) => { playEnhancedSound((key === 'xTap' || key === 'oTap') ? 'tap' : key as any, val); };
 
   // 🚀 Gyroscope Spring Physics Logic
   const gyroX = useMotionValue(0);
@@ -341,27 +260,16 @@ export default function App() {
 
   useEffect(() => {
     if (!isGyroEnabled || typeof window === 'undefined') {
-      gyroX.set(0);
-      gyroY.set(0);
+      gyroX.set(0); gyroY.set(0);
       return;
     }
-
     const handleOrientation = (event: DeviceOrientationEvent) => {
-      let g = event.gamma || 0; 
-      let b = event.beta || 0; 
-
-      // ক্ল্যাম্পিং: ফোন ৪৫ ডিগ্রির বেশি হেলালেও অ্যানিমেশন আর বাড়বে না
-      g = Math.max(-45, Math.min(45, g));
-      
-      let adjustedB = b - 45; // ফোনটি সাধারণত ৪৫ ডিগ্রি কোণে ধরে রাখা হয়, তাই সেটাকে সেন্টার ধরা হলো
-      adjustedB = Math.max(-45, Math.min(45, adjustedB));
-      
-      const maxDisplacement = 8; // 🚀 দেয়ালের সাথে যেন না লাগে তাই লিমিট ৮ পিক্সেল রাখা হলো
-      
+      let g = Math.max(-45, Math.min(45, event.gamma || 0));
+      let b = Math.max(-45, Math.min(45, (event.beta || 0) - 45));
+      const maxDisplacement = 8; // 🚀 Clamping to keep icons inside cells
       gyroX.set((g / 45) * maxDisplacement);
-      gyroY.set((adjustedB / 45) * maxDisplacement);
+      gyroY.set((b / 45) * maxDisplacement);
     };
-
     window.addEventListener('deviceorientation', handleOrientation);
     return () => window.removeEventListener('deviceorientation', handleOrientation);
   }, [isGyroEnabled, gyroX, gyroY]);
@@ -381,19 +289,11 @@ export default function App() {
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging.current || isRefreshing) return;
-    const currentY = e.touches[0].clientY;
-    const deltaY = currentY - touchStartY.current;
-    
+    const deltaY = e.touches[0].clientY - touchStartY.current;
     if (deltaY > 0) {
        const resistance = deltaY * 0.35; 
        setPullProgress(resistance);
-       
-       const dynamicGap = 20 + (resistance * 0.25); 
-       mainBouncer.set({ 
-           y: resistance, 
-           scale: Math.max(1 - (resistance * 0.0003), 0.96),
-           gap: `${dynamicGap}px`
-       });
+       mainBouncer.set({ y: resistance, scale: Math.max(1 - (resistance * 0.0003), 0.96), gap: `${20 + (resistance * 0.25)}px` });
     }
   };
 
@@ -402,37 +302,18 @@ export default function App() {
     isDragging.current = false;
     
     if (pullProgress > 75) {
-       setIsRefreshing(true);
-       triggerHaptic([100, 50, 100]);
+       setIsRefreshing(true); triggerHaptic([100, 50, 100]);
        if (isSoundOn) playEnhancedSound('refresh', soundPrefs.refresh);
-       
-       mainBouncer.start({ 
-          y: 0, 
-          scale: 1, 
-          gap: "20px",
-          transition: { type: 'spring', stiffness: 150, damping: 10, mass: 1.2 } 
-       });
+       mainBouncer.start({ y: 0, scale: 1, gap: "20px", transition: { type: 'spring', stiffness: 150, damping: 10, mass: 1.2 } });
        
        setTimeout(() => {
-          if (enableHardPullToRefresh) {
-             performHardReset(startingPlayer);
-          } else {
-             resetGameForMode(startingPlayer, true); 
-          }
+          if (enableHardPullToRefresh) performHardReset(startingPlayer);
+          else resetGameForMode(startingPlayer, true); 
        }, 400);
 
-       setTimeout(() => {
-          setIsRefreshing(false);
-          setPullProgress(0);
-       }, 1500);
-
+       setTimeout(() => { setIsRefreshing(false); setPullProgress(0); }, 1500);
     } else {
-       mainBouncer.start({ 
-          y: 0, 
-          scale: 1, 
-          gap: "20px",
-          transition: { type: 'spring', stiffness: 200, damping: 14 } 
-       });
+       mainBouncer.start({ y: 0, scale: 1, gap: "20px", transition: { type: 'spring', stiffness: 200, damping: 14 } });
        setPullProgress(0);
     }
   };
@@ -446,7 +327,7 @@ export default function App() {
     localStorage.setItem('isSinglePlayer', JSON.stringify(isSinglePlayer));
     localStorage.setItem('isSoundOn', JSON.stringify(isSoundOn));
     localStorage.setItem('isHapticEnabled', JSON.stringify(isHapticEnabled));
-    localStorage.setItem('isGyroEnabled', JSON.stringify(isGyroEnabled)); // 🚀 Gyro state saved
+    localStorage.setItem('isGyroEnabled', JSON.stringify(isGyroEnabled));
     localStorage.setItem('soundPrefs', JSON.stringify(soundPrefs));
     localStorage.setItem('useDefaultTheme', JSON.stringify(useDefaultTheme));
     localStorage.setItem('themeIdx', JSON.stringify(themeIdx));
@@ -484,11 +365,7 @@ export default function App() {
       if (isAboutOpen) setIsAboutOpen(false);
       else if (isLoadersMenuOpen) setIsLoadersMenuOpen(false); 
       else if (isAdvancedSettingsOpen) setIsAdvancedSettingsOpen(false);
-      else if (isSettingsOpen) {
-          setIsSettingsOpen(false);
-          setIsAdvancedSettingsOpen(false);
-          setIsLoadersMenuOpen(false);
-      }
+      else if (isSettingsOpen) { setIsSettingsOpen(false); setIsAdvancedSettingsOpen(false); setIsLoadersMenuOpen(false); }
       else CapApp.exitApp();
     });
     return () => { backSub.then(sub => sub.remove()); };
@@ -497,158 +374,85 @@ export default function App() {
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       try {
-        const activeBgColor = isDarkMode && isAmoled 
-          ? '#000000' 
-          : (useDefaultTheme 
-              ? (isDarkMode ? ORIGINAL_THEME.dark : ORIGINAL_THEME.light) 
-              : (isDarkMode ? CUSTOM_THEMES[themeIdx].dark : CUSTOM_THEMES[themeIdx].light));
-        
-        StatusBar.setBackgroundColor({ color: activeBgColor });
-        StatusBar.setStyle({ style: isDarkMode ? Style.Dark : Style.Light });
-      } catch (e) {
-        console.warn("Status bar customization failed:", e);
-      }
+        const activeBgColor = isDarkMode && isAmoled ? '#000000' : (useDefaultTheme ? (isDarkMode ? ORIGINAL_THEME.dark : ORIGINAL_THEME.light) : (isDarkMode ? CUSTOM_THEMES[themeIdx].dark : CUSTOM_THEMES[themeIdx].light));
+        StatusBar.setBackgroundColor({ color: activeBgColor }); StatusBar.setStyle({ style: isDarkMode ? Style.Dark : Style.Light });
+      } catch (e) { console.warn(e); }
     }
-    
-    if (isDarkMode) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
+    if (isDarkMode) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark');
   }, [isDarkMode, isAmoled, themeIdx, useDefaultTheme]);
 
   const activeTheme = useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[themeIdx];
   const availableLinesDark = [...activeTheme.linesDark, ...EXTRA_LINE_COLORS];
   const availableLinesLight = [...activeTheme.linesLight, ...EXTRA_LINE_COLORS];
-  
-  const activeLineColor = isDarkMode 
-    ? (enableCustomLine ? availableLinesDark[customLineIdx] : availableLinesDark[0]) 
-    : (enableCustomLine ? availableLinesLight[customLineIdx] : availableLinesLight[0]);
-
+  const activeLineColor = isDarkMode ? (enableCustomLine ? availableLinesDark[customLineIdx] : availableLinesDark[0]) : (enableCustomLine ? availableLinesLight[customLineIdx] : availableLinesLight[0]);
   const currentXColor = enableCustomX ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[0];
   const currentOColor = enableCustomO ? PLAYER_COLORS[oColorIdx] : PLAYER_COLORS[9];
 
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isTransitioning.current) return;
-    
-    triggerHaptic([80]); 
-    if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop);
-    
-    const nextDark = !isDarkMode;
-    const targetBtn = e.currentTarget;
+    triggerHaptic([80]); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop);
+    const nextDark = !isDarkMode; const targetBtn = e.currentTarget;
 
-    if (!document.startViewTransition) {
-        setIsDarkMode(nextDark);
-        return;
-    }
-
+    if (!document.startViewTransition) { setIsDarkMode(nextDark); return; }
     isTransitioning.current = true;
-    
     const rect = targetBtn.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
+    document.documentElement.style.setProperty('--tx', `${rect.left + rect.width / 2}px`);
+    document.documentElement.style.setProperty('--ty', `${rect.top + rect.height / 2}px`);
 
-    document.documentElement.style.setProperty('--tx', `${x}px`);
-    document.documentElement.style.setProperty('--ty', `${y}px`);
+    if (nextDark) { document.documentElement.classList.add('transition-to-dark'); document.documentElement.classList.remove('transition-to-light'); }
+    else { document.documentElement.classList.add('transition-to-light'); document.documentElement.classList.remove('transition-to-dark'); }
 
-    if (nextDark) {
-        document.documentElement.classList.add('transition-to-dark');
-        document.documentElement.classList.remove('transition-to-light');
-    } else {
-        document.documentElement.classList.add('transition-to-light');
-        document.documentElement.classList.remove('transition-to-dark');
-    }
-
-    const transition = document.startViewTransition(() => {
-        flushSync(() => {
-            setIsDarkMode(nextDark);
-        });
-    });
-
-    transition.finished.then(() => {
-        document.documentElement.classList.remove('transition-to-dark', 'transition-to-light');
-        isTransitioning.current = false;
-    });
+    const transition = document.startViewTransition(() => { flushSync(() => { setIsDarkMode(nextDark); }); });
+    transition.finished.then(() => { document.documentElement.classList.remove('transition-to-dark', 'transition-to-light'); isTransitioning.current = false; });
   };
 
-  const toggleSound = () => {
-    triggerHaptic(80);
-    if (!isSoundOn) playEnhancedSound('unmute', soundPrefs.point);
-    setIsSoundOn(!isSoundOn);
-  };
+  const toggleSound = () => { triggerHaptic(80); if (!isSoundOn) playEnhancedSound('unmute', soundPrefs.point); setIsSoundOn(!isSoundOn); };
 
   const fireConfetti = (winner: Player) => {
     if (!canvasRef.current) return;
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
     if (myConfettiRef.current) myConfettiRef.current.reset();
-
     myConfettiRef.current = confetti.create(canvasRef.current, { resize: true, useWorker: true });
     
     const colors = winner === 'X' ? [currentXColor] : [currentOColor]; 
-    const duration = 6000;
-    const animationEnd = Date.now() + duration;
+    const duration = 6000; const animationEnd = Date.now() + duration;
 
     confettiIntervalRef.current = setInterval(function() {
       const timeLeft = animationEnd - Date.now();
-      if (timeLeft <= 0) {
-        if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
-        return;
-      }
-      myConfettiRef.current?.({
-        particleCount: 60 * (timeLeft / duration),
-        startVelocity: 35, spread: 360, ticks: 60, zIndex: 0, colors: colors,
-        origin: { x: Math.random() * 0.8 + 0.1, y: Math.random() * 0.3 + 0.1 }
-      });
+      if (timeLeft <= 0) { if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current); return; }
+      myConfettiRef.current?.({ particleCount: 60 * (timeLeft / duration), startVelocity: 35, spread: 360, ticks: 60, zIndex: 0, colors: colors, origin: { x: Math.random() * 0.8 + 0.1, y: Math.random() * 0.3 + 0.1 } });
     }, 250);
   };
 
   useEffect(() => {
-    if (isResetting) {
-        isGameEnding.current = false;
-        return;
-    }
+    if (isResetting) { isGameEnding.current = false; return; }
     if (winnerInfo || isDraw || overallWinner || isGameEnding.current) return;
     
-    let hasWinner = false;
-    let winningLine: number[] = [];
-    let winner: Player | null = null;
-
+    let hasWinner = false; let winningLine: number[] = []; let winner: Player | null = null;
     for (const combination of WINNING_COMBINATIONS) {
       const [a, b, c] = combination;
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        hasWinner = true;
-        winner = board[a] as Player;
-        winningLine = combination;
-        break;
-      }
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) { hasWinner = true; winner = board[a] as Player; winningLine = combination; break; }
     }
 
     if (hasWinner && winner) {
         isGameEnding.current = true;
         setTimeout(() => {
             setWinnerInfo({ winner: winner as Player, line: winningLine });
-            
             setScores(prev => {
-                const currentScore = prev[winner as Player];
-                const newScore = currentScore + 1;
-                
+                const newScore = prev[winner as Player] + 1;
                 if (isTargetScoreEnabled && newScore >= targetScore) {
-                   setOverallWinner(winner);
-                   if (isSoundOn) playEnhancedSound('overallWin', soundPrefs.overallWin);
+                   setOverallWinner(winner); if (isSoundOn) playEnhancedSound('overallWin', soundPrefs.overallWin);
                    setTimeout(() => setShowWinnerModal(true), 1200); 
-                } else {
-                   if (isSoundOn) playEnhancedSound('win', soundPrefs.win);
-                }
+                } else { if (isSoundOn) playEnhancedSound('win', soundPrefs.win); }
                 return { ...prev, [winner as Player]: newScore };
             }); 
-            
-            triggerHaptic([100, 50, 100, 50, 300]); 
-            fireConfetti(winner);
+            triggerHaptic([100, 50, 100, 50, 300]); fireConfetti(winner);
         }, 450); 
     } else if (!board.includes(null)) {
         isGameEnding.current = true;
         setTimeout(() => {
-            setIsDraw(true);
-            setScores(prev => ({ ...prev, Draws: prev.Draws + 1 })); 
-            if (isSoundOn) playEnhancedSound('point', soundPrefs.point);
-            triggerHaptic([200, 50, 200, 50, 300]); 
+            setIsDraw(true); setScores(prev => ({ ...prev, Draws: prev.Draws + 1 })); 
+            if (isSoundOn) playEnhancedSound('point', soundPrefs.point); triggerHaptic([200, 50, 200, 50, 300]); 
         }, 450);
     }
   }, [board, isSoundOn, isResetting, currentXColor, currentOColor, targetScore, isTargetScoreEnabled, winnerInfo, isDraw, overallWinner, soundPrefs]);
@@ -659,25 +463,14 @@ export default function App() {
   useEffect(() => {
     if (isAITurn && !winnerInfo && !isDraw && !isResetting && !overallWinner && !isGameEnding.current) {
       const aiTimer = setTimeout(() => {
-        const humanScore = scores[humanSymbol];
-        const bestMove = findBestMove([...board], aiPlayerSymbol, humanScore, targetScore, isTargetScoreEnabled);
-        
+        const bestMove = findBestMove([...board], aiPlayerSymbol, scores[humanSymbol], targetScore, isTargetScoreEnabled);
         if (bestMove !== -1) {
-          setActiveCell(bestMove);
-          triggerHaptic(50);
-          
+          setActiveCell(bestMove); triggerHaptic(50);
           setTimeout(() => {
-              const newBoard = [...board];
-              newBoard[bestMove] = aiPlayerSymbol;
-              setActiveCell(null);
-              triggerHaptic(80); 
-              
-              const tapSoundVal = aiPlayerSymbol === 'X' ? soundPrefs.xTap : soundPrefs.oTap;
-              if (isSoundOn) playEnhancedSound('tap', tapSoundVal);
-              
-              lastMoveIdxRef.current = bestMove;
-              setBoard(newBoard);
-              setIsXNext(aiPlayerSymbol === 'O');
+              const newBoard = [...board]; newBoard[bestMove] = aiPlayerSymbol;
+              setActiveCell(null); triggerHaptic(80); 
+              if (isSoundOn) playEnhancedSound('tap', aiPlayerSymbol === 'X' ? soundPrefs.xTap : soundPrefs.oTap);
+              lastMoveIdxRef.current = bestMove; setBoard(newBoard); setIsXNext(aiPlayerSymbol === 'O');
           }, 150);
         }
       }, 500); 
@@ -687,135 +480,75 @@ export default function App() {
 
   const handleClick = (index: number) => {
     if (board[index] || winnerInfo || isAITurn || isResetting || overallWinner || isGameEnding.current || activeCell !== null) return;
-    triggerHaptic(80); 
-    
-    const tapSoundVal = isXNext ? soundPrefs.xTap : soundPrefs.oTap;
-    if (isSoundOn) playEnhancedSound('tap', tapSoundVal);
-    
-    const newBoard = [...board];
-    newBoard[index] = isXNext ? 'X' : 'O';
-    lastMoveIdxRef.current = index;
-    setBoard(newBoard);
-    setIsXNext(!isXNext);
+    triggerHaptic(80); if (isSoundOn) playEnhancedSound('tap', isXNext ? soundPrefs.xTap : soundPrefs.oTap);
+    const newBoard = [...board]; newBoard[index] = isXNext ? 'X' : 'O';
+    lastMoveIdxRef.current = index; setBoard(newBoard); setIsXNext(!isXNext);
   };
 
   const performHardReset = (startingPlayerOverride: Player) => {
       if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
       if (myConfettiRef.current) myConfettiRef.current.reset();
-      setScores({ X: 0, O: 0, Draws: 0 });
-      setStartingPlayer(startingPlayerOverride);
-      setBoard(Array(9).fill(null));
-      setIsXNext(startingPlayerOverride === 'X');
-      setWinnerInfo(null);
-      setIsDraw(false);
-      setLinePoints(null);
-      lastMoveIdxRef.current = null;
-      setOverallWinner(null);
-      setShowWinnerModal(false);
-      isGameEnding.current = false;
-      setIsResetting(false);
-      if (userWantsTargetScore) setIsTargetScoreEnabled(true);
+      setScores({ X: 0, O: 0, Draws: 0 }); setStartingPlayer(startingPlayerOverride); setBoard(Array(9).fill(null));
+      setIsXNext(startingPlayerOverride === 'X'); setWinnerInfo(null); setIsDraw(false); setLinePoints(null);
+      lastMoveIdxRef.current = null; setOverallWinner(null); setShowWinnerModal(false);
+      isGameEnding.current = false; setIsResetting(false); if (userWantsTargetScore) setIsTargetScoreEnabled(true);
   };
 
   const resetGameForMode = (currentStartingPlayer: Player, silent: boolean = false) => {
-    if (!silent) {
-       triggerHaptic(60); 
-       if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop);
-    }
-    
+    if (!silent) { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); }
     if (confettiIntervalRef.current) clearInterval(confettiIntervalRef.current);
     if (myConfettiRef.current) myConfettiRef.current.reset();
-
-    setIsResetting(true);
-    isGameEnding.current = false;
-    
+    setIsResetting(true); isGameEnding.current = false;
     setTimeout(() => {
-      setBoard(Array(9).fill(null));
-      setIsXNext(currentStartingPlayer === 'X');
-      setWinnerInfo(null);
-      setIsDraw(false);
-      setLinePoints(null);
-      lastMoveIdxRef.current = null;
-      setIsResetting(false);
+      setBoard(Array(9).fill(null)); setIsXNext(currentStartingPlayer === 'X'); setWinnerInfo(null);
+      setIsDraw(false); setLinePoints(null); lastMoveIdxRef.current = null; setIsResetting(false);
     }, 450); 
   };
 
   const handleTurnHoldStart = () => {
     if (board.every(c => c === null) && !winnerInfo && !overallWinner) {
-      setIsHoldingBanner(true);
-      turnWasHeld.current = false; 
+      setIsHoldingBanner(true); turnWasHeld.current = false; 
       turnHoldTimer.current = setTimeout(() => {
-        turnWasHeld.current = true; 
-        triggerHaptic([80, 40, 80]); 
-        if (isSoundOn) playEnhancedSound('mode', soundPrefs.mode); 
-        setHumanSymbol(prev => {
-          const next = prev === 'X' ? 'O' : 'X';
-          setStartingPlayer(next);
-          setIsXNext(next === 'X');
-          return next;
-        });
+        turnWasHeld.current = true; triggerHaptic([80, 40, 80]); if (isSoundOn) playEnhancedSound('mode', soundPrefs.mode); 
+        setHumanSymbol(prev => { const next = prev === 'X' ? 'O' : 'X'; setStartingPlayer(next); setIsXNext(next === 'X'); return next; });
         setIsHoldingBanner(false);
       }, 600);
     }
   };
   
-  const handleTurnHoldEnd = () => {
-    setIsHoldingBanner(false);
-    if (turnHoldTimer.current) clearTimeout(turnHoldTimer.current);
-  };
-
+  const handleTurnHoldEnd = () => { setIsHoldingBanner(false); if (turnHoldTimer.current) clearTimeout(turnHoldTimer.current); };
   const handleTurnBannerClick = () => {
-    if (turnWasHeld.current) {
-      turnWasHeld.current = false;
-      return; 
-    }
+    if (turnWasHeld.current) { turnWasHeld.current = false; return; }
     if (board.every(c => c === null) && !winnerInfo && !overallWinner) {
-       triggerHaptic(60);
-       if (isSoundOn) playEnhancedSound('mode', soundPrefs.mode); 
-       setStartingPlayer(prev => {
-          const next = prev === 'X' ? 'O' : 'X';
-          setIsXNext(next === 'X');
-          return next;
-       });
+       triggerHaptic(60); if (isSoundOn) playEnhancedSound('mode', soundPrefs.mode); 
+       setStartingPlayer(prev => { const next = prev === 'X' ? 'O' : 'X'; setIsXNext(next === 'X'); return next; });
     }
   };
 
   const handleModeHoldStart = () => {
     modeHoldTimer.current = setTimeout(() => {
-      triggerHaptic([80, 40, 80]); 
-      if (isSoundOn) playEnhancedSound('mode', soundPrefs.mode);
+      triggerHaptic([80, 40, 80]); if (isSoundOn) playEnhancedSound('mode', soundPrefs.mode);
       setIsSinglePlayer(true);
       setStartingPlayer(prevStarter => {
-         const aiSym = humanSymbol === 'X' ? 'O' : 'X';
-         const newStarter = prevStarter === humanSymbol ? aiSym : humanSymbol;
-         setTimeout(() => performHardReset(newStarter), 0);
-         return newStarter;
+         const newStarter = prevStarter === humanSymbol ? (humanSymbol === 'X' ? 'O' : 'X') : humanSymbol;
+         setTimeout(() => performHardReset(newStarter), 0); return newStarter;
       });
     }, 600);
   };
-  
-  const handleModeHoldEnd = () => {
-    if (modeHoldTimer.current) clearTimeout(modeHoldTimer.current);
-  };
-  
+  const handleModeHoldEnd = () => { if (modeHoldTimer.current) clearTimeout(modeHoldTimer.current); };
   const switchModeClick = (single: boolean) => {
     if (isSinglePlayer === single) return;
-    triggerHaptic(60);
-    if (isSoundOn) playEnhancedSound('mode', soundPrefs.mode);
-    setIsSinglePlayer(single);
-    performHardReset(humanSymbol); 
+    triggerHaptic(60); if (isSoundOn) playEnhancedSound('mode', soundPrefs.mode);
+    setIsSinglePlayer(single); performHardReset(humanSymbol); 
   };
 
   const handleRestartPointerDown = () => {
     restartPointerDown.current = true;
     restartHoldTimer.current = setTimeout(() => {
       if (!restartPointerDown.current) return;
-      triggerHaptic([100, 50, 100, 50]); 
-      setRotation(prev => prev - 720);
-      performHardReset(startingPlayer); 
+      triggerHaptic([100, 50, 100, 50]); setRotation(prev => prev - 720); performHardReset(startingPlayer); 
     }, 600);
   };
-  
   const handleRestartPointerUp = () => {
     restartPointerDown.current = false;
     if (restartHoldTimer.current) {
@@ -824,12 +557,7 @@ export default function App() {
         if (Date.now() - holdTime._calledAt > 600) return;
     }
     setRotation(prev => prev - 360);
-    
-    if (enableHardRefreshTap) {
-       performHardReset(startingPlayer);
-    } else {
-       resetGameForMode(startingPlayer);
-    }
+    if (enableHardRefreshTap) performHardReset(startingPlayer); else resetGameForMode(startingPlayer);
   };
 
   useEffect(() => {
@@ -838,43 +566,25 @@ export default function App() {
         const boardRect = boardRef.current.getBoundingClientRect();
         const getCellCenter = (idx: number) => {
           const cell = boardRef.current?.querySelector(`#cell-${idx}`);
-          if (!cell) return { x: 50, y: 50 };
-          const rect = cell.getBoundingClientRect();
-          return {
-            x: ((rect.left + rect.width / 2) - boardRect.left) / boardRect.width * 100,
-            y: ((rect.top + rect.height / 2) - boardRect.top) / boardRect.height * 100
-          };
+          if (!cell) return { x: 50, y: 50 }; const rect = cell.getBoundingClientRect();
+          return { x: ((rect.left + rect.width / 2) - boardRect.left) / boardRect.width * 100, y: ((rect.top + rect.height / 2) - boardRect.top) / boardRect.height * 100 };
         };
         const [a, b, c] = winnerInfo.line;
-        
-        let pA = getCellCenter(a);
-        let pC = getCellCenter(c);
-        
-        if (Math.abs(pA.x - pC.x) < 0.1) pC.x += 0.01;
-        if (Math.abs(pA.y - pC.y) < 0.1) pC.y += 0.01;
-
+        let pA = getCellCenter(a); let pC = getCellCenter(c);
+        if (Math.abs(pA.x - pC.x) < 0.1) pC.x += 0.01; if (Math.abs(pA.y - pC.y) < 0.1) pC.y += 0.01;
         const pB = { x: (pA.x + pC.x) / 2, y: (pA.y + pC.y) / 2 };
-
-        if (lastMoveIdxRef.current === b) {
-           setLinePoints({ type: 'center-out', start: pA, end: pC, mid: pB });
-        } else if (lastMoveIdxRef.current === a) {
-           setLinePoints({ type: 'normal', start: pA, end: pC, mid: pB });
-        } else {
-           setLinePoints({ type: 'normal', start: pC, end: pA, mid: pB });
-        }
-      } else if (!winnerInfo && !isResetting) {
-        setLinePoints(null);
-      }
+        if (lastMoveIdxRef.current === b) setLinePoints({ type: 'center-out', start: pA, end: pC, mid: pB });
+        else if (lastMoveIdxRef.current === a) setLinePoints({ type: 'normal', start: pA, end: pC, mid: pB });
+        else setLinePoints({ type: 'normal', start: pC, end: pA, mid: pB });
+      } else if (!winnerInfo && !isResetting) setLinePoints(null);
     };
-    setTimeout(updatePoints, 50);
-    window.addEventListener('resize', updatePoints);
+    setTimeout(updatePoints, 50); window.addEventListener('resize', updatePoints);
     return () => window.removeEventListener('resize', updatePoints);
   }, [winnerInfo, isResetting]);
 
   const themeIndicatorColor = isDarkMode ? activeTheme.indicatorDark : activeTheme.indicatorLight;
   const baseTextColor = isDarkMode ? '#ffffff' : '#111111';
   const tintedTextColor = !useDefaultTheme ? `color-mix(in srgb, ${baseTextColor} 60%, ${themeIndicatorColor})` : baseTextColor;
-
   const amoFactor = 0.85; 
   const semantics = {
     screenBackground: isDarkMode && isAmoled ? '#000000' : (isDarkMode ? activeTheme.dark : activeTheme.light),
@@ -888,231 +598,80 @@ export default function App() {
   };
 
   const navBtnClass = "w-[48px] h-[48px] rounded-full shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer";
-  const getNavBtnStyle = () => ({
-    backgroundColor: semantics.topNavBtn,
-    color: semantics.text,
-    boxShadow: isDarkMode ? '0 2px 6px rgba(0,0,0,0.4)' : '0 2px 6px rgba(0,0,0,0.06)'
-  });
-
-  const displayScore = (score: number) => {
-     return isTargetScoreEnabled ? `${score} / ${targetScore}` : score;
-  };
-
-  const maxScore = Math.max(scores.X, scores.O);
+  const getNavBtnStyle = () => ({ backgroundColor: semantics.topNavBtn, color: semantics.text, boxShadow: isDarkMode ? '0 2px 6px rgba(0,0,0,0.4)' : '0 2px 6px rgba(0,0,0,0.06)' });
+  const displayScore = (score: number) => isTargetScoreEnabled ? `${score} / ${targetScore}` : score;
 
   return (
     <>
       <style>{`
-        /* 🚀 Google Material Emoji Font */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
-
-        @font-face {
-          font-family: 'NunitoCustom';
-          src: url('${nunitoFont}') format('truetype');
-          font-weight: 700;
-          font-style: normal;
-          font-display: swap;
-        }
-        @font-face {
-          font-family: 'NunitoBlack';
-          src: url('${nunitoBlackFont}') format('truetype');
-          font-weight: 900;
-          font-style: normal;
-          font-display: swap;
-        }
-
-        .font-nunito { 
-            font-family: 'NunitoCustom', 'Noto Color Emoji', sans-serif; 
-            font-weight: 700; 
-        }
-        .font-nunito-black { 
-            font-family: 'NunitoBlack', 'Noto Color Emoji', sans-serif; 
-            font-weight: 900; 
-        }
-
-        html, body {
-           overscroll-behavior: none;
-           overflow: hidden;
-           position: fixed;
-           width: 100%;
-           height: 100%;
-           margin: 0;
-           padding: 0;
-           background-color: transparent !important;
-        }
-
-        ::view-transition-old(root),
-        ::view-transition-new(root) {
-          animation: none;
-          mix-blend-mode: normal;
-          display: block;
-        }
-        
+        @font-face { font-family: 'NunitoCustom'; src: url('${nunitoFont}') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'NunitoBlack'; src: url('${nunitoBlackFont}') format('truetype'); font-weight: 900; font-style: normal; font-display: swap; }
+        .font-nunito { font-family: 'NunitoCustom', 'Noto Color Emoji', sans-serif; font-weight: 700; }
+        .font-nunito-black { font-family: 'NunitoBlack', 'Noto Color Emoji', sans-serif; font-weight: 900; }
+        html, body { overscroll-behavior: none; overflow: hidden; position: fixed; width: 100%; height: 100%; margin: 0; padding: 0; background-color: transparent !important; }
+        ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; display: block; }
         html.transition-to-dark ::view-transition-old(root) { z-index: 1; }
-        html.transition-to-dark ::view-transition-new(root) { 
-            z-index: 2; 
-            clip-path: circle(0px at var(--tx) var(--ty));
-            animation: clip-expand 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-        }
-        
-        html.transition-to-light ::view-transition-old(root) { 
-            z-index: 2; 
-            clip-path: circle(150% at var(--tx) var(--ty));
-            animation: clip-shrink 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-        }
+        html.transition-to-dark ::view-transition-new(root) { z-index: 2; clip-path: circle(0px at var(--tx) var(--ty)); animation: clip-expand 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        html.transition-to-light ::view-transition-old(root) { z-index: 2; clip-path: circle(150% at var(--tx) var(--ty)); animation: clip-shrink 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
         html.transition-to-light ::view-transition-new(root) { z-index: 1; }
-
-        @keyframes clip-expand {
-          to { clip-path: circle(150% at var(--tx) var(--ty)); }
-        }
-        @keyframes clip-shrink {
-          to { clip-path: circle(0px at var(--tx) var(--ty)); }
-        }
-
+        @keyframes clip-expand { to { clip-path: circle(150% at var(--tx) var(--ty)); } }
+        @keyframes clip-shrink { to { clip-path: circle(0px at var(--tx) var(--ty)); } }
         .m3-scrollbar::-webkit-scrollbar { width: 6px; }
         .m3-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .m3-scrollbar::-webkit-scrollbar-thumb { 
-          background-color: ${isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'}; 
-          border-radius: 10px; 
-        }
+        .m3-scrollbar::-webkit-scrollbar-thumb { background-color: ${isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'}; border-radius: 10px; }
       `}</style>
       
-      <div 
-          className="fixed inset-0 w-full h-[100dvh] overflow-hidden font-nunito select-none z-0"
-          style={{ backgroundColor: semantics.screenBackground }}>
-        
-        <div 
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            style={{ 
-              paddingTop: 'max(24px, env(safe-area-inset-top))',
-              paddingBottom: 'max(24px, env(safe-area-inset-bottom))'
-            }}
-            className="relative z-10 w-full h-full flex flex-col items-center justify-center p-4">
-          
+      <div className="fixed inset-0 w-full h-[100dvh] overflow-hidden font-nunito select-none z-0" style={{ backgroundColor: semantics.screenBackground }}>
+        <div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} style={{ paddingTop: 'max(24px, env(safe-area-inset-top))', paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }} className="relative z-10 w-full h-full flex flex-col items-center justify-center p-4">
           <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
           <motion.div 
              className="fixed left-1/2 md:left-1/4 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
-             style={{
-                backgroundColor: semantics.mainGridBackground,
-                top: 'max(10px, env(safe-area-inset-top))', 
-                color: activeLineColor,
-                width: 44,
-                height: 44,
-                transformOrigin: "top center"
-             }}
+             style={{ backgroundColor: semantics.mainGridBackground, top: 'max(10px, env(safe-area-inset-top))', color: activeLineColor, width: 44, height: 44, transformOrigin: "top center" }}
              initial={{ scale: 0, y: -50 }}
-             animate={{
-                y: isRefreshing ? 75 : (pullProgress > 0 ? Math.min(pullProgress, 75) + (pullProgress > 75 ? (pullProgress - 75) * 0.2 : 0) : -50),
-                scale: isRefreshing ? 1 : (pullProgress > 0 ? Math.min(pullProgress / 75, 1) : 0),
-                scaleY: isRefreshing ? 1 : (pullProgress > 75 ? Math.min(1 + (pullProgress - 75) * 0.015, 1.4) : 1),
-                scaleX: isRefreshing ? 1 : (pullProgress > 75 ? Math.max(1 - (pullProgress - 75) * 0.01, 0.75) : 1),
-             }}
-             transition={{
-               y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 },
-               scale: { type: 'spring', stiffness: 500, damping: 25 },
-               scaleY: { type: 'spring', stiffness: 400, damping: 25 },
-               scaleX: { type: 'spring', stiffness: 400, damping: 25 }
-             }}
+             animate={{ y: isRefreshing ? 75 : (pullProgress > 0 ? Math.min(pullProgress, 75) + (pullProgress > 75 ? (pullProgress - 75) * 0.2 : 0) : -50), scale: isRefreshing ? 1 : (pullProgress > 0 ? Math.min(pullProgress / 75, 1) : 0), scaleY: isRefreshing ? 1 : (pullProgress > 75 ? Math.min(1 + (pullProgress - 75) * 0.015, 1.4) : 1), scaleX: isRefreshing ? 1 : (pullProgress > 75 ? Math.max(1 - (pullProgress - 75) * 0.01, 0.75) : 1) }}
+             transition={{ y: isRefreshing ? { type: 'spring', stiffness: 400, damping: 20 } : { type: 'spring', stiffness: 500, damping: 25 }, scale: { type: 'spring', stiffness: 500, damping: 25 }, scaleY: { type: 'spring', stiffness: 400, damping: 25 }, scaleX: { type: 'spring', stiffness: 400, damping: 25 } }}
           >
-             {isRefreshing ? (
-               React.createElement(REFRESH_LOADERS[refreshLoaderIdx].component, { color: activeLineColor })
-             ) : (
-               <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}>
-                  <RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} />
-               </motion.div>
-             )}
+             {isRefreshing ? React.createElement(REFRESH_LOADERS[refreshLoaderIdx].component, { color: activeLineColor }) : <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}><RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} /></motion.div>}
           </motion.div>
 
           <motion.nav 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1, type: "spring", bounce: 0.4 }}
-            style={{ top: 'max(16px, env(safe-area-inset-top))' }}
-            className="absolute left-0 right-0 md:right-auto md:w-1/2 h-20 flex items-center justify-center z-50 w-full pointer-events-none"
+            initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1, type: "spring", bounce: 0.4 }}
+            style={{ top: 'max(16px, env(safe-area-inset-top))' }} className="absolute left-0 right-0 md:right-auto md:w-1/2 h-20 flex items-center justify-center z-50 w-full pointer-events-none"
           >
             <div className="w-full max-w-[420px] px-6 flex items-center justify-between pointer-events-auto">
-                <motion.button 
-                   whileHover={{ scale: 1.05 }}
-                   whileTap={{ scale: 0.75 }} 
-                   transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
-                   onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.75 }} transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }} onClick={handleThemeToggle} className={navBtnClass} style={getNavBtnStyle()}>
                   <div className="relative w-[20px] h-[20px] flex items-center justify-center">
-                     <motion.div animate={{ scale: isDarkMode ? 0 : 1, rotate: isDarkMode ? 90 : 0, opacity: isDarkMode ? 0 : 1 }} transition={{ duration: 0.3 }} className="absolute">
-                        <Sun className="w-[20px] h-[20px]" fill="currentColor" />
-                     </motion.div>
-                     <motion.div animate={{ scale: isDarkMode ? 1 : 0, rotate: isDarkMode ? 0 : -90, opacity: isDarkMode ? 1 : 0 }} transition={{ duration: 0.3 }} className="absolute">
-                        <Moon className="w-[20px] h-[20px]" fill="currentColor" />
-                     </motion.div>
+                     <motion.div animate={{ scale: isDarkMode ? 0 : 1, rotate: isDarkMode ? 90 : 0, opacity: isDarkMode ? 0 : 1 }} transition={{ duration: 0.3 }} className="absolute"><Sun className="w-[20px] h-[20px]" fill="currentColor" /></motion.div>
+                     <motion.div animate={{ scale: isDarkMode ? 1 : 0, rotate: isDarkMode ? 0 : -90, opacity: isDarkMode ? 1 : 0 }} transition={{ duration: 0.3 }} className="absolute"><Moon className="w-[20px] h-[20px]" fill="currentColor" /></motion.div>
                   </div>
                 </motion.button>
 
-                <motion.button 
-                   whileHover={{ scale: 1.05 }}
-                   whileTap={{ scale: 0.75 }} 
-                   transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
-                   onPointerDown={handleRestartPointerDown} 
-                   onPointerUp={handleRestartPointerUp}
-                   onPointerLeave={handleRestartPointerUp}
-                   className={navBtnClass} style={getNavBtnStyle()}
-                >
-                  <motion.div animate={{ rotate: rotation }} transition={{ type: "spring", stiffness: 300, damping: 25 }}>
-                    <RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} />
-                  </motion.div>
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.75 }} transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }} onPointerDown={handleRestartPointerDown} onPointerUp={handleRestartPointerUp} onPointerLeave={handleRestartPointerUp} className={navBtnClass} style={getNavBtnStyle()}>
+                  <motion.div animate={{ rotate: rotation }} transition={{ type: "spring", stiffness: 300, damping: 25 }}><RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} /></motion.div>
                 </motion.button>
 
-                <motion.button 
-                   whileHover={{ scale: 1.05 }}
-                   whileTap={{ scale: 0.75 }} 
-                   transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
-                   onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.75 }} transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }} onClick={toggleSound} className={navBtnClass} style={getNavBtnStyle()}>
                   <div className="relative w-[20px] h-[20px] flex items-center justify-center">
-                     <motion.div animate={{ scale: isSoundOn ? 1 : 0, opacity: isSoundOn ? 1 : 0 }} transition={{ duration: 0.2 }} className="absolute">
-                        <CustomVolume2 className="w-[20px] h-[20px]" />
-                     </motion.div>
-                     <motion.div animate={{ scale: isSoundOn ? 0 : 1, opacity: isSoundOn ? 0 : 1 }} transition={{ duration: 0.2 }} className="absolute">
-                        <CustomVolumeX className="w-[20px] h-[20px]" />
-                     </motion.div>
+                     <motion.div animate={{ scale: isSoundOn ? 1 : 0, opacity: isSoundOn ? 1 : 0 }} transition={{ duration: 0.2 }} className="absolute"><CustomVolume2 className="w-[20px] h-[20px]" /></motion.div>
+                     <motion.div animate={{ scale: isSoundOn ? 0 : 1, opacity: isSoundOn ? 0 : 1 }} transition={{ duration: 0.2 }} className="absolute"><CustomVolumeX className="w-[20px] h-[20px]" /></motion.div>
                   </div>
                 </motion.button>
                 
-                <motion.button 
-                   whileHover={{ scale: 1.05 }}
-                   whileTap={{ scale: 0.75 }} 
-                   transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }}
-                   onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.75 }} transition={{ type: "spring", stiffness: 500, damping: 12, mass: 1 }} onClick={() => { triggerHaptic(60); if (isSoundOn) playEnhancedSound('pop', soundPrefs.pop); setIsSettingsOpen(true); }} className={navBtnClass} style={getNavBtnStyle()}>
                    <CustomSettings className="w-[20px] h-[20px]" />
                 </motion.button>
             </div>
           </motion.nav>
 
-          <motion.div 
-             initial={{ opacity: 0, scale: 0.9, y: 15 }} 
-             animate={{ opacity: 1, scale: 1, y: 0 }} 
-             transition={{ duration: 0.7, type: "spring", bounce: 0.4 }}
-             className="w-full max-w-md md:max-w-5xl lg:max-w-6xl mx-auto relative flex items-center justify-center h-full"
-          >
-              <motion.div 
-                 animate={mainBouncer} 
-                 initial={{ gap: "20px" }} 
-                 className="w-full flex flex-col md:flex-row items-center justify-center pt-24 md:pt-0 relative z-10" 
-              >
-                  <div 
-                     className="w-full md:w-1/2 flex flex-col items-center justify-center gap-4 sm:gap-5 md:gap-6 lg:gap-8 landscape:scale-[min(1,calc(100vh/650))] portrait:scale-100 origin-center transition-transform"
-                  >
-                      <motion.h1 style={{ color: semantics.text }} className="font-nunito-black text-[40px] sm:text-[44px] lg:text-[52px] tracking-tight drop-shadow-sm text-center w-full m-0">
-                        Tic Tac Toe
-                      </motion.h1>
+          <motion.div initial={{ opacity: 0, scale: 0.9, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.7, type: "spring", bounce: 0.4 }} className="w-full max-w-md md:max-w-5xl lg:max-w-6xl mx-auto relative flex items-center justify-center h-full">
+              <motion.div animate={mainBouncer} initial={{ gap: "20px" }} className="w-full flex flex-col md:flex-row items-center justify-center pt-24 md:pt-0 relative z-10">
+                  <div className="w-full md:w-1/2 flex flex-col items-center justify-center gap-4 sm:gap-5 md:gap-6 lg:gap-8 landscape:scale-[min(1,calc(100vh/650))] portrait:scale-100 origin-center transition-transform">
+                      <motion.h1 style={{ color: semantics.text }} className="font-nunito-black text-[40px] sm:text-[44px] lg:text-[52px] tracking-tight drop-shadow-sm text-center w-full m-0">Tic Tac Toe</motion.h1>
 
                       <div style={{ backgroundColor: semantics.modeSliderContainer.bg }} className="flex p-1.5 rounded-[28px] relative w-[272px] mx-auto shadow-sm m-0">
-                        <motion.div 
-                          className="absolute top-1.5 bottom-1.5 w-[130px] rounded-[24px] shadow-sm"
-                          style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }}
-                          animate={{ x: isSinglePlayer ? 0 : 130 }}
-                          transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
-                        />
+                        <motion.div className="absolute top-1.5 bottom-1.5 w-[130px] rounded-[24px] shadow-sm" style={{ backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff' }} animate={{ x: isSinglePlayer ? 0 : 130 }} transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }} />
                         <button onClick={() => switchModeClick(true)} onPointerDown={handleModeHoldStart} onPointerUp={handleModeHoldEnd} onPointerLeave={handleModeHoldEnd} style={{ color: semantics.text, opacity: isSinglePlayer ? 1 : 0.5 }} className="relative w-[130px] h-[48px] rounded-[24px] text-[15px] font-bold z-10 select-none flex items-center justify-center gap-1.5 transition-all duration-300">
                           <span className="relative z-10 flex items-center gap-1.5">{isSinglePlayer && startingPlayer !== humanSymbol ? <><AILogo /> AI First</> : <><AILogo /> 1 Player</>}</span>
                         </button>
@@ -1121,31 +680,12 @@ export default function App() {
                         </button>
                       </div>
 
-                      <motion.div 
-                        onClick={handleTurnBannerClick}
-                        onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} 
-                        animate={{ scale: winnerInfo ? 1.05 : 1 }} 
-                        style={{ backgroundColor: semantics.bannerDefault.bg, color: semantics.bannerDefault.text }} 
-                        className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm select-none relative overflow-hidden m-0 ${board.every(c => c === null) && !winnerInfo && !overallWinner ? 'cursor-pointer' : ''}`}
-                      >
+                      <motion.div onClick={handleTurnBannerClick} onPointerDown={handleTurnHoldStart} onPointerUp={handleTurnHoldEnd} onPointerLeave={handleTurnHoldEnd} animate={{ scale: winnerInfo ? 1.05 : 1 }} style={{ backgroundColor: semantics.bannerDefault.bg, color: semantics.bannerDefault.text }} className={`mx-auto w-[210px] h-[52px] rounded-full text-[16px] flex flex-col items-center justify-center gap-1 shadow-sm select-none relative overflow-hidden m-0 ${board.every(c => c === null) && !winnerInfo && !overallWinner ? 'cursor-pointer' : ''}`}>
                         <div className="flex items-center gap-2 relative z-10">
                           {winnerInfo ? (
-                            <>
-                              <Sparkles className="w-4 h-4" style={{ color: activeLineColor }} />
-                              <span className="font-bold flex items-center">
-                                Winner: Player
-                                <DynamicIcon 
-                                  player={winnerInfo.winner} 
-                                  p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX}
-                                  p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO}
-                                  color={winnerInfo.winner === 'X' ? currentXColor : currentOColor} 
-                                  className="w-5 h-5 ml-1.5 drop-shadow-sm" 
-                                />
-                              </span>
-                            </>
+                            <><Sparkles className="w-4 h-4" style={{ color: activeLineColor }} /><span className="font-bold flex items-center">Winner: Player<DynamicIcon player={winnerInfo.winner} p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX} p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO} color={winnerInfo.winner === 'X' ? currentXColor : currentOColor} className="w-5 h-5 ml-1.5 drop-shadow-sm" /></span></>
                           ) : isDraw ? (<span className="font-bold">It's a Stalemate!</span>) : (
-                            <>
-                              {isAITurn ? (
+                            <>{isAITurn ? (
                                 <div className="flex items-center gap-1.5 h-8">
                                   <span className="mr-1 font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF3B30] via-[#4CD964] to-[#007AFF]">AI Thinking</span>
                                   <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} className="w-1.5 h-1.5 rounded-full" style={{ background: '#FF3B30' }} />
@@ -1153,102 +693,33 @@ export default function App() {
                                   <motion.span animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.3 }} className="w-1.5 h-1.5 rounded-full" style={{ background: '#007AFF' }} />
                                 </div>
                               ) : (
-                                <div className="flex items-center h-8 font-bold">
-                                  Player&nbsp;
-                                  <div className="relative h-8 w-6 overflow-hidden flex items-center justify-center">
-                                    <AnimatePresence mode="popLayout">
-                                      <motion.div key={isXNext ? 'X' : 'O'} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute flex items-center justify-center">
-                                        <DynamicIcon 
-                                           player={isXNext ? 'X' : 'O'} 
-                                           p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX}
-                                           p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO}
-                                           color={isXNext ? currentXColor : currentOColor} 
-                                           className="w-5 h-5 drop-shadow-sm" 
-                                        />
-                                      </motion.div>
-                                    </AnimatePresence>
-                                  </div>
-                                  &nbsp;'s turn
-                                </div>
-                              )}
-                            </>
+                                <div className="flex items-center h-8 font-bold">Player&nbsp;<div className="relative h-8 w-6 overflow-hidden flex items-center justify-center"><AnimatePresence mode="popLayout"><motion.div key={isXNext ? 'X' : 'O'} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute flex items-center justify-center"><DynamicIcon player={isXNext ? 'X' : 'O'} p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX} p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO} color={isXNext ? currentXColor : currentOColor} className="w-5 h-5 drop-shadow-sm" /></motion.div></AnimatePresence></div>&nbsp;'s turn</div>
+                              )}</>
                           )}
                         </div>
-                        {board.every(c => c === null) && !winnerInfo && !overallWinner && (
-                          <div className={`absolute bottom-1.5 w-full flex flex-col items-center z-10 transition-opacity duration-300 pointer-events-none opacity-100`}>
-                            <div className="h-[2px] w-12 bg-transparent rounded-full overflow-hidden relative">
-                               <motion.div
-                                 initial={{ x: "-100%" }} animate={{ x: isHoldingBanner ? "0%" : "-100%" }}
-                                 transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }}
-                                 className="absolute inset-0 bg-gray-500 dark:bg-gray-300"
-                               />
-                            </div>
-                          </div>
-                        )}
+                        {board.every(c => c === null) && !winnerInfo && !overallWinner && (<div className="absolute bottom-1.5 w-full flex flex-col items-center z-10 transition-opacity duration-300 pointer-events-none opacity-100"><div className="h-[2px] w-12 bg-transparent rounded-full overflow-hidden relative"><motion.div initial={{ x: "-100%" }} animate={{ x: isHoldingBanner ? "0%" : "-100%" }} transition={{ duration: isHoldingBanner ? 0.6 : 0, ease: "linear" }} className="absolute inset-0 bg-gray-500 dark:bg-gray-300" /></div></div>)}
                       </motion.div>
 
                       <div className="flex gap-3 justify-center z-10 w-full max-w-[280px] sm:max-w-[320px] relative overflow-visible select-none m-0">
                          <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg }}>
-                            <div className="flex items-center justify-center mb-0.5 opacity-90">
-                               <DynamicIcon 
-                                  player="X" 
-                                  p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX}
-                                  p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO}
-                                  color={currentXColor} className="w-3.5 h-3.5" 
-                               />
-                            </div>
-                            <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
-                              <AnimatePresence mode="popLayout">
-                                <motion.span key={displayScore(scores.X)} initial={{ y: 25, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -25, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute text-lg sm:text-xl font-black" style={{ color: currentXColor }}>
-                                  {displayScore(scores.X)}
-                                </motion.span>
-                              </AnimatePresence>
-                            </div>
+                            <div className="flex items-center justify-center mb-0.5 opacity-90"><DynamicIcon player="X" p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX} p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO} color={currentXColor} className="w-3.5 h-3.5" /></div>
+                            <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center"><AnimatePresence mode="popLayout"><motion.span key={displayScore(scores.X)} initial={{ y: 25, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -25, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute text-lg sm:text-xl font-black" style={{ color: currentXColor }}>{displayScore(scores.X)}</motion.span></AnimatePresence></div>
                          </div>
-
                          <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg, color: semantics.text }}>
                             <span className="text-[10px] sm:text-xs font-black uppercase opacity-60">Draws</span>
-                            <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
-                              <AnimatePresence mode="popLayout">
-                                <motion.span key={scores.Draws} initial={{ y: 25, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -25, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute text-lg sm:text-xl font-black opacity-80">
-                                  {scores.Draws}
-                                </motion.span>
-                              </AnimatePresence>
-                            </div>
+                            <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center"><AnimatePresence mode="popLayout"><motion.span key={scores.Draws} initial={{ y: 25, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -25, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute text-lg sm:text-xl font-black opacity-80">{scores.Draws}</motion.span></AnimatePresence></div>
                          </div>
-
                          <div className="flex-1 flex flex-col items-center py-2 rounded-[20px] shadow-sm" style={{ backgroundColor: semantics.scoreBg }}>
-                            <div className="flex items-center justify-center mb-0.5 opacity-90">
-                               <DynamicIcon 
-                                  player="O" 
-                                  p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX}
-                                  p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO}
-                                  color={currentOColor} className="w-3.5 h-3.5" 
-                               />
-                            </div>
-                            <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center">
-                              <AnimatePresence mode="popLayout">
-                                <motion.span key={displayScore(scores.O)} initial={{ y: 25, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -25, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute text-lg sm:text-xl font-black" style={{ color: currentOColor }}>
-                                  {displayScore(scores.O)}
-                                </motion.span>
-                              </AnimatePresence>
-                            </div>
+                            <div className="flex items-center justify-center mb-0.5 opacity-90"><DynamicIcon player="O" p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX} p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO} color={currentOColor} className="w-3.5 h-3.5" /></div>
+                            <div className="relative h-7 sm:h-8 overflow-hidden w-full flex justify-center items-center"><AnimatePresence mode="popLayout"><motion.span key={displayScore(scores.O)} initial={{ y: 25, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -25, opacity: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="absolute text-lg sm:text-xl font-black" style={{ color: currentOColor }}>{displayScore(scores.O)}</motion.span></AnimatePresence></div>
                          </div>
                       </div>
                   </div>
 
                   <div className="w-full md:w-1/2 flex items-center justify-center mt-6 md:mt-0">
                       <div className="relative group z-10 m-0 transition-transform duration-500 origin-center md:scale-[1.15] lg:scale-[1.3]">
-                        <motion.div 
-                          animate={isDraw ? { x: [-12, 12, -12, 12, -6, 6, 0], opacity: 1, scale: 1 } : { x: 0, opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.5, ease: "easeInOut" }}
-                          style={{ backgroundColor: semantics.mainGridBackground }} 
-                          className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden"
-                        >
-                          <div 
-                             ref={boardRef} 
-                             className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] md:w-auto md:h-[60vh] aspect-square" 
-                          >
+                        <motion.div animate={isDraw ? { x: [-12, 12, -12, 12, -6, 6, 0], opacity: 1, scale: 1 } : { x: 0, opacity: 1, scale: 1 }} transition={{ duration: 0.5, ease: "easeInOut" }} style={{ backgroundColor: semantics.mainGridBackground }} className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden">
+                          <div ref={boardRef} className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] md:w-auto md:h-[60vh] aspect-square">
                             {board.map((value, i) => {
                               const isWinningCell = winnerInfo && winnerInfo.line.includes(i);
                               const isSquished = activeCell === i;
@@ -1263,130 +734,20 @@ export default function App() {
                                 >
                                   <AnimatePresence>
                                     {value && !isResetting && (
-                                      <motion.div 
-                                         key={value}
-                                         initial={{ scale: 0, rotate: -180, opacity: 0 }} 
-                                         animate={
-                                             isWinningCell 
-                                             ? { scale: [1, 1.4, 0.85, 1.15, 1], rotate: 0, opacity: 1 } 
-                                             : { scale: 1, rotate: 0, opacity: 1 }
-                                         } 
-                                         exit={{ scale: 0, rotate: 180, opacity: 0 }} 
-                                         transition={
-                                             isWinningCell
-                                             ? { duration: 0.65, ease: "easeInOut", times: [0, 0.2, 0.5, 0.8, 1] }
-                                             : { type: 'spring', stiffness: 500, damping: 14, mass: 1 } 
-                                         } 
-                                         className="absolute inset-0 m-auto flex items-center justify-center w-full h-full"
-                                      >
-                                         <DynamicIcon 
-                                            player={value} 
-                                            p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX}
-                                            p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO}
-                                            color={value === 'X' ? currentXColor : currentOColor} 
-                                            className="w-3/5 h-3/5 drop-shadow-sm" 
-                                            // 🚀 Added Gyroscope Physics for Board Icons
-                                            gyroX={smoothGyroX}
-                                            gyroY={smoothGyroY}
-                                         />
+                                      <motion.div key={value} initial={{ scale: 0, rotate: -180, opacity: 0 }} animate={isWinningCell ? { scale: [1, 1.4, 0.85, 1.15, 1], rotate: 0, opacity: 1 } : { scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0, rotate: 180, opacity: 0 }} transition={isWinningCell ? { duration: 0.65, ease: "easeInOut", times: [0, 0.2, 0.5, 0.8, 1] } : { type: 'spring', stiffness: 500, damping: 14, mass: 1 }} className="absolute inset-0 m-auto flex items-center justify-center w-full h-full">
+                                         <DynamicIcon player={value} p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX} p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO} color={value === 'X' ? currentXColor : currentOColor} className="w-3/5 h-3/5 drop-shadow-sm" gyroX={smoothGyroX} gyroY={smoothGyroY} />
                                       </motion.div>
                                     )}
                                   </AnimatePresence>
                                 </motion.button>
                               );
                             })}
-
                             <AnimatePresence>
                               {linePoints && winnerInfo && (
                                 <svg className="absolute inset-0 pointer-events-none z-20 w-full h-full drop-shadow-md overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
-                                  <defs>
-                                    <filter id="win-blur" x="-50" y="-50" width="200" height="200" filterUnits="userSpaceOnUse">
-                                      <feGaussianBlur stdDeviation="3" />
-                                    </filter>
-                                    <mask id="hollow-mask" maskUnits="userSpaceOnUse" x="-50" y="-50" width="200" height="200">
-                                      <rect x="-50" y="-50" width="200" height="200" fill="white" />
-                                      {linePoints.type === 'center-out' ? (
-                                         <>
-                                           <motion.line
-                                             initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                                             transition={{ duration: 0.45, ease: "easeInOut" }}
-                                             x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
-                                             x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`}
-                                             stroke="black" strokeWidth="6" strokeLinecap="round"
-                                           />
-                                           <motion.line
-                                             initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                                             transition={{ duration: 0.45, ease: "easeInOut" }}
-                                             x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
-                                             x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                                             stroke="black" strokeWidth="6" strokeLinecap="round"
-                                           />
-                                         </>
-                                      ) : (
-                                         <motion.line
-                                           initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                                           transition={{ duration: 0.45, ease: "easeInOut" }}
-                                           x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
-                                           x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                                           stroke="black" strokeWidth="6" strokeLinecap="round"
-                                         />
-                                      )}
-                                    </mask>
-                                  </defs>
-
-                                  {linePoints.type === 'center-out' ? (
-                                     <>
-                                       <motion.line
-                                         initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                                         transition={{ duration: 0.45, ease: "easeInOut" }}
-                                         x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
-                                         x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`}
-                                         stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)"
-                                       />
-                                       <motion.line
-                                         initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                                         transition={{ duration: 0.45, ease: "easeInOut" }}
-                                         x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
-                                         x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                                         stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)"
-                                       />
-                                     </>
-                                  ) : (
-                                     <motion.line
-                                       initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                                       transition={{ duration: 0.45, ease: "easeInOut" }}
-                                       x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
-                                       x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                                       stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)"
-                                     />
-                                  )}
-
-                                  {linePoints.type === 'center-out' ? (
-                                     <>
-                                       <motion.line
-                                         initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                                         transition={{ duration: 0.45, ease: "easeInOut" }}
-                                         x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
-                                         x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`}
-                                         stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
-                                       />
-                                       <motion.line
-                                         initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                                         transition={{ duration: 0.45, ease: "easeInOut" }}
-                                         x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`}
-                                         x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                                         stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
-                                       />
-                                     </>
-                                  ) : (
-                                     <motion.line
-                                       initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }}
-                                       transition={{ duration: 0.45, ease: "easeInOut" }}
-                                       x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`}
-                                       x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`}
-                                       stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)"
-                                     />
-                                  )}
+                                  <defs><filter id="win-blur" x="-50" y="-50" width="200" height="200" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="3" /></filter><mask id="hollow-mask" maskUnits="userSpaceOnUse" x="-50" y="-50" width="200" height="200"><rect x="-50" y="-50" width="200" height="200" fill="white" />{linePoints.type === 'center-out' ? (<><motion.line initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }} transition={{ duration: 0.45, ease: "easeInOut" }} x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`} stroke="black" strokeWidth="6" strokeLinecap="round" /><motion.line initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }} transition={{ duration: 0.45, ease: "easeInOut" }} x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} stroke="black" strokeWidth="6" strokeLinecap="round" /></>) : (<motion.line initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }} transition={{ duration: 0.45, ease: "easeInOut" }} x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} stroke="black" strokeWidth="6" strokeLinecap="round" />)}</mask></defs>
+                                  {linePoints.type === 'center-out' ? (<><motion.line initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }} transition={{ duration: 0.45, ease: "easeInOut" }} x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`} stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)" /><motion.line initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }} transition={{ duration: 0.45, ease: "easeInOut" }} x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)" /></>) : (<motion.line initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }} transition={{ duration: 0.45, ease: "easeInOut" }} x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} stroke={activeLineColor} strokeWidth="8" strokeLinecap="round" mask="url(#hollow-mask)" />)}
+                                  {linePoints.type === 'center-out' ? (<><motion.line initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }} transition={{ duration: 0.45, ease: "easeInOut" }} x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.start.x}%`} y2={`${linePoints.start.y}%`} stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)" /><motion.line initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }} transition={{ duration: 0.45, ease: "easeInOut" }} x1={`${linePoints.mid.x}%`} y1={`${linePoints.mid.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)" /></>) : (<motion.line initial={{ pathLength: 0 }} animate={{ pathLength: isResetting ? 0 : 1 }} transition={{ duration: 0.45, ease: "easeInOut" }} x1={`${linePoints.start.x}%`} y1={`${linePoints.start.y}%`} x2={`${linePoints.end.x}%`} y2={`${linePoints.end.y}%`} stroke={activeLineColor} strokeWidth="6" strokeLinecap="round" opacity={0.35} filter="url(#win-blur)" />)}
                                 </svg>
                               )}
                             </AnimatePresence>
@@ -1402,31 +763,14 @@ export default function App() {
                      <div className="w-full md:w-1/2 h-full flex items-center justify-center">
                         <motion.div initial={{ scale: 0.8, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 10 }} style={{ color: semantics.text }} className="w-full max-w-[280px] flex flex-col items-center justify-center gap-3 text-center">
                            <div className="flex flex-col items-center gap-1 z-10 w-full">
-                             <h2 className="font-nunito-black text-3xl tracking-tight leading-tight drop-shadow-md" style={{ color: semantics.text }}>
-                               Winner!
-                             </h2>
+                             <h2 className="font-nunito-black text-3xl tracking-tight leading-tight drop-shadow-md" style={{ color: semantics.text }}>Winner!</h2>
                              <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-xl flex justify-center mt-2 mb-1">
-                               <DynamicIcon 
-                                  player={overallWinner} 
-                                  p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX}
-                                  p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO}
-                                  color={overallWinner === 'X' ? currentXColor : currentOColor} 
-                                  // 🚀 Increased Icon size (w-20 h-20)
-                                  className="w-20 h-20" 
-                                  // 🚀 Added Gyroscope Physics for Winner Modal Icon
-                                  gyroX={smoothGyroX}
-                                  gyroY={smoothGyroY}
-                               />
+                               <DynamicIcon player={overallWinner} p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX} p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO} color={overallWinner === 'X' ? currentXColor : currentOColor} className="w-20 h-20" gyroX={smoothGyroX} gyroY={smoothGyroY} />
                              </motion.span>
                            </div>
-                           
                            <div className="flex flex-col w-full gap-2.5 pt-1 z-10">
-                              <motion.button onClick={() => { triggerHaptic(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md select-none bg-black/10 backdrop-blur-md" style={{ border: `2px solid ${activeLineColor}`, color: semantics.text }}>
-                                 Start a New Game
-                              </motion.button>
-                              <motion.button onClick={() => { triggerHaptic(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer); setOverallWinner(null); setShowWinnerModal(false); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && ORIGINAL_THEME.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>
-                                 Continue This Game
-                              </motion.button>
+                              <motion.button onClick={() => { triggerHaptic(50); performHardReset(startingPlayer); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md select-none bg-black/10 backdrop-blur-md" style={{ border: `2px solid ${activeLineColor}`, color: semantics.text }}>Start a New Game</motion.button>
+                              <motion.button onClick={() => { triggerHaptic(30); setIsTargetScoreEnabled(false); resetGameForMode(startingPlayer); setOverallWinner(null); setShowWinnerModal(false); }} className="w-full h-11 rounded-full flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md select-none" style={{ backgroundColor: activeLineColor, color: (isDarkMode && !useDefaultTheme && ORIGINAL_THEME.indicatorDark === '#ffffff') ? '#000000' : '#ffffff' }}>Continue This Game</motion.button>
                            </div>
                         </motion.div>
                      </div>
@@ -1440,38 +784,24 @@ export default function App() {
             isOpen={isSettingsOpen} onClose={() => { setIsSettingsOpen(false); setIsAdvancedSettingsOpen(false); }} setIsAboutOpen={setIsAboutOpen}
             showAdvanced={isAdvancedSettingsOpen} setShowAdvanced={setIsAdvancedSettingsOpen}
             semantics={semantics} isDarkMode={isDarkMode} isAmoled={isAmoled} setIsAmoled={setIsAmoled}
-            useDefaultTheme={useDefaultTheme} setUseDefaultTheme={setUseDefaultTheme}
-            themeIdx={themeIdx} setThemeIdx={setThemeIdx}
+            useDefaultTheme={useDefaultTheme} setUseDefaultTheme={setUseDefaultTheme} themeIdx={themeIdx} setThemeIdx={setThemeIdx}
             p1Custom={p1Custom} setP1Custom={setP1Custom} p1Idx={p1Idx} setP1Idx={setP1Idx}
-            p2Custom={p2Custom} setP2Custom={setP2Custom} p2Idx={p2Idx} setP2Idx={setP2Idx}
-            p1Emoji={p1Emoji} setP1Emoji={setP1Emoji}
-            p2Emoji={p2Emoji} setP2Emoji={setP2Emoji}
-            isIconsFilledX={isIconsFilledX} setIsIconsFilledX={setIsIconsFilledX} 
-            isIconsFilledO={isIconsFilledO} setIsIconsFilledO={setIsIconsFilledO} 
+            p2Custom={p2Custom} setP2Custom={setP2Custom} p2Idx={p2Idx} setP2Idx={setP2Idx} p1Emoji={p1Emoji} setP1Emoji={setP1Emoji} p2Emoji={p2Emoji} setP2Emoji={setP2Emoji}
+            isIconsFilledX={isIconsFilledX} setIsIconsFilledX={setIsIconsFilledX} isIconsFilledO={isIconsFilledO} setIsIconsFilledO={setIsIconsFilledO} 
             enableCustomLine={enableCustomLine} setEnableCustomLine={setEnableCustomLine} customLineIdx={customLineIdx} setCustomLineIdx={setCustomLineIdx}
             enableCustomX={enableCustomX} setEnableCustomX={setEnableCustomX} xColorIdx={xColorIdx} setXColorIdx={setXColorIdx}
             enableCustomO={enableCustomO} setEnableCustomO={setEnableCustomO} oColorIdx={oColorIdx} setOColorIdx={setOColorIdx}
-            isTargetScoreEnabled={isTargetScoreEnabled} setIsTargetScoreEnabled={setIsTargetScoreEnabled} setUserWantsTargetScore={setUserWantsTargetScore}
-            targetScore={targetScore} setTargetScore={setTargetScore} maxScore={maxScore}
+            isTargetScoreEnabled={isTargetScoreEnabled} setIsTargetScoreEnabled={setIsTargetScoreEnabled} setUserWantsTargetScore={setUserWantsTargetScore} targetScore={targetScore} setTargetScore={setTargetScore} maxScore={maxScore}
             activeLineColor={activeLineColor} currentXColor={currentXColor} currentOColor={currentOColor} 
             hapticFeedback={triggerHaptic}
             enableHardRefreshTap={enableHardRefreshTap} setEnableHardRefreshTap={setEnableHardRefreshTap}
             enableHardPullToRefresh={enableHardPullToRefresh} setEnableHardPullToRefresh={setEnableHardPullToRefresh}
             isHapticEnabled={isHapticEnabled} setIsHapticEnabled={setIsHapticEnabled}
-            
-            // 🚀 New Property passed to SettingsModal to control Gyroscope
             isGyroEnabled={isGyroEnabled} setIsGyroEnabled={setIsGyroEnabled}
-
-            soundPrefs={soundPrefs} setSoundPrefs={setSoundPrefs}
-            playPreviewSound={playPreviewSound}
-            refreshLoaderIdx={refreshLoaderIdx} setRefreshLoaderIdx={setRefreshLoaderIdx}
-            showLoadersMenu={isLoadersMenuOpen} setShowLoadersMenu={setIsLoadersMenuOpen}
+            soundPrefs={soundPrefs} setSoundPrefs={setSoundPrefs} playPreviewSound={playPreviewSound}
+            refreshLoaderIdx={refreshLoaderIdx} setRefreshLoaderIdx={setRefreshLoaderIdx} showLoadersMenu={isLoadersMenuOpen} setShowLoadersMenu={setIsLoadersMenuOpen}
           />
-
-          <AboutModal 
-            isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} 
-            semantics={semantics} useDefaultTheme={useDefaultTheme} activeLineColor={activeLineColor} 
-          />
+          <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} semantics={semantics} useDefaultTheme={useDefaultTheme} activeLineColor={activeLineColor} />
         </div>
       </div>
     </>
