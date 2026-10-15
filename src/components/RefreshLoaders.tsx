@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Loader2, Loader } from 'lucide-react';
 
-// 🚀 65 Premium Authentic, Geometric & Cute Loading Animations
+// 🚀 72 Premium Authentic, Geometric & Cute Loading Animations
 export const REFRESH_LOADERS = [
   {
     name: 'Material',
@@ -13,7 +13,7 @@ export const REFRESH_LOADERS = [
     )
   },
   {
-    name: 'Dual Ring', // 🚀 Fixed: Rounded Corners
+    name: 'Dual Ring', 
     component: ({ color }: { color: string }) => (
       <div className="relative w-6 h-6 flex items-center justify-center" style={{ color }}>
         <motion.svg viewBox="0 0 24 24" className="absolute w-6 h-6" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}>
@@ -26,7 +26,7 @@ export const REFRESH_LOADERS = [
     )
   },
   {
-    name: 'Ping Pong', // 🚀 Fixed: 100% Perfectly Centered
+    name: 'Ping Pong',
     component: ({ color }: { color: string }) => (
       <div className="w-[26px] h-[12px] rounded-full border-[2px] border-current flex items-center px-[2px]" style={{ color }}>
         <motion.div animate={{ x: [0, 16, 0] }} transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }} className="w-1.5 h-1.5 bg-current rounded-full" />
@@ -245,13 +245,11 @@ export const REFRESH_LOADERS = [
     )
   },
   {
-    name: 'Cube Wave',
+    name: 'Hex Pulse', // 🚀 Replaced "Cube Wave" to avoid looking like "Dots"
     component: ({ color }: { color: string }) => (
-      <div className="flex gap-[3px] items-center justify-center h-6" style={{ color }}>
-         {[0, 1, 2].map(i => (
-            <motion.div key={i} className="w-1.5 h-1.5 bg-current rounded-[3px]" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, ease: "easeInOut", delay: i * 0.1 }} />
-         ))}
-      </div>
+      <motion.svg viewBox="0 0 24 24" className="w-5 h-5" animate={{ scale: [1, 0.7, 1], rotate: [0, 90, 180] }} transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }} style={{ color }}>
+        <path d="M12 2.5L20.5 7.5V16.5L12 21.5L3.5 16.5V7.5L12 2.5Z" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      </motion.svg>
     )
   },
   {
@@ -517,9 +515,11 @@ export const REFRESH_LOADERS = [
     )
   },
   {
-    name: 'Tri-Spin',
+    name: 'Tri-Spin', // 🚀 Fixed: Rounded Corners applied with SVG
     component: ({ color }: { color: string }) => (
-      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} className="w-0 h-0 border-l-[8px] border-r-[8px] border-b-[14px] border-l-transparent border-r-transparent border-b-current origin-[50%_65%]" style={{ color }} />
+      <motion.svg viewBox="0 0 24 24" className="w-5 h-5" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} style={{ color }}>
+        <path d="M12 2.5L21.5 19H2.5L12 2.5Z" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      </motion.svg>
     )
   },
   {
@@ -568,6 +568,67 @@ export const REFRESH_LOADERS = [
       <div className="relative w-5 h-4 flex flex-col justify-between" style={{ color }}>
          <motion.div animate={{ x: [-4, 4, -4] }} transition={{ repeat: Infinity, duration: 1 }} className="w-3 h-[3px] bg-current rounded-full self-start" />
          <motion.div animate={{ x: [4, -4, 4] }} transition={{ repeat: Infinity, duration: 1 }} className="w-3 h-[3px] bg-current rounded-full self-end" />
+      </div>
+    )
+  },
+  // 🚀 New 7 Additions to make it exactly 72 (Perfectly fitting 4 columns)
+  {
+    name: 'Galaxy',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 3, ease: "linear" }} className="relative w-6 h-6 flex items-center justify-center" style={{ color }}>
+         <motion.div className="absolute w-5 h-2 rounded-full border-[2px] border-current" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} />
+         <motion.div className="absolute w-2 h-5 rounded-full border-[2px] border-current" animate={{ rotate: -360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} />
+      </motion.div>
+    )
+  },
+  {
+    name: 'Comet',
+    component: ({ color }: { color: string }) => (
+      <motion.svg viewBox="0 0 24 24" className="w-6 h-6" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} style={{ color }}>
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="30 40" />
+        <circle cx="22" cy="12" r="2.5" fill="currentColor" />
+      </motion.svg>
+    )
+  },
+  {
+    name: 'Jelly',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ scaleX: [1, 1.3, 0.8, 1], scaleY: [1, 0.8, 1.3, 1] }} transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }} className="w-4 h-4 bg-current rounded-full" style={{ color }} />
+    )
+  },
+  {
+    name: 'Radar Ping',
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-6 h-6 flex items-center justify-center" style={{ color }}>
+         <motion.div animate={{ scale: [0, 1.5], opacity: [1, 0] }} transition={{ repeat: Infinity, duration: 1.2, ease: "easeOut" }} className="absolute w-full h-full rounded-full border-[2.5px] border-current" />
+         <div className="w-2 h-2 rounded-full bg-current absolute" />
+      </div>
+    )
+  },
+  {
+    name: 'Fan',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} className="w-5 h-5 flex flex-wrap gap-[1px]" style={{ color }}>
+         <div className="w-[9px] h-[9px] bg-current rounded-tl-full rounded-br-full" />
+         <div className="w-[9px] h-[9px] bg-current rounded-tr-full rounded-bl-full" />
+         <div className="w-[9px] h-[9px] bg-current rounded-bl-full rounded-tr-full" />
+         <div className="w-[9px] h-[9px] bg-current rounded-br-full rounded-tl-full" />
+      </motion.div>
+    )
+  },
+  {
+    name: 'Spiral',
+    component: ({ color }: { color: string }) => (
+      <motion.div animate={{ rotate: 360, scale: [0.8, 1.1, 0.8] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="w-5 h-5 border-[2.5px] border-current rounded-full border-t-transparent border-l-transparent" style={{ color }} />
+    )
+  },
+  {
+    name: 'DNA',
+    component: ({ color }: { color: string }) => (
+      <div className="flex gap-[3px] items-center justify-center h-6" style={{ color }}>
+         <motion.div animate={{ y: [-4, 4, -4], scale: [1, 0.6, 1], opacity: [1, 0.5, 1] }} transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }} className="w-1.5 h-1.5 bg-current rounded-full" />
+         <motion.div animate={{ y: [4, -4, 4], scale: [0.6, 1, 0.6], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }} className="w-1.5 h-1.5 bg-current rounded-full" />
+         <motion.div animate={{ y: [-4, 4, -4], scale: [1, 0.6, 1], opacity: [1, 0.5, 1] }} transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }} className="w-1.5 h-1.5 bg-current rounded-full" />
       </div>
     )
   }
