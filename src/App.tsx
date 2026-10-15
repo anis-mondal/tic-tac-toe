@@ -25,7 +25,7 @@ import AboutModal from './components/AboutModal';
 // 🚀 ইম্পোর্ট করা হলো গেম লজিক
 import { Player, SquareValue, WINNING_COMBINATIONS, findBestMove } from './utils/gameLogic';
 
-//লোডিং স্পিনার ইমপোর্ট করার জন্য
+// 🚀 লোডিং স্পিনার ইমপোর্ট করার জন্য
 import { REFRESH_LOADERS } from './components/RefreshLoaders';
 
 // 🚀 Custom Filled Volume2 (Only Speaker Filled, Waves Hollow)
@@ -121,7 +121,7 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
 
      if (fillState === 1) { // Soft Fill 
          fillVal = color;
-         fillOp = 0.45; // আইকনের স্বচ্ছতা 45% করা হলো 
+         fillOp = 0.40; // 🚀 আইকনের স্বচ্ছতা 40% করা হলো 
          strokeW = 2.8;
      } else if (fillState === 2) { // Solid Fill
          fillVal = color;
@@ -248,8 +248,7 @@ export default function App() {
   
   const [isSoundOn, setIsSoundOn] = useState(() => getSaved('isSoundOn', true));
   const [isHapticEnabled, setIsHapticEnabled] = useState(() => getSaved('isHapticEnabled', true));
-  const [refreshLoaderIdx, setRefreshLoaderIdx] = useState(() => getSaved('refreshLoaderIdx', 0));
-
+  
   const [soundPrefs, setSoundPrefs] = useState(() => getSaved('soundPrefs', {
      xTap: 1, oTap: 2, pop: 1, mode: 1, refresh: 1, win: 1, overallWin: 1, point: 1
   }));
@@ -283,6 +282,12 @@ export default function App() {
   const [enableHardRefreshTap, setEnableHardRefreshTap] = useState(() => getSaved('enableHardRefreshTap', false));
   const [enableHardPullToRefresh, setEnableHardPullToRefresh] = useState(() => getSaved('enableHardPullToRefresh', true));
 
+  const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false);
+  // 🚀 নতুন: অ্যানিমেশন মেনু খোলার স্টেট
+  const [isLoadersMenuOpen, setIsLoadersMenuOpen] = useState(false);
+  const [refreshLoaderIdx, setRefreshLoaderIdx] = useState(() => getSaved('refreshLoaderIdx', 0));
+
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = getSaved('isDarkMode', null);
     if (saved !== null) return saved;
@@ -310,8 +315,6 @@ export default function App() {
   
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
-  const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false);
-  const [isLoadersMenuOpen, setIsLoadersMenuOpen] = useState(false);
   
   const [activeCell, setActiveCell] = useState<number | null>(null);
   
@@ -445,8 +448,9 @@ export default function App() {
     localStorage.setItem('lastMoveIdx', JSON.stringify(lastMoveIdxRef.current));
     localStorage.setItem('enableHardRefreshTap', JSON.stringify(enableHardRefreshTap));
     localStorage.setItem('enableHardPullToRefresh', JSON.stringify(enableHardPullToRefresh));
+    // 🚀 নতুন: অ্যানিমেশন স্টোরেজে সেভ করা হলো
     localStorage.setItem('refreshLoaderIdx', JSON.stringify(refreshLoaderIdx));
-  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, p1Emoji, p2Emoji, isIconsFilledX, isIconsFilledO, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap, enableHardPullToRefresh]);
+  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, p1Emoji, p2Emoji, isIconsFilledX, isIconsFilledO, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap, enableHardPullToRefresh, refreshLoaderIdx]);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -464,7 +468,7 @@ export default function App() {
     });
     return () => { backSub.then(sub => sub.remove()); };
   }, [isAboutOpen, isSettingsOpen, isAdvancedSettingsOpen, isLoadersMenuOpen]); // 🚀 ডিপেন্ডেন্সি আপডেট
-  
+
 
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
@@ -991,7 +995,8 @@ export default function App() {
              }}
           >
              {isRefreshing ? (
-               <MaterialSpinner color={activeLineColor} />
+               // 🚀 নতুন: সিলেক্ট করা অ্যানিমেশন শো করবে
+               React.createElement(REFRESH_LOADERS[refreshLoaderIdx].component, { color: activeLineColor })
              ) : (
                <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}>
                   <RotateCcw className="w-[20px] h-[20px]" strokeWidth={2.5} />
@@ -1432,6 +1437,8 @@ export default function App() {
             isHapticEnabled={isHapticEnabled} setIsHapticEnabled={setIsHapticEnabled}
             soundPrefs={soundPrefs} setSoundPrefs={setSoundPrefs}
             playPreviewSound={playPreviewSound}
+            refreshLoaderIdx={refreshLoaderIdx} setRefreshLoaderIdx={setRefreshLoaderIdx}
+            showLoadersMenu={isLoadersMenuOpen} setShowLoadersMenu={setIsLoadersMenuOpen}
           />
 
           <AboutModal 
