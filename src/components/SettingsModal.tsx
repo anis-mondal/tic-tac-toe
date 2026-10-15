@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   X as CloseIcon, Info, Moon, Target, Check, Settings, RotateCcw,
@@ -26,7 +26,7 @@ import {
 
 import { EMOJI_LIST } from './emojiList'; 
 
-// 🚀 ২০টি অ্যানিমেশনের ইম্পোর্ট
+// 🚀 ইম্পোর্ট করা হলো ৭২টি অ্যানিমেশন কালেকশন
 import { REFRESH_LOADERS } from './RefreshLoaders';
 
 export const ICONS_LIST = [
@@ -124,8 +124,6 @@ interface SettingsModalProps {
   playPreviewSound: (key: string, val: number) => void;
   isIconsFilledX: number; setIsIconsFilledX: React.Dispatch<React.SetStateAction<number>>;
   isIconsFilledO: number; setIsIconsFilledO: React.Dispatch<React.SetStateAction<number>>;
-  
-  // 🚀 New Props for Loaders
   refreshLoaderIdx: number; setRefreshLoaderIdx: React.Dispatch<React.SetStateAction<number>>;
   showLoadersMenu: boolean; setShowLoadersMenu: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -145,7 +143,7 @@ export default function SettingsModal(props: SettingsModalProps) {
   const [visualThemeIdx, setVisualThemeIdx] = useState(props.themeIdx);
   const [isUpdating, setIsUpdating] = useState(false);
   
-  // 🚀 State to track which loader is currently being previewed (plays animation for 1.5s)
+  // 🚀 Preview State for Loaders (1.5s active animation on tap)
   const [previewLoaderIdx, setPreviewLoaderIdx] = useState<number | null>(null);
 
   useEffect(() => { 
@@ -263,15 +261,11 @@ export default function SettingsModal(props: SettingsModalProps) {
      }, 300);
   };
 
-  // 🚀 When a loader is tapped, select it and preview animation for 1.5s
+  // 🚀 Handles tap on Loader Animation
   const handleLoaderSelect = (idx: number) => {
      props.hapticFeedback(20);
      props.setRefreshLoaderIdx(idx);
      setPreviewLoaderIdx(idx);
-     
-     // Note: REFRESH_LOADERS automatically loop because they have `repeat: Infinity`.
-     // If you want them to stop in the menu after 1.5s, you can use this timeout logic.
-     // However, letting them continuously spin makes the settings menu look very lively and premium!
      setTimeout(() => {
          setPreviewLoaderIdx(null);
      }, 1500);
@@ -508,7 +502,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                              <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
                                 <div className="flex justify-between items-center mb-2 px-1">
                                    <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Icons</span>
-                                   <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledX(prev => (prev + 1) % 3); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10 relative">
+                                   <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledX(prev => (prev + 1) % 3); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10">
                                       <RotateCcw className="w-3.5 h-3.5 opacity-70" />
                                    </button>
                                 </div>
@@ -605,7 +599,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                              <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
                                 <div className="flex justify-between items-center mb-2 px-1">
                                    <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Icons</span>
-                                   <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledO(prev => (prev + 1) % 3); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10 relative">
+                                   <button onClick={() => { props.hapticFeedback(20); props.setIsIconsFilledO(prev => (prev + 1) % 3); }} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 active:scale-90 transition-all border border-black/10 dark:border-white/10">
                                       <RotateCcw className="w-3.5 h-3.5 opacity-70" />
                                    </button>
                                 </div>
@@ -659,7 +653,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                   </div>
                 </div>
 
-                {/* 🚀 Refresh Loaders Overlay (New Page for Animations) */}
+                {/* 🚀 Refresh Loaders Overlay (New Page for Animations with Tint Fix) */}
                 <AnimatePresence>
                   {props.showLoadersMenu && (
                     <motion.div 
@@ -678,11 +672,9 @@ export default function SettingsModal(props: SettingsModalProps) {
                        </div>
 
                        <div className="flex-1 overflow-y-auto m3-scrollbar px-5 pb-6 pt-2 space-y-4">
-                          <div className="grid grid-cols-4 sm:grid-cols-5 gap-y-5 gap-x-2 pt-4">
+                          <div className="grid grid-cols-4 sm:grid-cols-5 gap-y-5 gap-x-2 pt-4 pb-2">
                               {REFRESH_LOADERS.map((loader, idx) => {
                                  const isSelected = props.refreshLoaderIdx === idx;
-                                 
-                                 // 🚀 Adding a key based on selection to restart animation on tap
                                  const animationKey = isSelected ? `animating-${idx}-${previewLoaderIdx}` : `static-${idx}`;
                                  
                                  return (
@@ -691,14 +683,16 @@ export default function SettingsModal(props: SettingsModalProps) {
                                           whileTap={{ scale: 0.8 }}
                                           transition={{ type: "spring", stiffness: 400, damping: 17 }}
                                           onClick={() => handleLoaderSelect(idx)}
-                                          className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${isSelected ? 'shadow-md' : 'shadow-sm hover:bg-black/5 dark:hover:bg-white/5'}`}
+                                          className={`relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all overflow-hidden ${isSelected ? 'shadow-md' : 'shadow-sm'}`}
                                           style={{ 
-                                             backgroundColor: isSelected ? 'rgba(255,255,255,0.1)' : 'transparent',
                                              border: isSelected ? `2.5px solid ${activeLineColor}` : '2.5px solid transparent',
-                                             color: isSelected ? activeLineColor : (props.isDarkMode ? '#ffffff' : '#000000') 
+                                             color: isSelected ? activeLineColor : (props.isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)') 
                                           }}
                                        >
-                                          <div key={animationKey}>
+                                          {/* 🚀 Magic Fix: থিম কালারের হালকা আভা (Tint) */}
+                                          <div className="absolute inset-0 transition-opacity duration-300" style={{ backgroundColor: activeLineColor, opacity: isSelected ? 0.15 : 0.05 }} />
+
+                                          <div className="relative z-10" key={animationKey}>
                                               {React.createElement(loader.component, { color: isSelected ? activeLineColor : (props.isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)') })}
                                           </div>
                                        </motion.button>
