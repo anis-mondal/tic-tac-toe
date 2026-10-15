@@ -311,6 +311,7 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false);
+  const [isLoadersMenuOpen, setIsLoadersMenuOpen] = useState(false);
   
   const [activeCell, setActiveCell] = useState<number | null>(null);
   
