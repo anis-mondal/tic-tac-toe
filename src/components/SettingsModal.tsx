@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 
 import { EMOJI_LIST } from './emojiList'; 
+
+// 🚀 ইম্পোর্ট করা হলো ৭২টি অ্যানিমেশন কালেকশন
 import { REFRESH_LOADERS } from './RefreshLoaders';
 
 export const ICONS_LIST = [
@@ -117,10 +119,6 @@ interface SettingsModalProps {
   enableHardRefreshTap: boolean; setEnableHardRefreshTap: (val: boolean) => void;
   enableHardPullToRefresh: boolean; setEnableHardPullToRefresh: (val: boolean) => void;
   isHapticEnabled: boolean; setIsHapticEnabled: (val: boolean) => void;
-  
-  // 🚀 জাইরোস্কোপ ফিজিক্স টগলের প্রপস
-  isGyroEnabled: boolean; setIsGyroEnabled: React.Dispatch<React.SetStateAction<boolean>>;
-
   soundPrefs: { xTap: number, oTap: number, pop: number, mode: number, refresh: number, win: number, overallWin: number, point: number };
   setSoundPrefs: React.Dispatch<React.SetStateAction<any>>;
   playPreviewSound: (key: string, val: number) => void;
@@ -145,6 +143,7 @@ export default function SettingsModal(props: SettingsModalProps) {
   const [visualThemeIdx, setVisualThemeIdx] = useState(props.themeIdx);
   const [isUpdating, setIsUpdating] = useState(false);
   
+  // 🚀 Preview State for Loaders (1.5s active animation on tap)
   const [previewLoaderIdx, setPreviewLoaderIdx] = useState<number | null>(null);
 
   useEffect(() => { 
@@ -262,6 +261,7 @@ export default function SettingsModal(props: SettingsModalProps) {
      }, 300);
   };
 
+  // 🚀 Handles tap on Loader Animation
   const handleLoaderSelect = (idx: number) => {
      props.hapticFeedback(20);
      props.setRefreshLoaderIdx(idx);
@@ -498,6 +498,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                                  </div>
                              </div>
 
+                             {/* 🚀 Icons Row for Player X (3-State Toggle) */}
                              <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
                                 <div className="flex justify-between items-center mb-2 px-1">
                                    <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Icons</span>
@@ -594,6 +595,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                                  </div>
                              </div>
 
+                             {/* 🚀 Icons Row for Player O (3-State Toggle) */}
                              <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
                                 <div className="flex justify-between items-center mb-2 px-1">
                                    <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Icons</span>
@@ -624,7 +626,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                        </AnimatePresence>
                     </div>
 
-                    {/* 🚀 8. Refresh Animations Button */}
+                    {/* 🚀 8. Refresh Animations Button (New Menu) */}
                     <div className="pt-2 flex justify-center w-full">
                        <button onClick={() => { props.hapticFeedback(30); props.setShowLoadersMenu(true); }} className="w-[85%] py-[15px] rounded-[24px] bg-black/5 dark:bg-white/5 border-[2.5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm transition-colors duration-300" style={{ borderColor: cardBorderColor }}>
                          <RotateCcw className="w-[20px] h-[20px] opacity-70" style={{ color: activeLineColor }} /> 
@@ -732,14 +734,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                                  <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 w-3/4">Enable Haptic Feedback</h3>
                                  <AnimatedToggle enabled={props.isHapticEnabled} onToggle={() => { props.hapticFeedback(30); props.setIsHapticEnabled(!props.isHapticEnabled); }} activeColor={activeLineColor} isDarkMode={props.isDarkMode} />
                               </div>
-
-                              {/* 🚀 নতুন: জাইরোস্কোপ ফিজিক্স টগল */}
-                              <div className="w-full h-px bg-black/10 dark:bg-white/10" />
-                              <div className="flex items-center justify-between">
-                                 <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Interactive Icon Physics</h3>
-                                 <AnimatedToggle enabled={props.isGyroEnabled} onToggle={() => { props.hapticFeedback(30); props.setIsGyroEnabled(!props.isGyroEnabled); }} activeColor={activeLineColor} isDarkMode={props.isDarkMode} />
-                              </div>
-
                               <div className="w-full h-px bg-black/10 dark:bg-white/10" />
                               <div className="flex items-center justify-between">
                                  <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Hard Refresh on Bar Tap</h3>
