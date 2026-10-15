@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
-import { motion, AnimatePresence, useAnimation, useMotionValue, useSpring } from 'motion/react';
+// 🚀 useMotionValue এবং useSpring রিমুভ করা হয়েছে, শুধুমাত্র প্রয়োজনীয়গুলো রাখা হয়েছে
+import { motion, AnimatePresence, useAnimation } from 'motion/react';
 import { RotateCcw, Moon, Sun, Sparkles, UsersRound } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -60,8 +61,8 @@ const AILogo = () => (
   </svg>
 );
 
-// 🚀 DynamicIcon (Crash-Proof version with framer-motion)
-const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2Custom, p2Idx, p2Emoji, p2Filled, color, className, gyroX, gyroY }: any) => {
+// 🚀 DynamicIcon Updated: Gyroscope removed, changed back to simple div
+const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2Custom, p2Idx, p2Emoji, p2Filled, color, className }: any) => {
   if (!player) return null;
   const isP1 = player === 'X';
   const isCustomEnabled = isP1 ? p1Custom : p2Custom;
@@ -69,17 +70,14 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
   const emoji = isP1 ? p1Emoji : p2Emoji;
   const fillState = isP1 ? p1Filled : p2Filled; 
 
-  // 🚀 Safe Motion Style Assignment
-  const motionStyle = (gyroX && gyroY) ? { x: gyroX, y: gyroY } : { x: 0, y: 0 };
-
   if (isCustomEnabled) {
      if (iconIndex === -1 && emoji) {
          return (
-            <motion.div style={{ ...motionStyle, overflow: 'visible' }} className={`flex items-center justify-center ${className}`}>
+            <div className={`flex items-center justify-center ${className}`}>
                <svg viewBox="0 0 24 24" className="w-full h-full" style={{ overflow: 'visible' }}>
                  <text x="50%" y="50%" dy=".35em" textAnchor="middle" fill={color} style={{ fontFamily: '"NunitoBlack", "Noto Color Emoji", sans-serif', fontSize: '19px', fontWeight: 900 }}>{emoji}</text>
                </svg>
-            </motion.div>
+            </div>
          );
      }
      const SafeIndex = Math.max(0, iconIndex) % ICONS_LIST.length;
@@ -90,23 +88,23 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
      else if (fillState === 2) { fillVal = color; fillOp = 1; strokeW = 2.2; }
 
      return (
-        <motion.div style={motionStyle} className={`flex items-center justify-center ${className}`}>
+        <div className={`flex items-center justify-center ${className}`}>
            <SelectedIcon color={color} fill={fillVal} fillOpacity={fillOp} className="w-full h-full" strokeWidth={strokeW} />
-        </motion.div>
+        </div>
      );
   }
   
   if (isP1) {
      return (
-        <motion.div style={motionStyle} className={`flex items-center justify-center ${className}`}>
+        <div className={`flex items-center justify-center ${className}`}>
            <svg viewBox="0 0 24 24" className="w-full h-full" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke={color} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        </motion.div>
+        </div>
      );
   }
   return (
-      <motion.div style={motionStyle} className={`flex items-center justify-center ${className}`}>
+      <div className={`flex items-center justify-center ${className}`}>
          <svg viewBox="0 0 24 24" className="w-full h-full" fill="none"><circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="4.5" /></svg>
-      </motion.div>
+      </div>
   );
 });
 
@@ -176,8 +174,8 @@ export default function App() {
   const [isSoundOn, setIsSoundOn] = useState(() => getSaved('isSoundOn', true));
   const [isHapticEnabled, setIsHapticEnabled] = useState(() => getSaved('isHapticEnabled', true));
   
-  // 🚀 Gyroscope Physics - DEFAULT OFF (false) to prevent initial crashes
-  const [isGyroEnabled, setIsGyroEnabled] = useState(() => getSaved('isGyroEnabled', false));
+  // 🚀 New State for Drag Animation (Replaced Gyroscope)
+  const [isDragEnabled, setIsDragEnabled] = useState(() => getSaved('isDragEnabled', true));
   
   const [soundPrefs, setSoundPrefs] = useState(() => getSaved('soundPrefs', { xTap: 1, oTap: 2, pop: 1, mode: 1, refresh: 1, win: 1, overallWin: 1, point: 1 }));
 
@@ -255,40 +253,6 @@ export default function App() {
   const triggerHaptic = (pattern: number | number[]) => { triggerNativeHaptic(pattern, isHapticEnabled); };
   const playPreviewSound = (key: string, val: number) => { playEnhancedSound((key === 'xTap' || key === 'oTap') ? 'tap' : key as any, val); };
 
-  // 🚀 Gyroscope Spring Physics Logic (CRASH PROOF VERSION)
-  const gyroX = useMotionValue(0);
-  const gyroY = useMotionValue(0);
-  const smoothGyroX = useSpring(gyroX, { stiffness: 200, damping: 20, mass: 0.5 });
-  const smoothGyroY = useSpring(gyroY, { stiffness: 200, damping: 20, mass: 0.5 });
-
-  useEffect(() => {
-    if (!isGyroEnabled || typeof window === 'undefined') {
-      gyroX.set(0); gyroY.set(0);
-      return;
-    }
-    
-    // 🚀 Fallback Check: Does the device support Orientation Events?
-    if (!('DeviceOrientationEvent' in window)) {
-        console.warn("DeviceOrientationEvent not supported on this device.");
-        return;
-    }
-
-    const handleOrientation = (event: any) => {
-      try {
-          let g = Math.max(-45, Math.min(45, event.gamma || 0));
-          let b = Math.max(-45, Math.min(45, (event.beta || 0) - 45));
-          const maxDisplacement = 6; // Limit strictly to keep inside cell
-          gyroX.set((g / 45) * maxDisplacement);
-          gyroY.set((b / 45) * maxDisplacement);
-      } catch (e) {
-          // Prevent any calculation error from crashing the app
-      }
-    };
-    
-    window.addEventListener('deviceorientation', handleOrientation, true);
-    return () => window.removeEventListener('deviceorientation', handleOrientation, true);
-  }, [isGyroEnabled, gyroX, gyroY]);
-
   const mainBouncer = useAnimation();
   const [pullProgress, setPullProgress] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -342,7 +306,7 @@ export default function App() {
     localStorage.setItem('isSinglePlayer', JSON.stringify(isSinglePlayer));
     localStorage.setItem('isSoundOn', JSON.stringify(isSoundOn));
     localStorage.setItem('isHapticEnabled', JSON.stringify(isHapticEnabled));
-    localStorage.setItem('isGyroEnabled', JSON.stringify(isGyroEnabled));
+    localStorage.setItem('isDragEnabled', JSON.stringify(isDragEnabled)); // 🚀 Saved Drag Setting
     localStorage.setItem('soundPrefs', JSON.stringify(soundPrefs));
     localStorage.setItem('useDefaultTheme', JSON.stringify(useDefaultTheme));
     localStorage.setItem('themeIdx', JSON.stringify(themeIdx));
@@ -372,7 +336,7 @@ export default function App() {
     localStorage.setItem('enableHardRefreshTap', JSON.stringify(enableHardRefreshTap));
     localStorage.setItem('enableHardPullToRefresh', JSON.stringify(enableHardPullToRefresh));
     localStorage.setItem('refreshLoaderIdx', JSON.stringify(refreshLoaderIdx));
-  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, isGyroEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, p1Emoji, p2Emoji, isIconsFilledX, isIconsFilledO, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap, enableHardPullToRefresh, refreshLoaderIdx]);
+  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, isDragEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, p1Emoji, p2Emoji, isIconsFilledX, isIconsFilledO, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap, enableHardPullToRefresh, refreshLoaderIdx]);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -615,8 +579,6 @@ export default function App() {
   const navBtnClass = "w-[48px] h-[48px] rounded-full shadow-sm flex items-center justify-center overflow-hidden relative border-none z-50 cursor-pointer";
   const getNavBtnStyle = () => ({ backgroundColor: semantics.topNavBtn, color: semantics.text, boxShadow: isDarkMode ? '0 2px 6px rgba(0,0,0,0.4)' : '0 2px 6px rgba(0,0,0,0.06)' });
   const displayScore = (score: number) => isTargetScoreEnabled ? `${score} / ${targetScore}` : score;
-
-  // 🚀 Safe Loader Validation
   const SafeLoader = REFRESH_LOADERS[refreshLoaderIdx] || REFRESH_LOADERS[0];
 
   return (
@@ -736,7 +698,7 @@ export default function App() {
 
                   <div className="w-full md:w-1/2 flex items-center justify-center mt-6 md:mt-0">
                       <div className="relative group z-10 m-0 transition-transform duration-500 origin-center md:scale-[1.15] lg:scale-[1.3]">
-                        <motion.div animate={isDraw ? { x: [-12, 12, -12, 12, -6, 6, 0], opacity: 1, scale: 1 } : { x: 0, opacity: 1, scale: 1 }} transition={{ duration: 0.5, ease: "easeInOut" }} style={{ backgroundColor: semantics.mainGridBackground }} className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden">
+                        <motion.div animate={isDraw ? { x: [-12, 12, -12, 12, -6, 6, 0], opacity: 1, scale: 1 } : { x: 0, opacity: 1, scale: 1 }} transition={{ duration: 0.5, ease: "easeInOut" }} style={{ backgroundColor: semantics.mainGridBackground }} className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md">
                           <div ref={boardRef} className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] md:w-auto md:h-[60vh] aspect-square">
                             {board.map((value, i) => {
                               const isWinningCell = winnerInfo && winnerInfo.line.includes(i);
@@ -748,12 +710,30 @@ export default function App() {
                                   whileTap={!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? { borderRadius: '50%', scale: 0.85 } : {}}
                                   animate={isSquished ? { borderRadius: '50%', scale: 0.85 } : { borderRadius: '24px', scale: 1 }}
                                   transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                                  className={`w-full h-full flex items-center justify-center relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}
+                                  // 🚀 overflow-hidden রিমুভ করা হয়েছে যাতে আইকন বাইরে টেনে আনা যায়
+                                  className={`w-full h-full flex items-center justify-center relative shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}
                                 >
                                   <AnimatePresence>
                                     {value && !isResetting && (
-                                      <motion.div key={value} initial={{ scale: 0, rotate: -180, opacity: 0 }} animate={isWinningCell ? { scale: [1, 1.4, 0.85, 1.15, 1], rotate: 0, opacity: 1 } : { scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0, rotate: 180, opacity: 0 }} transition={isWinningCell ? { duration: 0.65, ease: "easeInOut", times: [0, 0.2, 0.5, 0.8, 1] } : { type: 'spring', stiffness: 500, damping: 14, mass: 1 }} className="absolute inset-0 m-auto flex items-center justify-center w-full h-full">
-                                         <DynamicIcon player={value} p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX} p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO} color={value === 'X' ? currentXColor : currentOColor} className="w-3/5 h-3/5 drop-shadow-sm" gyroX={smoothGyroX} gyroY={smoothGyroY} />
+                                      <motion.div 
+                                         key={value} 
+                                         initial={{ scale: 0, rotate: -180, opacity: 0 }} 
+                                         animate={isWinningCell ? { scale: [1, 1.4, 0.85, 1.15, 1], rotate: 0, opacity: 1 } : { scale: 1, rotate: 0, opacity: 1 }} 
+                                         exit={{ scale: 0, rotate: 180, opacity: 0 }} 
+                                         transition={isWinningCell ? { duration: 0.65, ease: "easeInOut", times: [0, 0.2, 0.5, 0.8, 1] } : { type: 'spring', stiffness: 500, damping: 14, mass: 1 }} 
+                                         className="absolute inset-0 m-auto flex items-center justify-center w-full h-full"
+                                         style={{ touchAction: "none" }}
+                                         
+                                         // 🚀 Magic Fix: Drag and Snap Back Physics!
+                                         drag={isDragEnabled && !isWinningCell && !isGameEnding.current}
+                                         dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
+                                         dragElastic={1}
+                                         whileDrag={{ scale: 1.3, zIndex: 100 }}
+                                         whileTap={isDragEnabled ? { scale: 0.75 } : {}}
+                                         onDragStart={() => triggerHaptic(20)}
+                                         onDragEnd={() => triggerHaptic([30, 50])}
+                                      >
+                                         <DynamicIcon player={value} p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX} p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO} color={value === 'X' ? currentXColor : currentOColor} className="w-3/5 h-3/5 drop-shadow-sm" />
                                       </motion.div>
                                     )}
                                   </AnimatePresence>
@@ -783,7 +763,7 @@ export default function App() {
                            <div className="flex flex-col items-center gap-1 z-10 w-full">
                              <h2 className="font-nunito-black text-3xl tracking-tight leading-tight drop-shadow-md" style={{ color: semantics.text }}>Winner!</h2>
                              <motion.span animate={{ scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="drop-shadow-xl flex justify-center mt-2 mb-1">
-                               <DynamicIcon player={overallWinner} p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX} p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO} color={overallWinner === 'X' ? currentXColor : currentOColor} className="w-20 h-20" gyroX={smoothGyroX} gyroY={smoothGyroY} />
+                               <DynamicIcon player={overallWinner} p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX} p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO} color={overallWinner === 'X' ? currentXColor : currentOColor} className="w-20 h-20" />
                              </motion.span>
                            </div>
                            <div className="flex flex-col w-full gap-2.5 pt-1 z-10">
@@ -815,7 +795,7 @@ export default function App() {
             enableHardRefreshTap={enableHardRefreshTap} setEnableHardRefreshTap={setEnableHardRefreshTap}
             enableHardPullToRefresh={enableHardPullToRefresh} setEnableHardPullToRefresh={setEnableHardPullToRefresh}
             isHapticEnabled={isHapticEnabled} setIsHapticEnabled={setIsHapticEnabled}
-            isGyroEnabled={isGyroEnabled} setIsGyroEnabled={setIsGyroEnabled}
+            isDragEnabled={isDragEnabled} setIsDragEnabled={setIsDragEnabled}
             soundPrefs={soundPrefs} setSoundPrefs={setSoundPrefs} playPreviewSound={playPreviewSound}
             refreshLoaderIdx={refreshLoaderIdx} setRefreshLoaderIdx={setRefreshLoaderIdx} showLoadersMenu={isLoadersMenuOpen} setShowLoadersMenu={setIsLoadersMenuOpen}
           />
