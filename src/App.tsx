@@ -1,11 +1,6 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
-import { motion, AnimatePresence, useAnimation, useMotionValue, useSpring } from 'motion/react';
+import { motion, AnimatePresence, useAnimation } from 'motion/react';
 import { RotateCcw, Moon, Sun, Sparkles, UsersRound } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -60,8 +55,7 @@ const AILogo = () => (
   </svg>
 );
 
-// 🚀 DynamicIcon Updated with Gyroscope Spring Support
-const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2Custom, p2Idx, p2Emoji, p2Filled, color, className, gyroX, gyroY }: any) => {
+const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2Custom, p2Idx, p2Emoji, p2Filled, color, className }: any) => {
   if (!player) return null;
   const isP1 = player === 'X';
   const isCustomEnabled = isP1 ? p1Custom : p2Custom;
@@ -69,16 +63,14 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
   const emoji = isP1 ? p1Emoji : p2Emoji;
   const fillState = isP1 ? p1Filled : p2Filled; 
 
-  const style = gyroX && gyroY ? { x: gyroX, y: gyroY } : {};
-
   if (isCustomEnabled) {
      if (iconIndex === -1 && emoji) {
          return (
-            <motion.div style={{ ...style, overflow: 'visible' }} className={`flex items-center justify-center ${className}`}>
+            <div className={`flex items-center justify-center ${className}`}>
                <svg viewBox="0 0 24 24" className="w-full h-full" style={{ overflow: 'visible' }}>
                  <text x="50%" y="50%" dy=".35em" textAnchor="middle" fill={color} style={{ fontFamily: '"NunitoBlack", "Noto Color Emoji", sans-serif', fontSize: '19px', fontWeight: 900 }}>{emoji}</text>
                </svg>
-            </motion.div>
+            </div>
          );
      }
      const SafeIndex = Math.max(0, iconIndex) % ICONS_LIST.length;
@@ -89,23 +81,23 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
      else if (fillState === 2) { fillVal = color; fillOp = 1; strokeW = 2.2; }
 
      return (
-        <motion.div style={style} className={`flex items-center justify-center ${className}`}>
+        <div className={`flex items-center justify-center ${className}`}>
            <SelectedIcon color={color} fill={fillVal} fillOpacity={fillOp} className="w-full h-full" strokeWidth={strokeW} />
-        </motion.div>
+        </div>
      );
   }
   
   if (isP1) {
      return (
-        <motion.div style={style} className={`flex items-center justify-center ${className}`}>
+        <div className={`flex items-center justify-center ${className}`}>
            <svg viewBox="0 0 24 24" className="w-full h-full" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke={color} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        </motion.div>
+        </div>
      );
   }
   return (
-      <motion.div style={style} className={`flex items-center justify-center ${className}`}>
+      <div className={`flex items-center justify-center ${className}`}>
          <svg viewBox="0 0 24 24" className="w-full h-full" fill="none"><circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="4.5" /></svg>
-      </motion.div>
+      </div>
   );
 });
 
@@ -251,28 +243,6 @@ export default function App() {
 
   const triggerHaptic = (pattern: number | number[]) => { triggerNativeHaptic(pattern, isHapticEnabled); };
   const playPreviewSound = (key: string, val: number) => { playEnhancedSound((key === 'xTap' || key === 'oTap') ? 'tap' : key as any, val); };
-
-  // 🚀 Gyroscope Spring Physics Logic
-  const gyroX = useMotionValue(0);
-  const gyroY = useMotionValue(0);
-  const smoothGyroX = useSpring(gyroX, { stiffness: 250, damping: 15, mass: 0.8 });
-  const smoothGyroY = useSpring(gyroY, { stiffness: 250, damping: 15, mass: 0.8 });
-
-  useEffect(() => {
-    if (!isGyroEnabled || typeof window === 'undefined') {
-      gyroX.set(0); gyroY.set(0);
-      return;
-    }
-    const handleOrientation = (event: DeviceOrientationEvent) => {
-      let g = Math.max(-45, Math.min(45, event.gamma || 0));
-      let b = Math.max(-45, Math.min(45, (event.beta || 0) - 45));
-      const maxDisplacement = 8; // 🚀 Clamping to keep icons inside cells
-      gyroX.set((g / 45) * maxDisplacement);
-      gyroY.set((b / 45) * maxDisplacement);
-    };
-    window.addEventListener('deviceorientation', handleOrientation);
-    return () => window.removeEventListener('deviceorientation', handleOrientation);
-  }, [isGyroEnabled, gyroX, gyroY]);
 
   const mainBouncer = useAnimation();
   const [pullProgress, setPullProgress] = useState(0);
