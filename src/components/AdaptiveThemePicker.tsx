@@ -19,13 +19,17 @@ export const generateAdaptiveTheme = (baseHex: string, themeName: string = 'Adap
       hexFromArgb(p.primary.tone(40)), hexFromArgb(p.secondary.tone(40)),
       hexFromArgb(p.tertiary.tone(40)), hexFromArgb(p.error.tone(40)), hexFromArgb(p.primary.tone(30))
     ],
-    dark: hexFromArgb(p.neutral.tone(6)),             
-    gridDark: hexFromArgb(p.neutralVariant.tone(15)), 
-    cellDark: hexFromArgb(p.neutralVariant.tone(25)), 
-    indicatorDark: hexFromArgb(p.primary.tone(80)),   
+    // 🌙 Dark Mode Shades (একটু বেশি উজ্জ্বল ও ভাইব্রেন্ট করা হলো)
+    dark: hexFromArgb(p.neutral.tone(10)),             // 6 থেকে 10 করা হলো
+    gridDark: hexFromArgb(p.neutralVariant.tone(20)),  // 15 থেকে 20
+    cellDark: hexFromArgb(p.neutralVariant.tone(30)),  // 25 থেকে 30
+    indicatorDark: hexFromArgb(p.primary.tone(85)),    // 80 থেকে 85 (বেশি কালারফুল)
     linesDark: [
-      hexFromArgb(p.primary.tone(80)), hexFromArgb(p.secondary.tone(80)),
-      hexFromArgb(p.tertiary.tone(80)), hexFromArgb(p.error.tone(80)), hexFromArgb(p.primary.tone(90))
+      hexFromArgb(p.primary.tone(85)),
+      hexFromArgb(p.secondary.tone(85)),
+      hexFromArgb(p.tertiary.tone(85)),
+      hexFromArgb(p.error.tone(85)),
+      hexFromArgb(p.primary.tone(92))
     ]
   };
 };
