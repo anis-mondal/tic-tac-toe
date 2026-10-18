@@ -19,10 +19,10 @@ export const generateAdaptiveTheme = (baseHex: string, themeName: string = 'Adap
       hexFromArgb(p.primary.tone(40)), hexFromArgb(p.secondary.tone(40)),
       hexFromArgb(p.tertiary.tone(40)), hexFromArgb(p.error.tone(40)), hexFromArgb(p.primary.tone(30))
     ],
-    // 🌙 Dark Mode Shades (ভাইব্রেন্ট এবং কাস্টম থিমের মতো নিখুঁত)
-    dark: hexFromArgb(p.primary.tone(10)),       
-    gridDark: hexFromArgb(p.primary.tone(25)),   
-    cellDark: hexFromArgb(p.primary.tone(15)),   
+    // 🌙 Dark Mode Shades (আপনার কাস্টম থিমের মতো নিখুঁত ব্যালান্স)
+    dark: hexFromArgb(p.primary.tone(6)),        // 🚀 ব্যাকগ্রাউন্ডের উজ্জ্বলতা কমিয়ে একদম ডিপ ডার্ক করা হলো
+    gridDark: hexFromArgb(p.primary.tone(22)),   // 🚀 কন্টেইনারগুলো ভাইব্রেন্ট রাখা হলো
+    cellDark: hexFromArgb(p.primary.tone(32)),   // 🚀 ছোট ঘরগুলোতে কালো শেডের বদলে হালকা/সাদা শেড দেওয়া হলো
     indicatorDark: hexFromArgb(p.primary.tone(85)), 
     linesDark: [
       hexFromArgb(p.primary.tone(85)),
@@ -31,7 +31,7 @@ export const generateAdaptiveTheme = (baseHex: string, themeName: string = 'Adap
       hexFromArgb(p.error.tone(85)),
       hexFromArgb(p.primary.tone(92))
     ]
-  }; // 🚀 ফিক্সড: এই ক্লোজিং ব্র্যাকেটগুলো বাদ পড়েছিল!
+  };
 };
 
 // UI এর জন্য HSL থেকে Hex রূপান্তরকারী
