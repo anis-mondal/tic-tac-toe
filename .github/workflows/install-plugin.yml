@@ -5,6 +5,10 @@ on:
     branches:
       - main 
 
+# 🚀 ফিক্সড: বটকে কোড পুশ করার পারমিশন দেওয়া হলো
+permissions:
+  contents: write
+
 jobs:
   install-plugin:
     runs-on: ubuntu-latest
@@ -16,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # 🚀 ফিক্সড: Capacitor এর লেটেস্ট ভার্সনের জন্য Node 22 দেওয়া হলো
+          node-version: '22'
 
       - name: Install dependencies and Plugin
         run: |
@@ -29,6 +33,10 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add package.json package-lock.json
-          git add android/ ios/ || true 
+          
+          # 🚀 ফিক্সড: ফোল্ডার থাকলে তবেই অ্যাড করবে, না থাকলে এরর দেবে না
+          if [ -d "android" ]; then git add android/; fi
+          if [ -d "ios" ]; then git add ios/; fi
+          
           git commit -m "feat: install dynamic color plugin" || echo "No changes to commit"
           git push
