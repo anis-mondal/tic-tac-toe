@@ -10,14 +10,12 @@ import { REFRESH_LOADERS } from './RefreshLoaders';
 import AdaptiveThemePicker, { generateAdaptiveTheme } from './AdaptiveThemePicker'; 
 import AnimatedToggle from './AnimatedToggle';
 
-// 🚀 আলাদা করা ফাইল থেকে ডেটা ইমপোর্ট করা হলো
 import { 
   ICONS_LIST, PLAYER_COLORS, EXTRA_LINE_COLORS, ORIGINAL_THEME, 
   STATIC_THEMES, CUSTOM_THEMES, STATIC_COLORS_COUNT, 
   savedAdaptiveThemes, savedCustomColors 
 } from './themeData';
 
-// 🚀 App.tsx এর জন্য ডেটাগুলো রি-এক্সপোর্ট করা হলো যাতে অ্যাপ ক্র্যাশ না করে
 export { 
   ICONS_LIST, PLAYER_COLORS, EXTRA_LINE_COLORS, ORIGINAL_THEME, 
   STATIC_THEMES, CUSTOM_THEMES, STATIC_COLORS_COUNT 
@@ -38,6 +36,7 @@ interface SettingsModalProps {
   hapticFeedback: (pattern: number | number[]) => void;
   enableHardRefreshTap: boolean; setEnableHardRefreshTap: (val: boolean) => void; enableHardPullToRefresh: boolean; setEnableHardPullToRefresh: (val: boolean) => void;
   isHapticEnabled: boolean; setIsHapticEnabled: (val: boolean) => void; isDragEnabled: boolean; setIsDragEnabled: (val: boolean) => void;
+  isGyroEnabled: boolean; setIsGyroEnabled: (val: boolean) => void;
   soundPrefs: { xTap: number, oTap: number, pop: number, mode: number, refresh: number, win: number, overallWin: number, point: number };
   setSoundPrefs: React.Dispatch<React.SetStateAction<any>>; playPreviewSound: (key: string, val: number) => void;
   isIconsFilledX: number; setIsIconsFilledX: React.Dispatch<React.SetStateAction<number>>; isIconsFilledO: number; setIsIconsFilledO: React.Dispatch<React.SetStateAction<number>>;
@@ -68,7 +67,6 @@ export default function SettingsModal(props: SettingsModalProps) {
   useEffect(() => { setLocalUseDefaultTheme(props.useDefaultTheme); setVisualUseDefaultTheme(props.useDefaultTheme); }, [props.useDefaultTheme]);
   useEffect(() => { setLocalThemeIdx(props.themeIdx); setVisualThemeIdx(props.themeIdx); }, [props.themeIdx]);
 
-  // 🚀 CRASH FIX: Safe Fallback for Arrays
   const safeTheme = CUSTOM_THEMES[localThemeIdx] || CUSTOM_THEMES[0];
   const activeTheme = localUseDefaultTheme ? ORIGINAL_THEME : safeTheme;
   
@@ -127,9 +125,6 @@ export default function SettingsModal(props: SettingsModalProps) {
 
   const handleLoaderSelect = (idx: number) => { props.hapticFeedback(20); props.setRefreshLoaderIdx(idx); setPreviewLoaderIdx(idx); setTimeout(() => setPreviewLoaderIdx(null), 1500); };
 
-  // ==========================================
-  // 🚀 ADAPTIVE THEME & COLOR LOGIC
-  // ==========================================
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   const isLongPressTriggered = useRef(false);
 
@@ -260,7 +255,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                 <div className="relative w-full overflow-hidden px-4">
                   <div className="max-h-[66vh] overflow-y-auto m3-scrollbar pr-3 space-y-4 pb-6">
                     
-                    {/* Theme Style Box */}
                     <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5 transition-colors duration-300" style={{ borderColor: cardBorderColor }}>
                        <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Theme Style</h3>
                        <div className="relative flex p-1.5 rounded-[28px] w-full shadow-sm transition-colors duration-300" style={{ backgroundColor: props.isDarkMode ? (props.isAmoled ? '#0f0f0f' : props.semantics.modeSliderContainer.bg) : props.activeLineColor }}>
@@ -272,7 +266,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                        </div>
                     </div>
                     
-                    {/* Surface Colors Box */}
                     <AnimatePresence>
                       {!localUseDefaultTheme && (
                         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5 overflow-hidden transition-colors duration-300" style={{ borderColor: cardBorderColor }}>
@@ -308,7 +301,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                       )}
                     </AnimatePresence>
 
-                    {/* AMOLED */}
                     <AnimatePresence>
                       {props.isDarkMode && (
                          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
@@ -320,7 +312,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                       )}
                     </AnimatePresence>
                     
-                    {/* Target Point Win */}
                     <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5 transition-colors duration-300" style={{ borderColor: cardBorderColor }}>
                        <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3"><Target className="w-5 h-5 opacity-70" /><h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1">Target Point Win</h3></div>
@@ -340,7 +331,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                        </AnimatePresence>
                     </div>
                     
-                    {/* Line Colors */}
                     <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5 transition-colors duration-300" style={{ borderColor: cardBorderColor }}>
                        <div className="flex items-start justify-between">
                           <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Winning Line Color</h3>
@@ -382,7 +372,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                        </AnimatePresence>
                     </div>
 
-                    {/* X Color */}
                     <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5 transition-colors duration-300" style={{ borderColor: cardBorderColor }}>
                        <div className="flex items-start justify-between">
                           <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Player X Color</h3>
@@ -472,7 +461,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                        </AnimatePresence>
                     </div>
 
-                    {/* O Color Box */}
                     <div className="rounded-[24px] p-5 space-y-4 border-[2.5px] bg-black/5 dark:bg-white/5 transition-colors duration-300" style={{ borderColor: cardBorderColor }}>
                        <div className="flex items-start justify-between">
                           <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/5">Custom Player O Color</h3>
@@ -561,7 +549,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                        </AnimatePresence>
                     </div>
 
-                    {/* 🚀 Refresh Animations Button */}
                     <div className="pt-2 flex justify-center w-full">
                        <button onClick={() => { props.hapticFeedback(30); props.setShowLoadersMenu(true); }} className="w-[85%] py-[15px] rounded-[24px] bg-black/5 dark:bg-white/5 border-[2.5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm transition-colors duration-300" style={{ borderColor: cardBorderColor }}>
                          <RotateCcw className="w-[20px] h-[20px] opacity-70" style={{ color: props.activeLineColor }} /> 
@@ -569,7 +556,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                        </button>
                     </div>
                     
-                    {/* 🚀 Advanced Settings Button */}
                     <div className="pt-1 flex justify-center w-full">
                        <button onClick={() => { props.hapticFeedback(30); props.setShowAdvanced(true); }} className="w-[85%] py-[15px] rounded-[24px] bg-black/5 dark:bg-white/5 border-[2.5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm transition-colors duration-300" style={{ borderColor: cardBorderColor }}>
                          <Settings className="w-[20px] h-[20px] opacity-70" style={{ color: props.activeLineColor }} /> 
@@ -587,7 +573,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                   </div>
                 </div>
 
-                {/* 🚀 Long Press Edit/Delete Modal */}
                 <AnimatePresence>
                   {longPressState.isOpen && (
                      <motion.div 
@@ -618,7 +603,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                   )}
                 </AnimatePresence>
 
-                {/* Refresh Loaders Overlay */}
                 <AnimatePresence>
                   {props.showLoadersMenu && (
                     <motion.div initial={{ x: '100%', opacity: 1 }} animate={{ x: 0, opacity: 1 }} exit={{ x: '100%', opacity: 1 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="absolute inset-0 z-[170] flex flex-col bg-inherit" style={{ backgroundColor: props.semantics.screenBackground }}>
@@ -648,7 +632,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                   )}
                 </AnimatePresence>
 
-                {/* Advanced Settings Overlay */}
                 <AnimatePresence>
                   {props.showAdvanced && (
                     <motion.div initial={{ x: '100%', opacity: 1 }} animate={{ x: 0, opacity: 1 }} exit={{ x: '100%', opacity: 1 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="absolute inset-0 z-[170] flex flex-col bg-inherit" style={{ backgroundColor: props.semantics.screenBackground }}>
@@ -661,6 +644,11 @@ export default function SettingsModal(props: SettingsModalProps) {
                               <div className="flex items-center justify-between"><h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 w-3/4">Enable Haptic Feedback</h3><AnimatedToggle enabled={props.isHapticEnabled} onToggle={() => { props.hapticFeedback(30); props.setIsHapticEnabled(!props.isHapticEnabled); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} /></div>
                               <div className="w-full h-px bg-black/10 dark:bg-white/10" />
                               <div className="flex items-center justify-between"><h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Interactive Icon Drag</h3><AnimatedToggle enabled={props.isDragEnabled} onToggle={() => { props.hapticFeedback(30); props.setIsDragEnabled(!props.isDragEnabled); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} /></div>
+                              <div className="w-full h-px bg-black/10 dark:bg-white/10" />
+                              
+                              {/* 🚀 NEW GYRO TOGGLE */}
+                              <div className="flex items-center justify-between"><h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Gyroscope Spring Effect</h3><AnimatedToggle enabled={props.isGyroEnabled} onToggle={() => { props.hapticFeedback(30); props.setIsGyroEnabled(!props.isGyroEnabled); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} /></div>
+                              
                               <div className="w-full h-px bg-black/10 dark:bg-white/10" />
                               <div className="flex items-center justify-between"><h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Hard Refresh on Bar Tap</h3><AnimatedToggle enabled={props.enableHardRefreshTap} onToggle={() => { props.hapticFeedback(30); props.setEnableHardRefreshTap(!props.enableHardRefreshTap); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} /></div>
                               <div className="w-full h-px bg-black/10 dark:bg-white/10" />
@@ -675,7 +663,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                   )}
                 </AnimatePresence>
                 
-                {/* Smart Emoji Popup */}
                 <AnimatePresence>
                   {emojiModal.isOpen && (
                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEmojiModal({isOpen: false, target: 'X'})} className="absolute inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-xl transform-gpu">
@@ -697,7 +684,6 @@ export default function SettingsModal(props: SettingsModalProps) {
         </motion.div>
       )}
 
-      {/* 🚀 Adaptive Theme Picker Modal */}
       <AdaptiveThemePicker 
          isOpen={pickerState.isOpen} 
          onClose={() => setPickerState({isOpen: false, editIndex: null, target: 'theme', initialColor: ''})} 
