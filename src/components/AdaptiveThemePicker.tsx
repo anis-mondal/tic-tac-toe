@@ -1,57 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Check } from 'lucide-react';
-
-// 🚀 Google Material Color Utilities Import
 import { argbFromHex, themeFromSourceColor, hexFromArgb } from '@material/material-color-utilities';
 
-// ==========================================
-// 🚀 1. Google Material You (M3) Theme Engine
-// ==========================================
-
 export const generateAdaptiveTheme = (baseHex: string, themeName: string = 'Adaptive Theme') => {
-  // হেক্স কোড থেকে ম্যাটেরিয়াল থিমের কোর প্যালেট জেনারেট করা
   const argb = argbFromHex(baseHex);
   const theme = themeFromSourceColor(argb);
-  const p = theme.palettes; // Tonal Palettes (Primary, Secondary, Tertiary, Neutral)
+  const p = theme.palettes; 
 
   return {
     name: themeName,
     baseColor: baseHex,
-    
-    // ☀️ Light Mode Shades
-    light: hexFromArgb(p.neutral.tone(98)),           // খুব হালকা ব্যাকগ্রাউন্ড
-    gridLight: hexFromArgb(p.primary.tone(90)),       // ছকের ব্যাকগ্রাউন্ড (হালকা থিম কালার)
-    cellLight: '#ffffff',                             // ভেতরের ঘর (বিশুদ্ধ সাদা)
-    indicatorLight: hexFromArgb(p.primary.tone(40)),  // আইকন এবং টেক্সট কালার
+    light: hexFromArgb(p.neutral.tone(98)),           
+    gridLight: hexFromArgb(p.primary.tone(90)),       
+    cellLight: '#ffffff',                             
+    indicatorLight: hexFromArgb(p.primary.tone(40)),  
     linesLight: [
-      hexFromArgb(p.primary.tone(40)),
-      hexFromArgb(p.secondary.tone(40)),
-      hexFromArgb(p.tertiary.tone(40)),
-      hexFromArgb(p.error.tone(40)),
-      hexFromArgb(p.primary.tone(30))
+      hexFromArgb(p.primary.tone(40)), hexFromArgb(p.secondary.tone(40)),
+      hexFromArgb(p.tertiary.tone(40)), hexFromArgb(p.error.tone(40)), hexFromArgb(p.primary.tone(30))
     ],
-
-    // 🌙 Dark Mode Shades
-    dark: hexFromArgb(p.neutral.tone(6)),             // একদম গাঢ় ডার্ক ব্যাকগ্রাউন্ড
-    gridDark: hexFromArgb(p.neutralVariant.tone(15)), // ছকের ব্যাকগ্রাউন্ড (Darker)
-    cellDark: hexFromArgb(p.neutralVariant.tone(25)), // ভেতরের ঘর (উজ্জ্বল আভার জন্য Lighter Tone)
-    indicatorDark: hexFromArgb(p.primary.tone(80)),   // আইকন এবং টেক্সট কালার
+    dark: hexFromArgb(p.neutral.tone(6)),             
+    gridDark: hexFromArgb(p.neutralVariant.tone(15)), 
+    cellDark: hexFromArgb(p.neutralVariant.tone(25)), 
+    indicatorDark: hexFromArgb(p.primary.tone(80)),   
     linesDark: [
-      hexFromArgb(p.primary.tone(80)),
-      hexFromArgb(p.secondary.tone(80)),
-      hexFromArgb(p.tertiary.tone(80)),
-      hexFromArgb(p.error.tone(80)),
-      hexFromArgb(p.primary.tone(90))
+      hexFromArgb(p.primary.tone(80)), hexFromArgb(p.secondary.tone(80)),
+      hexFromArgb(p.tertiary.tone(80)), hexFromArgb(p.error.tone(80)), hexFromArgb(p.primary.tone(90))
     ]
   };
 };
 
-// ==========================================
-// 🚀 2. Smooth Color Picker UI Logic
-// ==========================================
-
-// UI এর জন্য HSL থেকে Hex রূপান্তরকারী (শুধুমাত্র কালার পিকার স্লাইডারের জন্য)
+// UI এর জন্য HSL থেকে Hex রূপান্তরকারী
 const hexToHSL = (hex: string) => {
   let r = 0, g = 0, b = 0;
   if (hex.length === 7) {
@@ -86,10 +65,6 @@ const hslToHex = (h: number, s: number, l: number) => {
   return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`.toUpperCase();
 };
 
-// ==========================================
-// 🚀 3. The Modal Component
-// ==========================================
-
 interface AdaptiveThemePickerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -97,9 +72,10 @@ interface AdaptiveThemePickerProps {
   initialColor?: string;
   isDarkMode: boolean;
   semantics: any;
+  mode?: 'theme' | 'color'; // 🚀 নতুন মোড যুক্ত করা হলো
 }
 
-export default function AdaptiveThemePicker({ isOpen, onClose, onSave, initialColor = '#007AFF', isDarkMode, semantics }: AdaptiveThemePickerProps) {
+export default function AdaptiveThemePicker({ isOpen, onClose, onSave, initialColor = '#007AFF', isDarkMode, semantics, mode = 'theme' }: AdaptiveThemePickerProps) {
   
   const [h, setH] = useState(0);
   const [s, setS] = useState(100);
@@ -141,7 +117,8 @@ export default function AdaptiveThemePicker({ isOpen, onClose, onSave, initialCo
     const x = e.clientX - cx;
     const y = e.clientY - cy;
 
-    let angle = Math.atan2(y, x) * (180 / Math.PI) + 90;
+    // 🚀 Magic Fix: নিখুঁত এলাইনমেন্টের জন্য
+    let angle = Math.atan2(y, x) * (180 / Math.PI);
     if (angle < 0) angle += 360;
     
     const radius = rect.width / 2;
@@ -186,7 +163,7 @@ export default function AdaptiveThemePicker({ isOpen, onClose, onSave, initialCo
 
   if (!isOpen) return null;
 
-  const angleRad = (h - 90) * (Math.PI / 180);
+  const angleRad = h * (Math.PI / 180);
   const thumbRadius = (s / 100) * 100; 
   const thumbX = 100 + thumbRadius * Math.cos(angleRad);
   const thumbY = 100 + thumbRadius * Math.sin(angleRad);
@@ -195,15 +172,19 @@ export default function AdaptiveThemePicker({ isOpen, onClose, onSave, initialCo
     <AnimatePresence>
       <motion.div 
          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-         className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+         // 🚀 iOS ব্লার এবং GPU এক্সিলারেশন
+         className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xl transform-gpu"
+         style={{ willChange: 'opacity, backdrop-filter' }}
       >
         <motion.div 
            initial={{ scale: 0.85, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.85, y: 20 }}
-           className="w-full max-w-[340px] rounded-[36px] shadow-2xl flex flex-col items-center border-[2px] border-white/10 overflow-hidden relative"
-           style={{ backgroundColor: semantics.screenBackground, color: semantics.text }}
+           className="w-full max-w-[340px] rounded-[36px] shadow-2xl flex flex-col items-center border-[2px] border-white/10 overflow-hidden relative transform-gpu"
+           style={{ backgroundColor: semantics.screenBackground, color: semantics.text, willChange: 'transform' }}
         >
            <div className="w-full flex items-center justify-between p-6 pb-2">
-              <h3 className="font-nunito-black text-xl tracking-tight opacity-90">Adaptive Color</h3>
+              <h3 className="font-nunito-black text-xl tracking-tight opacity-90">
+                 {mode === 'theme' ? 'Adaptive Theme' : 'Custom Color'}
+              </h3>
               <button onClick={onClose} className="p-2 rounded-full bg-black/5 dark:bg-white/5 active:scale-90 transition-transform">
                  <X className="w-5 h-5 opacity-70" />
               </button>
@@ -223,12 +204,13 @@ export default function AdaptiveThemePicker({ isOpen, onClose, onSave, initialCo
               </div>
            </div>
 
-           {/* 🚀 Smooth Color Wheel (Dot-free) */}
-           <div className="relative w-[200px] h-[200px] mb-8" onPointerDown={handlePointerDown('wheel')}>
+           {/* 🚀 ল্যাগ ফিক্স: touch-action: none যুক্ত করা হলো */}
+           <div className="relative w-[200px] h-[200px] mb-8" onPointerDown={handlePointerDown('wheel')} style={{ touchAction: 'none' }}>
               <div 
                  ref={wheelRef}
                  className="absolute inset-0 rounded-full shadow-inner cursor-crosshair"
-                 style={{ background: 'conic-gradient(from 90deg, red, yellow, lime, aqua, blue, magenta, red)' }}
+                 // 🚀 CSS Gradient এলাইনমেন্ট ফিক্স করা হলো (from 90deg)
+                 style={{ background: 'conic-gradient(from 90deg, red, yellow, lime, cyan, blue, magenta, red)' }}
               >
                  <div className="absolute inset-0 rounded-full" style={{ background: 'radial-gradient(circle closest-side, #ffffff, transparent)' }} />
               </div>
@@ -238,13 +220,13 @@ export default function AdaptiveThemePicker({ isOpen, onClose, onSave, initialCo
                  style={{
                     backgroundColor: hslToHex(h, s, 50),
                     left: `${thumbX}px`, top: `${thumbY}px`,
-                    transform: 'translate(-50%, -50%)'
+                    transform: 'translate(-50%, -50%)',
+                    transition: 'none'
                  }}
               />
            </div>
 
-           {/* 🚀 Brightness Slider */}
-           <div className="w-full px-8 mb-8">
+           <div className="w-full px-8 mb-8" style={{ touchAction: 'none' }}>
               <div className="flex justify-between text-[11px] font-black uppercase opacity-50 mb-2">
                  <span>Dark</span>
                  <span>Light</span>
@@ -257,7 +239,7 @@ export default function AdaptiveThemePicker({ isOpen, onClose, onSave, initialCo
               >
                  <div 
                     className="absolute top-1/2 w-6 h-6 bg-white rounded-full shadow-md border-[2px] border-gray-200 pointer-events-none"
-                    style={{ left: `${l}%`, transform: 'translate(-50%, -50%)' }}
+                    style={{ left: `${l}%`, transform: 'translate(-50%, -50%)', transition: 'none' }}
                  />
               </div>
            </div>
@@ -269,7 +251,7 @@ export default function AdaptiveThemePicker({ isOpen, onClose, onSave, initialCo
                  className="w-full h-[52px] rounded-[20px] font-black text-[15px] uppercase tracking-wider text-white shadow-lg flex items-center justify-center gap-2"
                  style={{ backgroundColor: hexInput }}
               >
-                 <Check className="w-5 h-5" /> Apply Theme
+                 <Check className="w-5 h-5" /> Apply
               </motion.button>
            </div>
         </motion.div>
