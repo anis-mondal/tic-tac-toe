@@ -29,7 +29,7 @@ import { REFRESH_LOADERS } from './components/RefreshLoaders';
 // 🚀 জাইরোস্কোপ স্প্রিং অ্যানিমেশন
 import GyroIcon from './components/GyroIcon';
 
-// 🚀 নতুন: আলাদা করা সাউন্ড ইঞ্জিন এবং কাস্টম আইকনগুলো ইম্পোর্ট করা হলো
+// 🚀 আলাদা করা সাউন্ড ইঞ্জিন এবং কাস্টম আইকনগুলো
 import { playEnhancedSound } from './utils/soundEngine';
 import { CustomVolume2, CustomVolumeX, CustomSettings, SolidUsers, AILogo } from './components/CustomIcons';
 
@@ -189,10 +189,14 @@ export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const confettiIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const myConfettiRef = useRef<confetti.CreateTypes | null>(null);
+  
+  // 🚀 ফিক্সড: রিফ্রেশ বাটনের টাইমার লজিক
   const modeHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const restartHoldTimer = useRef<NodeJS.Timeout | null>(null);
   const turnHoldTimer = useRef<NodeJS.Timeout | null>(null);
+  
   const restartPointerDown = useRef(false);
+  const restartPointerDownTime = useRef<number>(0); 
   const turnWasHeld = useRef(false);
   
   const isTransitioning = useRef(false);
@@ -200,11 +204,6 @@ export default function App() {
 
   const triggerHaptic = (pattern: number | number[]) => {
     triggerNativeHaptic(pattern, isHapticEnabled);
-  };
-
-  const playPreviewSound = (key: string, val: number) => {
-    const type = (key === 'xTap' || key === 'oTap') ? 'tap' : key;
-    playEnhancedSound(type as any, val); 
   };
 
   const mainBouncer = useAnimation();
@@ -662,29 +661,36 @@ export default function App() {
     performHardReset(humanSymbol); 
   };
 
+  // 🚀 ফিক্সড: রিফ্রেশ বাটনের সাউন্ড লজিক
   const handleRestartPointerDown = () => {
     restartPointerDown.current = true;
+    restartPointerDownTime.current = Date.now(); 
     restartHoldTimer.current = setTimeout(() => {
       if (!restartPointerDown.current) return;
       triggerHaptic([100, 50, 100, 50]); 
       setRotation(prev => prev - 720);
+      if (isSoundOn) playEnhancedSound('refresh', soundPrefs.refresh); 
       performHardReset(startingPlayer); 
     }, 600);
   };
   
   const handleRestartPointerUp = () => {
+    if (!restartPointerDown.current) return;
     restartPointerDown.current = false;
-    if (restartHoldTimer.current) {
-        clearTimeout(restartHoldTimer.current);
-        const holdTime = restartHoldTimer.current as any;
-        if (Date.now() - holdTime._calledAt > 600) return;
-    }
+    
+    if (restartHoldTimer.current) clearTimeout(restartHoldTimer.current);
+    
+    if (Date.now() - restartPointerDownTime.current >= 600) return;
+    
     setRotation(prev => prev - 360);
+    
+    triggerHaptic(60);
+    if (isSoundOn) playEnhancedSound('refresh', soundPrefs.refresh); 
     
     if (enableHardRefreshTap) {
        performHardReset(startingPlayer);
     } else {
-       resetGameForMode(startingPlayer);
+       resetGameForMode(startingPlayer, true); 
     }
   };
 
