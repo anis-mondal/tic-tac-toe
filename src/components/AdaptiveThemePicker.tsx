@@ -11,7 +11,7 @@ export const generateAdaptiveTheme = (baseHex: string, themeName: string = 'Adap
   return {
     name: themeName,
     baseColor: baseHex,
-    // ☀️ Light Mode Shades (উজ্জ্বলতা কমিয়ে সফট করা হলো এবং ব্যাকগ্রাউন্ডে আভা বাড়ানো হলো)
+    // ☀️ Light Mode Shades
     light: hexFromArgb(p.primary.tone(94)),           
     gridLight: hexFromArgb(p.primary.tone(82)),       
     cellLight: hexFromArgb(p.primary.tone(98)),                             
@@ -20,17 +20,17 @@ export const generateAdaptiveTheme = (baseHex: string, themeName: string = 'Adap
       hexFromArgb(p.primary.tone(40)), hexFromArgb(p.secondary.tone(40)),
       hexFromArgb(p.tertiary.tone(40)), hexFromArgb(p.error.tone(40)), hexFromArgb(p.primary.tone(30))
     ],
-        // 🌙 Dark Mode Shades (প্রিমিয়াম এবং ব্যালান্সড)
-    dark: hexFromArgb(p.neutralVariant.tone(10)),       // 🚀 primary এর বদলে neutralVariant ব্যবহার করা হলো
-    gridDark: hexFromArgb(p.neutralVariant.tone(20)),   // 🚀 এটি কন্টেইনারগুলোকে সফট এবং সুন্দর দেখাবে
-    cellDark: hexFromArgb(p.neutralVariant.tone(30)),   // 🚀 ছোট ঘরগুলোতে পারফেক্ট শেড আসবে
-    indicatorDark: hexFromArgb(p.primary.tone(80)),     // 🚀 ইন্ডিকেটর উজ্জ্বল রাখার জন্য primary থাকবে
+    // 🌙 Dark Mode Shades
+    dark: hexFromArgb(p.neutral.tone(7)),        // 🚀 ব্যাকগ্রাউন্ড পিওর নিউট্রাল এবং একদম ডিপ ডার্ক করা হলো (Tone 6)
+    gridDark: hexFromArgb(p.primary.tone(20)),   // 🚀 কন্টেইনারগুলো প্রাইমারি টোনেই রাখা হলো যাতে ভাইব্রেন্ট লাগে
+    cellDark: hexFromArgb(p.primary.tone(32)),   // 🚀 ছোট ঘরগুলোর হালকা শেড
+    indicatorDark: hexFromArgb(p.primary.tone(85)), 
     linesDark: [
-      hexFromArgb(p.primary.tone(80)),
-      hexFromArgb(p.secondary.tone(80)),
-      hexFromArgb(p.tertiary.tone(80)),
-      hexFromArgb(p.error.tone(80)),
-      hexFromArgb(p.primary.tone(90))
+      hexFromArgb(p.primary.tone(85)),
+      hexFromArgb(p.secondary.tone(85)),
+      hexFromArgb(p.tertiary.tone(85)),
+      hexFromArgb(p.error.tone(85)),
+      hexFromArgb(p.primary.tone(92))
     ]
   };
 };
