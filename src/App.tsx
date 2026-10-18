@@ -252,7 +252,10 @@ export default function App() {
   const [isSoundOn, setIsSoundOn] = useState(() => getSaved('isSoundOn', true));
   const [isHapticEnabled, setIsHapticEnabled] = useState(() => getSaved('isHapticEnabled', true));
   
-  // 🚀 নতুন: জাইরোস্কোপ টগলের স্টেট
+  // 🚀 ফিক্সড: Interactive Icon Drag টগলের স্টেট যুক্ত করা হলো
+  const [isDragEnabled, setIsDragEnabled] = useState(() => getSaved('isDragEnabled', true));
+  
+  // 🚀 জাইরোস্কোপ টগলের স্টেট
   const [isGyroEnabled, setIsGyroEnabled] = useState(() => getSaved('isGyroEnabled', false));
 
   const [soundPrefs, setSoundPrefs] = useState(() => getSaved('soundPrefs', {
@@ -424,7 +427,8 @@ export default function App() {
     localStorage.setItem('isSinglePlayer', JSON.stringify(isSinglePlayer));
     localStorage.setItem('isSoundOn', JSON.stringify(isSoundOn));
     localStorage.setItem('isHapticEnabled', JSON.stringify(isHapticEnabled));
-    localStorage.setItem('isGyroEnabled', JSON.stringify(isGyroEnabled)); // 🚀 জাইরোস্কোপ স্টেট সেভ
+    localStorage.setItem('isDragEnabled', JSON.stringify(isDragEnabled)); // 🚀 ফিক্সড: ড্র্যাগ স্টেট লোকাল স্টোরেজে সেভ
+    localStorage.setItem('isGyroEnabled', JSON.stringify(isGyroEnabled)); 
     localStorage.setItem('soundPrefs', JSON.stringify(soundPrefs));
     localStorage.setItem('useDefaultTheme', JSON.stringify(useDefaultTheme));
     localStorage.setItem('themeIdx', JSON.stringify(themeIdx));
@@ -454,7 +458,7 @@ export default function App() {
     localStorage.setItem('enableHardRefreshTap', JSON.stringify(enableHardRefreshTap));
     localStorage.setItem('enableHardPullToRefresh', JSON.stringify(enableHardPullToRefresh));
     localStorage.setItem('refreshLoaderIdx', JSON.stringify(refreshLoaderIdx));
-  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, isGyroEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, p1Emoji, p2Emoji, isIconsFilledX, isIconsFilledO, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap, enableHardPullToRefresh, refreshLoaderIdx]);
+  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, isDragEnabled, isGyroEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, p1Emoji, p2Emoji, isIconsFilledX, isIconsFilledO, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap, enableHardPullToRefresh, refreshLoaderIdx]);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -1276,8 +1280,17 @@ export default function App() {
                                              : { type: 'spring', stiffness: 500, damping: 14, mass: 1 } 
                                          } 
                                          className="absolute inset-0 m-auto flex items-center justify-center w-full h-full"
+                                         
+                                         // 🚀 ফিক্সড: ড্র্যাগ (Drag) প্রপার্টিগুলো যুক্ত করা হলো
+                                         style={{ touchAction: "none" }}
+                                         drag={isDragEnabled && !isWinningCell && !isGameEnding.current}
+                                         dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
+                                         dragElastic={0.6}
+                                         whileDrag={{ scale: 1.2, zIndex: 100 }}
+                                         whileTap={isDragEnabled ? { scale: 0.8 } : undefined}
+                                         onDragStart={() => triggerHaptic(20)}
+                                         onDragEnd={() => triggerHaptic([30, 50])}
                                       >
-                                         {/* 🚀 জাইরোস্কোপ রাবার-ব্যান্ড ইফেক্টের জন্য GyroIcon দিয়ে মোড়ানো হলো */}
                                          <GyroIcon isEnabled={isGyroEnabled} boundary={8}>
                                              <DynamicIcon 
                                                 player={value} 
@@ -1453,7 +1466,11 @@ export default function App() {
             enableHardRefreshTap={enableHardRefreshTap} setEnableHardRefreshTap={setEnableHardRefreshTap}
             enableHardPullToRefresh={enableHardPullToRefresh} setEnableHardPullToRefresh={setEnableHardPullToRefresh}
             isHapticEnabled={isHapticEnabled} setIsHapticEnabled={setIsHapticEnabled}
+            
+            // 🚀 ফিক্সড: ড্র্যাগ প্রপার্টি SettingsModal-এ পাঠানো হলো
+            isDragEnabled={isDragEnabled} setIsDragEnabled={setIsDragEnabled}
             isGyroEnabled={isGyroEnabled} setIsGyroEnabled={setIsGyroEnabled}
+            
             soundPrefs={soundPrefs} setSoundPrefs={setSoundPrefs}
             playPreviewSound={playPreviewSound}
             refreshLoaderIdx={refreshLoaderIdx} setRefreshLoaderIdx={setRefreshLoaderIdx}
