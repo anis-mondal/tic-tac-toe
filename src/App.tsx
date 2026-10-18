@@ -28,6 +28,9 @@ import { Player, SquareValue, WINNING_COMBINATIONS, findBestMove } from './utils
 // 🚀 লোডিং স্পিনার ইমপোর্ট করার জন্য
 import { REFRESH_LOADERS } from './components/RefreshLoaders';
 
+// 🚀 জাইরোস্কোপ স্প্রিং অ্যানিমেশনের জন্য
+import GyroIcon from './components/GyroIcon';
+
 // 🚀 Custom Filled Volume2 (Only Speaker Filled, Waves Hollow)
 const CustomVolume2 = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -121,7 +124,7 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
 
      if (fillState === 1) { // Soft Fill 
          fillVal = color;
-         fillOp = 0.40; // 🚀 আইকনের স্বচ্ছতা 40% করা হলো 
+         fillOp = 0.40; 
          strokeW = 2.8;
      } else if (fillState === 2) { // Solid Fill
          fillVal = color;
@@ -249,6 +252,9 @@ export default function App() {
   const [isSoundOn, setIsSoundOn] = useState(() => getSaved('isSoundOn', true));
   const [isHapticEnabled, setIsHapticEnabled] = useState(() => getSaved('isHapticEnabled', true));
   
+  // 🚀 নতুন: জাইরোস্কোপ টগলের স্টেট
+  const [isGyroEnabled, setIsGyroEnabled] = useState(() => getSaved('isGyroEnabled', false));
+
   const [soundPrefs, setSoundPrefs] = useState(() => getSaved('soundPrefs', {
      xTap: 1, oTap: 2, pop: 1, mode: 1, refresh: 1, win: 1, overallWin: 1, point: 1
   }));
@@ -267,7 +273,6 @@ export default function App() {
   const [p1Emoji, setP1Emoji] = useState<string | null>(() => getSaved('p1Emoji', null));
   const [p2Emoji, setP2Emoji] = useState<string | null>(() => getSaved('p2Emoji', null));
   
-  // 🚀 Updated States for 3-Step Icon Fill (0: Outline, 1: Soft Fill, 2: Solid)
   const [isIconsFilledX, setIsIconsFilledX] = useState<number>(() => getSaved('isIconsFilledX', 0));
   const [isIconsFilledO, setIsIconsFilledO] = useState<number>(() => getSaved('isIconsFilledO', 0));
 
@@ -283,7 +288,6 @@ export default function App() {
   const [enableHardPullToRefresh, setEnableHardPullToRefresh] = useState(() => getSaved('enableHardPullToRefresh', true));
 
   const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false);
-  // 🚀 নতুন: অ্যানিমেশন মেনু খোলার স্টেট
   const [isLoadersMenuOpen, setIsLoadersMenuOpen] = useState(false);
   const [refreshLoaderIdx, setRefreshLoaderIdx] = useState(() => getSaved('refreshLoaderIdx', 0));
 
@@ -420,6 +424,7 @@ export default function App() {
     localStorage.setItem('isSinglePlayer', JSON.stringify(isSinglePlayer));
     localStorage.setItem('isSoundOn', JSON.stringify(isSoundOn));
     localStorage.setItem('isHapticEnabled', JSON.stringify(isHapticEnabled));
+    localStorage.setItem('isGyroEnabled', JSON.stringify(isGyroEnabled)); // 🚀 জাইরোস্কোপ স্টেট সেভ
     localStorage.setItem('soundPrefs', JSON.stringify(soundPrefs));
     localStorage.setItem('useDefaultTheme', JSON.stringify(useDefaultTheme));
     localStorage.setItem('themeIdx', JSON.stringify(themeIdx));
@@ -448,26 +453,24 @@ export default function App() {
     localStorage.setItem('lastMoveIdx', JSON.stringify(lastMoveIdxRef.current));
     localStorage.setItem('enableHardRefreshTap', JSON.stringify(enableHardRefreshTap));
     localStorage.setItem('enableHardPullToRefresh', JSON.stringify(enableHardPullToRefresh));
-    // 🚀 নতুন: অ্যানিমেশন স্টোরেজে সেভ করা হলো
     localStorage.setItem('refreshLoaderIdx', JSON.stringify(refreshLoaderIdx));
-  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, p1Emoji, p2Emoji, isIconsFilledX, isIconsFilledO, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap, enableHardPullToRefresh, refreshLoaderIdx]);
+  }, [board, humanSymbol, startingPlayer, isXNext, scores, isSinglePlayer, isSoundOn, isHapticEnabled, isGyroEnabled, soundPrefs, useDefaultTheme, themeIdx, xColorIdx, oColorIdx, customLineIdx, p1Custom, p1Idx, p2Custom, p2Idx, p1Emoji, p2Emoji, isIconsFilledX, isIconsFilledO, enableCustomLine, enableCustomX, enableCustomO, targetScore, userWantsTargetScore, isTargetScoreEnabled, isDarkMode, isAmoled, winnerInfo, isDraw, overallWinner, enableHardRefreshTap, enableHardPullToRefresh, refreshLoaderIdx]);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const backSub = CapApp.addListener('backButton', () => {
       if (isAboutOpen) setIsAboutOpen(false);
-      // 🚀 নতুন: ব্যাক বাটন চাপলে অ্যানিমেশন মেনু থেকে মেইন সেটিংসে ফিরবে
       else if (isLoadersMenuOpen) setIsLoadersMenuOpen(false); 
       else if (isAdvancedSettingsOpen) setIsAdvancedSettingsOpen(false);
       else if (isSettingsOpen) {
           setIsSettingsOpen(false);
           setIsAdvancedSettingsOpen(false);
-          setIsLoadersMenuOpen(false); // 🚀 নতুন: সেটিংস বন্ধ হলে এটিও বন্ধ হবে
+          setIsLoadersMenuOpen(false); 
       }
       else CapApp.exitApp();
     });
     return () => { backSub.then(sub => sub.remove()); };
-  }, [isAboutOpen, isSettingsOpen, isAdvancedSettingsOpen, isLoadersMenuOpen]); // 🚀 ডিপেন্ডেন্সি আপডেট
+  }, [isAboutOpen, isSettingsOpen, isAdvancedSettingsOpen, isLoadersMenuOpen]); 
 
 
   useEffect(() => {
@@ -490,12 +493,10 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [isDarkMode, isAmoled, themeIdx, useDefaultTheme]);
 
-    // 🚀 Theme Memory Caching (ক্র্যাশ রোধ করতে)
   const lastValidThemeRef = useRef(CUSTOM_THEMES[themeIdx] || CUSTOM_THEMES[0]);
   if (CUSTOM_THEMES[themeIdx]) lastValidThemeRef.current = CUSTOM_THEMES[themeIdx];
   const activeTheme = useDefaultTheme ? ORIGINAL_THEME : (CUSTOM_THEMES[themeIdx] || lastValidThemeRef.current);
 
-  // 🚀 Line Colors Memory Caching
   const availableLinesDark = [...activeTheme.linesDark, ...EXTRA_LINE_COLORS];
   const availableLinesLight = [...activeTheme.linesLight, ...EXTRA_LINE_COLORS];
   
@@ -509,12 +510,10 @@ export default function App() {
     ? (enableCustomLine ? (availableLinesDark[customLineIdx] || lastValidLineDarkRef.current) : availableLinesDark[0]) 
     : (enableCustomLine ? (availableLinesLight[customLineIdx] || lastValidLineLightRef.current) : availableLinesLight[0]);
 
-  // 🚀 Player X Memory Caching
   const lastValidXRef = useRef(PLAYER_COLORS[xColorIdx] || PLAYER_COLORS[0]);
   if (PLAYER_COLORS[xColorIdx]) lastValidXRef.current = PLAYER_COLORS[xColorIdx];
   const currentXColor = enableCustomX ? (PLAYER_COLORS[xColorIdx] || lastValidXRef.current) : PLAYER_COLORS[0];
 
-  // 🚀 Player O Memory Caching
   const lastValidORef = useRef(PLAYER_COLORS[oColorIdx] || PLAYER_COLORS[9]);
   if (PLAYER_COLORS[oColorIdx]) lastValidORef.current = PLAYER_COLORS[oColorIdx];
   const currentOColor = enableCustomO ? (PLAYER_COLORS[oColorIdx] || lastValidORef.current) : PLAYER_COLORS[9];
@@ -1013,7 +1012,6 @@ export default function App() {
              }}
           >
              {isRefreshing ? (
-               // 🚀 নতুন: সিলেক্ট করা অ্যানিমেশন শো করবে
                React.createElement(REFRESH_LOADERS[refreshLoaderIdx].component, { color: activeLineColor })
              ) : (
                <motion.div animate={{ rotate: pullProgress * 3 }} transition={{ type: "tween", duration: 0.1 }}>
@@ -1245,7 +1243,6 @@ export default function App() {
                           style={{ backgroundColor: semantics.mainGridBackground }} 
                           className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden"
                         >
-                          {/* 🚀 Restored the standard fixed width for portrait, added landscape height calculation */}
                           <div 
                              ref={boardRef} 
                              className="grid grid-cols-3 grid-rows-3 gap-3 relative z-10 w-[240px] sm:w-[280px] md:w-auto md:h-[60vh] aspect-square" 
@@ -1280,13 +1277,16 @@ export default function App() {
                                          } 
                                          className="absolute inset-0 m-auto flex items-center justify-center w-full h-full"
                                       >
-                                         <DynamicIcon 
-                                            player={value} 
-                                            p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX}
-                                            p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO}
-                                            color={value === 'X' ? currentXColor : currentOColor} 
-                                            className="w-3/5 h-3/5 drop-shadow-sm" 
-                                         />
+                                         {/* 🚀 জাইরোস্কোপ রাবার-ব্যান্ড ইফেক্টের জন্য GyroIcon দিয়ে মোড়ানো হলো */}
+                                         <GyroIcon isEnabled={isGyroEnabled} boundary={8}>
+                                             <DynamicIcon 
+                                                player={value} 
+                                                p1Custom={p1Custom} p1Idx={p1Idx} p1Emoji={p1Emoji} p1Filled={isIconsFilledX}
+                                                p2Custom={p2Custom} p2Idx={p2Idx} p2Emoji={p2Emoji} p2Filled={isIconsFilledO}
+                                                color={value === 'X' ? currentXColor : currentOColor} 
+                                                className="w-3/5 h-3/5 drop-shadow-sm" 
+                                             />
+                                         </GyroIcon>
                                       </motion.div>
                                     )}
                                   </AnimatePresence>
@@ -1453,6 +1453,7 @@ export default function App() {
             enableHardRefreshTap={enableHardRefreshTap} setEnableHardRefreshTap={setEnableHardRefreshTap}
             enableHardPullToRefresh={enableHardPullToRefresh} setEnableHardPullToRefresh={setEnableHardPullToRefresh}
             isHapticEnabled={isHapticEnabled} setIsHapticEnabled={setIsHapticEnabled}
+            isGyroEnabled={isGyroEnabled} setIsGyroEnabled={setIsGyroEnabled}
             soundPrefs={soundPrefs} setSoundPrefs={setSoundPrefs}
             playPreviewSound={playPreviewSound}
             refreshLoaderIdx={refreshLoaderIdx} setRefreshLoaderIdx={setRefreshLoaderIdx}
