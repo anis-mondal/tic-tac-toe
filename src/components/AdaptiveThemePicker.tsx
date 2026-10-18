@@ -11,18 +11,19 @@ export const generateAdaptiveTheme = (baseHex: string, themeName: string = 'Adap
   return {
     name: themeName,
     baseColor: baseHex,
-    light: hexFromArgb(p.neutral.tone(98)),           
-    gridLight: hexFromArgb(p.primary.tone(90)),       
-    cellLight: '#ffffff',                             
+    // ☀️ Light Mode Shades (উজ্জ্বলতা কমিয়ে সফট করা হলো এবং ব্যাকগ্রাউন্ডে আভা বাড়ানো হলো)
+    light: hexFromArgb(p.primary.tone(94)),           
+    gridLight: hexFromArgb(p.primary.tone(82)),       
+    cellLight: hexFromArgb(p.primary.tone(98)),                             
     indicatorLight: hexFromArgb(p.primary.tone(40)),  
     linesLight: [
       hexFromArgb(p.primary.tone(40)), hexFromArgb(p.secondary.tone(40)),
       hexFromArgb(p.tertiary.tone(40)), hexFromArgb(p.error.tone(40)), hexFromArgb(p.primary.tone(30))
     ],
-    // 🌙 Dark Mode Shades (আপনার কাস্টম থিমের মতো নিখুঁত ব্যালান্স)
-    dark: hexFromArgb(p.primary.tone(5)),        // 🚀 ব্যাকগ্রাউন্ডের উজ্জ্বলতা কমিয়ে একদম ডিপ ডার্ক করা হলো
-    gridDark: hexFromArgb(p.primary.tone(20)),   // 🚀 কন্টেইনারগুলো ভাইব্রেন্ট রাখা হলো
-    cellDark: hexFromArgb(p.primary.tone(32)),   // 🚀 ছোট ঘরগুলোতে কালো শেডের বদলে হালকা/সাদা শেড দেওয়া হলো
+    // 🌙 Dark Mode Shades
+    dark: hexFromArgb(p.primary.tone(5)),        
+    gridDark: hexFromArgb(p.primary.tone(20)),   
+    cellDark: hexFromArgb(p.primary.tone(32)),   
     indicatorDark: hexFromArgb(p.primary.tone(85)), 
     linesDark: [
       hexFromArgb(p.primary.tone(85)),
