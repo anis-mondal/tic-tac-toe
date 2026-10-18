@@ -1,0 +1,29 @@
+name: Install Material You Plugin
+
+on:
+  workflow_dispatch: # ম্যানুয়ালি রান করার জন্য
+
+jobs:
+  install-dependency:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Plugin and Sync
+        run: |
+          npm install @assembless/capacitor-material-you
+          npx cap sync
+
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add package.json package-lock.json android/ ios/
+          git commit -m "Add capacitor-material-you plugin"
+          git push
