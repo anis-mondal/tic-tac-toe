@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { motion, AnimatePresence, useAnimation } from 'motion/react';
-import { RotateCcw, Moon, Sun, Sparkles, UsersRound } from 'lucide-react';
+import { RotateCcw, Moon, Sun, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // @ts-ignore
@@ -22,46 +22,16 @@ import { App as CapApp } from '@capacitor/app';
 import SettingsModal, { PLAYER_COLORS, CUSTOM_THEMES, ORIGINAL_THEME, EXTRA_LINE_COLORS, ICONS_LIST } from './components/SettingsModal';
 import AboutModal from './components/AboutModal';
 
-// 🚀 ইম্পোর্ট করা হলো গেম লজিক
+// 🚀 গেম লজিক এবং রিফ্রেশ লোডারস
 import { Player, SquareValue, WINNING_COMBINATIONS, findBestMove } from './utils/gameLogic';
-
-// 🚀 লোডিং স্পিনার ইমপোর্ট করার জন্য
 import { REFRESH_LOADERS } from './components/RefreshLoaders';
 
-// 🚀 জাইরোস্কোপ স্প্রিং অ্যানিমেশনের জন্য
+// 🚀 জাইরোস্কোপ স্প্রিং অ্যানিমেশন
 import GyroIcon from './components/GyroIcon';
 
-// 🚀 Custom Filled Volume2 (Only Speaker Filled, Waves Hollow)
-const CustomVolume2 = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
-    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" fill="none" />
-    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" fill="none" />
-  </svg>
-);
-
-// 🚀 Custom Filled VolumeX (Only Speaker Filled, Cross Hollow)
-const CustomVolumeX = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
-    <line x1="23" y1="9" x2="17" y2="15" fill="none" />
-    <line x1="17" y1="9" x2="23" y2="15" fill="none" />
-  </svg>
-);
-
-// 🚀 Custom Filled Settings (Gear Filled, Center Circle Hollow with Border)
-const CustomSettings = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <mask id="settings-hole">
-      <rect width="24" height="24" fill="white" />
-      <circle cx="12" cy="12" r="3" fill="black" stroke="black" strokeWidth="1" />
-    </mask>
-    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" fill="currentColor" mask="url(#settings-hole)" />
-    <circle cx="12" cy="12" r="3" fill="none" />
-  </svg>
-);
-
-export const SolidUsers = ({ className, color }: { className?: string, color?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" color={color} className={className}><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>;
+// 🚀 নতুন: আলাদা করা সাউন্ড ইঞ্জিন এবং কাস্টম আইকনগুলো ইম্পোর্ট করা হলো
+import { playEnhancedSound } from './utils/soundEngine';
+import { CustomVolume2, CustomVolumeX, CustomSettings, SolidUsers, AILogo } from './components/CustomIcons';
 
 
 const triggerNativeHaptic = (pattern: number | number[], isEnabled: boolean) => {
@@ -73,36 +43,14 @@ const triggerNativeHaptic = (pattern: number | number[], isEnabled: boolean) => 
   }
 };
 
-const MaterialSpinner = ({ color }: { color: string }) => (
-  <motion.svg viewBox="0 0 50 50" className="w-[22px] h-[22px]" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} style={{ color }}>
-    <motion.circle cx="25" cy="25" r="20" fill="none" strokeWidth="5" stroke="currentColor" strokeLinecap="round" initial={{ strokeDasharray: "1, 150", strokeDashoffset: 0 }} animate={{ strokeDasharray: ["1, 150", "90, 150", "90, 150"], strokeDashoffset: [0, -35, -124] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} />
-  </motion.svg>
-);
-
-const AILogo = () => (
-  <svg width="20" height="20" viewBox="0 0 100 100" className="drop-shadow-sm shrink-0">
-    <defs>
-      <linearGradient id="ai-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#FF3B30" />    
-        <stop offset="25%" stopColor="#FF9500" />   
-        <stop offset="50%" stopColor="#4CD964" />   
-        <stop offset="75%" stopColor="#5AC8FA" />   
-        <stop offset="100%" stopColor="#007AFF" />  
-      </linearGradient>
-    </defs>
-    <circle cx="50" cy="50" r="42" fill="none" stroke="url(#ai-grad)" strokeWidth="12" />
-    <text x="50" y="68" fontFamily="NunitoCustom, sans-serif" fontWeight="900" fontSize="48" fill="url(#ai-grad)" textAnchor="middle">Ai</text>
-  </svg>
-);
-
-// 🚀 Hyper-Optimized DynamicIcon (Supports Outline, Soft Fill, and Solid)
+// 🚀 Hyper-Optimized DynamicIcon
 const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2Custom, p2Idx, p2Emoji, p2Filled, color, className }: any) => {
   if (!player) return null;
   const isP1 = player === 'X';
   const isCustomEnabled = isP1 ? p1Custom : p2Custom;
   const iconIndex = isP1 ? p1Idx : p2Idx;
   const emoji = isP1 ? p1Emoji : p2Emoji;
-  const fillState = isP1 ? p1Filled : p2Filled; // 0 = Outline, 1 = Soft Fill, 2 = Solid
+  const fillState = isP1 ? p1Filled : p2Filled; 
 
   if (isCustomEnabled) {
      if (iconIndex === -1 && emoji) {
@@ -117,16 +65,15 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
      const SafeIndex = Math.max(0, iconIndex) % ICONS_LIST.length;
      const SelectedIcon = ICONS_LIST[SafeIndex];
      
-     // 🚀 3-State Logic
      let fillVal = 'none';
      let fillOp = 1;
      let strokeW = 2.5;
 
-     if (fillState === 1) { // Soft Fill 
+     if (fillState === 1) { 
          fillVal = color;
          fillOp = 0.40; 
          strokeW = 2.8;
-     } else if (fillState === 2) { // Solid Fill
+     } else if (fillState === 2) { 
          fillVal = color;
          fillOp = 1;
          strokeW = 2.2;
@@ -140,88 +87,6 @@ const DynamicIcon = React.memo(({ player, p1Custom, p1Idx, p1Emoji, p1Filled, p2
   }
   return (<svg viewBox="0 0 24 24" className={className} fill="none"><circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="4.5" /></svg>);
 });
-
-const audioState = { ctx: null as AudioContext | null };
-
-const playEnhancedSound = (type: 'tap' | 'win' | 'overallWin' | 'pop' | 'point' | 'unmute' | 'mode' | 'refresh', variant: number) => {
-  if (!variant || variant === 0 || typeof window === 'undefined') return;
-  try {
-    if (!audioState.ctx) {
-      audioState.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-    if (audioState.ctx.state === 'suspended') audioState.ctx.resume();
-    const ctx = audioState.ctx;
-    const t = ctx.currentTime;
-    
-    const profiles = [
-      { w: 'sine', f: 0, d: 0, s: 0 },
-      { w: 'sine', f: 600, d: 0.1, s: 1 },        
-      { w: 'sine', f: 400, d: 0.1, s: 1.5 },      
-      { w: 'triangle', f: 800, d: 0.05, s: 1 },   
-      { w: 'sine', f: 1200, d: 0.15, s: 1 },      
-      { w: 'sine', f: 300, d: 0.1, s: 0.5 },      
-      { w: 'triangle', f: 600, d: 0.1, s: 1 },    
-      { w: 'sine', f: 900, d: 0.08, s: 1 },       
-      { w: 'triangle', f: 350, d: 0.15, s: 1 },   
-      { w: 'sine', f: 1500, d: 0.05, s: 1 },      
-      { w: 'sine', f: 500, d: 0.2, s: 1 },        
-      { w: 'triangle', f: 1000, d: 0.05, s: 1 },  
-      { w: 'sine', f: 800, d: 0.1, s: 0.5 },      
-      { w: 'sine', f: 450, d: 0.15, s: 1 },       
-      { w: 'triangle', f: 750, d: 0.08, s: 1.2 }, 
-      { w: 'sine', f: 200, d: 0.15, s: 1 },       
-      { w: 'triangle', f: 550, d: 0.12, s: 1 },   
-      { w: 'sine', f: 1800, d: 0.03, s: 1 },      
-      { w: 'sine', f: 350, d: 0.1, s: 1.5 },      
-      { w: 'triangle', f: 900, d: 0.1, s: 0.8 },  
-      { w: 'sine', f: 700, d: 0.15, s: 1 }        
-    ];
-
-    const p = profiles[variant] || profiles[1];
-
-    const playOsc = (wave: string, freq: number, vol: number, attack: number, decay: number, sweep: number = 1, sweepDur: number = 0, delay: number = 0) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = wave as OscillatorType;
-        osc.frequency.setValueAtTime(freq, t + delay);
-        if (sweep !== 1) osc.frequency.exponentialRampToValueAtTime(freq * sweep, t + delay + sweepDur);
-        
-        gain.gain.setValueAtTime(0, t + delay);
-        gain.gain.linearRampToValueAtTime(vol, t + delay + attack);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + delay + attack + decay);
-        
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(t + delay);
-        osc.stop(t + delay + attack + decay);
-    };
-
-    if (type === 'tap') {
-        playOsc(p.w, p.f, 0.4, 0.01, p.d, p.s, 0.1);
-    } else if (type === 'pop') {
-        playOsc(p.w, p.f * 0.75, 0.4, 0.01, p.d * 1.5, p.s, 0.1);
-    } else if (type === 'point' || type === 'unmute') {
-        playOsc(p.w, p.f * 1.5, 0.3, 0.01, p.d * 1.2, p.s, 0.1);
-    } else if (type === 'mode') {
-        playOsc(p.w, p.f * 0.8, 0.3, 0.02, p.d);
-        playOsc(p.w, p.f * 1.2, 0.3, 0.02, p.d * 1.2, 1, 0, 0.15);
-    } else if (type === 'refresh') {
-        playOsc(p.w, p.f * 0.8, 0.3, 0.02, p.d);
-        playOsc(p.w, p.f, 0.3, 0.02, p.d, 1, 0, 0.08);
-        playOsc(p.w, p.f * 1.4, 0.3, 0.02, p.d * 1.5, 1, 0, 0.16);
-    } else if (type === 'win') {
-        playOsc(p.w, p.f, 0.3, 0.02, p.d);
-        playOsc(p.w, p.f * 1.25, 0.3, 0.02, p.d, 1, 0, 0.15);
-        playOsc(p.w, p.f * 1.5, 0.3, 0.02, p.d * 2, 1, 0, 0.3);
-    } else if (type === 'overallWin') {
-        playOsc(p.w, p.f * 0.8, 0.3, 0.05, p.d);
-        playOsc(p.w, p.f * 1.0, 0.3, 0.05, p.d, 1, 0, 0.15);
-        playOsc(p.w, p.f * 1.25, 0.3, 0.05, p.d, 1, 0, 0.3);
-        playOsc(p.w, p.f * 1.5, 0.3, 0.05, p.d, 1, 0, 0.45);
-        playOsc(p.w, p.f * 2.0, 0.4, 0.05, p.d * 3, 1, 0, 0.6);
-    }
-  } catch(e) {}
-};
 
 const blendDarker = (hex: string, factor: number) => {
     if (!hex || hex.length !== 7 || hex[0] !== '#') return hex;
@@ -251,9 +116,8 @@ export default function App() {
   
   const [isSoundOn, setIsSoundOn] = useState(() => getSaved('isSoundOn', true));
   const [isHapticEnabled, setIsHapticEnabled] = useState(() => getSaved('isHapticEnabled', true));
-  
-  const [isDragEnabled, setIsDragEnabled] = useState(() => getSaved('isDragEnabled', true));
-  const [isGyroEnabled, setIsGyroEnabled] = useState(() => getSaved('isGyroEnabled', false));
+  const [isDragEnabled, setIsDragEnabled] = useState(() => getSaved('isDragEnabled', true)); 
+  const [isGyroEnabled, setIsGyroEnabled] = useState(() => getSaved('isGyroEnabled', false)); 
 
   const [soundPrefs, setSoundPrefs] = useState(() => getSaved('soundPrefs', {
      xTap: 1, oTap: 2, pop: 1, mode: 1, refresh: 1, win: 1, overallWin: 1, point: 1
@@ -290,7 +154,6 @@ export default function App() {
   const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false);
   const [isLoadersMenuOpen, setIsLoadersMenuOpen] = useState(false);
   const [refreshLoaderIdx, setRefreshLoaderIdx] = useState(() => getSaved('refreshLoaderIdx', 0));
-
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = getSaved('isDarkMode', null);
@@ -472,7 +335,6 @@ export default function App() {
     });
     return () => { backSub.then(sub => sub.remove()); };
   }, [isAboutOpen, isSettingsOpen, isAdvancedSettingsOpen, isLoadersMenuOpen]); 
-
 
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
@@ -987,7 +849,6 @@ export default function App() {
           
           <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[100]" />
 
-          {/* 🚀 Desktop Spinner Alignment */}
           <motion.div 
              className="fixed left-1/2 md:left-1/4 -translate-x-1/2 flex items-center justify-center shadow-md z-[200] rounded-full"
              style={{
@@ -1021,7 +882,6 @@ export default function App() {
              )}
           </motion.div>
 
-          {/* 🚀 Desktop Optimized Top Nav */}
           <motion.nav 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1084,7 +944,6 @@ export default function App() {
             </div>
           </motion.nav>
 
-          {/* 🚀 Main Split Layout Wrapper */}
           <motion.div 
              initial={{ opacity: 0, scale: 0.9, y: 15 }} 
              animate={{ opacity: 1, scale: 1, y: 0 }} 
@@ -1096,7 +955,6 @@ export default function App() {
                  initial={{ gap: "20px" }} 
                  className="w-full flex flex-col md:flex-row items-center justify-center pt-24 md:pt-0 relative z-10" 
               >
-                  {/* 🚀 LEFT PANE (Controls) - Custom Landscape Scale Logic via Tailwind Media Query */}
                   <div 
                      className="w-full md:w-1/2 flex flex-col items-center justify-center gap-4 sm:gap-5 md:gap-6 lg:gap-8 landscape:scale-[min(1,calc(100vh/650))] portrait:scale-100 origin-center transition-transform"
                   >
@@ -1235,14 +1093,12 @@ export default function App() {
                       </div>
                   </div>
 
-                  {/* 🚀 RIGHT PANE (Game Board) */}
                   <div className="w-full md:w-1/2 flex items-center justify-center mt-6 md:mt-0">
                       <div className="relative group z-10 m-0 transition-transform duration-500 origin-center md:scale-[1.15] lg:scale-[1.3]">
                         <motion.div 
                           animate={isDraw ? { x: [-12, 12, -12, 12, -6, 6, 0], opacity: 1, scale: 1 } : { x: 0, opacity: 1, scale: 1 }}
                           transition={{ duration: 0.5, ease: "easeInOut" }}
                           style={{ backgroundColor: semantics.mainGridBackground }} 
-                          // 🚀 ফিক্সড: মেইন কন্টেইনারের overflow ডাইনামিক করা হলো
                           className={`relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md ${isDragEnabled ? 'overflow-visible' : 'overflow-hidden'}`}
                         >
                           <div 
@@ -1259,7 +1115,6 @@ export default function App() {
                                   whileTap={!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? { borderRadius: '50%', scale: 0.85 } : {}}
                                   animate={isSquished ? { borderRadius: '50%', scale: 0.85 } : { borderRadius: '24px', scale: 1 }}
                                   transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                                  // 🚀 ফিক্সড: সেল কন্টেইনারের overflow ডাইনামিক করা হলো
                                   className={`w-full h-full flex items-center justify-center relative ${isDragEnabled ? 'overflow-visible' : 'overflow-hidden'} shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}
                                 >
                                   <AnimatePresence>
@@ -1405,7 +1260,6 @@ export default function App() {
                   </div>
               </motion.div>
 
-              {/* 🚀 Desktop Optimized Winner Modal */}
               <AnimatePresence>
                 {showWinnerModal && overallWinner && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="fixed inset-0 z-50 flex items-center justify-center md:justify-start p-2 bg-black/15 backdrop-blur-sm">
