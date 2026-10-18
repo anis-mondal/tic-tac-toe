@@ -25,8 +25,6 @@ import {
 } from 'lucide-react';
 
 import { EMOJI_LIST } from './emojiList'; 
-
-// 🚀 ইম্পোর্ট করা হলো ৭২টি অ্যানিমেশন কালেকশন
 import { REFRESH_LOADERS } from './RefreshLoaders';
 
 export const ICONS_LIST = [
@@ -47,6 +45,16 @@ export const EXTRA_LINE_COLORS = [
 export const ORIGINAL_THEME = { name: 'Classic', light: '#f8f9fa', dark: '#000000', gridLight: '#e2e8f0', gridDark: '#1a1c1e', cellLight: '#ffffff', cellDark: '#2a2d31', indicatorLight: '#64748b', indicatorDark: '#94a3b8', linesLight: ['#22c55e', '#16a34a', '#15803d', '#10b981', '#059669'], linesDark: ['#22c55e', '#4ade80', '#86efac', '#34d399', '#6ee7b7'] };
 
 export const CUSTOM_THEMES = [
+  // 🚀 নতুন: আপনার দেওয়া কাস্টম পার্পেল থিম
+  { 
+    name: 'M3 Custom Purple', 
+    light: '#F8F4FF', dark: '#140D1C', 
+    gridLight: '#DDC4FD', gridDark: '#3C255B', 
+    cellLight: '#ffffff', cellDark: '#533C74', 
+    indicatorLight: '#6A5687', indicatorDark: '#D5BBFA', 
+    linesLight: ['#6A5687', '#4E3B68', '#7D516A', '#9F7AEA', '#FDC4E4'], 
+    linesDark: ['#D5BBFA', '#EDDCFF', '#FFD8E0', '#643B43', '#B794F4'] 
+  },
   { name: 'Dynamic M3', light: '#fdf8fd', dark: '#141218', gridLight: '#e8def8', gridDark: '#2b2930', cellLight: '#ffffff', cellDark: '#36343b', indicatorLight: '#6750a4', indicatorDark: '#d0bcff', linesLight: ['#6750a4', '#b3261e', '#9c4146', '#316934', '#006a6a'], linesDark: ['#d0bcff', '#f2b8b5', '#ffb4ab', '#82c986', '#4cdada'] },
   { name: 'M3 Blue', light: '#eff6ff', dark: '#040b17', gridLight: '#bfdbfe', gridDark: '#0a1229', cellLight: '#ffffff', cellDark: '#121e38', indicatorLight: '#2563eb', indicatorDark: '#3b82f6', linesLight: ['#1e3a8a', '#1d4ed8', '#0891b2', '#4f46e5', '#3b82f6'], linesDark: ['#60a5fa', '#93c5fd', '#3b82f6', '#818cf8', '#7dd3fc'] },
   { name: 'M3 Emerald', light: '#ecfdf5', dark: '#020f0a', gridLight: '#a7f3d0', gridDark: '#052115', cellLight: '#ffffff', cellDark: '#0a3321', indicatorLight: '#16a34a', indicatorDark: '#22c55e', linesLight: ['#166534', '#059669', '#15803d', '#10b981', '#16a34a'], linesDark: ['#4ade80', '#22c55e', '#34d399', '#86efac', '#8dd999'] },
@@ -119,6 +127,10 @@ interface SettingsModalProps {
   enableHardRefreshTap: boolean; setEnableHardRefreshTap: (val: boolean) => void;
   enableHardPullToRefresh: boolean; setEnableHardPullToRefresh: (val: boolean) => void;
   isHapticEnabled: boolean; setIsHapticEnabled: (val: boolean) => void;
+  
+  // 🚀 Interactive Drag Toggle
+  isDragEnabled: boolean; setIsDragEnabled: (val: boolean) => void;
+
   soundPrefs: { xTap: number, oTap: number, pop: number, mode: number, refresh: number, win: number, overallWin: number, point: number };
   setSoundPrefs: React.Dispatch<React.SetStateAction<any>>;
   playPreviewSound: (key: string, val: number) => void;
@@ -143,7 +155,6 @@ export default function SettingsModal(props: SettingsModalProps) {
   const [visualThemeIdx, setVisualThemeIdx] = useState(props.themeIdx);
   const [isUpdating, setIsUpdating] = useState(false);
   
-  // 🚀 Preview State for Loaders (1.5s active animation on tap)
   const [previewLoaderIdx, setPreviewLoaderIdx] = useState<number | null>(null);
 
   useEffect(() => { 
@@ -261,7 +272,6 @@ export default function SettingsModal(props: SettingsModalProps) {
      }, 300);
   };
 
-  // 🚀 Handles tap on Loader Animation
   const handleLoaderSelect = (idx: number) => {
      props.hapticFeedback(20);
      props.setRefreshLoaderIdx(idx);
@@ -498,7 +508,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                                  </div>
                              </div>
 
-                             {/* 🚀 Icons Row for Player X (3-State Toggle) */}
                              <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
                                 <div className="flex justify-between items-center mb-2 px-1">
                                    <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Icons</span>
@@ -595,7 +604,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                                  </div>
                              </div>
 
-                             {/* 🚀 Icons Row for Player O (3-State Toggle) */}
                              <div className="relative w-full rounded-[16px] overflow-hidden pt-1">
                                 <div className="flex justify-between items-center mb-2 px-1">
                                    <span className="text-[11px] font-black uppercase tracking-wider opacity-60">Icons</span>
@@ -626,7 +634,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                        </AnimatePresence>
                     </div>
 
-                    {/* 🚀 8. Refresh Animations Button (New Menu) */}
+                    {/* 🚀 8. Refresh Animations Button */}
                     <div className="pt-2 flex justify-center w-full">
                        <button onClick={() => { props.hapticFeedback(30); props.setShowLoadersMenu(true); }} className="w-[85%] py-[15px] rounded-[24px] bg-black/5 dark:bg-white/5 border-[2.5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm transition-colors duration-300" style={{ borderColor: cardBorderColor }}>
                          <RotateCcw className="w-[20px] h-[20px] opacity-70" style={{ color: activeLineColor }} /> 
@@ -653,7 +661,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                   </div>
                 </div>
 
-                {/* 🚀 Refresh Loaders Overlay (New Page for Animations with Tint Fix) */}
+                {/* 🚀 Refresh Loaders Overlay (New Page for Animations with Magic Tint Fix) */}
                 <AnimatePresence>
                   {props.showLoadersMenu && (
                     <motion.div 
@@ -683,14 +691,19 @@ export default function SettingsModal(props: SettingsModalProps) {
                                           whileTap={{ scale: 0.8 }}
                                           transition={{ type: "spring", stiffness: 400, damping: 17 }}
                                           onClick={() => handleLoaderSelect(idx)}
-                                          className={`relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all overflow-hidden ${isSelected ? 'shadow-md' : 'shadow-sm'}`}
+                                          className={`relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all overflow-hidden ${isSelected ? 'shadow-md' : 'shadow-sm bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20'}`}
                                           style={{ 
                                              border: isSelected ? `2.5px solid ${activeLineColor}` : '2.5px solid transparent',
                                              color: isSelected ? activeLineColor : (props.isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)') 
                                           }}
                                        >
                                           {/* 🚀 Magic Fix: থিম কালারের হালকা আভা (Tint) */}
-                                          <div className="absolute inset-0 transition-opacity duration-300" style={{ backgroundColor: activeLineColor, opacity: isSelected ? 0.15 : 0.05 }} />
+                                          {isSelected && (
+                                              <div className="absolute inset-0 transition-opacity duration-300" style={{ backgroundColor: activeLineColor, opacity: 0.15 }} />
+                                          )}
+                                          {!isSelected && (
+                                              <div className="absolute inset-0 transition-opacity duration-300" style={{ backgroundColor: activeLineColor, opacity: 0.05 }} />
+                                          )}
 
                                           <div className="relative z-10" key={animationKey}>
                                               {React.createElement(loader.component, { color: isSelected ? activeLineColor : (props.isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)') })}
@@ -734,6 +747,14 @@ export default function SettingsModal(props: SettingsModalProps) {
                                  <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 w-3/4">Enable Haptic Feedback</h3>
                                  <AnimatedToggle enabled={props.isHapticEnabled} onToggle={() => { props.hapticFeedback(30); props.setIsHapticEnabled(!props.isHapticEnabled); }} activeColor={activeLineColor} isDarkMode={props.isDarkMode} />
                               </div>
+
+                              {/* 🚀 নতুন: Drag & Bounce Physics টগল */}
+                              <div className="w-full h-px bg-black/10 dark:bg-white/10" />
+                              <div className="flex items-center justify-between">
+                                 <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Interactive Icon Drag</h3>
+                                 <AnimatedToggle enabled={props.isDragEnabled} onToggle={() => { props.hapticFeedback(30); props.setIsDragEnabled(!props.isDragEnabled); }} activeColor={activeLineColor} isDarkMode={props.isDarkMode} />
+                              </div>
+
                               <div className="w-full h-px bg-black/10 dark:bg-white/10" />
                               <div className="flex items-center justify-between">
                                  <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Hard Refresh on Bar Tap</h3>
@@ -763,7 +784,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                   )}
                 </AnimatePresence>
                 
-                {/* Smart Emoji Popup with Keyboard Integration */}
+                {/* Smart Emoji Popup */}
                 <AnimatePresence>
                   {emojiModal.isOpen && (
                      <motion.div 
