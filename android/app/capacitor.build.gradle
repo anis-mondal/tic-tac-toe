@@ -12,7 +12,7 @@ dependencies {
     implementation project(':capacitor-app')
     implementation project(':capacitor-haptics')
     implementation project(':capacitor-status-bar')
-
+    implementation "com.google.android.material:material:1.9.0"
 }
 
 
