@@ -252,10 +252,7 @@ export default function App() {
   const [isSoundOn, setIsSoundOn] = useState(() => getSaved('isSoundOn', true));
   const [isHapticEnabled, setIsHapticEnabled] = useState(() => getSaved('isHapticEnabled', true));
   
-  // 🚀 ফিক্সড: Interactive Icon Drag টগলের স্টেট যুক্ত করা হলো
   const [isDragEnabled, setIsDragEnabled] = useState(() => getSaved('isDragEnabled', true));
-  
-  // 🚀 জাইরোস্কোপ টগলের স্টেট
   const [isGyroEnabled, setIsGyroEnabled] = useState(() => getSaved('isGyroEnabled', false));
 
   const [soundPrefs, setSoundPrefs] = useState(() => getSaved('soundPrefs', {
@@ -427,7 +424,7 @@ export default function App() {
     localStorage.setItem('isSinglePlayer', JSON.stringify(isSinglePlayer));
     localStorage.setItem('isSoundOn', JSON.stringify(isSoundOn));
     localStorage.setItem('isHapticEnabled', JSON.stringify(isHapticEnabled));
-    localStorage.setItem('isDragEnabled', JSON.stringify(isDragEnabled)); // 🚀 ফিক্সড: ড্র্যাগ স্টেট লোকাল স্টোরেজে সেভ
+    localStorage.setItem('isDragEnabled', JSON.stringify(isDragEnabled)); 
     localStorage.setItem('isGyroEnabled', JSON.stringify(isGyroEnabled)); 
     localStorage.setItem('soundPrefs', JSON.stringify(soundPrefs));
     localStorage.setItem('useDefaultTheme', JSON.stringify(useDefaultTheme));
@@ -1238,14 +1235,15 @@ export default function App() {
                       </div>
                   </div>
 
-                  {/* 🚀 RIGHT PANE (Game Board) - Fixed Portrait scaling & Smooth Landscape sizing */}
+                  {/* 🚀 RIGHT PANE (Game Board) */}
                   <div className="w-full md:w-1/2 flex items-center justify-center mt-6 md:mt-0">
                       <div className="relative group z-10 m-0 transition-transform duration-500 origin-center md:scale-[1.15] lg:scale-[1.3]">
                         <motion.div 
                           animate={isDraw ? { x: [-12, 12, -12, 12, -6, 6, 0], opacity: 1, scale: 1 } : { x: 0, opacity: 1, scale: 1 }}
                           transition={{ duration: 0.5, ease: "easeInOut" }}
                           style={{ backgroundColor: semantics.mainGridBackground }} 
-                          className="relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md overflow-hidden"
+                          // 🚀 ফিক্সড: মেইন কন্টেইনারের overflow ডাইনামিক করা হলো
+                          className={`relative p-4 sm:p-5 rounded-[36px] sm:rounded-[40px] shadow-lg backdrop-blur-md ${isDragEnabled ? 'overflow-visible' : 'overflow-hidden'}`}
                         >
                           <div 
                              ref={boardRef} 
@@ -1261,7 +1259,8 @@ export default function App() {
                                   whileTap={!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? { borderRadius: '50%', scale: 0.85 } : {}}
                                   animate={isSquished ? { borderRadius: '50%', scale: 0.85 } : { borderRadius: '24px', scale: 1 }}
                                   transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                                  className={`w-full h-full flex items-center justify-center relative overflow-hidden shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}
+                                  // 🚀 ফিক্সড: সেল কন্টেইনারের overflow ডাইনামিক করা হলো
+                                  className={`w-full h-full flex items-center justify-center relative ${isDragEnabled ? 'overflow-visible' : 'overflow-hidden'} shadow-sm ${!value && !winnerInfo && !isAITurn && !isResetting && !overallWinner ? 'hover:brightness-110 cursor-pointer' : 'cursor-default'}`} disabled={!!value || !!winnerInfo || isAITurn || isResetting || overallWinner}
                                 >
                                   <AnimatePresence>
                                     {value && !isResetting && (
@@ -1281,7 +1280,6 @@ export default function App() {
                                          } 
                                          className="absolute inset-0 m-auto flex items-center justify-center w-full h-full"
                                          
-                                         // 🚀 ফিক্সড: ড্র্যাগ (Drag) প্রপার্টিগুলো যুক্ত করা হলো
                                          style={{ touchAction: "none" }}
                                          drag={isDragEnabled && !isWinningCell && !isGameEnding.current}
                                          dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
@@ -1466,11 +1464,8 @@ export default function App() {
             enableHardRefreshTap={enableHardRefreshTap} setEnableHardRefreshTap={setEnableHardRefreshTap}
             enableHardPullToRefresh={enableHardPullToRefresh} setEnableHardPullToRefresh={setEnableHardPullToRefresh}
             isHapticEnabled={isHapticEnabled} setIsHapticEnabled={setIsHapticEnabled}
-            
-            // 🚀 ফিক্সড: ড্র্যাগ প্রপার্টি SettingsModal-এ পাঠানো হলো
             isDragEnabled={isDragEnabled} setIsDragEnabled={setIsDragEnabled}
             isGyroEnabled={isGyroEnabled} setIsGyroEnabled={setIsGyroEnabled}
-            
             soundPrefs={soundPrefs} setSoundPrefs={setSoundPrefs}
             playPreviewSound={playPreviewSound}
             refreshLoaderIdx={refreshLoaderIdx} setRefreshLoaderIdx={setRefreshLoaderIdx}
