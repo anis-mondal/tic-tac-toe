@@ -21,8 +21,8 @@ export const CustomSettings = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <mask id="settings-hole">
       <rect width="24" height="24" fill="white" />
-      {/* মাঝের গোল অংশটি r="3" থেকে বাড়িয়ে r="4.1" করা হলো */}
-      <circle cx="12" cy="12" r="4.1" fill="black" stroke="black" strokeWidth="1" />
+      {/* মাঝের গোল অংশটি r="3" থেকে বাড়িয়ে r="3.8" করা হলো */}
+      <circle cx="12" cy="12" r="3.8" fill="black" stroke="black" strokeWidth="1" />
     </mask>
     <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" fill="currentColor" mask="url(#settings-hole)" />
     <circle cx="12" cy="12" r="4.5" fill="none" />
