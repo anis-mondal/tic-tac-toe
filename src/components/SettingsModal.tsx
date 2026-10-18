@@ -22,16 +22,25 @@ import {
   Drum, Dumbbell, Ear, Eclipse, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, Guitar, 
   IceCream, Keyboard, Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle, AlarmClock, Ambulance, 
   BaggageClaim, Beer, CarFront, ChefHat, Citrus, Grape, Lock, Joystick, MountainSnow, Wine, Nut, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich, ChevronLeft,
-  Plus, Trash2, Edit3 // 🚀 নতুন আইকন ইমপোর্ট করা হলো
+  Plus, Trash2, Edit3
 } from 'lucide-react';
 
 import { EMOJI_LIST } from './emojiList'; 
 import { REFRESH_LOADERS } from './RefreshLoaders';
-import AdaptiveThemePicker, { generateAdaptiveTheme } from './AdaptiveThemePicker'; // 🚀 Adaptive Theme ইমপোর্ট
+import AdaptiveThemePicker, { generateAdaptiveTheme } from './AdaptiveThemePicker'; 
 
 export const ICONS_LIST = [
   Hexagon, Octagon, Pentagon, Triangle, Square, Diamond, Asterisk, TargetIcon, Shield, Zap, Dna, Star, Heart, InfinityIcon, Puzzle, SparkleIcon, Gem, Crown, Trophy, Ghost, Leaf, Flame, Droplet, Flower2, Snowflake, Feather, SunIcon, MoonIcon, Cloud, Wind, Sprout, TreePine, Mountain, Bug, Cat, Dog, Bird, Fish, Rabbit, Snail, Anchor, Magnet, Umbrella, Coffee, Camera, Bell, Music, Gamepad2, Lightbulb, Dice5, Tent, Wand2, Atom, Orbit, Bomb, Key, Glasses, Clock, Hourglass, Timer, Rocket, Plane, Car, Ship, Bus, Train, Bike, Tractor, Sailboat, Truck, Compass, MapPin, Radar, LifeBuoy, Map, Navigation, Flag, Globe, Ticket, Luggage, Cpu, Database, Laptop, Smartphone, Watch, Headphones, Mic, Radio, Tv, Monitor, Smile, Skull, Bot, Eye, Fingerprint, Activity, Box, Layers, Aperture, Grid, Palette, PenTool, Brush, Scissors, Hammer, Wrench, Ruler, Drill, HardHat, Thermometer, Sunrise, Sunset, CloudRain, CloudSnow, CloudLightning, Tornado, Waves, Trees, Palmtree, Droplets, ShoppingCart, ShoppingBag, ShoppingBasket, Tag, Wallet, CreditCard, Banknote, Coins, PiggyBank, Receipt, Stethoscope, Syringe, TestTube, FlaskConical, Pill, Microscope, Telescope, Webcam, Film, Clapperboard, Megaphone, Speaker, Book, Bookmark, Briefcase, GraduationCap, Medal, Award, Gift, PartyPopper, Apple, Axe, Backpack, Banana, Battery, Bed, Binoculars, Bone, Brain, Cake, Calculator, Calendar, Candy, Carrot, Castle, Cherry, Church, Clover, Club, Cookie, Croissant, Crosshair, CupSoda, Drama, Drum, Dumbbell, Ear, Eclipse, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, Guitar, IceCream, Keyboard, Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle, AlarmClock, Ambulance, BaggageClaim, Beer, CarFront, ChefHat, Citrus, Grape, Lock, Joystick, MountainSnow, Wine, Nut, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich
 ];
+
+// 🚀 Local Storage থেকে সেভ করা কাস্টম কালারগুলো নিয়ে আসা
+let savedCustomColors: string[] = [];
+try {
+  if (typeof window !== 'undefined') {
+    const val = localStorage.getItem('userCustomColors');
+    if (val) savedCustomColors = JSON.parse(val);
+  }
+} catch (e) {}
 
 export const PLAYER_COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', 
@@ -40,14 +49,14 @@ export const PLAYER_COLORS = [
   '#6A5687', '#D5BBFA', '#895130', '#FFB68D', '#775B1A', '#FEDF9E', 
   '#61692D', '#DFE895', '#3C6942', '#9BD49F', '#1E6A60', '#9EF2E3', 
   '#23677A', '#B0EDFF', '#30436E', '#B0C6FF', '#413E6D', '#C4BFFF',
-  '#8D4E45', '#5F2A24', '#FAAA9F', '#FFB1BE', '#72333E', '#FFD9DE' 
+  '#8D4E45', '#5F2A24', '#FAAA9F', '#FFB1BE', '#72333E', '#FFD9DE',
+  ...savedCustomColors // 🚀 ইউজারের তৈরি করা কালারগুলো যুক্ত হলো
 ];
 
 export const EXTRA_LINE_COLORS = [...PLAYER_COLORS];
 
 export const ORIGINAL_THEME = { name: 'Classic', light: '#f8f9fa', dark: '#000000', gridLight: '#e2e8f0', gridDark: '#1a1c1e', cellLight: '#ffffff', cellDark: '#2a2d31', indicatorLight: '#64748b', indicatorDark: '#94a3b8', linesLight: ['#22c55e', '#16a34a', '#15803d', '#10b981', '#059669'], linesDark: ['#22c55e', '#4ade80', '#86efac', '#34d399', '#6ee7b7'] };
 
-// 🚀 স্ট্যাটিক থিমগুলোর লিস্ট
 export const STATIC_THEMES = [
   { name: 'M3 Custom Red', light: '#FFF1F0', dark: '#1A0F0E', gridLight: '#FAAA9F', gridDark: '#3A1915', cellLight: '#ffffff', cellDark: '#5F2A24', indicatorLight: '#8D4E45', indicatorDark: '#FFB1BE', linesLight: ['#8D4E45', '#5F2A24', '#785752', '#A36258', '#FAAA9F'], linesDark: ['#FFB1BE', '#FFD9DE', '#E5BCC0', '#E58593', '#72333E'] },
   { name: 'M3 Custom Purple', light: '#F8F4FF', dark: '#140D1C', gridLight: '#DDC4FD', gridDark: '#3C255B', cellLight: '#ffffff', cellDark: '#533C74', indicatorLight: '#6A5687', indicatorDark: '#D5BBFA', linesLight: ['#6A5687', '#4E3B68', '#7D516A', '#9F7AEA', '#FDC4E4'], linesDark: ['#D5BBFA', '#EDDCFF', '#FFD8E0', '#643B43', '#B794F4'] },
@@ -66,7 +75,6 @@ export const STATIC_THEMES = [
   { name: 'Vibrant Fuchsia', light: '#faf5ff', dark: '#3b0764', gridLight: '#e9d5ff', gridDark: '#6b21a8', cellLight: '#ffffff', cellDark: '#86198f', indicatorLight: '#c026d3', indicatorDark: '#e879f9', linesLight: ['#a21caf', '#c026d3', '#d946ef', '#f0abfc', '#f5d0fe'], linesDark: ['#e879f9', '#d946ef', '#c026d3', '#a21caf', '#86198f'] }
 ];
 
-// 🚀 ডাইনামিক থিমগুলো ലോড করা হলো
 let savedAdaptiveThemes: any[] = [];
 try {
   if (typeof window !== 'undefined') {
@@ -75,7 +83,6 @@ try {
   }
 } catch (e) {}
 
-// 🚀 স্ট্যাটিক + ইউজার ডাইনামিক থিম
 export const CUSTOM_THEMES = [...STATIC_THEMES, ...savedAdaptiveThemes];
 
 const AnimatedToggle = ({ enabled, onToggle, activeColor, isDarkMode }: { enabled: boolean, onToggle: () => void, activeColor: string, isDarkMode: boolean }) => {
@@ -149,11 +156,10 @@ export default function SettingsModal(props: SettingsModalProps) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [previewLoaderIdx, setPreviewLoaderIdx] = useState<number | null>(null);
 
-  // 🚀 User Adaptive Themes State
   const [userThemes, setUserThemes] = useState<any[]>(savedAdaptiveThemes);
   
-  // 🚀 Modal States
-  const [pickerState, setPickerState] = useState<{isOpen: boolean, editIndex: number | null, initialColor: string}>({isOpen: false, editIndex: null, initialColor: '#007AFF'});
+  // 🚀 Updated Picker State (Target specifies where the color goes)
+  const [pickerState, setPickerState] = useState<{isOpen: boolean, editIndex: number | null, target: 'theme'|'line'|'x'|'o', initialColor: string}>({isOpen: false, editIndex: null, target: 'theme', initialColor: '#007AFF'});
   const [longPressState, setLongPressState] = useState<{isOpen: boolean, themeIndex: number | null}>({isOpen: false, themeIndex: null});
 
   useEffect(() => { 
@@ -242,7 +248,7 @@ export default function SettingsModal(props: SettingsModalProps) {
   };
 
   // ==========================================
-  // 🚀 ADAPTIVE THEME LOGIC (Add, Edit, Delete)
+  // 🚀 ADAPTIVE THEME & COLOR LOGIC
   // ==========================================
   
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
@@ -250,12 +256,12 @@ export default function SettingsModal(props: SettingsModalProps) {
 
   const handleThemeDown = (idx: number) => {
      isLongPressTriggered.current = false;
-     if (idx >= STATIC_THEMES.length) { // শুধুমাত্র ইউজার থিমগুলোর ক্ষেত্রে Long Press
+     if (idx >= STATIC_THEMES.length) { 
         longPressTimer.current = setTimeout(() => {
            isLongPressTriggered.current = true;
-           props.hapticFeedback([50, 50]); // ডাবল ভাইব্রেশন
+           props.hapticFeedback([50, 50]); 
            setLongPressState({ isOpen: true, themeIndex: idx });
-        }, 500); // 500ms Long press
+        }, 500); 
      }
   };
 
@@ -268,24 +274,36 @@ export default function SettingsModal(props: SettingsModalProps) {
      if (longPressTimer.current) clearTimeout(longPressTimer.current);
   };
 
+  // 🚀 Color Picker Save Logic
   const handleSaveAdaptiveTheme = (hex: string) => {
-     const newTheme = generateAdaptiveTheme(hex);
-     if (pickerState.editIndex !== null) {
-        // Edit Existing Theme
-        CUSTOM_THEMES[pickerState.editIndex] = newTheme;
-        const localIdx = pickerState.editIndex - STATIC_THEMES.length;
-        const updatedUserThemes = [...userThemes];
-        updatedUserThemes[localIdx] = newTheme;
-        setUserThemes(updatedUserThemes);
-        localStorage.setItem('userAdaptiveThemes', JSON.stringify(updatedUserThemes));
-        props.setThemeIdx(pickerState.editIndex); // Force refresh
+     if (pickerState.target === 'theme') {
+        const newTheme = generateAdaptiveTheme(hex);
+        if (pickerState.editIndex !== null) {
+           CUSTOM_THEMES[pickerState.editIndex] = newTheme;
+           const localIdx = pickerState.editIndex - STATIC_THEMES.length;
+           const updatedUserThemes = [...userThemes];
+           updatedUserThemes[localIdx] = newTheme;
+           setUserThemes(updatedUserThemes);
+           localStorage.setItem('userAdaptiveThemes', JSON.stringify(updatedUserThemes));
+           props.setThemeIdx(pickerState.editIndex);
+        } else {
+           CUSTOM_THEMES.push(newTheme);
+           const updatedUserThemes = [...userThemes, newTheme];
+           setUserThemes(updatedUserThemes);
+           localStorage.setItem('userAdaptiveThemes', JSON.stringify(updatedUserThemes));
+           props.setThemeIdx(CUSTOM_THEMES.length - 1);
+        }
      } else {
-        // Add New Theme
-        CUSTOM_THEMES.push(newTheme);
-        const updatedUserThemes = [...userThemes, newTheme];
-        setUserThemes(updatedUserThemes);
-        localStorage.setItem('userAdaptiveThemes', JSON.stringify(updatedUserThemes));
-        props.setThemeIdx(CUSTOM_THEMES.length - 1);
+        // Handle Single Color Addition (X, O, Line)
+        PLAYER_COLORS.push(hex);
+        EXTRA_LINE_COLORS.push(hex);
+        savedCustomColors.push(hex);
+        localStorage.setItem('userCustomColors', JSON.stringify(savedCustomColors));
+
+        const newIndex = PLAYER_COLORS.length - 1;
+        if (pickerState.target === 'line') props.setCustomLineIdx(newIndex);
+        if (pickerState.target === 'x') props.setXColorIdx(newIndex);
+        if (pickerState.target === 'o') props.setOColorIdx(newIndex);
      }
   };
 
@@ -299,19 +317,24 @@ export default function SettingsModal(props: SettingsModalProps) {
         setUserThemes(updatedUserThemes);
         localStorage.setItem('userAdaptiveThemes', JSON.stringify(updatedUserThemes));
         
-        // Adjust ThemeIdx
         if (props.themeIdx === idx) { props.setThemeIdx(0); } 
         else if (props.themeIdx > idx) { props.setThemeIdx(props.themeIdx - 1); }
      }
      setLongPressState({ isOpen: false, themeIndex: null });
   };
 
+  // 🚀 Safe Theme Delete (Crash Fix)
   const handleDeleteAllAdaptiveThemes = () => {
      props.hapticFeedback(50);
-     CUSTOM_THEMES.length = STATIC_THEMES.length; // Truncate Array
-     setUserThemes([]);
-     localStorage.setItem('userAdaptiveThemes', '[]');
-     if (props.themeIdx >= STATIC_THEMES.length) { props.setThemeIdx(0); }
+     if (props.themeIdx >= STATIC_THEMES.length) { 
+         props.setThemeIdx(0); 
+     }
+     
+     setTimeout(() => {
+         CUSTOM_THEMES.splice(STATIC_THEMES.length, CUSTOM_THEMES.length - STATIC_THEMES.length);
+         setUserThemes([]);
+         localStorage.setItem('userAdaptiveThemes', '[]');
+     }, 100); 
   };
 
   return (
@@ -366,7 +389,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                              <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black">Surface Colors</h3>
                              {userThemes.length > 0 && (
                                 <button onClick={handleDeleteAllAdaptiveThemes} className="p-1.5 rounded-full bg-black/5 dark:bg-white/5 active:scale-90 transition-transform">
-                                   <RotateCcw className="w-4 h-4 opacity-80 text-red-500" strokeWidth={3} />
+                                   <RotateCcw className="w-4 h-4 opacity-80" style={{ color: activeLineColor }} strokeWidth={3} />
                                 </button>
                              )}
                           </div>
@@ -389,10 +412,10 @@ export default function SettingsModal(props: SettingsModalProps) {
                                   
                                   {/* 🚀 Add Adaptive Theme Button (+) */}
                                   <button 
-                                     onClick={() => { props.hapticFeedback(20); setPickerState({isOpen: true, editIndex: null, initialColor: '#007AFF'}); }}
+                                     onClick={() => { props.hapticFeedback(20); setPickerState({isOpen: true, target: 'theme', editIndex: null, initialColor: '#007AFF'}); }}
                                      className="w-8 h-8 rounded-full border-[2.5px] border-transparent shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110 relative overflow-hidden"
                                   >
-                                     <div className="absolute inset-0" style={{ background: 'conic-gradient(from 90deg, red, yellow, lime, aqua, blue, magenta, red)' }} />
+                                     <div className="absolute inset-0" style={{ background: 'conic-gradient(from 90deg, red, yellow, lime, cyan, blue, magenta, red)' }} />
                                      <div className="absolute inset-[2px] rounded-full bg-white/40 dark:bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
                                         <Plus className="w-4 h-4 text-black dark:text-white drop-shadow-md" strokeWidth={3.5} />
                                      </div>
@@ -459,6 +482,17 @@ export default function SettingsModal(props: SettingsModalProps) {
                                           {props.customLineIdx === idx && <div className="w-3 h-3 rounded-full bg-white shadow-sm" />}
                                         </button>
                                       ))}
+                                      
+                                      {/* 🚀 Add Custom Line Color Button (+) */}
+                                      <button 
+                                         onClick={() => { props.hapticFeedback(20); setPickerState({isOpen: true, target: 'line', editIndex: null, initialColor: '#007AFF'}); }}
+                                         className="w-8 h-8 rounded-full border-[2.5px] border-transparent shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110 relative overflow-hidden"
+                                      >
+                                         <div className="absolute inset-0" style={{ background: 'conic-gradient(from 90deg, red, yellow, lime, cyan, blue, magenta, red)' }} />
+                                         <div className="absolute inset-[2px] rounded-full bg-white/40 dark:bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                                            <Plus className="w-4 h-4 text-black dark:text-white drop-shadow-md" strokeWidth={3.5} />
+                                         </div>
+                                      </button>
                                    </div>
                                 </div>
                              </div>
@@ -484,6 +518,17 @@ export default function SettingsModal(props: SettingsModalProps) {
                                            {props.xColorIdx === idx && <div className="w-3 h-3 rounded-full bg-white shadow-sm" />}
                                         </button>
                                       ))}
+                                      
+                                      {/* 🚀 Add Custom X Color Button (+) */}
+                                      <button 
+                                         onClick={() => { props.hapticFeedback(20); setPickerState({isOpen: true, target: 'x', editIndex: null, initialColor: '#007AFF'}); }}
+                                         className="w-8 h-8 rounded-full border-[2.5px] border-transparent shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110 relative overflow-hidden"
+                                      >
+                                         <div className="absolute inset-0" style={{ background: 'conic-gradient(from 90deg, red, yellow, lime, cyan, blue, magenta, red)' }} />
+                                         <div className="absolute inset-[2px] rounded-full bg-white/40 dark:bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                                            <Plus className="w-4 h-4 text-black dark:text-white drop-shadow-md" strokeWidth={3.5} />
+                                         </div>
+                                      </button>
                                    </div>
                                 </div>
                              </div>
@@ -581,6 +626,17 @@ export default function SettingsModal(props: SettingsModalProps) {
                                           {props.oColorIdx === idx && <div className="w-3 h-3 rounded-full bg-white shadow-sm" />}
                                         </button>
                                       ))}
+                                      
+                                      {/* 🚀 Add Custom O Color Button (+) */}
+                                      <button 
+                                         onClick={() => { props.hapticFeedback(20); setPickerState({isOpen: true, target: 'o', editIndex: null, initialColor: '#007AFF'}); }}
+                                         className="w-8 h-8 rounded-full border-[2.5px] border-transparent shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110 relative overflow-hidden"
+                                      >
+                                         <div className="absolute inset-0" style={{ background: 'conic-gradient(from 90deg, red, yellow, lime, cyan, blue, magenta, red)' }} />
+                                         <div className="absolute inset-[2px] rounded-full bg-white/40 dark:bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                                            <Plus className="w-4 h-4 text-black dark:text-white drop-shadow-md" strokeWidth={3.5} />
+                                         </div>
+                                      </button>
                                    </div>
                                 </div>
                              </div>
@@ -692,16 +748,16 @@ export default function SettingsModal(props: SettingsModalProps) {
                   {longPressState.isOpen && (
                      <motion.div 
                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                       className="absolute inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-[36px]"
+                       className="absolute inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-[36px]"
                        onClick={() => setLongPressState({ isOpen: false, themeIndex: null })}
                      >
                         <motion.div 
                           initial={{ scale: 0.8 }} animate={{ scale: 1 }} exit={{ scale: 0.8 }}
-                          className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-4 flex flex-col gap-2 w-[180px] shadow-2xl border border-white/10"
+                          className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-4 flex flex-col gap-2 w-[180px] shadow-2xl border border-black/10 dark:border-white/10"
                           onClick={e => e.stopPropagation()}
                         >
                            <button onClick={() => { 
-                              setPickerState({ isOpen: true, editIndex: longPressState.themeIndex, initialColor: CUSTOM_THEMES[longPressState.themeIndex!].baseColor || '#007AFF' }); 
+                              setPickerState({ isOpen: true, target: 'theme', editIndex: longPressState.themeIndex, initialColor: CUSTOM_THEMES[longPressState.themeIndex!].baseColor || '#007AFF' }); 
                               setLongPressState({ isOpen: false, themeIndex: null }); 
                            }} className="flex items-center gap-3 font-bold p-3 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-xl transition-colors text-black dark:text-white">
                               <Edit3 className="w-4 h-4 opacity-70" /> Edit Theme
@@ -838,11 +894,12 @@ export default function SettingsModal(props: SettingsModalProps) {
       {/* 🚀 Adaptive Theme Picker Modal (External File) */}
       <AdaptiveThemePicker 
          isOpen={pickerState.isOpen} 
-         onClose={() => setPickerState({isOpen: false, editIndex: null, initialColor: ''})} 
+         onClose={() => setPickerState({isOpen: false, editIndex: null, target: 'theme', initialColor: ''})} 
          onSave={handleSaveAdaptiveTheme} 
          initialColor={pickerState.initialColor} 
          isDarkMode={props.isDarkMode} 
          semantics={props.semantics} 
+         mode={pickerState.target === 'theme' ? 'theme' : 'color'}
       />
 
     </AnimatePresence>
