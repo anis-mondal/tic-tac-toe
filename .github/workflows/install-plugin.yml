@@ -3,7 +3,7 @@ name: Install Dynamic Color Plugin
 on:
   push:
     branches:
-      - main # আপনার ব্রাঞ্চের নাম (যদি master হয়, তবে master লিখবেন)
+      - main 
 
 jobs:
   install-plugin:
@@ -16,12 +16,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22' # 🚀 ফিক্সড: Capacitor এর লেটেস্ট ভার্সনের জন্য Node 22 দেওয়া হলো
 
       - name: Install dependencies and Plugin
         run: |
           npm install
-          # 🚀 সরাসরি গিটহাব থেকে ১০০% ওয়ার্কিং প্লাগইনটি ইন্সটল করা হচ্ছে
           npm install github:ollm/cordova-plugin-dynamic-color
           npx cap sync
 
