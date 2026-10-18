@@ -19,10 +19,10 @@ export const generateAdaptiveTheme = (baseHex: string, themeName: string = 'Adap
       hexFromArgb(p.primary.tone(40)), hexFromArgb(p.secondary.tone(40)),
       hexFromArgb(p.tertiary.tone(40)), hexFromArgb(p.error.tone(40)), hexFromArgb(p.primary.tone(30))
     ],
-   // 🌙 Dark Mode Shades (ভাইব্রেন্ট এবং কাস্টম থিমের মতো নিখুঁত)
-    dark: hexFromArgb(p.primary.tone(10)),       // neutral এর বদলে primary: ব্যাকগ্রাউন্ড একদম ডার্ক হবে কিন্তু মূল কালারের আভা থাকবে
-    gridDark: hexFromArgb(p.primary.tone(25)),   // কন্টেইনারগুলো অনেক বেশি উজ্জ্বল এবং ভাইব্রেন্ট হবে
-    cellDark: hexFromArgb(p.primary.tone(15)),   // বোর্ডের ভেতরের ঘরগুলো কন্টেইনারের চেয়ে কম উজ্জ্বল (ডার্ক) হবে
+    // 🌙 Dark Mode Shades (ভাইব্রেন্ট এবং কাস্টম থিমের মতো নিখুঁত)
+    dark: hexFromArgb(p.primary.tone(10)),       
+    gridDark: hexFromArgb(p.primary.tone(25)),   
+    cellDark: hexFromArgb(p.primary.tone(15)),   
     indicatorDark: hexFromArgb(p.primary.tone(85)), 
     linesDark: [
       hexFromArgb(p.primary.tone(85)),
@@ -31,7 +31,8 @@ export const generateAdaptiveTheme = (baseHex: string, themeName: string = 'Adap
       hexFromArgb(p.error.tone(85)),
       hexFromArgb(p.primary.tone(92))
     ]
-
+  }; // 🚀 ফিক্সড: এই ক্লোজিং ব্র্যাকেটগুলো বাদ পড়েছিল!
+};
 
 // UI এর জন্য HSL থেকে Hex রূপান্তরকারী
 const hexToHSL = (hex: string) => {
@@ -75,7 +76,7 @@ interface AdaptiveThemePickerProps {
   initialColor?: string;
   isDarkMode: boolean;
   semantics: any;
-  mode?: 'theme' | 'color'; // 🚀 নতুন মোড যুক্ত করা হলো
+  mode?: 'theme' | 'color';
 }
 
 export default function AdaptiveThemePicker({ isOpen, onClose, onSave, initialColor = '#007AFF', isDarkMode, semantics, mode = 'theme' }: AdaptiveThemePickerProps) {
@@ -120,7 +121,6 @@ export default function AdaptiveThemePicker({ isOpen, onClose, onSave, initialCo
     const x = e.clientX - cx;
     const y = e.clientY - cy;
 
-    // 🚀 Magic Fix: নিখুঁত এলাইনমেন্টের জন্য
     let angle = Math.atan2(y, x) * (180 / Math.PI);
     if (angle < 0) angle += 360;
     
@@ -175,7 +175,6 @@ export default function AdaptiveThemePicker({ isOpen, onClose, onSave, initialCo
     <AnimatePresence>
       <motion.div 
          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-         // 🚀 iOS ব্লার এবং GPU এক্সিলারেশন
          className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xl transform-gpu"
          style={{ willChange: 'opacity, backdrop-filter' }}
       >
@@ -207,12 +206,10 @@ export default function AdaptiveThemePicker({ isOpen, onClose, onSave, initialCo
               </div>
            </div>
 
-           {/* 🚀 ল্যাগ ফিক্স: touch-action: none যুক্ত করা হলো */}
            <div className="relative w-[200px] h-[200px] mb-8" onPointerDown={handlePointerDown('wheel')} style={{ touchAction: 'none' }}>
               <div 
                  ref={wheelRef}
                  className="absolute inset-0 rounded-full shadow-inner cursor-crosshair"
-                 // 🚀 CSS Gradient এলাইনমেন্ট ফিক্স করা হলো (from 90deg)
                  style={{ background: 'conic-gradient(from 90deg, red, yellow, lime, cyan, blue, magenta, red)' }}
               >
                  <div className="absolute inset-0 rounded-full" style={{ background: 'radial-gradient(circle closest-side, #ffffff, transparent)' }} />
