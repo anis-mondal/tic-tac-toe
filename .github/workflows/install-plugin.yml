@@ -1,7 +1,9 @@
-name: Install Material You Plugin
+name: Install Dynamic Color Plugin
 
 on:
-  workflow_dispatch: # এটি দেওয়ার ফলে আপনি GitHub-এর Actions ট্যাব থেকে নিজে বাটনে ক্লিক করে এটি রান করতে পারবেন।
+  push:
+    branches:
+      - main # আপনার ব্রাঞ্চের নাম (যদি master হয়, তবে master লিখবেন)
 
 jobs:
   install-plugin:
@@ -14,12 +16,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # আপনার প্রোজেক্টের নোড ভার্সন
+          node-version: '20'
 
       - name: Install dependencies and Plugin
         run: |
           npm install
-          npm install @assembless/capacitor-material-you
+          # 🚀 সরাসরি গিটহাব থেকে ১০০% ওয়ার্কিং প্লাগইনটি ইন্সটল করা হচ্ছে
+          npm install github:ollm/cordova-plugin-dynamic-color
           npx cap sync
 
       - name: Commit and Push Changes
@@ -27,7 +30,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add package.json package-lock.json
-          # cap sync এর ফলে android ফোল্ডারে কোনো পরিবর্তন হলে সেটিও সেভ হবে
           git add android/ ios/ || true 
-          git commit -m "feat: install capacitor-material-you plugin" || echo "No changes to commit"
+          git commit -m "feat: install dynamic color plugin" || echo "No changes to commit"
           git push
