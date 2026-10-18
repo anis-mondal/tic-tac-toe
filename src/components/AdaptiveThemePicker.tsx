@@ -20,10 +20,10 @@ export const generateAdaptiveTheme = (baseHex: string, themeName: string = 'Adap
       hexFromArgb(p.primary.tone(40)), hexFromArgb(p.secondary.tone(40)),
       hexFromArgb(p.tertiary.tone(40)), hexFromArgb(p.error.tone(40)), hexFromArgb(p.primary.tone(30))
     ],
-    // 🌙 Dark Mode Shades
-    dark: hexFromArgb(p.neutral.tone(7)),        // 🚀 ব্যাকগ্রাউন্ড পিওর নিউট্রাল এবং একদম ডিপ ডার্ক করা হলো (Tone 6)
-    gridDark: hexFromArgb(p.primary.tone(20)),   // 🚀 কন্টেইনারগুলো প্রাইমারি টোনেই রাখা হলো যাতে ভাইব্রেন্ট লাগে
-    cellDark: hexFromArgb(p.primary.tone(32)),   // 🚀 ছোট ঘরগুলোর হালকা শেড
+    // 🌙 Dark Mode Shades (আপনার নির্দেশমতো নিখুঁত ব্যালান্স)
+    dark: hexFromArgb(p.neutralVariant.tone(6)), // 🚀 নিউট্রাল এবং প্রাইমারির মাঝখানের টোন (Neutral Variant)
+    gridDark: hexFromArgb(p.primary.tone(20)),   // 🚀 কন্টেইনারের জন্য প্রাইমারি ভাইব্রেন্ট টোন
+    cellDark: hexFromArgb(p.primary.tone(32)),   // 🚀 ছোট ঘরের জন্য পারফেক্ট শেড
     indicatorDark: hexFromArgb(p.primary.tone(85)), 
     linesDark: [
       hexFromArgb(p.primary.tone(85)),
