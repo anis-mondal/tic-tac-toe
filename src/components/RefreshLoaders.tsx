@@ -632,75 +632,159 @@ export const REFRESH_LOADERS = [
       </div>
     )
   }
+  // নতুন 12 খানা লোডার 
+  
   ,
   {
-    name: 'Clover',
+    name: 'Squircle Spin',
     component: ({ color }: { color: string }) => (
       <motion.div
-        className="relative w-6 h-6 flex items-center justify-center"
-        style={{ color }}
-        animate={{ rotate: [0, 12, -12, 0], scale: [0.9, 1.08, 0.9] }}
+        className="w-4 h-4 rounded-[6px]"
+        style={{ backgroundColor: color }}
+        animate={{
+          rotate: [0, 90, 180, 270, 360],
+          borderRadius: ['6px', '50%', '6px', '50%', '6px'],
+          scale: [1, 0.8, 1, 0.8, 1]
+        }}
         transition={{
           repeat: Infinity,
-          duration: 1.8,
+          duration: 1.6,
           ease: "easeInOut"
         }}
-      >
+      />
+    )
+  },
+  {
+    name: 'Pill Orbit',
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-6 h-6 flex items-center justify-center">
+        <motion.div
+          className="absolute w-5 h-5 rounded-full"
+          style={{ border: `4px solid ${color}`, borderRightColor: 'transparent', borderBottomColor: 'transparent' }}
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute w-2 h-2 rounded-full"
+          style={{ backgroundColor: color }}
+          animate={{ x: [0, 7, 0, -7, 0], y: [-7, 0, 7, 0, -7] }}
+          transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+        />
+      </div>
+    )
+  },
+  {
+    name: 'Pill Wave',
+    component: ({ color }: { color: string }) => (
+      <div className="flex items-center justify-center gap-[3px] h-6" style={{ color }}>
+        {[0, 1, 2, 3, 4].map((i) => (
+          <motion.div
+            key={i}
+            className="w-[4px] rounded-full"
+            style={{ backgroundColor: color }}
+            animate={{ height: ['5px', '17px', '5px'] }}
+            transition={{
+              repeat: Infinity,
+              duration: 0.8,
+              delay: i * 0.1,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+      </div>
+    )
+  },
+  {
+    name: 'Block Chase',
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-6 h-6">
         {[0, 1, 2, 3].map((i) => (
           <motion.div
             key={i}
-            className="absolute w-2.5 h-2.5 bg-current rounded-full"
+            className="absolute w-[7px] h-[7px] rounded-[2.5px]"
             style={{
-              x: [0, 5, 0, -5][i],
-              y: [-5, 0, 5, 0][i]
+              backgroundColor: color,
+              left: i % 2 === 0 ? 2 : 14,
+              top: i < 2 ? 2 : 14
             }}
-            animate={{ scale: [0.75, 1, 0.75] }}
+            animate={{
+              scale: [0.65, 1, 0.65],
+              rotate: [0, 90, 180]
+            }}
             transition={{
               repeat: Infinity,
-              duration: 1.2,
+              duration: 1,
+              delay: i * 0.15,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+      </div>
+    )
+  },
+  {
+    name: 'Soft Domino',
+    component: ({ color }: { color: string }) => (
+      <div className="flex items-center justify-center gap-[3px] h-6">
+        {[0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            className="w-[5px] h-3.5 rounded-full"
+            style={{ backgroundColor: color }}
+            animate={{
+              rotate: [0, 0, 90, 0],
+              y: [0, -3, 0]
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 0.9,
+              delay: i * 0.16,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+      </div>
+    )
+  },
+  {
+    name: 'Rounded Stack',
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-6 h-6 flex items-center justify-center">
+        {[0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            className="absolute w-3.5 h-3.5 rounded-[5px]"
+            style={{ backgroundColor: color }}
+            animate={{
+              x: [i * 3 - 3, 3 - i * 3, i * 3 - 3],
+              y: [i * 2 - 2, 2 - i * 2, i * 2 - 2],
+              rotate: [0, 90, 180]
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 1.3,
               delay: i * 0.12,
               ease: "easeInOut"
             }}
           />
         ))}
-        <div className="absolute w-1.5 h-1.5 rounded-full bg-current" />
-      </motion.div>
+      </div>
     )
   },
   {
-    name: 'Candy Orbit',
+    name: 'Squish Bar',
     component: ({ color }: { color: string }) => (
-      <div
-        className="relative w-6 h-6 flex items-center justify-center"
-        style={{ color }}
-      >
+      <div className="w-6 h-6 flex items-center justify-center">
         <motion.div
-          className="absolute w-5 h-3 rounded-full border-2 border-current"
-          animate={{ rotate: [0, 180, 360], scale: [1, 0.85, 1] }}
-          transition={{
-            repeat: Infinity,
-            duration: 1.6,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div
-          className="absolute w-1.5 h-1.5 rounded-full bg-current"
+          className="h-2.5 rounded-full"
+          style={{ backgroundColor: color }}
           animate={{
-            x: [0, 7, 0, -7, 0],
-            y: [-5, 0, 5, 0, -5]
+            width: ['7px', '23px', '7px'],
+            scaleY: [1, 0.8, 1]
           }}
           transition={{
             repeat: Infinity,
-            duration: 1.4,
-            ease: "linear"
-          }}
-        />
-        <motion.div
-          className="w-2 h-2 rounded-full bg-current"
-          animate={{ scale: [0.7, 1.2, 0.7] }}
-          transition={{
-            repeat: Infinity,
-            duration: 0.8,
+            duration: 1,
             ease: "easeInOut"
           }}
         />
@@ -708,217 +792,132 @@ export const REFRESH_LOADERS = [
     )
   },
   {
-    name: 'Puffy Heart',
+    name: 'Rounded Tiles',
     component: ({ color }: { color: string }) => (
-      <motion.svg
-        viewBox="0 0 24 24"
-        className="w-6 h-6"
-        style={{ color }}
-        animate={{
-          scale: [1, 1.18, 0.95, 1],
-          rotate: [0, -5, 5, 0]
-        }}
-        transition={{
-          repeat: Infinity,
-          duration: 1.1,
-          ease: "easeInOut"
-        }}
-      >
-        <path
-          d="M12 21C10 18.8 3 14 3 8.8C3 3.5 9 2.5 12 7C15 2.5 21 3.5 21 8.8C21 14 14 18.8 12 21Z"
-          fill="currentColor"
-          stroke="currentColor"
-          strokeWidth="1.2"
-          strokeLinejoin="round"
-        />
-        <motion.circle
-          cx="8"
-          cy="8"
-          r="1.2"
-          fill="white"
-          animate={{ opacity: [0.35, 0.9, 0.35] }}
-          transition={{ repeat: Infinity, duration: 1.1 }}
-        />
-      </motion.svg>
-    )
-  },
-  {
-    name: 'Moonbeam',
-    component: ({ color }: { color: string }) => (
-      <motion.svg
-        viewBox="0 0 24 24"
-        className="w-6 h-6"
-        style={{ color }}
-        animate={{ rotate: [0, -12, 12, 0], y: [0, -2, 0] }}
-        transition={{
-          repeat: Infinity,
-          duration: 2,
-          ease: "easeInOut"
-        }}
-      >
-        <path
-          d="M19.5 15.5A8.5 8.5 0 0 1 8.5 4.5A8.5 8.5 0 1 0 19.5 15.5Z"
-          fill="currentColor"
-          stroke="currentColor"
-          strokeWidth="1"
-          strokeLinejoin="round"
-        />
-        <motion.path
-          d="M17 3.5L18 6L20.5 7L18 8L17 10.5L16 8L13.5 7L16 6Z"
-          fill="currentColor"
-          animate={{ scale: [0.7, 1.15, 0.7], rotate: [0, 20, 0] }}
-          transition={{ repeat: Infinity, duration: 1.4 }}
-        />
-      </motion.svg>
-    )
-  },
-  {
-    name: 'Sparkle',
-    component: ({ color }: { color: string }) => (
-      <motion.div
-        className="relative w-6 h-6 flex items-center justify-center"
-        style={{ color }}
-        animate={{ rotate: [0, 8, -8, 0] }}
-        transition={{
-          repeat: Infinity,
-          duration: 1.8,
-          ease: "easeInOut"
-        }}
-      >
-        <motion.svg
-          viewBox="0 0 24 24"
-          className="w-5 h-5"
-          animate={{ rotate: [0, 90, 180], scale: [0.8, 1.1, 0.8] }}
-          transition={{
-            repeat: Infinity,
-            duration: 1.5,
-            ease: "easeInOut"
-          }}
-        >
-          <path
-            d="M12 1.5L14.8 9.2L22.5 12L14.8 14.8L12 22.5L9.2 14.8L1.5 12L9.2 9.2Z"
-            fill="currentColor"
-            stroke="currentColor"
-            strokeLinejoin="round"
-          />
-        </motion.svg>
-        <motion.div
-          className="absolute right-0 top-0 w-1.5 h-1.5 rounded-full bg-current"
-          animate={{ scale: [0.4, 1.3, 0.4], opacity: [0.3, 1, 0.3] }}
-          transition={{ repeat: Infinity, duration: 0.9 }}
-        />
-      </motion.div>
-    )
-  },
-  {
-    name: 'Kitty Bounce',
-    component: ({ color }: { color: string }) => (
-      <motion.svg
-        viewBox="0 0 24 24"
-        className="w-6 h-6"
-        style={{ color }}
-        animate={{
-          y: [0, -3, 0],
-          scaleY: [1, 0.9, 1],
-          scaleX: [1, 1.06, 1]
-        }}
-        transition={{
-          repeat: Infinity,
-          duration: 0.8,
-          ease: "easeInOut"
-        }}
-      >
-        <path
-          d="M4 10L3 3L9 7.2Q12 5.8 15 7.2L21 3L20 10Q22 13 20 17Q17.5 21 12 21Q6.5 21 4 17Q2 13 4 10Z"
-          fill="currentColor"
-          stroke="currentColor"
-          strokeLinejoin="round"
-        />
-        <ellipse cx="8.5" cy="12.5" rx="1" ry="1.5" fill="white" />
-        <ellipse cx="15.5" cy="12.5" rx="1" ry="1.5" fill="white" />
-        <path
-          d="M11 15L12 16L13 15"
-          fill="none"
-          stroke="white"
-          strokeWidth="1.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </motion.svg>
-    )
-  },
-  {
-    name: 'Flower Bloom',
-    component: ({ color }: { color: string }) => (
-      <motion.div
-        className="relative w-6 h-6 flex items-center justify-center"
-        style={{ color }}
-        animate={{ rotate: [0, 45, 90, 135, 180] }}
-        transition={{
-          repeat: Infinity,
-          duration: 3,
-          ease: "linear"
-        }}
-      >
-        {[0, 1, 2, 3, 4, 5].map((i) => (
+      <div className="grid grid-cols-2 gap-[3px] w-[19px] h-[19px]">
+        {[0, 1, 2, 3].map((i) => (
           <motion.div
             key={i}
-            className="absolute w-2.5 h-3.5 rounded-full bg-current"
-            style={{ top: 0, left: "calc(50% - 5px)", transformOrigin: "50% 12px" }}
+            className="rounded-[4px]"
+            style={{ backgroundColor: color }}
             animate={{
-              scaleY: [0.65, 1, 0.65],
-              opacity: [0.65, 1, 0.65]
+              scale: [0.65, 1, 0.65],
+              rotate: [0, 45, 0]
             }}
             transition={{
               repeat: Infinity,
-              duration: 1.5,
+              duration: 1,
+              delay: [0, 0.2, 0.6, 0.4][i],
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+      </div>
+    )
+  },
+  {
+    name: 'Blob Bounce',
+    component: ({ color }: { color: string }) => (
+      <div className="w-6 h-6 flex items-center justify-center">
+        <motion.div
+          className="w-3.5 h-3.5 rounded-full"
+          style={{ backgroundColor: color }}
+          animate={{
+            scaleX: [1, 1.35, 0.8, 1],
+            scaleY: [1, 0.75, 1.2, 1],
+            borderRadius: ['50%', '40%', '50%', '50%'],
+            y: [0, -2, 0]
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 1,
+            ease: "easeInOut"
+          }}
+        />
+      </div>
+    )
+  },
+  {
+    name: 'Dot Carousel',
+    component: ({ color }: { color: string }) => (
+      <div className="relative w-6 h-6">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <motion.div
+            key={i}
+            className="absolute w-[5px] h-[5px] rounded-full"
+            style={{
+              backgroundColor: color,
+              left: 10.5,
+              top: 10.5
+            }}
+            animate={{
+              x: [
+                0,
+                Math.cos((i * 2 * Math.PI) / 5) * 8,
+                0
+              ],
+              y: [
+                0,
+                Math.sin((i * 2 * Math.PI) / 5) * 8,
+                0
+              ],
+              scale: [0.65, 1, 0.65]
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 1.1,
               delay: i * 0.12,
               ease: "easeInOut"
             }}
           />
         ))}
-        <div className="absolute w-2.5 h-2.5 rounded-full bg-current border-2 border-white/70" />
-      </motion.div>
+      </div>
     )
   },
   {
-    name: 'Cloud Drift',
+    name: 'Capsule Roll',
     component: ({ color }: { color: string }) => (
-      <motion.svg
-        viewBox="0 0 28 24"
-        className="w-7 h-6"
-        style={{ color }}
-        animate={{ x: [-1, 1, -1], y: [0, -2, 0] }}
-        transition={{
-          repeat: Infinity,
-          duration: 1.6,
-          ease: "easeInOut"
-        }}
-      >
-        <motion.path
-          d="M7 19H21A5 5 0 0 0 21 9A7 7 0 0 0 7.2 8A5.5 5.5 0 0 0 7 19Z"
-          fill="currentColor"
-          stroke="currentColor"
-          strokeWidth="1.2"
-          strokeLinejoin="round"
+      <div className="w-6 h-6 flex items-center justify-center">
+        <motion.div
+          className="w-3 h-5 rounded-full"
+          style={{ backgroundColor: color }}
+          animate={{
+            rotate: [0, 90, 180, 270, 360],
+            scaleX: [1, 0.8, 1, 0.8, 1],
+            scaleY: [1, 0.9, 1, 0.9, 1]
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 1.2,
+            ease: "easeInOut"
+          }}
         />
-        <motion.circle
-          cx="10"
-          cy="13"
-          r="1"
-          fill="white"
-          animate={{ opacity: [0.4, 1, 0.4] }}
-          transition={{ repeat: Infinity, duration: 1.2 }}
-        />
-        <motion.circle
-          cx="18"
-          cy="13"
-          r="1"
-          fill="white"
-          animate={{ opacity: [1, 0.4, 1] }}
-          transition={{ repeat: Infinity, duration: 1.2 }}
-        />
-      </motion.svg>
+      </div>
+    )
+  },
+  {
+    name: 'Four Dot Flow',
+    component: ({ color }: { color: string }) => (
+      <div className="flex items-center justify-center gap-[3px] h-6">
+        {[0, 1, 2, 3].map((i) => (
+          <motion.div
+            key={i}
+            className="w-[5px] h-[5px] rounded-full"
+            style={{ backgroundColor: color }}
+            animate={{
+              y: [0, -5, 0],
+              scale: [0.8, 1.15, 0.8]
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 0.75,
+              delay: i * 0.12,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+      </div>
     )
   }
+
 ];
