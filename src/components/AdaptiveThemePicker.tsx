@@ -20,17 +20,17 @@ export const generateAdaptiveTheme = (baseHex: string, themeName: string = 'Adap
       hexFromArgb(p.primary.tone(40)), hexFromArgb(p.secondary.tone(40)),
       hexFromArgb(p.tertiary.tone(40)), hexFromArgb(p.error.tone(40)), hexFromArgb(p.primary.tone(30))
     ],
-    // 🌙 Dark Mode Shades
-    dark: hexFromArgb(p.primary.tone(5)),        
-    gridDark: hexFromArgb(p.primary.tone(20)),   
-    cellDark: hexFromArgb(p.primary.tone(32)),   
-    indicatorDark: hexFromArgb(p.primary.tone(85)), 
+        // 🌙 Dark Mode Shades (প্রিমিয়াম এবং ব্যালান্সড)
+    dark: hexFromArgb(p.neutralVariant.tone(10)),       // 🚀 primary এর বদলে neutralVariant ব্যবহার করা হলো
+    gridDark: hexFromArgb(p.neutralVariant.tone(20)),   // 🚀 এটি কন্টেইনারগুলোকে সফট এবং সুন্দর দেখাবে
+    cellDark: hexFromArgb(p.neutralVariant.tone(30)),   // 🚀 ছোট ঘরগুলোতে পারফেক্ট শেড আসবে
+    indicatorDark: hexFromArgb(p.primary.tone(80)),     // 🚀 ইন্ডিকেটর উজ্জ্বল রাখার জন্য primary থাকবে
     linesDark: [
-      hexFromArgb(p.primary.tone(85)),
-      hexFromArgb(p.secondary.tone(85)),
-      hexFromArgb(p.tertiary.tone(85)),
-      hexFromArgb(p.error.tone(85)),
-      hexFromArgb(p.primary.tone(92))
+      hexFromArgb(p.primary.tone(80)),
+      hexFromArgb(p.secondary.tone(80)),
+      hexFromArgb(p.tertiary.tone(80)),
+      hexFromArgb(p.error.tone(80)),
+      hexFromArgb(p.primary.tone(90))
     ]
   };
 };
