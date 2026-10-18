@@ -10,6 +10,9 @@ import { REFRESH_LOADERS } from './RefreshLoaders';
 import AdaptiveThemePicker, { generateAdaptiveTheme } from './AdaptiveThemePicker'; 
 import AnimatedToggle from './AnimatedToggle';
 
+// 🚀 ডায়নামিক থিমের লজিকটি ইম্পোর্ট করা হলো
+import { getSystemDynamicTheme } from '../utils/dynamicTheme';
+
 import { 
   ICONS_LIST, PLAYER_COLORS, EXTRA_LINE_COLORS, ORIGINAL_THEME, 
   STATIC_THEMES, CUSTOM_THEMES, STATIC_COLORS_COUNT, 
@@ -58,11 +61,26 @@ export default function SettingsModal(props: SettingsModalProps) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [previewLoaderIdx, setPreviewLoaderIdx] = useState<number | null>(null);
 
+  // 🚀 ডায়নামিক থিমের স্টেট
+  const [hasDynamic, setHasDynamic] = useState(false);
+
   const [userThemes, setUserThemes] = useState<any[]>(savedAdaptiveThemes);
   const [userColors, setUserColors] = useState<string[]>(savedCustomColors);
   
   const [pickerState, setPickerState] = useState<{isOpen: boolean, editIndex: number | null, target: 'theme'|'line'|'x'|'o'|'color', initialColor: string}>({isOpen: false, editIndex: null, target: 'theme', initialColor: '#007AFF'});
   const [longPressState, setLongPressState] = useState<{isOpen: boolean, index: number | null, type: 'theme'|'color'}>({isOpen: false, index: null, type: 'theme'});
+
+  // 🚀 অ্যাপ লোড হওয়ার সাথে সাথে সিস্টেমের ডায়নামিক কালার নিয়ে আসা
+  useEffect(() => {
+    let isMounted = true;
+    getSystemDynamicTheme().then(theme => {
+      if (isMounted && theme) {
+        CUSTOM_THEMES[0] = theme; // প্রথম থিমটিকে ডায়নামিক কালার দিয়ে ওভাররাইট করা হলো
+        setHasDynamic(true);
+      }
+    });
+    return () => { isMounted = false; };
+  }, []);
 
   useEffect(() => { setLocalUseDefaultTheme(props.useDefaultTheme); setVisualUseDefaultTheme(props.useDefaultTheme); }, [props.useDefaultTheme]);
   useEffect(() => { setLocalThemeIdx(props.themeIdx); setVisualThemeIdx(props.themeIdx); }, [props.themeIdx]);
@@ -130,7 +148,8 @@ export default function SettingsModal(props: SettingsModalProps) {
 
   const handleThemeDown = (idx: number) => {
      isLongPressTriggered.current = false;
-     if (idx >= STATIC_THEMES.length) { 
+     // ডায়নামিক থিমটি (idx === 0) ডিলিট বা এডিট করা যাবে না
+     if (idx >= STATIC_THEMES.length && idx !== 0) { 
         longPressTimer.current = setTimeout(() => { isLongPressTriggered.current = true; props.hapticFeedback([50, 50]); setLongPressState({ isOpen: true, index: idx, type: 'theme' }); }, 500); 
      }
   };
@@ -280,16 +299,31 @@ export default function SettingsModal(props: SettingsModalProps) {
                           <div className="relative w-full rounded-[16px] overflow-hidden">
                              <div className="max-h-[135px] overflow-y-auto m3-scrollbar pr-3">
                                 <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
-                                  {CUSTOM_THEMES.map((theme, idx) => (
-                                    <button 
-                                      key={`${theme.name}-${idx}`} 
-                                      onPointerDown={() => handleThemeDown(idx)} onPointerUp={() => handleThemeUp(idx)} onPointerLeave={handlePressLeave}
-                                      style={{ backgroundColor: props.isDarkMode ? theme.indicatorDark : theme.indicatorLight, borderColor: visualThemeIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} 
-                                      className="w-8 h-8 rounded-full border-[2.5px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110 relative"
-                                    >
-                                      {visualThemeIdx === idx && <div className="w-3 h-3 rounded-full bg-white shadow-sm" />}
-                                    </button>
-                                  ))}
+                                  {CUSTOM_THEMES.map((theme, idx) => {
+                                    // 🚀 যদি ডায়নামিক থিম সাপোর্ট না করে, তবে প্রথম অপশনটি দেখাবে না!
+                                    if (idx === 0 && !hasDynamic) return null;
+                                    
+                                    const isDynamicBtn = idx === 0 && hasDynamic;
+
+                                    return (
+                                      <button 
+                                        key={`${theme.name}-${idx}`} 
+                                        onPointerDown={() => handleThemeDown(idx)} onPointerUp={() => handleThemeUp(idx)} onPointerLeave={handlePressLeave}
+                                        style={{ backgroundColor: props.isDarkMode ? theme.indicatorDark : theme.indicatorLight, borderColor: visualThemeIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} 
+                                        className="w-8 h-8 rounded-full border-[2.5px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110 relative"
+                                      >
+                                        {/* 🚀 ডায়নামিক থিমের জন্য স্পেশাল অর্ধেক-স্বচ্ছ 'A' টেক্সট */}
+                                        {isDynamicBtn && (
+                                          <span className="absolute font-nunito-black text-[15px] pointer-events-none drop-shadow-sm leading-none" style={{ color: props.isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.75)' }}>
+                                            A
+                                          </span>
+                                        )}
+
+                                        {/* 🚀 সাধারণ থিমের ক্ষেত্রে ভেতরে সাদা গোল ডট দেখাবে */}
+                                        {visualThemeIdx === idx && !isDynamicBtn && <div className="w-3 h-3 rounded-full bg-white shadow-sm" />}
+                                      </button>
+                                    );
+                                  })}
                                   <button onClick={() => { props.hapticFeedback(20); setPickerState({isOpen: true, target: 'theme', editIndex: null, initialColor: '#007AFF'}); }} className="w-8 h-8 rounded-full border-[2.5px] border-transparent shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110 relative overflow-hidden">
                                      <div className="absolute inset-0" style={{ background: 'conic-gradient(from 90deg, red, yellow, lime, cyan, blue, magenta, red)' }} />
                                      <div className="absolute inset-[2px] rounded-full bg-white/40 dark:bg-black/40 backdrop-blur-[2px] flex items-center justify-center"><Plus className="w-4 h-4 text-black dark:text-white drop-shadow-md" strokeWidth={3.5} /></div>
@@ -645,10 +679,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                               <div className="w-full h-px bg-black/10 dark:bg-white/10" />
                               <div className="flex items-center justify-between"><h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Interactive Icon Drag</h3><AnimatedToggle enabled={props.isDragEnabled} onToggle={() => { props.hapticFeedback(30); props.setIsDragEnabled(!props.isDragEnabled); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} /></div>
                               <div className="w-full h-px bg-black/10 dark:bg-white/10" />
-                              
-                              {/* 🚀 NEW GYRO TOGGLE */}
                               <div className="flex items-center justify-between"><h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Gyroscope Spring Effect</h3><AnimatedToggle enabled={props.isGyroEnabled} onToggle={() => { props.hapticFeedback(30); props.setIsGyroEnabled(!props.isGyroEnabled); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} /></div>
-                              
                               <div className="w-full h-px bg-black/10 dark:bg-white/10" />
                               <div className="flex items-center justify-between"><h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Hard Refresh on Bar Tap</h3><AnimatedToggle enabled={props.enableHardRefreshTap} onToggle={() => { props.hapticFeedback(30); props.setEnableHardRefreshTap(!props.enableHardRefreshTap); }} activeColor={props.activeLineColor} isDarkMode={props.isDarkMode} /></div>
                               <div className="w-full h-px bg-black/10 dark:bg-white/10" />
