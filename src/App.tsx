@@ -490,16 +490,34 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [isDarkMode, isAmoled, themeIdx, useDefaultTheme]);
 
-  const activeTheme = useDefaultTheme ? ORIGINAL_THEME : CUSTOM_THEMES[themeIdx];
+    // 🚀 Theme Memory Caching (ক্র্যাশ রোধ করতে)
+  const lastValidThemeRef = useRef(CUSTOM_THEMES[themeIdx] || CUSTOM_THEMES[0]);
+  if (CUSTOM_THEMES[themeIdx]) lastValidThemeRef.current = CUSTOM_THEMES[themeIdx];
+  const activeTheme = useDefaultTheme ? ORIGINAL_THEME : (CUSTOM_THEMES[themeIdx] || lastValidThemeRef.current);
+
+  // 🚀 Line Colors Memory Caching
   const availableLinesDark = [...activeTheme.linesDark, ...EXTRA_LINE_COLORS];
   const availableLinesLight = [...activeTheme.linesLight, ...EXTRA_LINE_COLORS];
   
+  const lastValidLineDarkRef = useRef(availableLinesDark[customLineIdx] || availableLinesDark[0]);
+  if (availableLinesDark[customLineIdx]) lastValidLineDarkRef.current = availableLinesDark[customLineIdx];
+  
+  const lastValidLineLightRef = useRef(availableLinesLight[customLineIdx] || availableLinesLight[0]);
+  if (availableLinesLight[customLineIdx]) lastValidLineLightRef.current = availableLinesLight[customLineIdx];
+  
   const activeLineColor = isDarkMode 
-    ? (enableCustomLine ? availableLinesDark[customLineIdx] : availableLinesDark[0]) 
-    : (enableCustomLine ? availableLinesLight[customLineIdx] : availableLinesLight[0]);
+    ? (enableCustomLine ? (availableLinesDark[customLineIdx] || lastValidLineDarkRef.current) : availableLinesDark[0]) 
+    : (enableCustomLine ? (availableLinesLight[customLineIdx] || lastValidLineLightRef.current) : availableLinesLight[0]);
 
-  const currentXColor = enableCustomX ? PLAYER_COLORS[xColorIdx] : PLAYER_COLORS[0];
-  const currentOColor = enableCustomO ? PLAYER_COLORS[oColorIdx] : PLAYER_COLORS[9];
+  // 🚀 Player X Memory Caching
+  const lastValidXRef = useRef(PLAYER_COLORS[xColorIdx] || PLAYER_COLORS[0]);
+  if (PLAYER_COLORS[xColorIdx]) lastValidXRef.current = PLAYER_COLORS[xColorIdx];
+  const currentXColor = enableCustomX ? (PLAYER_COLORS[xColorIdx] || lastValidXRef.current) : PLAYER_COLORS[0];
+
+  // 🚀 Player O Memory Caching
+  const lastValidORef = useRef(PLAYER_COLORS[oColorIdx] || PLAYER_COLORS[9]);
+  if (PLAYER_COLORS[oColorIdx]) lastValidORef.current = PLAYER_COLORS[oColorIdx];
+  const currentOColor = enableCustomO ? (PLAYER_COLORS[oColorIdx] || lastValidORef.current) : PLAYER_COLORS[9];
 
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isTransitioning.current) return;
