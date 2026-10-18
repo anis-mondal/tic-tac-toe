@@ -31,21 +31,24 @@ export const ICONS_LIST = [
   Hexagon, Octagon, Pentagon, Triangle, Square, Diamond, Asterisk, TargetIcon, Shield, Zap, Dna, Star, Heart, InfinityIcon, Puzzle, SparkleIcon, Gem, Crown, Trophy, Ghost, Leaf, Flame, Droplet, Flower2, Snowflake, Feather, SunIcon, MoonIcon, Cloud, Wind, Sprout, TreePine, Mountain, Bug, Cat, Dog, Bird, Fish, Rabbit, Snail, Anchor, Magnet, Umbrella, Coffee, Camera, Bell, Music, Gamepad2, Lightbulb, Dice5, Tent, Wand2, Atom, Orbit, Bomb, Key, Glasses, Clock, Hourglass, Timer, Rocket, Plane, Car, Ship, Bus, Train, Bike, Tractor, Sailboat, Truck, Compass, MapPin, Radar, LifeBuoy, Map, Navigation, Flag, Globe, Ticket, Luggage, Cpu, Database, Laptop, Smartphone, Watch, Headphones, Mic, Radio, Tv, Monitor, Smile, Skull, Bot, Eye, Fingerprint, Activity, Box, Layers, Aperture, Grid, Palette, PenTool, Brush, Scissors, Hammer, Wrench, Ruler, Drill, HardHat, Thermometer, Sunrise, Sunset, CloudRain, CloudSnow, CloudLightning, Tornado, Waves, Trees, Palmtree, Droplets, ShoppingCart, ShoppingBag, ShoppingBasket, Tag, Wallet, CreditCard, Banknote, Coins, PiggyBank, Receipt, Stethoscope, Syringe, TestTube, FlaskConical, Pill, Microscope, Telescope, Webcam, Film, Clapperboard, Megaphone, Speaker, Book, Bookmark, Briefcase, GraduationCap, Medal, Award, Gift, PartyPopper, Apple, Axe, Backpack, Banana, Battery, Bed, Binoculars, Bone, Brain, Cake, Calculator, Calendar, Candy, Carrot, Castle, Cherry, Church, Clover, Club, Cookie, Croissant, Crosshair, CupSoda, Drama, Drum, Dumbbell, Ear, Eclipse, Egg, Factory, Fan, FerrisWheel, Flashlight, Footprints, Guitar, IceCream, Keyboard, Origami, PaintBucket, Pizza, Popcorn, Rainbow, Satellite, Shirt, Swords, Turtle, AlarmClock, Ambulance, BaggageClaim, Beer, CarFront, ChefHat, Citrus, Grape, Lock, Joystick, MountainSnow, Wine, Nut, Rat, Squirrel, Caravan, Cylinder, Wheat, Sandwich
 ];
 
+// 🚀 নতুন থিমের কালারগুলো প্লেয়ার এবং লাইনের কালারে যুক্ত করা হলো
 export const PLAYER_COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', 
   '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', 
-  '#22c55e', '#65a30d', '#a16207', '#d97706', '#ea580c', '#e11d48', '#db2777', '#c026d3', '#6366f1', '#0284c7'
+  '#22c55e', '#65a30d', '#a16207', '#d97706', '#ea580c', '#e11d48', '#db2777', '#c026d3', '#6366f1', '#0284c7',
+  '#6A5687', '#4E3B68', '#D5BBFA', '#895130', '#6F3712', '#FCB38A', '#FFB68D', '#775B1A', '#6C5D40', '#FAD688', '#FEDF9E' // 🚀 Purple, Orange, Yellow Extra Colors
 ];
 
 export const EXTRA_LINE_COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#eab308', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#64748b',
-  '#22c55e', '#65a30d', '#a16207', '#d97706', '#ea580c', '#e11d48', '#db2777', '#c026d3', '#6366f1', '#0284c7'
+  '#22c55e', '#65a30d', '#a16207', '#d97706', '#ea580c', '#e11d48', '#db2777', '#c026d3', '#6366f1', '#0284c7',
+  '#6A5687', '#4E3B68', '#D5BBFA', '#895130', '#6F3712', '#FCB38A', '#FFB68D', '#775B1A', '#6C5D40', '#FAD688', '#FEDF9E' // 🚀 Purple, Orange, Yellow Extra Colors
 ];
 
 export const ORIGINAL_THEME = { name: 'Classic', light: '#f8f9fa', dark: '#000000', gridLight: '#e2e8f0', gridDark: '#1a1c1e', cellLight: '#ffffff', cellDark: '#2a2d31', indicatorLight: '#64748b', indicatorDark: '#94a3b8', linesLight: ['#22c55e', '#16a34a', '#15803d', '#10b981', '#059669'], linesDark: ['#22c55e', '#4ade80', '#86efac', '#34d399', '#6ee7b7'] };
 
 export const CUSTOM_THEMES = [
-  // 🚀 নতুন: আপনার দেওয়া কাস্টম পার্পেল থিম
+  // 🚀 Custom Purple
   { 
     name: 'M3 Custom Purple', 
     light: '#F8F4FF', dark: '#140D1C', 
@@ -54,6 +57,26 @@ export const CUSTOM_THEMES = [
     indicatorLight: '#6A5687', indicatorDark: '#D5BBFA', 
     linesLight: ['#6A5687', '#4E3B68', '#7D516A', '#9F7AEA', '#FDC4E4'], 
     linesDark: ['#D5BBFA', '#EDDCFF', '#FFD8E0', '#643B43', '#B794F4'] 
+  },
+  // 🚀 Custom Orange
+  { 
+    name: 'M3 Custom Orange', 
+    light: '#FEEAE1', dark: '#1F1005', 
+    gridLight: '#FCB38A', gridDark: '#6F3712', 
+    cellLight: '#ffffff', cellDark: '#4A2208', 
+    indicatorLight: '#895130', indicatorDark: '#FFB68D', 
+    linesLight: ['#895130', '#A66A42', '#C48355', '#FCB38A', '#E4BEA9'], 
+    linesDark: ['#FFB68D', '#FFCAAA', '#E4BEA9', '#D2A180', '#FCB38A'] 
+  },
+  // 🚀 Custom Yellow
+  { 
+    name: 'M3 Custom Yellow', 
+    light: '#F8ECDE', dark: '#1A1405', 
+    gridLight: '#FAD688', gridDark: '#5B4400', 
+    cellLight: '#ffffff', cellDark: '#3D2E00', 
+    indicatorLight: '#775B1A', indicatorDark: '#FEDF9E', 
+    linesLight: ['#775B1A', '#6C5D40', '#8F712A', '#A8883B', '#FAD688'], 
+    linesDark: ['#FEDF9E', '#E9C16C', '#D8C4A1', '#EED888', '#F5E499'] 
   },
   { name: 'Dynamic M3', light: '#fdf8fd', dark: '#141218', gridLight: '#e8def8', gridDark: '#2b2930', cellLight: '#ffffff', cellDark: '#36343b', indicatorLight: '#6750a4', indicatorDark: '#d0bcff', linesLight: ['#6750a4', '#b3261e', '#9c4146', '#316934', '#006a6a'], linesDark: ['#d0bcff', '#f2b8b5', '#ffb4ab', '#82c986', '#4cdada'] },
   { name: 'M3 Blue', light: '#eff6ff', dark: '#040b17', gridLight: '#bfdbfe', gridDark: '#0a1229', cellLight: '#ffffff', cellDark: '#121e38', indicatorLight: '#2563eb', indicatorDark: '#3b82f6', linesLight: ['#1e3a8a', '#1d4ed8', '#0891b2', '#4f46e5', '#3b82f6'], linesDark: ['#60a5fa', '#93c5fd', '#3b82f6', '#818cf8', '#7dd3fc'] },
@@ -128,7 +151,6 @@ interface SettingsModalProps {
   enableHardPullToRefresh: boolean; setEnableHardPullToRefresh: (val: boolean) => void;
   isHapticEnabled: boolean; setIsHapticEnabled: (val: boolean) => void;
   
-  // 🚀 Interactive Drag Toggle
   isDragEnabled: boolean; setIsDragEnabled: (val: boolean) => void;
 
   soundPrefs: { xTap: number, oTap: number, pop: number, mode: number, refresh: number, win: number, overallWin: number, point: number };
@@ -634,7 +656,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                        </AnimatePresence>
                     </div>
 
-                    {/* 🚀 8. Refresh Animations Button */}
+                    {/* 🚀 8. Refresh Animations Button (New Menu) */}
                     <div className="pt-2 flex justify-center w-full">
                        <button onClick={() => { props.hapticFeedback(30); props.setShowLoadersMenu(true); }} className="w-[85%] py-[15px] rounded-[24px] bg-black/5 dark:bg-white/5 border-[2.5px] hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm transition-colors duration-300" style={{ borderColor: cardBorderColor }}>
                          <RotateCcw className="w-[20px] h-[20px] opacity-70" style={{ color: activeLineColor }} /> 
@@ -661,7 +683,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                   </div>
                 </div>
 
-                {/* 🚀 Refresh Loaders Overlay (New Page for Animations with Magic Tint Fix) */}
+                {/* 🚀 Refresh Loaders Overlay */}
                 <AnimatePresence>
                   {props.showLoadersMenu && (
                     <motion.div 
@@ -748,7 +770,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                                  <AnimatedToggle enabled={props.isHapticEnabled} onToggle={() => { props.hapticFeedback(30); props.setIsHapticEnabled(!props.isHapticEnabled); }} activeColor={activeLineColor} isDarkMode={props.isDarkMode} />
                               </div>
 
-                              {/* 🚀 নতুন: Drag & Bounce Physics টগল */}
+                              {/* 🚀 Interactive Drag Toggle */}
                               <div className="w-full h-px bg-black/10 dark:bg-white/10" />
                               <div className="flex items-center justify-between">
                                  <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-1 leading-snug w-3/4">Interactive Icon Drag</h3>
