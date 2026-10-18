@@ -19,11 +19,11 @@ export const generateAdaptiveTheme = (baseHex: string, themeName: string = 'Adap
       hexFromArgb(p.primary.tone(40)), hexFromArgb(p.secondary.tone(40)),
       hexFromArgb(p.tertiary.tone(40)), hexFromArgb(p.error.tone(40)), hexFromArgb(p.primary.tone(30))
     ],
-    // 🌙 Dark Mode Shades (একটু বেশি উজ্জ্বল ও ভাইব্রেন্ট করা হলো)
-    dark: hexFromArgb(p.neutral.tone(10)),             // 6 থেকে 10 করা হলো
-    gridDark: hexFromArgb(p.neutralVariant.tone(20)),  // 15 থেকে 20
-    cellDark: hexFromArgb(p.neutralVariant.tone(30)),  // 25 থেকে 30
-    indicatorDark: hexFromArgb(p.primary.tone(85)),    // 80 থেকে 85 (বেশি কালারফুল)
+   // 🌙 Dark Mode Shades (ভাইব্রেন্ট এবং কাস্টম থিমের মতো নিখুঁত)
+    dark: hexFromArgb(p.primary.tone(10)),       // neutral এর বদলে primary: ব্যাকগ্রাউন্ড একদম ডার্ক হবে কিন্তু মূল কালারের আভা থাকবে
+    gridDark: hexFromArgb(p.primary.tone(25)),   // কন্টেইনারগুলো অনেক বেশি উজ্জ্বল এবং ভাইব্রেন্ট হবে
+    cellDark: hexFromArgb(p.primary.tone(15)),   // বোর্ডের ভেতরের ঘরগুলো কন্টেইনারের চেয়ে কম উজ্জ্বল (ডার্ক) হবে
+    indicatorDark: hexFromArgb(p.primary.tone(85)), 
     linesDark: [
       hexFromArgb(p.primary.tone(85)),
       hexFromArgb(p.secondary.tone(85)),
@@ -31,8 +31,7 @@ export const generateAdaptiveTheme = (baseHex: string, themeName: string = 'Adap
       hexFromArgb(p.error.tone(85)),
       hexFromArgb(p.primary.tone(92))
     ]
-  };
-};
+
 
 // UI এর জন্য HSL থেকে Hex রূপান্তরকারী
 const hexToHSL = (hex: string) => {
