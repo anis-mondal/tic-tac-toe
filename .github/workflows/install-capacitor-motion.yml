@@ -1,0 +1,34 @@
+name: Install Capacitor Motion
+
+# আপনি ফাইলটি সেভ (Push) করার সাথে সাথেই এটি রান করবে
+on:
+  push:
+    paths:
+      - '.github/workflows/install-capacitor-motion.yml'
+  workflow_dispatch:
+
+jobs:
+  install-dependency:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # গিটহাবে কোড পুশ করার পারমিশন
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # Node.js এর স্ট্যাবল ভার্সন
+
+      - name: Install Capacitor Motion
+        run: npm install @capacitor/motion
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "Add @capacitor/motion via GitHub Actions" || echo "No changes to commit"
+          git push
