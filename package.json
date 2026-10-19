@@ -26,7 +26,7 @@
     "cordova-plugin-dynamic-color": "github:ollm/cordova-plugin-dynamic-color",
     "dotenv": "^18.0.7",
     "express": "^5.2.1",
-    "lucide-react": "^1.56.0",
+    "lucide-react": "^1.58.0",
     "motion": "^13.4.6",
     "react": "^19.0.1",
     "react-dom": "^19.3.0",
