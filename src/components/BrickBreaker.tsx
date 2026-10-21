@@ -39,7 +39,7 @@ export default function BrickBreaker({
   const [highScore, setHighScore] = useState(() => parseInt(localStorage.getItem('brick_highscore') || '0'));
 
   // =========================================================
-  // 🎨 Material You Color Palette (ব্রাইটনেস আরও কমানো হয়েছে)
+  // 🎨 Material You Color Palette 
   // =========================================================
   const safeHexColor = getSafeHex(activeLineColor);
   const monetTheme = themeFromSourceColor(argbFromHex(safeHexColor));
@@ -83,7 +83,7 @@ export default function BrickBreaker({
   const FIXED_STEP = 1 / 120; 
   const MAX_STEPS = 8;
 
-  // 🚀 Initialize Level (পারফেক্ট অ্যালাইনমেন্ট ও গ্যাপ ফিক্স)
+  // 🚀 Initialize Level (Perfect Mathematical Alignment)
   const initLevel = (currentLevel: number) => {
     const r = gameRef.current;
     r.bricks = [];
@@ -94,18 +94,20 @@ export default function BrickBreaker({
     const widthFactor = Math.max(0.16, 0.25 - (currentLevel * 0.015)); 
     r.paddle.w = r.canvasW * widthFactor;
 
-    const cols = 7; // 🚀 ৭টি কলাম যাতে একদম নিখুঁতভাবে স্ক্রিনে ফিট হয়
+    const cols = 7; 
     const rows = Math.min(3 + currentLevel, 8); 
-    const padding = 8; // 🚀 গ্যাপ পারফেক্ট করা হলো
-    const offsetTop = 22; // 🚀 ইটের ওপরের গ্যাপ সামান্য বাড়ানো হলো
     
+    // 🚀 গাণিতিক বাগ ফিক্স: ডানে-বামে এবং উপরে একদম সমান গ্যাপ থাকবে
+    const padding = 12; 
+    
+    // ইটগুলোর চওড়া হিসাব (বাকি জায়গাটুকু সমানভাগে ভাগ হবে)
     const availableWidth = r.canvasW - (padding * 2); 
     const totalGapWidth = padding * (cols - 1);
-    const brickW = Math.floor((availableWidth - totalGapWidth) / cols); // Math.floor দিয়ে ফাঁকা জায়গা দূর করা হয়েছে
+    const brickW = (availableWidth - totalGapWidth) / cols; // Math.floor সরানো হলো, যাতে কোনো পিক্সেল ফাঁকা না থাকে
     const brickH = 18; 
 
-    const totalContentWidth = (brickW * cols) + (padding * (cols - 1));
-    const offsetLeft = Math.floor((r.canvasW - totalContentWidth) / 2); // একদম সেন্টারে রাখার জন্য
+    const offsetLeft = padding; // সাইডের গ্যাপ
+    const offsetTop = padding; // 🚀 উপরের গ্যাপ (সাইডের গ্যাপের একদম সমান)
 
     const pSecondary = currentLevel >= 2 ? Math.min(0.15 + (currentLevel - 2) * 0.02, 0.35) : 0;
     const pTertiary = currentLevel >= 3 ? Math.min(0.08 + (currentLevel - 3) * 0.03, 0.25) : 0;
@@ -355,7 +357,7 @@ export default function BrickBreaker({
            ctx.lineTo(b.rect.left + 5, b.rect.bottom - 5);
            ctx.strokeStyle = safeHexColor;
            ctx.lineWidth = 2.5;
-           ctx.lineCap = 'round'; // 🚀 কর্নার রাউন্ড করা 'X' ক্রস
+           ctx.lineCap = 'round'; 
            ctx.lineJoin = 'round';
            ctx.stroke();
            ctx.closePath();
@@ -467,43 +469,40 @@ export default function BrickBreaker({
       onTouchMove={(e) => e.stopPropagation()}
     >
        
-       {/* 🚀 Top Bar: ডায়নামিক পিল কন্টেইনার (হাইট ও অ্যালাইনমেন্ট ফিক্সড) */}
        <div className="inline-flex w-auto justify-center items-center gap-2 py-2 px-3 rounded-full mb-3 shadow-sm mx-auto transition-all" style={{ backgroundColor: topBarBg }}>
           
-          {/* 1. Coins Pill */}
           <div className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm h-[32px]" style={{ backgroundColor: primaryPillBg }}>
              <Coins className="w-[14px] h-[14px]" style={{ color: primaryPillText }} strokeWidth={3} />
              <span className="text-[13px] font-black leading-none" style={{ color: primaryPillText }}>{points}</span>
           </div>
           
-          {/* 2. XP Pill */}
           <div className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm h-[32px]" style={{ backgroundColor: tertiaryPillBg }}>
              <span className="text-[11px] font-black uppercase tracking-wider leading-none" style={{ color: tertiaryPillText }}>XP</span>
              <span className="text-[13px] font-black leading-none" style={{ color: tertiaryPillText }}>{xp}</span>
           </div>
 
-          {/* 3. Level Pill */}
-          <div className="px-4 py-1.5 rounded-full font-black text-[13px] shadow-sm flex items-center justify-center h-[32px]" style={{ backgroundColor: primaryPillBg, color: primaryPillText }}>
+          {/* 🚀 ফন্টের গ্লিচ ফিক্স: pt-[2px] ব্যবহার করে একদম সেন্টারে আনা হয়েছে */}
+          <div className="px-4 py-1.5 rounded-full font-black text-[13px] shadow-sm flex items-center justify-center h-[32px] pt-[3px]" style={{ backgroundColor: primaryPillBg, color: primaryPillText }}>
              <span className="leading-none">LVL {level}</span>
           </div>
           
-          {/* 4. Lives Pill */}
           <div className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm h-[32px]" style={{ backgroundColor: tertiaryPillBg }}>
               <span className="text-[13px] font-black leading-none" style={{ color: tertiaryPillText }}>{lives}</span>
               <Heart className="w-[14px] h-[14px] fill-current" style={{ color: heartColor }} />
           </div>
        </div>
 
-       {/* 🚀 Game Board (Width Increased: max-w-[440px]) */}
-       <div className="relative w-full max-w-[440px] h-[70vh] max-h-[520px] rounded-[18px] overflow-hidden shadow-inner" style={{ backgroundColor: boardBg }}>
+       {/* 🚀 Game Board (Height & Width Increased by ~10%) */}
+       <div className="relative w-full max-w-[460px] h-[70vh] max-h-[580px] rounded-[18px] overflow-hidden shadow-inner" style={{ backgroundColor: boardBg }}>
           
+          {/* 🚀 GPU Hardware Acceleration: translateZ(0) */}
           <div 
              ref={containerRef}
              className="absolute inset-0 touch-none"
              onPointerDown={handlePointerDown}
              onPointerMove={handlePointerMove}
           >
-             <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />
+             <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" style={{ transform: 'translateZ(0)', willChange: 'transform' }} />
           </div>
 
           <AnimatePresence>
