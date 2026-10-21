@@ -34,10 +34,10 @@ export default function BrickBreaker({
   const p = monetTheme.palettes;
 
   // ১. স্ক্রিনের একদম পেছনের ব্যাকগ্রাউন্ড (সবচেয়ে ডার্ক)
-  const outerBg = isDarkMode ? hexFromArgb(p.neutral.tone(4)) : hexFromArgb(p.neutral.tone(98));
+  const outerBg = isDarkMode ? hexFromArgb(p.neutral.tone(2)) : hexFromArgb(p.neutral.tone(98));
   
   // ২. গেম খেলার মূল বোর্ডের কালার (Darker)
-  const boardBg = isDarkMode ? hexFromArgb(p.primary.tone(12)) : hexFromArgb(p.primary.tone(92));
+  const boardBg = isDarkMode ? hexFromArgb(p.primary.tone(10)) : hexFromArgb(p.primary.tone(92));
   
   // ৩. উপরের মূল বারের কালার
   const topBarBg = isDarkMode ? hexFromArgb(p.primary.tone(18)) : hexFromArgb(p.primary.tone(90));
@@ -432,7 +432,7 @@ export default function BrickBreaker({
        {/* 🚀 Game Board (Height reduced, rounded border reduced) */}
        <div 
           ref={containerRef}
-          className="relative w-full max-w-[340px] h-[55vh] max-h-[480px] rounded-[18px] overflow-hidden touch-none"
+          className="relative w-full max-w-[400px] h-[55vh] max-h-[520px] rounded-[18px] overflow-hidden touch-none"
           style={{ backgroundColor: boardBg }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
