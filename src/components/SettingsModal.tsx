@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   X as CloseIcon, Info, Moon, Target, Settings, RotateCcw,
-  ChevronLeft, Plus, Trash2, Edit3
+  ChevronLeft, Plus, Trash2, Edit3, Gamepad2
 } from 'lucide-react';
 
 import { EMOJI_LIST } from './emojiList'; 
@@ -10,7 +10,6 @@ import { REFRESH_LOADERS } from './RefreshLoaders';
 import AdaptiveThemePicker, { generateAdaptiveTheme } from './AdaptiveThemePicker'; 
 import AnimatedToggle from './AnimatedToggle';
 
-// 🚀 ডায়নামিক থিমের লজিকটি ইম্পোর্ট করা হলো
 import { getSystemDynamicTheme } from '../utils/dynamicTheme';
 
 import { 
@@ -26,6 +25,8 @@ export {
 
 interface SettingsModalProps {
   isOpen: boolean; onClose: () => void; setIsAboutOpen: (val: boolean) => void; showAdvanced: boolean; setShowAdvanced: (val: boolean) => void;
+  // 🚀 নতুন গেম টগল করার জন্য প্রপস
+  activeGame: 'tictactoe' | 'brickbreaker'; setActiveGame: (val: 'tictactoe' | 'brickbreaker') => void;
   semantics: any; isDarkMode: boolean; isAmoled: boolean; setIsAmoled: (val: boolean) => void;
   useDefaultTheme: boolean; setUseDefaultTheme: (val: boolean) => void; themeIdx: number; setThemeIdx: (val: number) => void;
   p1Custom: boolean; setP1Custom: (val: boolean) => void; p1Idx: number; setP1Idx: (val: number) => void;
@@ -58,10 +59,13 @@ export default function SettingsModal(props: SettingsModalProps) {
   const [localThemeIdx, setLocalThemeIdx] = useState(props.themeIdx);
   const [visualUseDefaultTheme, setVisualUseDefaultTheme] = useState(props.useDefaultTheme);
   const [visualThemeIdx, setVisualThemeIdx] = useState(props.themeIdx);
+  
+  // 🚀 গেম টগল করার স্টেট
+  const [visualActiveGame, setVisualActiveGame] = useState(props.activeGame);
+  
   const [isUpdating, setIsUpdating] = useState(false);
   const [previewLoaderIdx, setPreviewLoaderIdx] = useState<number | null>(null);
 
-  // 🚀 ডায়নামিক থিমের স্টেট
   const [hasDynamic, setHasDynamic] = useState(false);
 
   const [userThemes, setUserThemes] = useState<any[]>(savedAdaptiveThemes);
@@ -70,12 +74,11 @@ export default function SettingsModal(props: SettingsModalProps) {
   const [pickerState, setPickerState] = useState<{isOpen: boolean, editIndex: number | null, target: 'theme'|'line'|'x'|'o'|'color', initialColor: string}>({isOpen: false, editIndex: null, target: 'theme', initialColor: '#007AFF'});
   const [longPressState, setLongPressState] = useState<{isOpen: boolean, index: number | null, type: 'theme'|'color'}>({isOpen: false, index: null, type: 'theme'});
 
-  // 🚀 অ্যাপ লোড হওয়ার সাথে সাথে সিস্টেমের ডায়নামিক কালার নিয়ে আসা
   useEffect(() => {
     let isMounted = true;
     getSystemDynamicTheme().then(theme => {
       if (isMounted && theme) {
-        CUSTOM_THEMES[0] = theme; // প্রথম থিমটিকে ডায়নামিক কালার দিয়ে ওভাররাইট করা হলো
+        CUSTOM_THEMES[0] = theme; 
         setHasDynamic(true);
       }
     });
@@ -84,6 +87,7 @@ export default function SettingsModal(props: SettingsModalProps) {
 
   useEffect(() => { setLocalUseDefaultTheme(props.useDefaultTheme); setVisualUseDefaultTheme(props.useDefaultTheme); }, [props.useDefaultTheme]);
   useEffect(() => { setLocalThemeIdx(props.themeIdx); setVisualThemeIdx(props.themeIdx); }, [props.themeIdx]);
+  useEffect(() => { setVisualActiveGame(props.activeGame); }, [props.activeGame]);
 
   const safeTheme = CUSTOM_THEMES[localThemeIdx] || CUSTOM_THEMES[0];
   const activeTheme = localUseDefaultTheme ? ORIGINAL_THEME : safeTheme;
@@ -129,6 +133,13 @@ export default function SettingsModal(props: SettingsModalProps) {
       setEmojiModal({isOpen: false, target: 'X'}); setEmojiInput('');
   };
 
+  // 🚀 গেম টগল করার লজিক
+  const handleGameToggleChange = (game: 'tictactoe' | 'brickbreaker') => {
+     if (visualActiveGame === game || isUpdating) return;
+     props.hapticFeedback(20); setIsUpdating(true); setVisualActiveGame(game);
+     setTimeout(() => { props.setActiveGame(game); setIsUpdating(false); }, 300);
+  };
+
   const handleThemeToggleChange = (isClassic: boolean) => {
      if (visualUseDefaultTheme === isClassic || isUpdating) return;
      props.hapticFeedback(20); setIsUpdating(true); setVisualUseDefaultTheme(isClassic);
@@ -148,7 +159,6 @@ export default function SettingsModal(props: SettingsModalProps) {
 
   const handleThemeDown = (idx: number) => {
      isLongPressTriggered.current = false;
-     // ডায়নামিক থিমটি (idx === 0) ডিলিট বা এডিট করা যাবে না
      if (idx >= STATIC_THEMES.length && idx !== 0) { 
         longPressTimer.current = setTimeout(() => { isLongPressTriggered.current = true; props.hapticFeedback([50, 50]); setLongPressState({ isOpen: true, index: idx, type: 'theme' }); }, 500); 
      }
@@ -274,6 +284,21 @@ export default function SettingsModal(props: SettingsModalProps) {
                 <div className="relative w-full overflow-hidden px-4">
                   <div className="max-h-[66vh] overflow-y-auto m3-scrollbar pr-3 space-y-4 pb-6">
                     
+                    {/* 🚀 New: Game Selection Toggle */}
+                    <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5 transition-colors duration-300" style={{ borderColor: cardBorderColor }}>
+                       <div className="flex items-center gap-2 mb-4">
+                          <Gamepad2 className="w-5 h-5 opacity-70" />
+                          <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mt-0.5">Select Game</h3>
+                       </div>
+                       <div className="relative flex p-1.5 rounded-[28px] w-full shadow-sm transition-colors duration-300" style={{ backgroundColor: props.isDarkMode ? (props.isAmoled ? '#0f0f0f' : props.semantics.modeSliderContainer.bg) : props.activeLineColor }}>
+                          <div className="relative flex w-full">
+                              <div className="absolute top-0 bottom-0 w-1/2 rounded-[24px] shadow-sm" style={{ backgroundColor: props.isDarkMode ? 'rgba(255,255,255,0.12)' : '#ffffff', transform: visualActiveGame === 'tictactoe' ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.4s cubic-bezier(0.34, 1.3, 0.64, 1)', willChange: 'transform' }} />
+                              <button onClick={() => handleGameToggleChange('tictactoe')} className="relative flex-1 h-[40px] rounded-[24px] text-[13px] font-black uppercase tracking-wider z-10 flex items-center justify-center transition-colors duration-300" style={{ color: visualActiveGame === 'tictactoe' ? (props.isDarkMode ? '#ffffff' : props.activeLineColor) : (props.isDarkMode ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.8)') }}><span className="relative z-10">Tic Tac Toe</span></button>
+                              <button onClick={() => handleGameToggleChange('brickbreaker')} className="relative flex-1 h-[40px] rounded-[24px] text-[13px] font-black uppercase tracking-wider z-10 flex items-center justify-center transition-colors duration-300" style={{ color: visualActiveGame === 'brickbreaker' ? (props.isDarkMode ? '#ffffff' : props.activeLineColor) : (props.isDarkMode ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.8)') }}><span className="relative z-10">Brick Breaker</span></button>
+                          </div>
+                       </div>
+                    </div>
+
                     <div className="rounded-[24px] p-5 border-[2.5px] bg-black/5 dark:bg-white/5 transition-colors duration-300" style={{ borderColor: cardBorderColor }}>
                        <h3 className="text-[12px] uppercase tracking-widest opacity-80 font-black mb-4">Theme Style</h3>
                        <div className="relative flex p-1.5 rounded-[28px] w-full shadow-sm transition-colors duration-300" style={{ backgroundColor: props.isDarkMode ? (props.isAmoled ? '#0f0f0f' : props.semantics.modeSliderContainer.bg) : props.activeLineColor }}>
@@ -300,7 +325,6 @@ export default function SettingsModal(props: SettingsModalProps) {
                              <div className="max-h-[135px] overflow-y-auto m3-scrollbar pr-3">
                                 <div className="grid grid-cols-5 place-items-center gap-y-4 gap-x-2 pb-2 pt-1">
                                   {CUSTOM_THEMES.map((theme, idx) => {
-                                    // 🚀 যদি ডায়নামিক থিম সাপোর্ট না করে, তবে প্রথম অপশনটি দেখাবে না!
                                     if (idx === 0 && !hasDynamic) return null;
                                     
                                     const isDynamicBtn = idx === 0 && hasDynamic;
@@ -312,14 +336,12 @@ export default function SettingsModal(props: SettingsModalProps) {
                                         style={{ backgroundColor: props.isDarkMode ? theme.indicatorDark : theme.indicatorLight, borderColor: visualThemeIdx === idx ? (props.isDarkMode ? '#ffffff' : '#000000') : 'transparent' }} 
                                         className="w-8 h-8 rounded-full border-[2.5px] shadow-sm transition-transform active:scale-90 flex items-center justify-center hover:scale-110 relative"
                                       >
-                                        {/* 🚀 ডায়নামিক থিমের জন্য স্পেশাল অর্ধেক-স্বচ্ছ 'A' টেক্সট */}
                                         {isDynamicBtn && (
                                           <span className="absolute font-nunito-black text-[15px] pointer-events-none drop-shadow-sm leading-none" style={{ color: props.isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.75)' }}>
                                             A
                                           </span>
                                         )}
 
-                                        {/* 🚀 সাধারণ থিমের ক্ষেত্রে ভেতরে সাদা গোল ডট দেখাবে */}
                                         {visualThemeIdx === idx && !isDynamicBtn && <div className="w-3 h-3 rounded-full bg-white shadow-sm" />}
                                       </button>
                                     );
