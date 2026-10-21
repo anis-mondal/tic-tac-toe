@@ -54,7 +54,8 @@ export default function BrickBreaker({
   const primaryPillBg = safeHexColor;
   const primaryPillText = isDarkMode ? '#000000' : '#ffffff';
   
-  const ballColor = isDarkMode ? hexFromArgb(p.tertiary.tone(80)) : hexFromArgb(p.tertiary.tone(40)); 
+  // 🚀 বলের কালার টার্সিয়ারি কালারের একটি মিডিয়াম (Medium) ভার্সনে সেট করা হয়েছে
+  const ballColor = isDarkMode ? hexFromArgb(p.tertiary.tone(60)) : hexFromArgb(p.tertiary.tone(50)); 
   const paddleColor = safeHexColor;
   
   const heartColor = isDarkMode ? hexFromArgb(p.error.tone(40)) : hexFromArgb(p.error.tone(70)); 
@@ -67,8 +68,8 @@ export default function BrickBreaker({
   // =========================================================
 
   const gameRef = useRef({
-    ball: { x: 150, y: 300, vx: 0, vy: 0, radius: 9.5, baseSpeed: 320, currentSpeedMult: 1 }, // 🚀 বল সাইজ ও স্পিড সামান্য বাড়ানো হলো
-    paddle: { x: 100, y: 400, w: 85, h: 10 }, 
+    ball: { x: 150, y: 300, vx: 0, vy: 0, radius: 8.5, baseSpeed: 290, currentSpeedMult: 1 }, 
+    paddle: { x: 100, y: 400, w: 75, h: 9 }, 
     bricks: [] as any[],
     particles: [] as any[],
     canvasW: 300,
@@ -83,7 +84,6 @@ export default function BrickBreaker({
   const FIXED_STEP = 1 / 120; 
   const MAX_STEPS = 8;
 
-  // 🚀 Initialize Level (ইটের সাইজ বাড়ানো হলো)
   const initLevel = (currentLevel: number) => {
     const r = gameRef.current;
     r.bricks = [];
@@ -91,22 +91,26 @@ export default function BrickBreaker({
     r.isTransitioning = false; 
     
     r.ball.currentSpeedMult = 1 + ((currentLevel - 1) * 0.12); 
-    const widthFactor = Math.max(0.18, 0.28 - (currentLevel * 0.015)); 
+    
+    // 🚀 প্যাডেলের চওড়া (Width) সামান্য কমানো হলো
+    const widthFactor = Math.max(0.14, 0.20 - (currentLevel * 0.015)); 
     r.paddle.w = r.canvasW * widthFactor;
 
-    const cols = 6; // 🚀 কলাম কমিয়ে ইটের সাইজ বাড়ানো হলো
+    const cols = 7; 
     const minRows = Math.min(4 + Math.floor(currentLevel / 3), 6);
     const maxRows = Math.min(minRows + 3, 9);
     const rows = Math.floor(Math.random() * (maxRows - minRows + 1)) + minRows; 
     
-    const padding = 14; // 🚀 গ্যাপ কিছুটা বাড়ানো হলো
+    const padding = 12; 
     const offsetLeft = padding; 
     const offsetTop = padding; 
     
     const availableWidth = r.canvasW - (padding * 2); 
     const totalGapWidth = padding * (cols - 1);
     const brickW = (availableWidth - totalGapWidth) / cols; 
-    const brickH = 22; // 🚀 ইটের হাইট বাড়ানো হলো
+    
+    // 🚀 ইটের উচ্চতা (Height) বাড়ানো হলো (চওড়া বোর্ড অনুযায়ী অটোমেটিক বেড়ে গেছে)
+    const brickH = 22; 
 
     const pSecondary = currentLevel >= 2 ? Math.min(0.15 + (currentLevel - 2) * 0.02, 0.35) : 0;
     const pTertiary = currentLevel >= 3 ? Math.min(0.08 + (currentLevel - 3) * 0.03, 0.25) : 0;
@@ -199,8 +203,7 @@ export default function BrickBreaker({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    // 🚀 LAGGING FIX: alpha: false রেন্ডারিং স্পিড ৩ গুণ বাড়িয়ে দেবে WebView তে!
-    const ctx = canvas?.getContext('2d', { alpha: false, desynchronized: true });
+    const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
     let animationFrameId: number;
 
@@ -330,10 +333,10 @@ export default function BrickBreaker({
                       setGameState('gameover');
                       playPreviewSound('overallWin', soundPrefs.overallWin);
                    } else {
+                      state.ball.currentSpeedMult = 1 + ((level - 1) * 0.12);
                       state.ballLaunched = false;
                       setIsBallLaunched(false);
                       state.isTransitioning = false; 
-                      state.ball.currentSpeedMult = 1 + ((level - 1) * 0.12);
                    }
                    return newLives;
                  });
@@ -347,9 +350,7 @@ export default function BrickBreaker({
         }
       }
 
-      // 🚀 Performance Update: Opaque Background rendering
-      ctx.fillStyle = boardBg;
-      ctx.fillRect(0, 0, state.canvasW, state.canvasH);
+      ctx.clearRect(0, 0, state.canvasW, state.canvasH);
 
       state.bricks.forEach(b => {
         if (b.hits === 0) return;
@@ -396,14 +397,12 @@ export default function BrickBreaker({
 
     animationFrameId = requestAnimationFrame(updateAndDraw);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [gameState, normalBrickColor, paddleColor, ballColor, hardBrickColor, veryHardBrickColor, unbreakableBg, safeHexColor, boardBg, level]);
+  }, [gameState, normalBrickColor, paddleColor, ballColor, hardBrickColor, veryHardBrickColor, unbreakableBg, safeHexColor, level]);
 
   useEffect(() => {
     if (containerRef.current && canvasRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
-      
-      // 🚀 Performance Limit: Cap DPR to 2 so app doesn't lag on high-end phones
-      const dpr = Math.min(window.devicePixelRatio || 1, 2); 
+      const dpr = window.devicePixelRatio || 1; 
       
       gameRef.current.canvasW = rect.width;
       gameRef.current.canvasH = rect.height;
@@ -472,36 +471,36 @@ export default function BrickBreaker({
 
   return (
     <div 
-      className="w-full h-full flex flex-col items-center select-none pt-2 pb-4 px-3 overflow-hidden bg-transparent" 
+      className="w-full h-full flex flex-col items-center select-none pt-2 pb-4 px-4 overflow-hidden bg-transparent" 
       style={{ touchAction: 'none', overscrollBehaviorY: 'contain' }}
       onTouchMove={(e) => e.stopPropagation()}
     >
        
-       <div className="inline-flex w-auto justify-center items-center gap-2 py-2 px-3 rounded-full mt-6 mb-8 shadow-sm mx-auto transition-all" style={{ backgroundColor: topBarBg }}>
+       <div className="inline-flex w-auto justify-center items-center gap-2 p-2 rounded-full mt-6 mb-8 shadow-sm mx-auto transition-all" style={{ backgroundColor: topBarBg }}>
           
-          <div className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm h-[32px]" style={{ backgroundColor: primaryPillBg }}>
+          {/* 🚀 পিলগুলোর প্যাডিং সমান করে চারদিকে পারফেক্ট রাউন্ডেড করা হলো */}
+          <div className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full shadow-sm" style={{ backgroundColor: primaryPillBg }}>
              <Coins className="w-[14px] h-[14px]" style={{ color: primaryPillText }} strokeWidth={3} />
              <span className="text-[13px] font-black leading-none pt-[1px]" style={{ color: primaryPillText }}>{points}</span>
           </div>
           
-          <div className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm h-[32px]" style={{ backgroundColor: tertiaryPillBg }}>
+          <div className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full shadow-sm" style={{ backgroundColor: tertiaryPillBg }}>
              <span className="text-[11px] font-black uppercase tracking-wider leading-none pt-[1.5px]" style={{ color: tertiaryPillText }}>XP</span>
              <span className="text-[13px] font-black leading-none pt-[1px]" style={{ color: tertiaryPillText }}>{xp}</span>
           </div>
 
-          <div className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm h-[32px]" style={{ backgroundColor: primaryPillBg }}>
-             <span className="text-[11px] font-black uppercase tracking-wider leading-none pt-[1.5px]" style={{ color: primaryPillText }}>LVL</span>
-             <span className="text-[13px] font-black leading-none pt-[1px]" style={{ color: primaryPillText }}>{level}</span>
+          <div className="px-4 py-2 rounded-full font-black text-[13px] shadow-sm flex items-center justify-center" style={{ backgroundColor: primaryPillBg, color: primaryPillText }}>
+             <span className="leading-none pt-[1px]">LVL {level}</span>
           </div>
           
-          <div className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm h-[32px]" style={{ backgroundColor: tertiaryPillBg }}>
+          <div className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full shadow-sm" style={{ backgroundColor: tertiaryPillBg }}>
               <span className="text-[13px] font-black leading-none pt-[1px]" style={{ color: tertiaryPillText }}>{lives}</span>
               <Heart className="w-[14px] h-[14px] fill-current" style={{ color: heartColor }} />
           </div>
        </div>
 
-       {/* 🚀 Game Board (Height & Width Increased: max-w-[560px], h-[80vh]) */}
-       <div className="relative w-full max-w-[560px] h-[80vh] max-h-[710px] rounded-[18px] overflow-hidden shadow-inner" style={{ backgroundColor: boardBg }}>
+       {/* 🚀 গেম বোর্ডের চওড়া ১০% বৃদ্ধি করা হলো (max-w-[530px]) */}
+       <div className="relative w-full max-w-[530px] h-[75vh] max-h-[660px] rounded-[18px] overflow-hidden shadow-inner" style={{ backgroundColor: boardBg }}>
           
           <div 
              ref={containerRef}
@@ -536,7 +535,7 @@ export default function BrickBreaker({
                           <span className="text-[12px] font-black tracking-wide" style={{ color: tertiaryPillText }}>HIGH SCORE: {highScore} Pts</span>
                         </div>
 
-                        <button onClick={startGame} className="mt-6 flex items-center gap-2 px-10 py-3.5 rounded-full font-black text-black text-[15px] active:scale-95 transition-transform shadow-lg" style={{ backgroundColor: paddleColor }}>
+                        <button onClick={startGame} className="mt-6 flex items-center gap-2 px-10 py-3.5 rounded-full font-black text-black text-[15px] active:scale-95 transition-transform shadow-md" style={{ backgroundColor: paddleColor }}>
                            <Play className="w-5 h-5 fill-current" /> PLAY
                         </button>
                      </motion.div>
@@ -551,7 +550,7 @@ export default function BrickBreaker({
 
                         <h2 className="text-[28px] font-nunito-black text-white mb-2 drop-shadow-md">GAME OVER</h2>
                         
-                        <button onClick={startGame} className="w-[90%] max-w-[240px] py-3.5 rounded-full font-black text-black text-[14px] active:scale-95 transition-transform shadow-lg mt-2" style={{ backgroundColor: paddleColor }}>
+                        <button onClick={startGame} className="w-[90%] max-w-[240px] py-3.5 rounded-full font-black text-black text-[14px] active:scale-95 transition-transform shadow-md mt-2" style={{ backgroundColor: paddleColor }}>
                            RESTART GAME
                         </button>
                         
@@ -571,7 +570,7 @@ export default function BrickBreaker({
                      <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex flex-col items-center gap-4">
                         <Zap className="w-14 h-14 fill-current mb-1 drop-shadow-md" style={{ color: ballColor }} />
                         <h2 className="text-[28px] font-nunito-black text-white leading-tight drop-shadow-md">LEVEL {level}<br/>CLEARED!</h2>
-                        <button onClick={nextLevel} className="mt-6 flex items-center gap-2 px-8 py-3.5 rounded-full font-black text-black text-[15px] active:scale-95 transition-transform shadow-lg" style={{ backgroundColor: paddleColor }}>
+                        <button onClick={nextLevel} className="mt-6 flex items-center gap-2 px-8 py-3.5 rounded-full font-black text-black text-[15px] active:scale-95 transition-transform shadow-md" style={{ backgroundColor: paddleColor }}>
                            <Play className="w-5 h-5 fill-current" /> NEXT LEVEL
                         </button>
                      </motion.div>
