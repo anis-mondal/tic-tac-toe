@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Heart, Star, Play, RotateCcw, Zap, Coins } from 'lucide-react';
+import { Heart, Star, Play, Zap, Coins } from 'lucide-react';
 import { argbFromHex, themeFromSourceColor, hexFromArgb } from '@material/material-color-utilities';
 
 interface BrickBreakerProps {
@@ -20,6 +20,7 @@ export default function BrickBreaker({
   
   // Game States
   const [gameState, setGameState] = useState<'start' | 'playing' | 'gameover' | 'levelup'>('start');
+  const [isBallLaunched, setIsBallLaunched] = useState(false);
   const [points, setPoints] = useState(0); 
   const [lives, setLives] = useState(3);
   const [level, setLevel] = useState(1);
@@ -30,9 +31,9 @@ export default function BrickBreaker({
   const monetTheme = themeFromSourceColor(argbFromHex(activeLineColor));
   const p = monetTheme.palettes;
 
-  // 🚀 Outer Background & Board Background (Solid, no border)
   const outerBg = isDarkMode ? hexFromArgb(p.neutral.tone(6)) : hexFromArgb(p.neutral.tone(98));
-  const boardBg = isDarkMode ? hexFromArgb(p.primary.tone(20)) : hexFromArgb(p.primary.tone(90));
+  // 🚀 বোর্ডের কালার অনেক বেশি ডার্ক করা হলো (tone 10)
+  const boardBg = isDarkMode ? hexFromArgb(p.primary.tone(10)) : hexFromArgb(p.primary.tone(90));
   const topBarBg = isDarkMode ? hexFromArgb(p.primary.tone(15)) : hexFromArgb(p.primary.tone(95));
   
   const paddleColor = isDarkMode ? hexFromArgb(p.primary.tone(80)) : hexFromArgb(p.primary.tone(40));
@@ -46,20 +47,22 @@ export default function BrickBreaker({
 
   // Physics Engine Refs
   const gameRef = useRef({
-    ball: { x: 150, y: 300, vx: 0, vy: 0, radius: 12, baseSpeed: 260, currentSpeedMult: 1 }, // 🚀 বল বড় করা হয়েছে
-    paddle: { x: 100, y: 400, w: 110, h: 20 }, // 🚀 প্যাডেল বড় এবং মোটা করা হয়েছে
+    ball: { x: 150, y: 300, vx: 0, vy: 0, radius: 10, baseSpeed: 300, currentSpeedMult: 1 }, 
+    paddle: { x: 100, y: 400, w: 100, h: 16 },
     bricks: [] as any[],
     particles: [] as any[],
     canvasW: 300,
     canvasH: 450,
     physicsAccumulator: 0,
-    lastFrameTime: 0
+    lastFrameTime: 0,
+    isPaused: false,
+    ballLaunched: false
   });
 
   const FIXED_STEP = 1 / 120; 
   const MAX_STEPS = 8;
 
-  // 🚀 Initialize Level (Bricks start higher, sizes adjusted)
+  // 🚀 Initialize Level
   const initLevel = (currentLevel: number) => {
     const r = gameRef.current;
     r.bricks = [];
@@ -72,7 +75,7 @@ export default function BrickBreaker({
     const cols = 7;
     const rows = Math.min(4 + currentLevel, 9);
     const padding = 10;
-    const offsetTop = 25; // 🚀 ইটগুলো একদম উপরে তোলা হয়েছে
+    const offsetTop = 25; 
     
     const totalPadding = padding * (cols + 1);
     const brickW = Math.max((r.canvasW - totalPadding) / cols, 15);
@@ -105,13 +108,15 @@ export default function BrickBreaker({
         });
       }
     }
-    resetBall();
+    
+    setIsBallLaunched(false);
+    gameRef.current.ballLaunched = false;
   };
 
-  const resetBall = () => {
+  const launchBall = () => {
     const r = gameRef.current;
-    r.ball.x = r.paddle.x + r.paddle.w / 2;
-    r.ball.y = r.paddle.y - r.ball.radius - 2;
+    r.ballLaunched = true;
+    setIsBallLaunched(true);
     const speed = r.ball.baseSpeed * r.ball.currentSpeedMult;
     const angle = (Math.random() * (Math.PI / 4)) - (Math.PI / 8); 
     r.ball.vx = speed * Math.sin(angle);
@@ -139,6 +144,20 @@ export default function BrickBreaker({
     return (dx * dx + dy * dy) <= (radius * radius);
   };
 
+  // 🚀 App Background Pause Logic
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+        if (document.hidden) {
+            gameRef.current.isPaused = true;
+        } else {
+            gameRef.current.isPaused = false;
+            gameRef.current.lastFrameTime = performance.now(); // Reset time to prevent big jumps
+        }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
   // 🚀 Physics & Draw Loop
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -161,114 +180,123 @@ export default function BrickBreaker({
       const dt = Math.min((time - state.lastFrameTime) / 1000, 0.05); 
       state.lastFrameTime = time;
 
-      if (gameState === 'playing') {
-        for (let i = state.particles.length - 1; i >= 0; i--) {
-          let p = state.particles[i];
-          p.life -= dt * 1.5;
-          if (p.life <= 0) { state.particles.splice(i, 1); continue; }
-          const grav = 800;
-          p.vy += grav * dt;
-          p.x += p.vx * dt;
-          p.y += p.vy * dt;
-        }
-
-        state.physicsAccumulator += dt;
-        let steps = 0;
-
-        while (state.physicsAccumulator >= FIXED_STEP && steps < MAX_STEPS) {
-          state.physicsAccumulator -= FIXED_STEP;
-          steps++;
-
-          let nextX = state.ball.x + (state.ball.vx * FIXED_STEP);
-          let nextY = state.ball.y + (state.ball.vy * FIXED_STEP);
-          let ballLost = false;
-
-          if (nextX - state.ball.radius <= 0) { nextX = state.ball.radius; state.ball.vx = Math.abs(state.ball.vx); }
-          if (nextX + state.ball.radius >= state.canvasW) { nextX = state.canvasW - state.ball.radius; state.ball.vx = -Math.abs(state.ball.vx); }
-          if (nextY - state.ball.radius <= 0) { nextY = state.ball.radius; state.ball.vy = Math.abs(state.ball.vy); }
-
-          const paddleRect = { left: state.paddle.x, top: state.paddle.y, right: state.paddle.x + state.paddle.w, bottom: state.paddle.y + state.paddle.h };
-          if (state.ball.vy > 0 && circleIntersectsRect(nextX, nextY, state.ball.radius, paddleRect)) {
-              let hitPoint = (nextX - (paddleRect.left + state.paddle.w / 2)) / (state.paddle.w / 2);
-              hitPoint = Math.max(-1, Math.min(hitPoint, 1));
-              
-              const currentSpeed = Math.max(Math.sqrt(state.ball.vx*state.ball.vx + state.ball.vy*state.ball.vy), state.ball.baseSpeed * 0.85);
-              const newSpeed = Math.min(currentSpeed * 1.015, state.ball.baseSpeed * 3); 
-              
-              state.ball.vx = newSpeed * hitPoint * 0.82;
-              state.ball.vy = -Math.sqrt(Math.max(0, (newSpeed * newSpeed) - (state.ball.vx * state.ball.vx)));
-              nextY = paddleRect.top - state.ball.radius - 1;
-              
-              hapticFeedback(20);
-              playPreviewSound('tap', soundPrefs.xTap);
-          }
-
-          let breakableCount = 0;
-          let hitBrick = false;
-
-          for (let i = 0; i < state.bricks.length; i++) {
-            let b = state.bricks[i];
-            if (b.hits === 0) continue;
-            if (b.type !== 3) breakableCount++;
-
-            if (!hitBrick && circleIntersectsRect(nextX, nextY, state.ball.radius, b.rect)) {
-               hitBrick = true;
-               state.ball.vy *= -1; 
-               
-               if (b.type !== 3) {
-                 b.hits--;
-                 hapticFeedback(30);
-                 playPreviewSound('tap', soundPrefs.oTap);
-                 
-                 const bColor = b.type === 2 ? hardBrickColor : normalBrickColor;
-                 createParticles(nextX, nextY, bColor);
-                 
-                 if (b.hits === 0) {
-                    setPoints(p => p + 1); 
-                 }
-               } else {
-                 hapticFeedback(20);
-                 playPreviewSound('point', soundPrefs.point); 
-                 createParticles(nextX, nextY, unbreakableColor, 3);
-               }
+      if (gameState === 'playing' && !state.isPaused) {
+        
+        // --- 🚀 বল লঞ্চ না হলে প্যাডেলের সাথে থাকবে ---
+        if (!state.ballLaunched) {
+            state.ball.x = state.paddle.x + state.paddle.w / 2;
+            state.ball.y = state.paddle.y - state.ball.radius - 2;
+        } else {
+            for (let i = state.particles.length - 1; i >= 0; i--) {
+              let p = state.particles[i];
+              p.life -= dt * 1.5;
+              if (p.life <= 0) { state.particles.splice(i, 1); continue; }
+              const grav = 800;
+              p.vy += grav * dt;
+              p.x += p.vx * dt;
+              p.y += p.vy * dt;
             }
-          }
 
-          if (breakableCount === 0 && state.bricks.length > 0) {
-             setGameState('levelup');
-             playPreviewSound('win', soundPrefs.win);
-             hapticFeedback([50, 100, 50]);
-             setLevel(l => l + 1);
-             break;
-          }
+            state.physicsAccumulator += dt;
+            let steps = 0;
 
-          if (nextY - state.ball.radius > state.canvasH) {
-             ballLost = true;
-             hapticFeedback([100, 50]);
-             playPreviewSound('point', soundPrefs.point);
-             
-             setLives(prev => {
-               const newLives = prev - 1;
-               if (newLives <= 0) {
-                  setGameState('gameover');
-                  playPreviewSound('overallWin', soundPrefs.overallWin);
-               } else {
-                  resetBall();
-               }
-               return newLives;
-             });
-          } else {
-             state.ball.x = nextX;
-             state.ball.y = nextY;
-          }
+            while (state.physicsAccumulator >= FIXED_STEP && steps < MAX_STEPS) {
+              state.physicsAccumulator -= FIXED_STEP;
+              steps++;
 
-          if (ballLost) break;
+              let nextX = state.ball.x + (state.ball.vx * FIXED_STEP);
+              let nextY = state.ball.y + (state.ball.vy * FIXED_STEP);
+              let ballLost = false;
+
+              if (nextX - state.ball.radius <= 0) { nextX = state.ball.radius; state.ball.vx = Math.abs(state.ball.vx); }
+              if (nextX + state.ball.radius >= state.canvasW) { nextX = state.canvasW - state.ball.radius; state.ball.vx = -Math.abs(state.ball.vx); }
+              if (nextY - state.ball.radius <= 0) { nextY = state.ball.radius; state.ball.vy = Math.abs(state.ball.vy); }
+
+              const paddleRect = { left: state.paddle.x, top: state.paddle.y, right: state.paddle.x + state.paddle.w, bottom: state.paddle.y + state.paddle.h };
+              if (state.ball.vy > 0 && circleIntersectsRect(nextX, nextY, state.ball.radius, paddleRect)) {
+                  let hitPoint = (nextX - (paddleRect.left + state.paddle.w / 2)) / (state.paddle.w / 2);
+                  hitPoint = Math.max(-1, Math.min(hitPoint, 1));
+                  
+                  const currentSpeed = Math.max(Math.sqrt(state.ball.vx*state.ball.vx + state.ball.vy*state.ball.vy), state.ball.baseSpeed * 0.85);
+                  const newSpeed = Math.min(currentSpeed * 1.015, state.ball.baseSpeed * 3); 
+                  
+                  state.ball.vx = newSpeed * hitPoint * 0.82;
+                  state.ball.vy = -Math.sqrt(Math.max(0, (newSpeed * newSpeed) - (state.ball.vx * state.ball.vx)));
+                  nextY = paddleRect.top - state.ball.radius - 1;
+                  
+                  hapticFeedback(20);
+                  playPreviewSound('tap', soundPrefs.xTap);
+              }
+
+              let breakableCount = 0;
+              let hitBrick = false;
+
+              for (let i = 0; i < state.bricks.length; i++) {
+                let b = state.bricks[i];
+                if (b.hits === 0) continue;
+                if (b.type !== 3) breakableCount++;
+
+                if (!hitBrick && circleIntersectsRect(nextX, nextY, state.ball.radius, b.rect)) {
+                   hitBrick = true;
+                   state.ball.vy *= -1; 
+                   
+                   if (b.type !== 3) {
+                     b.hits--;
+                     hapticFeedback(30);
+                     playPreviewSound('tap', soundPrefs.oTap);
+                     
+                     const bColor = b.type === 2 ? hardBrickColor : normalBrickColor;
+                     createParticles(nextX, nextY, bColor);
+                     
+                     if (b.hits === 0) {
+                        setPoints(p => p + 1); 
+                     }
+                   } else {
+                     hapticFeedback(20);
+                     playPreviewSound('point', soundPrefs.point); 
+                     createParticles(nextX, nextY, unbreakableColor, 3);
+                   }
+                }
+              }
+
+              if (breakableCount === 0 && state.bricks.length > 0) {
+                 setGameState('levelup');
+                 playPreviewSound('win', soundPrefs.win);
+                 hapticFeedback([50, 100, 50]);
+                 setLevel(l => l + 1);
+                 break;
+              }
+
+              if (nextY - state.ball.radius > state.canvasH) {
+                 ballLost = true;
+                 hapticFeedback([100, 50]);
+                 playPreviewSound('point', soundPrefs.point);
+                 
+                 setLives(prev => {
+                   const newLives = prev - 1;
+                   if (newLives <= 0) {
+                      setGameState('gameover');
+                      playPreviewSound('overallWin', soundPrefs.overallWin);
+                   } else {
+                      // 🚀 বল পড়ে গেলে থেমে যাবে
+                      state.ballLaunched = false;
+                      setIsBallLaunched(false);
+                   }
+                   return newLives;
+                 });
+              } else {
+                 state.ball.x = nextX;
+                 state.ball.y = nextY;
+              }
+
+              if (ballLost) break;
+            }
         }
       }
 
       ctx.clearRect(0, 0, state.canvasW, state.canvasH);
 
-      // 🚀 Solid Render Engine (No Blur, No Shadows)
+      // 🚀 100% Solid Rendering (No DropShadows)
       state.bricks.forEach(b => {
         if (b.hits === 0) return;
         let color = normalBrickColor;
@@ -301,16 +329,32 @@ export default function BrickBreaker({
     return () => cancelAnimationFrame(animationFrameId);
   }, [gameState, normalBrickColor, paddleColor, ballColor, hardBrickColor, unbreakableColor]);
 
+  // 🚀 High-DPI Sharp Canvas Resize
   useEffect(() => {
     if (containerRef.current && canvasRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1; // 🚀 ব্লার রিমুভ করার ম্যাজিক!
+      
       gameRef.current.canvasW = rect.width;
       gameRef.current.canvasH = rect.height;
-      canvasRef.current.width = rect.width;
-      canvasRef.current.height = rect.height;
-      gameRef.current.paddle.y = rect.height - 65; // 🚀 প্যাডেল নিচে জায়গা দেওয়া হয়েছে
+      
+      canvasRef.current.width = rect.width * dpr;
+      canvasRef.current.height = rect.height * dpr;
+      canvasRef.current.style.width = `${rect.width}px`;
+      canvasRef.current.style.height = `${rect.height}px`;
+      
+      const ctx = canvasRef.current.getContext('2d');
+      ctx?.scale(dpr, dpr);
+
+      gameRef.current.paddle.y = rect.height - 50; 
     }
   }, [gameState]);
+
+  const handlePointerDown = () => {
+    if (gameState === 'playing' && !isBallLaunched) {
+        launchBall();
+    }
+  };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (gameState !== 'playing') return;
@@ -339,7 +383,10 @@ export default function BrickBreaker({
       setPoints(p => p - lifeCost);
       setLifeCost(c => c + 50); 
       setLives(1);
-      resetBall(); setGameState('playing');
+      
+      gameRef.current.ballLaunched = false;
+      setIsBallLaunched(false);
+      setGameState('playing');
     } else {
       hapticFeedback([100, 50, 100]); 
     }
@@ -352,7 +399,6 @@ export default function BrickBreaker({
   return (
     <div className="w-full h-full flex flex-col relative select-none" style={{ backgroundColor: outerBg }}>
        
-       {/* 🚀 New Unified Pill Top Bar */}
        <div className="flex justify-between items-center py-3 px-6 rounded-full mt-4 mb-4 mx-4" style={{ backgroundColor: topBarBg }}>
           <div className="flex items-center gap-2">
              <Coins className="w-[18px] h-[18px]" style={{ color: coinColor }} strokeWidth={2.5} />
@@ -369,18 +415,30 @@ export default function BrickBreaker({
           </div>
        </div>
 
-       {/* 🚀 Game Canvas Area (Solid colors, no borders) */}
+       {/* 🚀 Dynamic Height Container */}
        <div 
           ref={containerRef}
-          className="flex-1 relative rounded-t-[36px] overflow-hidden touch-none w-full"
+          className="flex-1 min-h-0 relative rounded-t-[36px] overflow-hidden touch-none w-full"
           style={{ backgroundColor: boardBg }}
+          onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
        >
           <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />
 
+          {/* 🚀 Tap to Launch Overlay */}
+          <AnimatePresence>
+             {gameState === 'playing' && !isBallLaunched && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+                   <span className="text-white/60 font-black tracking-widest uppercase text-sm bg-black/40 px-6 py-2 rounded-full backdrop-blur-sm">
+                      Tap to Launch
+                   </span>
+                </motion.div>
+             )}
+          </AnimatePresence>
+
           <AnimatePresence>
              {gameState !== 'playing' && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/80 p-6 text-center">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 p-6 text-center">
                    
                    {gameState === 'start' && (
                      <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex flex-col items-center gap-4 w-full">
@@ -399,32 +457,29 @@ export default function BrickBreaker({
 
                    {gameState === 'gameover' && (
                      <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex flex-col items-center gap-4 w-full">
-                        <RotateCcw className="w-14 h-14 text-white/90 mb-1" />
                         
-                        <div className="bg-white/10 px-6 py-2 rounded-full mb-2">
-                          <span className="text-[13px] font-black tracking-wide" style={{ color: ballColor }}>SCORE: {points}  •  HIGH: {highScore}</span>
+                        <div className="bg-white/10 px-6 py-2 rounded-full mb-3">
+                          <span className="text-[13px] font-black tracking-wide text-white">SCORE: {points}  •  HIGH: {highScore}</span>
                         </div>
 
-                        <h2 className="text-[36px] font-nunito-black text-white mb-2">GAME OVER</h2>
+                        <h2 className="text-[40px] font-nunito-black text-white mb-4">GAME OVER</h2>
                         
-                        {/* 🚀 Material You Pill Shape Overlays */}
-                        <div className="w-full max-w-[280px] bg-white/10 rounded-[32px] p-6 mt-2">
-                           <h3 className="text-white/90 font-bold text-[15px] mb-5">Continue Playing?</h3>
-                           <button 
-                             onClick={buyLife} 
-                             disabled={points < lifeCost}
-                             className={`w-full py-4 rounded-full font-black text-[15px] transition-all flex items-center justify-center gap-2 ${points >= lifeCost ? 'text-black active:scale-95' : 'bg-gray-700 text-white/40 cursor-not-allowed'}`}
-                             style={{ backgroundColor: points >= lifeCost ? paddleColor : undefined }}
-                           >
-                             <Heart className={`w-5 h-5 ${points >= lifeCost ? 'fill-current text-black' : ''}`} /> 
-                             BUY 1 LIFE (-{lifeCost} Pts)
-                           </button>
-                           {points < lifeCost && <p className="text-[11px] text-red-300 mt-4 font-bold uppercase tracking-wider">Not enough Points! Need {lifeCost}</p>}
-                        </div>
-
-                        <button onClick={startGame} className="mt-5 px-8 py-3.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-bold text-sm active:scale-95 transition-all">
-                           Restart Game
+                        {/* 🚀 Restart Game Button is now ON TOP */}
+                        <button onClick={startGame} className="w-[85%] max-w-[280px] py-4 rounded-full font-black text-black text-[16px] active:scale-95 transition-transform" style={{ backgroundColor: paddleColor }}>
+                           RESTART GAME
                         </button>
+                        
+                        {/* 🚀 Buy Life Button is now AT BOTTOM (No Container, dynamic colors) */}
+                        <button 
+                           onClick={buyLife} 
+                           disabled={points < lifeCost}
+                           className={`w-[85%] max-w-[280px] mt-2 py-3.5 rounded-full font-black text-[15px] transition-all flex items-center justify-center gap-2 ${points >= lifeCost ? 'bg-white/20 text-white active:scale-95' : 'bg-white/5 text-white/30 cursor-not-allowed'}`}
+                        >
+                           <Heart className="w-[18px] h-[18px] fill-current" style={{ color: points >= lifeCost ? heartColor : undefined }} /> 
+                           BUY 1 LIFE (
+                           <Coins className="w-[16px] h-[16px]" style={{ color: points >= lifeCost ? coinColor : undefined }} strokeWidth={2.5} /> {lifeCost} )
+                        </button>
+                        
                      </motion.div>
                    )}
 
