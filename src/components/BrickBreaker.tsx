@@ -12,7 +12,6 @@ interface BrickBreakerProps {
   soundPrefs: any;
 }
 
-// 🚀 Safe Hex Conversion
 const getSafeHex = (color: string) => {
   if (!color) return '#007AFF';
   if (color.startsWith('#')) {
@@ -40,22 +39,18 @@ export default function BrickBreaker({
   const [highScore, setHighScore] = useState(() => parseInt(localStorage.getItem('brick_highscore') || '0'));
 
   // =========================================================
-  // 🎨 Material You Color Palette 
+  // 🎨 Material You Color Palette (ব্রাইটনেস আরও কমানো হয়েছে)
   // =========================================================
   const safeHexColor = getSafeHex(activeLineColor);
   const monetTheme = themeFromSourceColor(argbFromHex(safeHexColor));
   const p = monetTheme.palettes;
 
-  // 🚀 পেছনের চৌকো বক্স সরাতে মূল অ্যাপের ব্যাকগ্রাউন্ড ব্যবহার করা হলো
-  const outerBg = semantics.screenBackground; 
-  const boardBg = isDarkMode ? hexFromArgb(p.primary.tone(10)) : hexFromArgb(p.primary.tone(92));
-  const topBarBg = isDarkMode ? hexFromArgb(p.primary.tone(15)) : hexFromArgb(p.primary.tone(90));
+  const boardBg = isDarkMode ? hexFromArgb(p.primary.tone(8)) : hexFromArgb(p.primary.tone(94));
+  const topBarBg = isDarkMode ? hexFromArgb(p.primary.tone(12)) : hexFromArgb(p.primary.tone(92));
   
-  // 🚀 Tertiary Pills (XP & Lives)
-  const tertiaryPillBg = isDarkMode ? hexFromArgb(p.tertiary.tone(85)) : hexFromArgb(p.tertiary.tone(30));
+  const tertiaryPillBg = isDarkMode ? hexFromArgb(p.tertiary.tone(80)) : hexFromArgb(p.tertiary.tone(35));
   const tertiaryPillText = isDarkMode ? '#000000' : '#ffffff';
   
-  // 🚀 Primary Pills (Coins & Level)
   const primaryPillBg = safeHexColor;
   const primaryPillText = isDarkMode ? '#000000' : '#ffffff';
   
@@ -65,16 +60,15 @@ export default function BrickBreaker({
   const heartColor = isDarkMode ? hexFromArgb(p.error.tone(40)) : hexFromArgb(p.error.tone(70)); 
   const coinColor = isDarkMode ? hexFromArgb(p.secondary.tone(80)) : hexFromArgb(p.secondary.tone(30)); 
   
-  // 🚀 ইটের কালারগুলো (৩টি স্টেজ)
-  const normalBrickColor = safeHexColor; // 1 Hit
-  const hardBrickColor = isDarkMode ? hexFromArgb(p.secondary.tone(60)) : hexFromArgb(p.secondary.tone(40)); // 2 Hits
-  const veryHardBrickColor = isDarkMode ? hexFromArgb(p.tertiary.tone(70)) : hexFromArgb(p.tertiary.tone(40)); // 3 Hits
+  const normalBrickColor = safeHexColor; 
+  const hardBrickColor = isDarkMode ? hexFromArgb(p.secondary.tone(60)) : hexFromArgb(p.secondary.tone(40)); 
+  const veryHardBrickColor = isDarkMode ? hexFromArgb(p.tertiary.tone(70)) : hexFromArgb(p.tertiary.tone(40)); 
   const unbreakableBg = isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'; 
   // =========================================================
 
   const gameRef = useRef({
-    ball: { x: 150, y: 300, vx: 0, vy: 0, radius: 8.5, baseSpeed: 290, currentSpeedMult: 1 }, // 🚀 বল সাইজ সামান্য বড় করা হলো
-    paddle: { x: 100, y: 400, w: 75, h: 9 }, // 🚀 প্যাডেলের হাইট কমানো হলো
+    ball: { x: 150, y: 300, vx: 0, vy: 0, radius: 8.5, baseSpeed: 290, currentSpeedMult: 1 }, 
+    paddle: { x: 100, y: 400, w: 75, h: 9 }, 
     bricks: [] as any[],
     particles: [] as any[],
     canvasW: 300,
@@ -83,63 +77,65 @@ export default function BrickBreaker({
     lastFrameTime: 0,
     isPaused: false,
     ballLaunched: false,
-    isTransitioning: false // 🚀 CRASH FIX: মাল্টিপল ফ্রেম রেন্ডার আটকানোর গার্ড
+    isTransitioning: false 
   });
 
   const FIXED_STEP = 1 / 120; 
   const MAX_STEPS = 8;
 
-  // 🚀 Initialize Level (New Algorithmic Balancing & Dynamics)
+  // 🚀 Initialize Level (পারফেক্ট অ্যালাইনমেন্ট ও গ্যাপ ফিক্স)
   const initLevel = (currentLevel: number) => {
     const r = gameRef.current;
     r.bricks = [];
     r.particles = [];
-    r.isTransitioning = false; // Reset crash guard
+    r.isTransitioning = false; 
     
-    r.ball.currentSpeedMult = 1 + ((currentLevel - 1) * 0.1); 
+    r.ball.currentSpeedMult = 1 + ((currentLevel - 1) * 0.12); 
     const widthFactor = Math.max(0.16, 0.25 - (currentLevel * 0.015)); 
     r.paddle.w = r.canvasW * widthFactor;
 
-    const cols = 6; // 🚀 ইটের একটি কলাম কমানো হলো (ইট বড় হবে)
+    const cols = 7; // 🚀 ৭টি কলাম যাতে একদম নিখুঁতভাবে স্ক্রিনে ফিট হয়
     const rows = Math.min(3 + currentLevel, 8); 
-    const padding = 12; // 🚀 দুপাশের দেওয়ালের গ্যাপ বাড়ানো হলো
-    const offsetTop = 10; // 🚀 উপরের দেওয়ালের গ্যাপ কমানো হলো
+    const padding = 8; // 🚀 গ্যাপ পারফেক্ট করা হলো
+    const offsetTop = 22; // 🚀 ইটের ওপরের গ্যাপ সামান্য বাড়ানো হলো
     
     const availableWidth = r.canvasW - (padding * 2); 
     const totalGapWidth = padding * (cols - 1);
-    const brickW = Math.max(Math.floor((availableWidth - totalGapWidth) / cols), 10); 
-    const brickH = 20; 
+    const brickW = Math.floor((availableWidth - totalGapWidth) / cols); // Math.floor দিয়ে ফাঁকা জায়গা দূর করা হয়েছে
+    const brickH = 18; 
 
     const totalContentWidth = (brickW * cols) + (padding * (cols - 1));
-    const offsetLeft = (r.canvasW - totalContentWidth) / 2;
+    const offsetLeft = Math.floor((r.canvasW - totalContentWidth) / 2); // একদম সেন্টারে রাখার জন্য
+
+    const pSecondary = currentLevel >= 2 ? Math.min(0.15 + (currentLevel - 2) * 0.02, 0.35) : 0;
+    const pTertiary = currentLevel >= 3 ? Math.min(0.08 + (currentLevel - 3) * 0.03, 0.25) : 0;
+    const pSolid = currentLevel >= 4 ? Math.min(0.03 + (currentLevel - 4) * 0.02, 0.15) : 0;
 
     for (let c = 0; c < cols; c++) {
       for (let rIdx = 0; rIdx < rows; rIdx++) {
         const rand = Math.random();
-        if (rand < 0.1) continue; // Random empty spaces
+        if (rand < Math.min(0.05 * currentLevel, 0.15)) continue;
 
         let type = 1; let hits = 1;
         const typeRand = Math.random();
 
-        // 🚀 আপনার দেওয়া নিখুঁত লেভেল অ্যালগরিদম
         if (currentLevel === 1) {
-            type = 1; hits = 1; // শুধু নরমাল
+            type = 1; hits = 1; 
         } else if (currentLevel === 2) {
-            if (typeRand < 0.3) { type = 2; hits = 2; } // নরমাল + সেকেন্ডারি (২ হিট)
+            if (typeRand < 0.25) { type = 2; hits = 2; } 
         } else if (currentLevel === 3) {
-            if (typeRand < 0.2) { type = 3; hits = 3; } // টার্সিয়ারি (৩ হিট)
-            else if (typeRand < 0.5) { type = 2; hits = 2; } // সেকেন্ডারি (২ হিট)
+            if (typeRand < 0.15) { type = 3; hits = 3; } 
+            else if (typeRand < 0.35) { type = 2; hits = 2; } 
         } else if (currentLevel === 4) {
-            if (typeRand < 0.15) { type = 4; hits = -1; } // ট্রান্সপারেন্ট ক্রস (ভাঙবে না)
-            else if (typeRand < 0.5) { type = 2; hits = 2; } 
+            if (typeRand < 0.10) { type = 4; hits = -1; } 
+            else if (typeRand < 0.35) { type = 2; hits = 2; } 
         } else if (currentLevel === 5) {
-            if (typeRand < 0.15) { type = 4; hits = -1; } 
-            else if (typeRand < 0.5) { type = 3; hits = 3; } // কোনো ২ হিট নেই
+            if (typeRand < 0.12) { type = 4; hits = -1; } 
+            else if (typeRand < 0.35) { type = 3; hits = 3; } 
         } else {
-            // লেভেল ৬ থেকে সব রকম ইট মিশিয়ে আসবে এবং ধীরে ধীরে কঠিন হবে
-            if (typeRand < 0.15) { type = 4; hits = -1; }
-            else if (typeRand < 0.4) { type = 3; hits = 3; }
-            else if (typeRand < 0.7) { type = 2; hits = 2; }
+            if (typeRand < 0.12) { type = 4; hits = -1; }
+            else if (typeRand < 0.25) { type = 3; hits = 3; }
+            else if (typeRand < 0.45) { type = 2; hits = 2; }
         }
 
         r.bricks.push({
@@ -243,7 +239,6 @@ export default function BrickBreaker({
             state.physicsAccumulator += dt;
             let steps = 0;
 
-            // 🚀 CRASH FIX GUARD: ট্রানজিশন চলাকালীন কোনো ফিজিক্স চলবে না
             if (state.isTransitioning) return;
 
             while (state.physicsAccumulator >= FIXED_STEP && steps < MAX_STEPS) {
@@ -309,7 +304,6 @@ export default function BrickBreaker({
                 }
               }
 
-              // 🚀 CRASH FIX: লেভেল ক্লিয়ার হলে ট্রানজিশন লক করা হলো
               if (breakableCount === 0 && state.bricks.length > 0 && !state.isTransitioning) {
                  state.isTransitioning = true;
                  setGameState('levelup');
@@ -319,7 +313,6 @@ export default function BrickBreaker({
                  break;
               }
 
-              // 🚀 CRASH FIX: বল পড়লে ট্রানজিশন লক করা হলো
               if (nextY - state.ball.radius > state.canvasH && !state.isTransitioning) {
                  state.isTransitioning = true;
                  ballLost = true;
@@ -334,7 +327,7 @@ export default function BrickBreaker({
                    } else {
                       state.ballLaunched = false;
                       setIsBallLaunched(false);
-                      state.isTransitioning = false; // আবার চালু করার অনুমতি দেওয়া হলো
+                      state.isTransitioning = false; 
                    }
                    return newLives;
                  });
@@ -356,20 +349,20 @@ export default function BrickBreaker({
         if (b.type === 4) {
            drawRoundRect(b.rect.left, b.rect.top, b.rect.w, b.rect.h, 4, unbreakableBg);
            ctx.beginPath();
-           ctx.moveTo(b.rect.left + 6, b.rect.top + 6);
-           ctx.lineTo(b.rect.right - 6, b.rect.bottom - 6);
-           ctx.moveTo(b.rect.right - 6, b.rect.top + 6);
-           ctx.lineTo(b.rect.left + 6, b.rect.bottom - 6);
+           ctx.moveTo(b.rect.left + 5, b.rect.top + 5);
+           ctx.lineTo(b.rect.right - 5, b.rect.bottom - 5);
+           ctx.moveTo(b.rect.right - 5, b.rect.top + 5);
+           ctx.lineTo(b.rect.left + 5, b.rect.bottom - 5);
            ctx.strokeStyle = safeHexColor;
-           ctx.lineWidth = 3;
-           ctx.lineCap = 'round'; // 🚀 X এর কর্নার রাউন্ড করা হলো
+           ctx.lineWidth = 2.5;
+           ctx.lineCap = 'round'; // 🚀 কর্নার রাউন্ড করা 'X' ক্রস
            ctx.lineJoin = 'round';
            ctx.stroke();
            ctx.closePath();
         } else {
            let color = normalBrickColor;
-           if (b.hits === 3) color = veryHardBrickColor; // Tertiary
-           else if (b.hits === 2) color = hardBrickColor; // Secondary
+           if (b.hits === 3) color = veryHardBrickColor; 
+           else if (b.hits === 2) color = hardBrickColor; 
            
            drawRoundRect(b.rect.left, b.rect.top, b.rect.w, b.rect.h, 4, color); 
         }
@@ -382,7 +375,6 @@ export default function BrickBreaker({
         ctx.globalAlpha = 1;
       }
 
-      // 🚀 প্যাডেলের হাইট অনুযায়ী কর্নার রেডিয়াস
       drawRoundRect(state.paddle.x, state.paddle.y, state.paddle.w, state.paddle.h, state.paddle.h / 2, paddleColor);
       
       ctx.beginPath();
@@ -438,13 +430,13 @@ export default function BrickBreaker({
   const startGame = () => {
     hapticFeedback(50); playPreviewSound('mode', soundPrefs.mode);
     setPoints(0); setXp(0); setLives(3); setLevel(1); setLifeCost(100);
-    gameRef.current.isTransitioning = false; // Reset guard
+    gameRef.current.isTransitioning = false; 
     initLevel(1); setGameState('playing');
   };
 
   const nextLevel = () => {
     hapticFeedback(50); playPreviewSound('mode', soundPrefs.mode);
-    gameRef.current.isTransitioning = false; // Reset guard
+    gameRef.current.isTransitioning = false; 
     initLevel(level); setGameState('playing');
   };
 
@@ -456,7 +448,7 @@ export default function BrickBreaker({
       setLives(1);
       
       gameRef.current.ballLaunched = false;
-      gameRef.current.isTransitioning = false; // Reset guard
+      gameRef.current.isTransitioning = false; 
       setIsBallLaunched(false);
       setGameState('playing');
     } else {
@@ -469,42 +461,41 @@ export default function BrickBreaker({
   }, [points]);
 
   return (
-    // 🚀 পুল-টু-রিফ্রেশ বন্ধ করতে touchAction: 'none' এবং overscroll-behavior-y: contain ব্যবহার করা হলো
     <div 
-      className="w-full h-full flex flex-col items-center select-none pt-2 pb-4 px-4 overflow-hidden" 
-      style={{ backgroundColor: outerBg, touchAction: 'none', overscrollBehaviorY: 'contain' }}
+      className="w-full h-full flex flex-col items-center select-none pt-2 pb-4 px-4 overflow-hidden bg-transparent" 
+      style={{ touchAction: 'none', overscrollBehaviorY: 'contain' }}
       onTouchMove={(e) => e.stopPropagation()}
     >
        
-       {/* 🚀 Top Bar: ডায়নামিক পিল শেপ (inline-flex w-auto) */}
-       <div className="inline-flex w-auto justify-center items-center gap-2 py-2 px-2.5 rounded-full mb-3 shadow-sm mx-auto transition-all" style={{ backgroundColor: topBarBg }}>
+       {/* 🚀 Top Bar: ডায়নামিক পিল কন্টেইনার (হাইট ও অ্যালাইনমেন্ট ফিক্সড) */}
+       <div className="inline-flex w-auto justify-center items-center gap-2 py-2 px-3 rounded-full mb-3 shadow-sm mx-auto transition-all" style={{ backgroundColor: topBarBg }}>
           
-          {/* 1. Coins Pill (Primary Color) */}
-          <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm h-[32px]" style={{ backgroundColor: primaryPillBg }}>
+          {/* 1. Coins Pill */}
+          <div className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm h-[32px]" style={{ backgroundColor: primaryPillBg }}>
              <Coins className="w-[14px] h-[14px]" style={{ color: primaryPillText }} strokeWidth={3} />
-             <span className="text-[13px] font-black" style={{ color: primaryPillText }}>{points}</span>
+             <span className="text-[13px] font-black leading-none" style={{ color: primaryPillText }}>{points}</span>
           </div>
           
-          {/* 2. XP Pill (Tertiary Color) */}
-          <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm h-[32px]" style={{ backgroundColor: tertiaryPillBg }}>
-             <span className="text-[11px] font-black uppercase tracking-wider" style={{ color: tertiaryPillText }}>XP</span>
-             <span className="text-[13px] font-black" style={{ color: tertiaryPillText }}>{xp}</span>
+          {/* 2. XP Pill */}
+          <div className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm h-[32px]" style={{ backgroundColor: tertiaryPillBg }}>
+             <span className="text-[11px] font-black uppercase tracking-wider leading-none" style={{ color: tertiaryPillText }}>XP</span>
+             <span className="text-[13px] font-black leading-none" style={{ color: tertiaryPillText }}>{xp}</span>
           </div>
 
-          {/* 3. Level Pill (Primary Color) */}
+          {/* 3. Level Pill */}
           <div className="px-4 py-1.5 rounded-full font-black text-[13px] shadow-sm flex items-center justify-center h-[32px]" style={{ backgroundColor: primaryPillBg, color: primaryPillText }}>
-             LVL {level}
+             <span className="leading-none">LVL {level}</span>
           </div>
           
-          {/* 4. Lives Pill (Tertiary Color) */}
-          <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm h-[32px]" style={{ backgroundColor: tertiaryPillBg }}>
-              <span className="text-[13px] font-black" style={{ color: tertiaryPillText }}>{lives}</span>
+          {/* 4. Lives Pill */}
+          <div className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm h-[32px]" style={{ backgroundColor: tertiaryPillBg }}>
+              <span className="text-[13px] font-black leading-none" style={{ color: tertiaryPillText }}>{lives}</span>
               <Heart className="w-[14px] h-[14px] fill-current" style={{ color: heartColor }} />
           </div>
        </div>
 
-       {/* 🚀 Game Board (Height & Width Increased, Border Radius adjusted) */}
-       <div className="relative w-full max-w-[420px] h-[70vh] max-h-[550px] rounded-[18px] overflow-hidden shadow-inner" style={{ backgroundColor: boardBg }}>
+       {/* 🚀 Game Board (Width Increased: max-w-[440px]) */}
+       <div className="relative w-full max-w-[440px] h-[70vh] max-h-[520px] rounded-[18px] overflow-hidden shadow-inner" style={{ backgroundColor: boardBg }}>
           
           <div 
              ref={containerRef}
@@ -515,7 +506,6 @@ export default function BrickBreaker({
              <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />
           </div>
 
-          {/* Tap to Launch Overlay */}
           <AnimatePresence>
              {gameState === 'playing' && !isBallLaunched && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
@@ -534,7 +524,6 @@ export default function BrickBreaker({
                      <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex flex-col items-center gap-3 w-full">
                         <Star className="w-12 h-12 fill-current mb-1 drop-shadow-md" style={{ color: ballColor }} />
                         
-                        {/* 🚀 Text Size Reduced */}
                         <h2 className="text-[26px] font-nunito-black text-white leading-tight drop-shadow-md">Brick Breaker</h2>
                         
                         <div className="px-5 py-2 rounded-full mt-2 shadow-sm" style={{ backgroundColor: tertiaryPillBg }}>
@@ -554,7 +543,6 @@ export default function BrickBreaker({
                           <span className="text-[12px] font-black tracking-wide" style={{ color: tertiaryPillText }}>SCORE: {points}  •  HIGH: {highScore}</span>
                         </div>
 
-                        {/* 🚀 Text Size Reduced */}
                         <h2 className="text-[28px] font-nunito-black text-white mb-2 drop-shadow-md">GAME OVER</h2>
                         
                         <button onClick={startGame} className="w-[90%] max-w-[240px] py-3.5 rounded-full font-black text-black text-[14px] active:scale-95 transition-transform shadow-lg mt-2" style={{ backgroundColor: paddleColor }}>
