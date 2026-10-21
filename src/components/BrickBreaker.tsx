@@ -12,6 +12,17 @@ interface BrickBreakerProps {
   soundPrefs: any;
 }
 
+// 🚀 ক্র্যাশ ফিক্স: কালার ফরম্যাট যাই হোক না কেন, সেটিকে Hex এ রূপান্তর করবে
+const getSafeHex = (color: string) => {
+  if (!color) return '#007AFF';
+  if (color.startsWith('#')) {
+      if (color.length === 7) return color;
+      if (color.length === 9) return color.slice(0, 7);
+      if (color.length === 4) return '#' + color[1]+color[1] + color[2]+color[2] + color[3]+color[3];
+  }
+  return '#007AFF'; // Fallback
+};
+
 export default function BrickBreaker({
   semantics, isDarkMode, activeLineColor, hapticFeedback, playPreviewSound, soundPrefs
 }: BrickBreakerProps) {
@@ -31,27 +42,28 @@ export default function BrickBreaker({
   // =========================================================
   // 🎨 Material You Color Palette 
   // =========================================================
-  const monetTheme = themeFromSourceColor(argbFromHex(activeLineColor));
+  const safeHexColor = getSafeHex(activeLineColor);
+  const monetTheme = themeFromSourceColor(argbFromHex(safeHexColor));
   const p = monetTheme.palettes;
 
   const boardBg = isDarkMode ? hexFromArgb(p.primary.tone(10)) : hexFromArgb(p.primary.tone(92));
   const topBarBg = isDarkMode ? hexFromArgb(p.primary.tone(15)) : hexFromArgb(p.primary.tone(90));
   
-  // 🚀 Tertiary (XP এবং Lives এর জন্য)
+  // Tertiary (XP এবং Lives এর জন্য)
   const tertiaryPillBg = isDarkMode ? hexFromArgb(p.tertiary.tone(85)) : hexFromArgb(p.tertiary.tone(30));
   const tertiaryPillText = isDarkMode ? '#000000' : '#ffffff';
   
-  // 🚀 Primary (Coins এবং Level এর জন্য)
-  const primaryPillBg = activeLineColor;
+  // Primary (Coins এবং Level এর জন্য)
+  const primaryPillBg = safeHexColor;
   const primaryPillText = isDarkMode ? '#000000' : '#ffffff';
   
   const ballColor = isDarkMode ? hexFromArgb(p.tertiary.tone(80)) : hexFromArgb(p.tertiary.tone(40)); 
   const heartColor = isDarkMode ? hexFromArgb(p.error.tone(40)) : hexFromArgb(p.error.tone(70)); 
   
   // 🚀 ইটের কালারগুলো
-  const normalBrickColor = activeLineColor; // 1 Hit
-  const hardBrickColor = isDarkMode ? hexFromArgb(p.secondary.tone(60)) : hexFromArgb(p.secondary.tone(40)); // 2 Hits
-  const veryHardBrickColor = isDarkMode ? hexFromArgb(p.tertiary.tone(70)) : hexFromArgb(p.tertiary.tone(40)); // 3 Hits
+  const normalBrickColor = safeHexColor; // 1 Hit (Primary)
+  const hardBrickColor = isDarkMode ? hexFromArgb(p.secondary.tone(60)) : hexFromArgb(p.secondary.tone(40)); // 2 Hits (Secondary)
+  const veryHardBrickColor = isDarkMode ? hexFromArgb(p.tertiary.tone(70)) : hexFromArgb(p.tertiary.tone(40)); // 3 Hits (Tertiary)
   const unbreakableBg = isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'; 
   // =========================================================
 
@@ -71,7 +83,7 @@ export default function BrickBreaker({
   const FIXED_STEP = 1 / 120; 
   const MAX_STEPS = 8;
 
-  // 🚀 Initialize Level (New Algorithmic Balancing)
+  // 🚀 Initialize Level (New Algorithmic Balancing & Dynamic Rows)
   const initLevel = (currentLevel: number) => {
     const r = gameRef.current;
     r.bricks = [];
@@ -82,10 +94,13 @@ export default function BrickBreaker({
     r.paddle.w = r.canvasW * widthFactor;
 
     const cols = 7; 
-    const rows = Math.min(3 + currentLevel, 9);
     const padding = 10; 
-    const offsetTop = 15; 
     
+    // 🚀 ডায়নামিক রো (Rows): লেভেল অনুযায়ী র‍্যান্ডমভাবে তৈরি হবে
+    const minRows = Math.max(4, Math.floor(currentLevel / 2) + 2);
+    const maxRows = Math.min(9, minRows + 3);
+    const rows = Math.floor(Math.random() * (maxRows - minRows + 1)) + minRows; // Random value between min and max
+
     const availableWidth = r.canvasW - (padding * 2); 
     const totalGapWidth = padding * (cols - 1);
     const brickW = Math.max(Math.floor((availableWidth - totalGapWidth) / cols), 10); 
@@ -93,30 +108,38 @@ export default function BrickBreaker({
 
     const totalContentWidth = (brickW * cols) + (padding * (cols - 1));
     const offsetLeft = (r.canvasW - totalContentWidth) / 2;
-
-    // 🚀 অ্যালগরিদম ভিত্তিক প্রবাবিলিটি (Probability)
-    // লেভেল বাড়ার সাথে খুব ধীরে ধীরে কঠিন ইটগুলো বাড়বে
-    const pSecondary = currentLevel >= 2 ? Math.min(0.15 + (currentLevel - 2) * 0.02, 0.35) : 0;
-    const pTertiary = currentLevel >= 3 ? Math.min(0.08 + (currentLevel - 3) * 0.03, 0.25) : 0;
-    const pSolid = currentLevel >= 4 ? Math.min(0.03 + (currentLevel - 4) * 0.02, 0.15) : 0;
+    
+    // 🚀 উপরের গ্যাপ সাইডের গ্যাপের চেয়ে কমানো হলো
+    const offsetTop = 12; 
 
     for (let c = 0; c < cols; c++) {
       for (let rIdx = 0; rIdx < rows; rIdx++) {
         const rand = Math.random();
         
-        // কিছু ঘর ফাঁকা রাখার লজিক
         if (rand < Math.min(0.05 * currentLevel, 0.15)) continue;
 
         let type = 1; let hits = 1;
         const typeRand = Math.random();
 
-        // 🚀 ধাপে ধাপে ইটের ধরন সেট করা
-        if (typeRand < pSolid && rIdx > 1) {
-            type = 4; hits = -1; // Unbreakable
-        } else if (typeRand < pSolid + pTertiary) {
-            type = 3; hits = 3; // Tertiary (3 Hits)
-        } else if (typeRand < pSolid + pTertiary + pSecondary) {
-            type = 2; hits = 2; // Secondary (2 Hits)
+        // 🚀 আপনার দেওয়া নিখুঁত লেভেল অ্যালগরিদম
+        if (currentLevel === 1) {
+            type = 1; hits = 1; // শুধু নরমাল
+        } else if (currentLevel === 2) {
+            if (typeRand < 0.25) { type = 2; hits = 2; } // নরমাল + সেকেন্ডারি
+        } else if (currentLevel === 3) {
+            if (typeRand < 0.15) { type = 3; hits = 3; } // টার্সিয়ারি
+            else if (typeRand < 0.35) { type = 2; hits = 2; } // সেকেন্ডারি
+        } else if (currentLevel === 4) {
+            if (typeRand < 0.10) { type = 4; hits = -1; } // ট্রান্সপারেন্ট (ভাঙবে না)
+            else if (typeRand < 0.35) { type = 2; hits = 2; } // সেকেন্ডারি
+        } else if (currentLevel === 5) {
+            if (typeRand < 0.12) { type = 4; hits = -1; } // ট্রান্সপারেন্ট
+            else if (typeRand < 0.35) { type = 3; hits = 3; } // টার্সিয়ারি
+        } else {
+            // লেভেল ৬ থেকে সব রকম ইট মিশিয়ে আসবে
+            if (typeRand < 0.12) { type = 4; hits = -1; }
+            else if (typeRand < 0.25) { type = 3; hits = 3; }
+            else if (typeRand < 0.45) { type = 2; hits = 2; }
         }
 
         r.bricks.push({
@@ -265,9 +288,10 @@ export default function BrickBreaker({
                      hapticFeedback(30);
                      playPreviewSound('tap', soundPrefs.oTap);
                      
+                     // 🚀 আপনার দেওয়া ৩টি স্টেজের কালার পরিবর্তন
                      let bColor = normalBrickColor;
-                     if (b.hits === 2) bColor = veryHardBrickColor;
-                     else if (b.hits === 1) bColor = hardBrickColor;
+                     if (b.hits === 2) bColor = hardBrickColor; // Tertiary -> Secondary
+                     else if (b.hits === 1) bColor = normalBrickColor; // Secondary -> Primary
                      
                      createParticles(nextX, nextY, bColor);
                      
@@ -278,7 +302,7 @@ export default function BrickBreaker({
                    } else {
                      hapticFeedback(20);
                      playPreviewSound('point', soundPrefs.point); 
-                     createParticles(nextX, nextY, activeLineColor, 3);
+                     createParticles(nextX, nextY, safeHexColor, 3);
                    }
                 }
               }
@@ -329,7 +353,7 @@ export default function BrickBreaker({
            ctx.lineTo(b.rect.right - 6, b.rect.bottom - 6);
            ctx.moveTo(b.rect.right - 6, b.rect.top + 6);
            ctx.lineTo(b.rect.left + 6, b.rect.bottom - 6);
-           ctx.strokeStyle = activeLineColor;
+           ctx.strokeStyle = safeHexColor;
            ctx.lineWidth = 3;
            ctx.lineCap = 'round'; // 🚀 X এর কর্নার রাউন্ড করা হলো
            ctx.lineJoin = 'round';
@@ -337,8 +361,8 @@ export default function BrickBreaker({
            ctx.closePath();
         } else {
            let color = normalBrickColor;
-           if (b.hits === 3) color = veryHardBrickColor; 
-           else if (b.hits === 2) color = hardBrickColor; 
+           if (b.hits === 3) color = veryHardBrickColor; // Tertiary
+           else if (b.hits === 2) color = hardBrickColor; // Secondary
            
            drawRoundRect(b.rect.left, b.rect.top, b.rect.w, b.rect.h, 4, color); 
         }
@@ -364,7 +388,7 @@ export default function BrickBreaker({
 
     animationFrameId = requestAnimationFrame(updateAndDraw);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [gameState, normalBrickColor, paddleColor, ballColor, hardBrickColor, veryHardBrickColor, unbreakableBg, activeLineColor]);
+  }, [gameState, normalBrickColor, paddleColor, ballColor, hardBrickColor, veryHardBrickColor, unbreakableBg, safeHexColor]);
 
   useEffect(() => {
     if (containerRef.current && canvasRef.current) {
@@ -434,7 +458,7 @@ export default function BrickBreaker({
   }, [points]);
 
   return (
-    // 🚀 পুল টু রিফ্রেশ (Pull-to-refresh) বন্ধ করতে onTouchMove ও onTouchStart এ stopPropagation দেওয়া হলো
+    // 🚀 পুল টু রিফ্রেশ বন্ধ করতে onTouchMove এ stopPropagation
     <div 
       className="w-full h-full flex flex-col items-center select-none pt-2 pb-4 px-4 bg-transparent"
       onTouchStart={(e) => e.stopPropagation()}
@@ -443,26 +467,22 @@ export default function BrickBreaker({
     >
        
        {/* 🚀 Top Bar: ডায়নামিক পিল শেপ (inline-flex) */}
-       <div className="inline-flex items-center gap-2 py-2 px-2.5 rounded-full mb-3 shadow-sm mx-auto transition-all" style={{ backgroundColor: topBarBg }}>
+       <div className="inline-flex items-center gap-2 py-2 px-2.5 rounded-full mb-3 shadow-sm mx-auto transition-all w-auto" style={{ backgroundColor: topBarBg }}>
           
-          {/* 1. Coins Pill (Primary Color) */}
           <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm" style={{ backgroundColor: primaryPillBg }}>
              <Coins className="w-[14px] h-[14px]" style={{ color: primaryPillText }} strokeWidth={3} />
              <span className="text-[13px] font-black" style={{ color: primaryPillText }}>{points}</span>
           </div>
           
-          {/* 2. XP Pill (Tertiary Color) */}
           <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm" style={{ backgroundColor: tertiaryPillBg }}>
              <span className="text-[11px] font-black uppercase tracking-wider" style={{ color: tertiaryPillText }}>XP</span>
              <span className="text-[13px] font-black" style={{ color: tertiaryPillText }}>{xp}</span>
           </div>
 
-          {/* 3. Level Pill (Primary Color) */}
           <div className="px-4 py-1.5 rounded-full font-black text-[13px] shadow-sm flex items-center justify-center" style={{ backgroundColor: primaryPillBg, color: primaryPillText }}>
              LVL {level}
           </div>
           
-          {/* 4. Lives Pill (Tertiary Color) */}
           <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm" style={{ backgroundColor: tertiaryPillBg }}>
               <span className="text-[13px] font-black" style={{ color: tertiaryPillText }}>{lives}</span>
               <Heart className="w-[14px] h-[14px] fill-current" style={{ color: heartColor }} />
