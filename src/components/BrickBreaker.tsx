@@ -432,7 +432,7 @@ export default function BrickBreaker({
        {/* 🚀 Game Board (Height reduced, rounded border reduced) */}
        <div 
           ref={containerRef}
-          className="relative w-full max-w-[650px] h-[45vh] max-h-[870px] rounded-[15px] overflow-hidden touch-none"
+          className="relative w-full max-w-[650px] h-[85vh] max-h-[870px] rounded-[15px] overflow-hidden touch-none"
           style={{ backgroundColor: boardBg }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
