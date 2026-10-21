@@ -129,20 +129,29 @@ export default function BrickBreaker({
     return (dx * dx + dy * dy) <= (radius * radius);
   };
 
-  // 🚀 Fixed-Step Physics Engine (Similar to Compose Code)
+  // 🚀 Fixed-Step Physics Engine
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
     let animationFrameId: number;
 
-    const drawRoundRect = (x: number, y: number, w: number, h: number, r: number, color: string) => {
+    const drawRoundRect = (x: number, y: number, w: number, h: number, r: number, color: string, glow: boolean = false) => {
       ctx.beginPath();
       if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
       else ctx.rect(x, y, w, h);
+      
+      if (glow) {
+         ctx.shadowBlur = 10;
+         ctx.shadowColor = color;
+      } else {
+         ctx.shadowBlur = 0;
+      }
+      
       ctx.fillStyle = color;
       ctx.fill();
       ctx.closePath();
+      ctx.shadowBlur = 0;
     };
 
     const updateAndDraw = (time: number) => {
@@ -187,7 +196,7 @@ export default function BrickBreaker({
               hitPoint = Math.max(-1, Math.min(hitPoint, 1));
               
               const currentSpeed = Math.max(Math.sqrt(r.ball.vx*r.ball.vx + r.ball.vy*r.ball.vy), r.ball.baseSpeed * 0.85);
-              const newSpeed = Math.min(currentSpeed * 1.015, r.ball.baseSpeed * 3); // Slightly increase speed on paddle hit
+              const newSpeed = Math.min(currentSpeed * 1.015, r.ball.baseSpeed * 3); 
               
               r.ball.vx = newSpeed * hitPoint * 0.82;
               r.ball.vy = -Math.sqrt(Math.max(0, (newSpeed * newSpeed) - (r.ball.vx * r.ball.vx)));
@@ -264,8 +273,7 @@ export default function BrickBreaker({
       }
 
       // --- DRAWING ---
-      ctx.clearRect(0, 0, gameRef.current.canvasW, gameRef.current.canvasH);
-      const r = gameRef.current;
+      ctx.clearRect(0, 0, r.canvasW, r.canvasH);
 
       // Bricks
       r.bricks.forEach(b => {
@@ -286,13 +294,16 @@ export default function BrickBreaker({
       }
 
       // Paddle & Ball
-      drawRoundRect(r.paddle.x, r.paddle.y, r.paddle.w, r.paddle.h, r.paddle.h / 2, paddleColor);
+      drawRoundRect(r.paddle.x, r.paddle.y, r.paddle.w, r.paddle.h, r.paddle.h / 2, paddleColor, true);
       
       ctx.beginPath();
       ctx.arc(r.ball.x, r.ball.y, r.ball.radius, 0, Math.PI * 2);
       ctx.fillStyle = ballColor;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = ballColor;
       ctx.fill();
       ctx.closePath();
+      ctx.shadowBlur = 0;
 
       animationFrameId = requestAnimationFrame(updateAndDraw);
     };
@@ -353,7 +364,7 @@ export default function BrickBreaker({
   }, [score]);
 
   return (
-    <div className="w-full h-full flex flex-col max-w-md mx-auto relative select-none">
+    <div className="w-full h-[65vh] flex flex-col gap-4 max-w-md mx-auto relative select-none">
        {/* 🚀 Header & Stats (Compose Style) */}
        <div className="flex flex-col gap-3 px-1 mb-4">
           <div className="flex justify-between items-center bg-black/5 dark:bg-white/5 p-4 rounded-3xl border-[2.5px] shadow-sm" style={{ borderColor: isDarkMode ? 'rgba(255,255,255,0.08)' : activeLineColor }}>
