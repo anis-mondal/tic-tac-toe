@@ -22,50 +22,42 @@ export default function BrickBreaker({
   const [gameState, setGameState] = useState<'start' | 'playing' | 'gameover' | 'levelup'>('start');
   const [isBallLaunched, setIsBallLaunched] = useState(false);
   const [points, setPoints] = useState(0); 
+  const [xp, setXp] = useState(0); // 🚀 নতুন: XP পয়েন্ট
   const [lives, setLives] = useState(3);
   const [level, setLevel] = useState(1);
   const [lifeCost, setLifeCost] = useState(100);
   const [highScore, setHighScore] = useState(() => parseInt(localStorage.getItem('brick_highscore') || '0'));
 
   // =========================================================
-  // 🎨 কালার লজিক
+  // 🎨 Material You Color Palette 
   // =========================================================
   const monetTheme = themeFromSourceColor(argbFromHex(activeLineColor));
   const p = monetTheme.palettes;
 
-  // ১. স্ক্রিনের একদম পেছনের ব্যাকগ্রাউন্ড
   const outerBg = isDarkMode ? hexFromArgb(p.neutral.tone(4)) : hexFromArgb(p.neutral.tone(98));
-  
-  // ২. গেম খেলার মূল বোর্ডের কালার
   const boardBg = isDarkMode ? hexFromArgb(p.primary.tone(10)) : hexFromArgb(p.primary.tone(92));
-  
-  // ৩. উপরের মূল বারের কালার
   const topBarBg = isDarkMode ? hexFromArgb(p.primary.tone(18)) : hexFromArgb(p.primary.tone(90));
   
-  // ৪. XP/Points কন্টেইনার
-  const pointPillBg = isDarkMode ? hexFromArgb(p.tertiary.tone(70)) : hexFromArgb(p.tertiary.tone(40));
-  const pointTextColor = isDarkMode ? '#000000' : '#ffffff';
-  
-  // ৫. প্যাডেল এবং ইটের কালার
-  const paddleColor = isDarkMode ? hexFromArgb(p.primary.tone(80)) : hexFromArgb(p.primary.tone(40));
-  
-  // ৬. বলের কালার 
+  const paddleColor = activeLineColor; // 🚀 মূল কালার 
   const ballColor = isDarkMode ? hexFromArgb(p.tertiary.tone(80)) : hexFromArgb(p.tertiary.tone(40)); 
   
-  // ৭. আইকনগুলোর কালার
-  const heartColor = isDarkMode ? hexFromArgb(p.error.tone(70)) : hexFromArgb(p.error.tone(40)); 
-  const coinColor = isDarkMode ? hexFromArgb(p.tertiary.tone(20)) : hexFromArgb(p.tertiary.tone(90)); 
+  // 🚀 XP এবং High Score কন্টেইনারের জন্য উজ্জ্বল টার্সিয়ারি কালার
+  const tertiaryAccentBg = isDarkMode ? hexFromArgb(p.tertiary.tone(30)) : hexFromArgb(p.tertiary.tone(80));
+  const tertiaryAccentText = isDarkMode ? hexFromArgb(p.tertiary.tone(90)) : hexFromArgb(p.tertiary.tone(10));
   
-  // ৮. শক্ত এবং না-ভাঙা ইটের কালার
-  const normalBrickColor = paddleColor; 
-  const hardBrickColor = isDarkMode ? hexFromArgb(p.secondary.tone(60)) : hexFromArgb(p.secondary.tone(40)); 
+  const heartColor = isDarkMode ? hexFromArgb(p.error.tone(70)) : hexFromArgb(p.error.tone(40)); 
+  const coinColor = isDarkMode ? hexFromArgb(p.secondary.tone(70)) : hexFromArgb(p.secondary.tone(40)); 
+  
+  // 🚀 ইটের কালারগুলো (৩টি স্টেজ)
+  const normalBrickColor = activeLineColor; // 1 Hit
+  const hardBrickColor = isDarkMode ? hexFromArgb(p.secondary.tone(40)) : hexFromArgb(p.secondary.tone(60)); // 2 Hits (ঝাপসা টাইপের)
+  const veryHardBrickColor = isDarkMode ? hexFromArgb(p.tertiary.tone(60)) : hexFromArgb(p.tertiary.tone(40)); // 3 Hits (টার্সিয়ারি)
   const unbreakableColor = isDarkMode ? hexFromArgb(p.neutralVariant.tone(30)) : hexFromArgb(p.neutralVariant.tone(80)); 
-  // =========================================================
 
   // Physics Engine Refs
   const gameRef = useRef({
-    ball: { x: 150, y: 300, vx: 0, vy: 0, radius: 6.5, baseSpeed: 280, currentSpeedMult: 1 }, // 🚀 বল সাইজ কমানো হলো
-    paddle: { x: 100, y: 400, w: 70, h: 12 }, // 🚀 প্যাডেল ছোট করা হলো
+    ball: { x: 150, y: 300, vx: 0, vy: 0, radius: 6.5, baseSpeed: 290, currentSpeedMult: 1 }, 
+    paddle: { x: 100, y: 400, w: 75, h: 12 }, 
     bricks: [] as any[],
     particles: [] as any[],
     canvasW: 300,
@@ -79,33 +71,30 @@ export default function BrickBreaker({
   const FIXED_STEP = 1 / 120; 
   const MAX_STEPS = 8;
 
-  // 🚀 Initialize Level
+  // 🚀 Initialize Level (পারফেক্ট অ্যালাইনমেন্ট এবং ৩টি হিট স্টেজ)
   const initLevel = (currentLevel: number) => {
     const r = gameRef.current;
     r.bricks = [];
     r.particles = [];
     
-    r.ball.currentSpeedMult = 1 + ((currentLevel - 1) * 0.15); 
-    const widthFactor = Math.max(0.16, 0.25 - (currentLevel * 0.015)); // প্যাডেল সাইজ ফ্যাক্টর
+    r.ball.currentSpeedMult = 1 + ((currentLevel - 1) * 0.12); 
+    const widthFactor = Math.max(0.18, 0.28 - (currentLevel * 0.015)); 
     r.paddle.w = r.canvasW * widthFactor;
 
     const cols = 8; 
     const rows = Math.min(4 + currentLevel, 10);
-    const padding = 6; 
+    const padding = 8; 
     const offsetTop = 20; 
     
-    // 🚀 ডান-বাম একদম পারফেক্ট গ্যাপ রাখার জন্য Math.floor ব্যবহার করা হলো
-    const totalPadding = padding * (cols + 1);
-    const availableWidth = r.canvasW - totalPadding;
-    const brickW = Math.max(Math.floor(availableWidth / cols), 10); 
+    const availableWidth = r.canvasW - (padding * 2); 
+    const totalGapWidth = padding * (cols - 1);
+    const brickW = (availableWidth - totalGapWidth) / cols; 
     const brickH = 16; 
 
-    // ঠিক মাঝখানে রাখার জন্য অতিরিক্ত রিমাইন্ডার উইডথ যোগ করা হলো
-    const totalContentWidth = (brickW * cols) + (padding * (cols - 1));
-    const offsetLeft = (r.canvasW - totalContentWidth) / 2;
-
-    const hardProb = Math.min(0.10 * currentLevel, 0.4);
-    const solidProb = currentLevel > 2 ? Math.min(0.05 * currentLevel, 0.2) : 0;
+    // 🚀 Probability Logic
+    const veryHardProb = currentLevel >= 3 ? Math.min(0.10 * currentLevel, 0.3) : 0; // ৩ হিটের ইট লেভেল ৩ থেকে আসবে
+    const hardProb = currentLevel >= 2 ? Math.min(0.15 * currentLevel, 0.4) : 0;
+    const solidProb = currentLevel >= 4 ? Math.min(0.05 * currentLevel, 0.15) : 0;
 
     for (let c = 0; c < cols; c++) {
       for (let rIdx = 0; rIdx < rows; rIdx++) {
@@ -113,17 +102,20 @@ export default function BrickBreaker({
         if (rand < Math.min(0.05 * currentLevel, 0.2)) continue;
 
         let type = 1; let hits = 1;
+        
         if (rIdx > 1 && rand < solidProb) {
-           type = 3; hits = -1; 
-        } else if (rand < solidProb + hardProb) {
-           type = 2; hits = 2; 
+           type = 4; hits = -1; // Unbreakable
+        } else if (rand < solidProb + veryHardProb) {
+           type = 3; hits = 3; // Very Hard (Tertiary)
+        } else if (rand < solidProb + veryHardProb + hardProb) {
+           type = 2; hits = 2; // Hard (Secondary Blur)
         }
 
         r.bricks.push({
           rect: {
-             left: offsetLeft + c * (brickW + padding),
+             left: padding + c * (brickW + padding),
              top: offsetTop + rIdx * (brickH + padding),
-             right: offsetLeft + c * (brickW + padding) + brickW,
+             right: padding + c * (brickW + padding) + brickW,
              bottom: offsetTop + rIdx * (brickH + padding) + brickH,
              w: brickW, h: brickH
           },
@@ -254,22 +246,28 @@ export default function BrickBreaker({
               for (let i = 0; i < state.bricks.length; i++) {
                 let b = state.bricks[i];
                 if (b.hits === 0) continue;
-                if (b.type !== 3) breakableCount++;
+                if (b.type !== 4) breakableCount++;
 
                 if (!hitBrick && circleIntersectsRect(nextX, nextY, state.ball.radius, b.rect)) {
                    hitBrick = true;
                    state.ball.vy *= -1; 
                    
-                   if (b.type !== 3) {
+                   if (b.type !== 4) {
                      b.hits--;
                      hapticFeedback(30);
                      playPreviewSound('tap', soundPrefs.oTap);
                      
-                     const bColor = b.type === 2 ? hardBrickColor : normalBrickColor;
+                     // 🚀 কালার লজিক (হিট অনুযায়ী পার্টিকেল)
+                     let bColor = normalBrickColor;
+                     if (b.hits === 2) bColor = veryHardBrickColor;
+                     else if (b.hits === 1) bColor = hardBrickColor;
+                     
                      createParticles(nextX, nextY, bColor);
                      
+                     // 🚀 পয়েন্ট এবং XP লজিক
                      if (b.hits === 0) {
                         setPoints(p => p + 1); 
+                        setXp(x => x + 50); // প্রতি ইট ভাঙলে 50 XP
                      }
                    } else {
                      hapticFeedback(20);
@@ -313,16 +311,15 @@ export default function BrickBreaker({
         }
       }
 
-      // 🚀 ক্লিয়ার ক্যানভাস লজিক ফিক্স করা হয়েছে (বক্স সমস্যার সমাধান)
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, state.canvasW, state.canvasH);
 
       state.bricks.forEach(b => {
         if (b.hits === 0) return;
         let color = normalBrickColor;
-        if (b.type === 3) color = unbreakableColor;
-        else if (b.type === 2) {
-           color = b.hits === 2 ? hardBrickColor : normalBrickColor; 
-        }
+        if (b.type === 4) color = unbreakableColor;
+        else if (b.hits === 3) color = veryHardBrickColor; // Tertiary
+        else if (b.hits === 2) color = hardBrickColor; // Secondary Blur
+        
         drawRoundRect(b.rect.left, b.rect.top, b.rect.w, b.rect.h, 4, color); 
       });
 
@@ -346,7 +343,7 @@ export default function BrickBreaker({
 
     animationFrameId = requestAnimationFrame(updateAndDraw);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [gameState, normalBrickColor, paddleColor, ballColor, hardBrickColor, unbreakableColor]);
+  }, [gameState, normalBrickColor, paddleColor, ballColor, hardBrickColor, veryHardBrickColor, unbreakableColor]);
 
   useEffect(() => {
     if (containerRef.current && canvasRef.current) {
@@ -365,6 +362,10 @@ export default function BrickBreaker({
       ctx?.scale(dpr, dpr);
 
       gameRef.current.paddle.y = rect.height - 35; 
+      // 🚀 প্রথমবার লোড হলে আবার ড্র করার জন্য
+      if(gameState === 'start') {
+         setTimeout(() => initLevel(1), 100);
+      }
     }
   }, [gameState]);
 
@@ -386,7 +387,7 @@ export default function BrickBreaker({
 
   const startGame = () => {
     hapticFeedback(50); playPreviewSound('mode', soundPrefs.mode);
-    setPoints(0); setLives(3); setLevel(1); setLifeCost(100);
+    setPoints(0); setXp(0); setLives(3); setLevel(1); setLifeCost(100);
     initLevel(1); setGameState('playing');
   };
 
@@ -415,37 +416,46 @@ export default function BrickBreaker({
   }, [points]);
 
   return (
-    <div className="w-full h-full flex flex-col items-center select-none pt-4 pb-6 px-4" style={{ backgroundColor: outerBg }}>
+    <div className="w-full h-full flex flex-col items-center select-none pt-2 pb-6 px-4" style={{ backgroundColor: outerBg }}>
        
-       {/* 🚀 Top Bar: লেভেল এবং লাইফ */}
-       <div className="flex justify-between items-center py-2 px-3 rounded-full w-full max-w-[360px] mb-4 shadow-sm" style={{ backgroundColor: topBarBg }}>
+       {/* 🚀 Top Bar */}
+       <div className="flex justify-between items-center py-2.5 px-4 rounded-full w-full max-w-[380px] mb-3 shadow-sm" style={{ backgroundColor: topBarBg }}>
           
-          <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm" style={{ backgroundColor: pointPillBg }}>
-             <Coins className="w-[15px] h-[15px]" style={{ color: coinColor }} strokeWidth={2.5} />
-             <span className="text-[14px] font-black" style={{ color: pointTextColor }}>{points}</span>
+          <div className="flex items-center gap-1.5">
+             <Coins className="w-[16px] h-[16px]" style={{ color: coinColor }} strokeWidth={2.5} />
+             <span className="text-[14px] font-black" style={{ color: semantics.text }}>{points}</span>
           </div>
           
-          <div className="px-5 py-1.5 rounded-full font-black text-[14px]" style={{ backgroundColor: paddleColor, color: isDarkMode ? '#000' : '#fff' }}>
+          {/* 🚀 XP Points (Tertiary Color Pill) */}
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full shadow-sm" style={{ backgroundColor: tertiaryAccentBg }}>
+             <span className="text-[11px] font-black uppercase tracking-wider" style={{ color: tertiaryAccentText }}>XP</span>
+             <span className="text-[13px] font-black" style={{ color: tertiaryAccentText }}>{xp}</span>
+          </div>
+
+          <div className="px-5 py-1.5 rounded-full font-black text-[13px] shadow-sm" style={{ backgroundColor: paddleColor, color: isDarkMode ? '#000' : '#fff' }}>
              LVL {level}
           </div>
           
-          <div className="flex items-center gap-1.5 pr-2">
-              <span className="text-[15px] font-black" style={{ color: semantics.text }}>{lives}</span>
-              <Heart className="w-[18px] h-[18px] fill-current" style={{ color: heartColor }} />
+          <div className="flex items-center gap-1.5">
+              <span className="text-[14px] font-black" style={{ color: semantics.text }}>{lives}</span>
+              <Heart className="w-[16px] h-[16px] fill-current" style={{ color: heartColor }} />
           </div>
        </div>
 
-       {/* 🚀 Game Board (Height reduced, rounded border 18px) */}
-       <div 
-          ref={containerRef}
-          className="relative w-full max-w-[360px] h-[60vh] max-h-[460px] rounded-[18px] overflow-hidden touch-none"
-          style={{ backgroundColor: boardBg }}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-       >
-          <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />
+       {/* 🚀 Game Board */}
+       <div className="relative w-full max-w-[380px] flex-1 min-h-0 rounded-[18px] overflow-hidden" style={{ backgroundColor: boardBg }}>
+          
+          {/* Canvas Container */}
+          <div 
+             ref={containerRef}
+             className="absolute inset-0 touch-none"
+             onPointerDown={handlePointerDown}
+             onPointerMove={handlePointerMove}
+          >
+             <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />
+          </div>
 
-          {/* 🚀 Tap to Launch Overlay */}
+          {/* 🚀 Overlays (Absolute inside the board) */}
           <AnimatePresence>
              {gameState === 'playing' && !isBallLaunched && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
@@ -458,44 +468,43 @@ export default function BrickBreaker({
 
           <AnimatePresence>
              {gameState !== 'playing' && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 p-6 text-center">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/70 backdrop-blur-md p-6 text-center">
                    
                    {gameState === 'start' && (
-                     <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex flex-col items-center gap-4 w-full">
-                        <Star className="w-16 h-16 fill-current mb-2" style={{ color: ballColor }} />
-                        <h2 className="text-[34px] font-nunito-black text-white leading-tight">Brick Breaker</h2>
+                     <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex flex-col items-center gap-3 w-full">
+                        <Star className="w-12 h-12 fill-current mb-1" style={{ color: ballColor }} />
+                        <h2 className="text-[26px] font-nunito-black text-white leading-tight">Brick Breaker</h2>
                         
-                        <div className="bg-white/10 px-6 py-2.5 rounded-full mt-1">
-                          <span className="text-sm font-black tracking-wide" style={{ color: ballColor }}>HIGH SCORE: {highScore} Pts</span>
+                        <div className="px-5 py-2 rounded-full mt-2 shadow-sm" style={{ backgroundColor: tertiaryAccentBg }}>
+                          <span className="text-[12px] font-black tracking-wide" style={{ color: tertiaryAccentText }}>HIGH SCORE: {highScore} Pts</span>
                         </div>
 
-                        <button onClick={startGame} className="mt-8 flex items-center gap-2 px-12 py-4 rounded-full font-black text-black text-lg active:scale-95 transition-transform" style={{ backgroundColor: paddleColor }}>
-                           <Play className="w-6 h-6 fill-current" /> PLAY
+                        <button onClick={startGame} className="mt-6 flex items-center gap-2 px-10 py-3.5 rounded-full font-black text-black text-[15px] active:scale-95 transition-transform shadow-md" style={{ backgroundColor: paddleColor }}>
+                           <Play className="w-5 h-5 fill-current" /> PLAY
                         </button>
                      </motion.div>
                    )}
 
                    {gameState === 'gameover' && (
-                     <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex flex-col items-center gap-4 w-full">
+                     <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex flex-col items-center gap-3 w-full">
                         
-                        <div className="bg-white/10 px-6 py-2 rounded-full mb-3 mt-4">
-                          <span className="text-[13px] font-black tracking-wide text-white">SCORE: {points}  •  HIGH: {highScore}</span>
+                        <div className="px-5 py-2 rounded-full mb-2 shadow-sm" style={{ backgroundColor: tertiaryAccentBg }}>
+                          <span className="text-[12px] font-black tracking-wide" style={{ color: tertiaryAccentText }}>SCORE: {points}  •  HIGH: {highScore}</span>
                         </div>
 
-                        <h2 className="text-[32px] font-nunito-black text-white mb-4">GAME OVER</h2>
+                        <h2 className="text-[28px] font-nunito-black text-white mb-2">GAME OVER</h2>
                         
-                        <button onClick={startGame} className="w-[85%] max-w-[280px] py-4 rounded-full font-black text-black text-[16px] active:scale-95 transition-transform shadow-md" style={{ backgroundColor: paddleColor }}>
+                        <button onClick={startGame} className="w-[90%] max-w-[240px] py-3.5 rounded-full font-black text-black text-[14px] active:scale-95 transition-transform shadow-md mt-2" style={{ backgroundColor: paddleColor }}>
                            RESTART GAME
                         </button>
                         
                         <button 
                            onClick={buyLife} 
                            disabled={points < lifeCost}
-                           className={`w-[85%] max-w-[280px] mt-2 py-3.5 rounded-full font-black text-[15px] transition-all flex items-center justify-center gap-2 shadow-sm ${points >= lifeCost ? 'bg-white/20 text-white active:scale-95' : 'bg-white/5 text-white/30 cursor-not-allowed'}`}
+                           className={`w-[90%] max-w-[240px] mt-2 py-3 rounded-full font-black text-[13px] transition-all flex items-center justify-center gap-2 shadow-sm ${points >= lifeCost ? 'bg-white/20 text-white active:scale-95' : 'bg-white/5 text-white/30 cursor-not-allowed'}`}
                         >
-                           <Heart className="w-[18px] h-[18px] fill-current" style={{ color: points >= lifeCost ? heartColor : undefined }} /> 
-                           BUY 1 LIFE (
-                           <Coins className="w-[16px] h-[16px]" style={{ color: points >= lifeCost ? coinColor : undefined }} strokeWidth={2.5} /> {lifeCost} )
+                           <Heart className="w-[16px] h-[16px] fill-current" style={{ color: points >= lifeCost ? heartColor : undefined }} /> 
+                           BUY 1 LIFE ( {lifeCost} Pts )
                         </button>
                         
                      </motion.div>
@@ -503,10 +512,10 @@ export default function BrickBreaker({
 
                    {gameState === 'levelup' && (
                      <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex flex-col items-center gap-4">
-                        <Zap className="w-16 h-16 fill-current mb-2" style={{ color: ballColor }} />
-                        <h2 className="text-[34px] font-nunito-black text-white leading-tight">LEVEL {level}<br/>CLEARED!</h2>
-                        <button onClick={nextLevel} className="mt-8 flex items-center gap-2 px-10 py-4 rounded-full font-black text-black text-lg active:scale-95 transition-transform" style={{ backgroundColor: paddleColor }}>
-                           <Play className="w-6 h-6 fill-current" /> NEXT LEVEL
+                        <Zap className="w-14 h-14 fill-current mb-1" style={{ color: ballColor }} />
+                        <h2 className="text-[28px] font-nunito-black text-white leading-tight">LEVEL {level}<br/>CLEARED!</h2>
+                        <button onClick={nextLevel} className="mt-6 flex items-center gap-2 px-8 py-3.5 rounded-full font-black text-black text-[15px] active:scale-95 transition-transform shadow-md" style={{ backgroundColor: paddleColor }}>
+                           <Play className="w-5 h-5 fill-current" /> NEXT LEVEL
                         </button>
                      </motion.div>
                    )}
