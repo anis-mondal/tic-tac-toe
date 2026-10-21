@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Heart, Star, Play, Zap, Coins } from 'lucide-react';
+import { Heart, Star, Play, Coins, Zap } from 'lucide-react';
 import { argbFromHex, themeFromSourceColor, hexFromArgb } from '@material/material-color-utilities';
 
 interface BrickBreakerProps {
@@ -27,28 +27,45 @@ export default function BrickBreaker({
   const [lifeCost, setLifeCost] = useState(100);
   const [highScore, setHighScore] = useState(() => parseInt(localStorage.getItem('brick_highscore') || '0'));
 
-  // 🚀 Monet Engine - 100% Solid Dynamic Colors 
+  // =========================================================
+  // 🎨 কালার লজিক (আপনি চাইলে এখানকার tone() এর মান এডিট করতে পারেন)
+  // =========================================================
   const monetTheme = themeFromSourceColor(argbFromHex(activeLineColor));
   const p = monetTheme.palettes;
 
-  const outerBg = isDarkMode ? hexFromArgb(p.neutral.tone(6)) : hexFromArgb(p.neutral.tone(98));
-  // 🚀 বোর্ডের কালার অনেক বেশি ডার্ক করা হলো (tone 10)
-  const boardBg = isDarkMode ? hexFromArgb(p.primary.tone(10)) : hexFromArgb(p.primary.tone(90));
-  const topBarBg = isDarkMode ? hexFromArgb(p.primary.tone(15)) : hexFromArgb(p.primary.tone(95));
+  // ১. স্ক্রিনের একদম পেছনের ব্যাকগ্রাউন্ড (সবচেয়ে ডার্ক)
+  const outerBg = isDarkMode ? hexFromArgb(p.neutral.tone(4)) : hexFromArgb(p.neutral.tone(98));
   
+  // ২. গেম খেলার মূল বোর্ডের কালার (Darker)
+  const boardBg = isDarkMode ? hexFromArgb(p.primary.tone(12)) : hexFromArgb(p.primary.tone(92));
+  
+  // ৩. উপরের মূল বারের কালার
+  const topBarBg = isDarkMode ? hexFromArgb(p.primary.tone(18)) : hexFromArgb(p.primary.tone(90));
+  
+  // ৪. 🚀 নতুন: XP/Points দেখানোর জন্য আলাদা অপোজিট কালারের কন্টেইনার
+  const pointPillBg = isDarkMode ? hexFromArgb(p.tertiary.tone(70)) : hexFromArgb(p.tertiary.tone(40));
+  const pointTextColor = isDarkMode ? '#000000' : '#ffffff';
+  
+  // ৫. প্যাডেলের (যেটিতে বল বাউন্স করে) কালার
   const paddleColor = isDarkMode ? hexFromArgb(p.primary.tone(80)) : hexFromArgb(p.primary.tone(40));
-  const ballColor = isDarkMode ? hexFromArgb(p.tertiary.tone(80)) : hexFromArgb(p.tertiary.tone(40)); 
-  const heartColor = isDarkMode ? hexFromArgb(p.error.tone(70)) : hexFromArgb(p.error.tone(40)); 
-  const coinColor = isDarkMode ? hexFromArgb(p.tertiary.tone(70)) : hexFromArgb(p.tertiary.tone(40)); 
   
-  const normalBrickColor = paddleColor; 
-  const hardBrickColor = isDarkMode ? hexFromArgb(p.secondary.tone(60)) : hexFromArgb(p.secondary.tone(40));
-  const unbreakableColor = isDarkMode ? hexFromArgb(p.neutralVariant.tone(30)) : hexFromArgb(p.neutralVariant.tone(80));
+  // ৬. বলের কালার (অপোজিট টার্শিয়ারি কালার)
+  const ballColor = isDarkMode ? hexFromArgb(p.tertiary.tone(80)) : hexFromArgb(p.tertiary.tone(40)); 
+  
+  // ৭. আইকনগুলোর কালার (হার্ট এবং কয়েন)
+  const heartColor = isDarkMode ? hexFromArgb(p.error.tone(70)) : hexFromArgb(p.error.tone(40)); 
+  const coinColor = isDarkMode ? hexFromArgb(p.tertiary.tone(20)) : hexFromArgb(p.tertiary.tone(90)); 
+  
+  // ৮. ইটগুলোর কালার
+  const normalBrickColor = paddleColor; // সাধারণ ইট
+  const hardBrickColor = isDarkMode ? hexFromArgb(p.secondary.tone(60)) : hexFromArgb(p.secondary.tone(40)); // ২ হিটের শক্ত ইট
+  const unbreakableColor = isDarkMode ? hexFromArgb(p.neutralVariant.tone(30)) : hexFromArgb(p.neutralVariant.tone(80)); // না-ভাঙা ইট
+  // =========================================================
 
   // Physics Engine Refs
   const gameRef = useRef({
-    ball: { x: 150, y: 300, vx: 0, vy: 0, radius: 10, baseSpeed: 300, currentSpeedMult: 1 }, 
-    paddle: { x: 100, y: 400, w: 100, h: 16 },
+    ball: { x: 150, y: 300, vx: 0, vy: 0, radius: 7, baseSpeed: 280, currentSpeedMult: 1 }, // 🚀 বল সাইজ কমানো হলো
+    paddle: { x: 100, y: 400, w: 75, h: 14 }, // 🚀 প্যাডেল ছোট করা হলো
     bricks: [] as any[],
     particles: [] as any[],
     canvasW: 300,
@@ -62,24 +79,24 @@ export default function BrickBreaker({
   const FIXED_STEP = 1 / 120; 
   const MAX_STEPS = 8;
 
-  // 🚀 Initialize Level
+  // 🚀 Initialize Level (ছোট ইট, বেশি কলাম)
   const initLevel = (currentLevel: number) => {
     const r = gameRef.current;
     r.bricks = [];
     r.particles = [];
     
     r.ball.currentSpeedMult = 1 + ((currentLevel - 1) * 0.15); 
-    const widthFactor = Math.max(0.18, 0.38 - (currentLevel * 0.02)); 
+    const widthFactor = Math.max(0.18, 0.28 - (currentLevel * 0.015)); // প্যাডেল ছোট রাখার লজিক
     r.paddle.w = r.canvasW * widthFactor;
 
-    const cols = 7;
-    const rows = Math.min(4 + currentLevel, 9);
-    const padding = 10;
-    const offsetTop = 25; 
+    const cols = 8; // 🚀 ইটের কলাম বাড়ানো হলো (যাতে ইট ছোট হয়)
+    const rows = Math.min(4 + currentLevel, 10);
+    const padding = 6; // 🚀 গ্যাপ কমানো হলো
+    const offsetTop = 20; 
     
     const totalPadding = padding * (cols + 1);
-    const brickW = Math.max((r.canvasW - totalPadding) / cols, 15);
-    const brickH = 26;
+    const brickW = Math.max((r.canvasW - totalPadding) / cols, 10);
+    const brickH = 18; // 🚀 ইটের হাইট কমানো হলো
 
     const hardProb = Math.min(0.10 * currentLevel, 0.4);
     const solidProb = currentLevel > 2 ? Math.min(0.05 * currentLevel, 0.2) : 0;
@@ -131,7 +148,7 @@ export default function BrickBreaker({
         x, y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        life: 1, color, size: Math.random() * 5 + 3
+        life: 1, color, size: Math.random() * 4 + 2
       });
     }
   };
@@ -144,21 +161,19 @@ export default function BrickBreaker({
     return (dx * dx + dy * dy) <= (radius * radius);
   };
 
-  // 🚀 App Background Pause Logic
   useEffect(() => {
     const handleVisibilityChange = () => {
         if (document.hidden) {
             gameRef.current.isPaused = true;
         } else {
             gameRef.current.isPaused = false;
-            gameRef.current.lastFrameTime = performance.now(); // Reset time to prevent big jumps
+            gameRef.current.lastFrameTime = performance.now(); 
         }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
-  // 🚀 Physics & Draw Loop
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
@@ -182,7 +197,6 @@ export default function BrickBreaker({
 
       if (gameState === 'playing' && !state.isPaused) {
         
-        // --- 🚀 বল লঞ্চ না হলে প্যাডেলের সাথে থাকবে ---
         if (!state.ballLaunched) {
             state.ball.x = state.paddle.x + state.paddle.w / 2;
             state.ball.y = state.paddle.y - state.ball.radius - 2;
@@ -278,7 +292,6 @@ export default function BrickBreaker({
                       setGameState('gameover');
                       playPreviewSound('overallWin', soundPrefs.overallWin);
                    } else {
-                      // 🚀 বল পড়ে গেলে থেমে যাবে
                       state.ballLaunched = false;
                       setIsBallLaunched(false);
                    }
@@ -296,7 +309,6 @@ export default function BrickBreaker({
 
       ctx.clearRect(0, 0, state.canvasW, state.canvasH);
 
-      // 🚀 100% Solid Rendering (No DropShadows)
       state.bricks.forEach(b => {
         if (b.hits === 0) return;
         let color = normalBrickColor;
@@ -304,7 +316,7 @@ export default function BrickBreaker({
         else if (b.type === 2) {
            color = b.hits === 2 ? hardBrickColor : normalBrickColor; 
         }
-        drawRoundRect(b.rect.left, b.rect.top, b.rect.w, b.rect.h, 6, color);
+        drawRoundRect(b.rect.left, b.rect.top, b.rect.w, b.rect.h, 4, color); // 🚀 ইটের কর্নার একটু কমানো হলো
       });
 
       for (let i = 0; i < state.particles.length; i++) {
@@ -329,11 +341,10 @@ export default function BrickBreaker({
     return () => cancelAnimationFrame(animationFrameId);
   }, [gameState, normalBrickColor, paddleColor, ballColor, hardBrickColor, unbreakableColor]);
 
-  // 🚀 High-DPI Sharp Canvas Resize
   useEffect(() => {
     if (containerRef.current && canvasRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1; // 🚀 ব্লার রিমুভ করার ম্যাজিক!
+      const dpr = window.devicePixelRatio || 1; 
       
       gameRef.current.canvasW = rect.width;
       gameRef.current.canvasH = rect.height;
@@ -346,7 +357,7 @@ export default function BrickBreaker({
       const ctx = canvasRef.current.getContext('2d');
       ctx?.scale(dpr, dpr);
 
-      gameRef.current.paddle.y = rect.height - 50; 
+      gameRef.current.paddle.y = rect.height - 40; 
     }
   }, [gameState]);
 
@@ -397,28 +408,31 @@ export default function BrickBreaker({
   }, [points]);
 
   return (
-    <div className="w-full h-full flex flex-col relative select-none" style={{ backgroundColor: outerBg }}>
+    <div className="w-full h-full flex flex-col items-center select-none pt-4 pb-6 px-4" style={{ backgroundColor: outerBg }}>
        
-       <div className="flex justify-between items-center py-3 px-6 rounded-full mt-4 mb-4 mx-4" style={{ backgroundColor: topBarBg }}>
-          <div className="flex items-center gap-2">
-             <Coins className="w-[18px] h-[18px]" style={{ color: coinColor }} strokeWidth={2.5} />
-             <span className="text-[15px] font-black" style={{ color: semantics.text }}>{points}</span>
+       {/* 🚀 Top Bar: লেভেল এবং লাইফ */}
+       <div className="flex justify-between items-center py-2 px-3 rounded-full w-full max-w-[340px] mb-4 shadow-sm" style={{ backgroundColor: topBarBg }}>
+          
+          {/* 🚀 নতুন: XP পয়েন্টের জন্য সম্পূর্ণ আলাদা পিল (Pill) */}
+          <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm" style={{ backgroundColor: pointPillBg }}>
+             <Coins className="w-[15px] h-[15px]" style={{ color: coinColor }} strokeWidth={2.5} />
+             <span className="text-[14px] font-black" style={{ color: pointTextColor }}>{points}</span>
           </div>
           
           <div className="px-5 py-1.5 rounded-full font-black text-[14px]" style={{ backgroundColor: paddleColor, color: isDarkMode ? '#000' : '#fff' }}>
              LVL {level}
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 pr-2">
               <span className="text-[15px] font-black" style={{ color: semantics.text }}>{lives}</span>
               <Heart className="w-[18px] h-[18px] fill-current" style={{ color: heartColor }} />
           </div>
        </div>
 
-       {/* 🚀 Dynamic Height Container */}
+       {/* 🚀 Game Board (Height reduced, rounded border reduced) */}
        <div 
           ref={containerRef}
-          className="flex-1 min-h-0 relative rounded-t-[36px] overflow-hidden touch-none w-full"
+          className="relative w-full max-w-[340px] h-[55vh] max-h-[480px] rounded-[18px] overflow-hidden touch-none"
           style={{ backgroundColor: boardBg }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
@@ -458,22 +472,20 @@ export default function BrickBreaker({
                    {gameState === 'gameover' && (
                      <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex flex-col items-center gap-4 w-full">
                         
-                        <div className="bg-white/10 px-6 py-2 rounded-full mb-3">
+                        <div className="bg-white/10 px-6 py-2 rounded-full mb-3 mt-4">
                           <span className="text-[13px] font-black tracking-wide text-white">SCORE: {points}  •  HIGH: {highScore}</span>
                         </div>
 
                         <h2 className="text-[40px] font-nunito-black text-white mb-4">GAME OVER</h2>
                         
-                        {/* 🚀 Restart Game Button is now ON TOP */}
-                        <button onClick={startGame} className="w-[85%] max-w-[280px] py-4 rounded-full font-black text-black text-[16px] active:scale-95 transition-transform" style={{ backgroundColor: paddleColor }}>
+                        <button onClick={startGame} className="w-[85%] max-w-[280px] py-4 rounded-full font-black text-black text-[16px] active:scale-95 transition-transform shadow-md" style={{ backgroundColor: paddleColor }}>
                            RESTART GAME
                         </button>
                         
-                        {/* 🚀 Buy Life Button is now AT BOTTOM (No Container, dynamic colors) */}
                         <button 
                            onClick={buyLife} 
                            disabled={points < lifeCost}
-                           className={`w-[85%] max-w-[280px] mt-2 py-3.5 rounded-full font-black text-[15px] transition-all flex items-center justify-center gap-2 ${points >= lifeCost ? 'bg-white/20 text-white active:scale-95' : 'bg-white/5 text-white/30 cursor-not-allowed'}`}
+                           className={`w-[85%] max-w-[280px] mt-2 py-3.5 rounded-full font-black text-[15px] transition-all flex items-center justify-center gap-2 shadow-sm ${points >= lifeCost ? 'bg-white/20 text-white active:scale-95' : 'bg-white/5 text-white/30 cursor-not-allowed'}`}
                         >
                            <Heart className="w-[18px] h-[18px] fill-current" style={{ color: points >= lifeCost ? heartColor : undefined }} /> 
                            BUY 1 LIFE (
