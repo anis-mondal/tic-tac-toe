@@ -499,8 +499,8 @@ export default function BrickBreaker({
           </div>
        </div>
 
-       {/* 🚀 গেম বোর্ডের চওড়া ১০% বৃদ্ধি করা হলো (max-w-[530px]) */}
-       <div className="relative w-full max-w-[530px] h-[75vh] max-h-[660px] rounded-[18px] overflow-hidden shadow-inner" style={{ backgroundColor: boardBg }}>
+       {/* 🚀 গেম বোর্ডের চওড়া ১০% বৃদ্ধি করা হলো (max-w-[590px]) */}
+       <div className="relative w-full max-w-[590px] h-[75vh] max-h-[660px] rounded-[18px] overflow-hidden shadow-inner" style={{ backgroundColor: boardBg }}>
           
           <div 
              ref={containerRef}
