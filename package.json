@@ -24,7 +24,7 @@
     "@vitejs/plugin-react": "^6.1.2",
     "canvas-confetti": "^1.9.4",
     "cordova-plugin-dynamic-color": "github:ollm/cordova-plugin-dynamic-color",
-    "dotenv": "^18.0.7",
+    "dotenv": "^18.0.8",
     "express": "^5.2.1",
     "lucide-react": "^1.58.0",
     "motion": "^13.4.6",
