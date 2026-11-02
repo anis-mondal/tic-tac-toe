@@ -36,7 +36,7 @@
     "@capacitor/assets": "^3.0.5",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.5",
-    "autoprefixer": "^10.5.5",
+    "autoprefixer": "^10.6.2",
     "esbuild": "^0.28.2",
     "tailwindcss": "^4.3.0",
     "tsx": "^4.23.15",
